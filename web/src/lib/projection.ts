@@ -93,12 +93,16 @@ interface Input {
   awayAvail?: TeamAvailability;
 }
 
-// NFL average points per team per game, 2024 and 2025 regular seasons (22.9 and 22.6). Re-fit after scripts/backtest.mjs.
-const AVG_PPG = 22.8;
+// Fit by scripts/backtest-total.mjs on 2022 to 2025 (959 games from week 3 on, walk-forward): the old
+// 22.8 with the full EPA deviation ran 0.7 points hot and missed the final total by 10.83 a game; 22.4
+// (actual points per team in those games) with half the deviation missed by 10.51. The closing total
+// missed by 10.12, and no gap to it beat a coin flip on the over/under, so the total is a read, not an edge.
+const AVG_PPG = 22.4;
+const TOTAL_SHRINK = 0.5;
 
 /** Expected points for one offense against one defense: league average plus EPA deviations over the game's pace. */
 function expectedPoints(off: GenTeam, def: GenTeam, means: { offPpa: number; defPpa: number }, plays: number): number {
-  const dev = (off.off.ppa - means.offPpa + (def.def.ppa - means.defPpa)) / 2;
+  const dev = (TOTAL_SHRINK * (off.off.ppa - means.offPpa + (def.def.ppa - means.defPpa))) / 2;
   return Math.max(3, AVG_PPG + plays * dev);
 }
 

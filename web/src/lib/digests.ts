@@ -138,7 +138,7 @@ export function leansSection(games: Game[], base = baseUrl(), opts: LeanOptions 
  * every lean list so a gap reads as a disagreement with the market, not a pick. Update after re-running.
  */
 export const LEAN_BACKTEST_NOTE =
-  "Backtest 2022 to 2025 (Elo plus the QB adjustment, 1,139 games): the model side covered about 48% against the closing line, and no gap size beat the 52.4% break-even. Totals are not backtested yet. Read these as disagreements with the market, not picks.";
+  "Backtest 2022 to 2025: the model side (Elo plus the QB adjustment, 1,139 games) covered about 48% against the closing line, and the model total (959 games) hit 48% on the over/under; no gap size beat the 52.4% break-even. Read these as disagreements with the market, not picks.";
 
 /** Standalone /leans reply. */
 export function leansDigest(games: Game[], date: string, base = baseUrl()): string {

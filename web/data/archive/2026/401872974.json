@@ -189,8 +189,8 @@
    "away": 13,
    "modelSide": "MIN",
    "confidence": "high",
-   "modelTotal": 36,
-   "totalLean": "under"
+   "modelTotal": 39.5,
+   "totalLean": "none"
   },
   "consensus": {
    "median": 11.6,
@@ -218,6 +218,6 @@
     "totalLean": "none"
    }
   },
-  "updatedAt": "2026-10-04T18:40:26.777Z"
+  "updatedAt": "2026-10-04T18:43:11.287Z"
  }
 }

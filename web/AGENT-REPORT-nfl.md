@@ -138,3 +138,18 @@ Open: the side leans ignore QB injuries (Colts at Commanders reads WSH by 5.3 "h
 - Cover by gap to the close (k 0.75): 0-1 46.7%, 1-2 49.7%, 2-3 50.2%, 3-4 40.1%, 4-6 57.1% (98), 6+ 44.4% (18). No gap size clears 52.4%; noise around 50.
 - Changes: QB term scaled 0.75 (`QB_SCALE`). Leans relabeled from strong/moderate and "high confidence" to "big gap"/"gap"; the sheet and Telegram lean lists carry `LEAN_BACKTEST_NOTE` (digests.ts). Totals are still untested (needs play-by-play per season for the EPA total).
 - Next: backtest the total (download pbp 2022 to 2025, rebuild the EPA total walk-forward), then the unit-edge blend; only then decide whether any lean deserves a stronger label.
+
+## Session 2026-10-04, part 5: totals backtest (3:35 PM)
+
+`npm run backtest:total` (`scripts/backtest-total.mjs`, results in `data/backtest/total.json`). Rebuilds the live total walk-forward from nflverse `stats_team_week` (230 KB a season; passing plus rushing EPA over attempts, sacks, carries), weeks 3 on, 2022 to 2025, 959 games. Weather and availability left out.
+
+| | MAE vs final total | bias | over/under hit |
+| --- | --- | --- | --- |
+| Closing total | 10.12 | | |
+| Old live (22.8, full deviation) | 10.83 | +0.72 | 47.9% |
+| New live (22.4, half deviation) | 10.51 | -0.08 | 48.4% |
+| Best on grid (22.4, 0.75, last season blended at 3/(games+3)) | 10.48 | -0.08 | 48.0% |
+
+- Applied: `AVG_PPG` 22.4, `TOTAL_SHRINK` 0.5 in projection.ts. The last-season blend was a hair better but needs last season's team rates in teams.json; not done.
+- No gap size beats a coin flip on the over/under (5+ gap: 52% on 281 games with the old model, noise). `LEAN_BACKTEST_NOTE` now says so for totals too.
+- consensus.ts keeps its own EPA margin model with the old constants; the total backtest does not speak to margins, so it was left alone.

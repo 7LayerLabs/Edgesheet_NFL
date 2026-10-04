@@ -17,6 +17,7 @@
     "sheet:render": "node scripts/send-sheet.mjs --dry",
     "backtest": "node scripts/backtest.mjs",
     "backtest:qb": "node scripts/backtest-qb.mjs",
+    "backtest:total": "node scripts/backtest-total.mjs",
     "guides": "tsx scripts/write-watchguides.mjs",
     "reports": "node scripts/write-reports.mjs",
     "odds:dry": "node scripts/odds-snapshot.mjs --dry"

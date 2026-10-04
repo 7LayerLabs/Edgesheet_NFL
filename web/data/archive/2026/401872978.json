@@ -180,8 +180,8 @@
    "away": 28,
    "modelSide": "CAR",
    "confidence": "high",
-   "modelTotal": 55,
-   "totalLean": "over"
+   "modelTotal": 49.5,
+   "totalLean": "none"
   },
   "consensus": {
    "median": -2.5,
@@ -209,6 +209,6 @@
     "totalLean": "over"
    }
   },
-  "updatedAt": "2026-10-04T18:40:26.780Z"
+  "updatedAt": "2026-10-04T18:43:11.290Z"
  }
 }
