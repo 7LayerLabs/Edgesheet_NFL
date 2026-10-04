@@ -1,24 +1,25 @@
 /**
- * Consensus of outside projection systems, shown next to the EdgeSheet model.
- * The ratings come from CollegeFootballData (SP+, FPI, SRS, Elo, and CFBD's
- * own pregame win probability). None of them are ours. The EdgeSheet model
- * is passed in and listed as one more system so the reader can see where it
- * sits in the crowd. Server-only: fetches with a 6 hour cache plus an
- * in-process memo so a slate build touches each endpoint once.
+ * Consensus of projection systems, shown next to the EdgeSheet model.
+ *   FPI        ESPN's Football Power Index (points better than an average team), fetched from ESPN
+ *   Elo        our own Elo from results (scripts/lib/elo.mjs: K 20, home 48, one-third regression each season)
+ *   EPA model  each offense's EPA per play against the other defense over the game's pace (same math as the model total)
+ *   model      the EdgeSheet projection (Elo plus unit edges), passed in and listed as one more system
+ * The posted market line is the reference row in the table, not a system.
+ * Server-only: FPI is one cached fetch per six hours; everything else reads the digests.
  */
-import { memo } from "./memo";
+import { fpiRatings } from "./nfl";
+import type { GenTeam } from "./generated";
 import type { Market, Team } from "./types";
 import type { Projection } from "./projection";
 
-const BASE = "https://api.collegefootballdata.com";
-const SIX_HOURS = 6 * 3600;
-const HOME_PTS = 2.5; // home field in points for rating-difference systems
-const HOME_ELO = 65; // same as projection.ts
-const ELO_PER_POINT = 28; // same as projection.ts
-const SIGMA = 16; // same as projection.ts
+const HOME_PTS = 2; // home field in points for rating-difference systems (NFL)
+const HOME_ELO = 48; // same as scripts/lib/elo.mjs and projection.ts
+const ELO_PER_POINT = 25;
+const SIGMA = 13.5; // standard deviation of NFL margins
 const ON_NUMBER = 0.5; // a projection inside half a point of the line sits on the number
+const AVG_PPG = 22.8;
 
-export type SystemKey = "sp" | "fpi" | "srs" | "elo" | "cfbdwp" | "model";
+export type SystemKey = "fpi" | "elo" | "epa" | "model";
 
 export interface SystemLine {
   key: SystemKey;
@@ -37,13 +38,13 @@ export interface Consensus {
   available: number; // systems with a margin
   median?: number; // median home margin across available systems
   favorite?: string; // abbr the median favors
-  winProb?: number; // for the median favorite, sigma 16 normal
+  winProb?: number; // for the median favorite
   marketMargin?: number; // home margin implied by the posted spread
   /** Against the number: which side most systems lean to, and how many. */
   side?: string; // abbr
   sideCount?: number;
-  onNumber?: number; // systems within half a point of the posted line, counted on neither side
-  modelAgrees?: boolean; // the EdgeSheet model leans the same side as the majority
+  onNumber?: number;
+  modelAgrees?: boolean;
   summary: string;
   asOf: string;
 }
@@ -68,59 +69,6 @@ function median(xs: number[]): number | undefined {
 
 const r1 = (n: number) => Math.round(n * 10) / 10;
 
-/* ------------------------------------------------------------ fetchers */
-
-interface SpRow { team: string; rating: number; ranking: number | null }
-interface FpiRow { team: string; fpi: number }
-interface SrsRow { team: string; rating: number; ranking: number | null }
-interface EloRow { team: string; elo: number }
-interface WpRow { gameId: number; homeTeam: string; awayTeam: string; spread: number | null; homeWinProbability: number | null }
-
-async function cfbd<T>(path: string): Promise<T> {
-  const key = process.env.CFBD_API_KEY;
-  if (!key) throw new Error("CFBD_API_KEY is not set");
-  const res = await fetch(`${BASE}${path}`, {
-    headers: { Authorization: `Bearer ${key}`, Accept: "application/json" },
-    next: { revalidate: SIX_HOURS },
-  });
-  if (!res.ok) throw new Error(`CFBD ${path} -> ${res.status}`);
-  return res.json() as Promise<T>;
-}
-
-/** One memoized map per system per season. A failed fetch resolves to undefined so one bad endpoint does not sink the rest. */
-function ratingMap<T extends { team: string }>(key: string, path: string, value: (row: T) => number | null | undefined): Promise<Map<string, number> | undefined> {
-  return memo(`consensus:${key}`, SIX_HOURS, async () => {
-    try {
-      const rows = await cfbd<T[]>(path);
-      const m = new Map<string, number>();
-      for (const r of rows) {
-        const v = value(r);
-        if (typeof v === "number" && Number.isFinite(v)) m.set(r.team, v);
-      }
-      return m;
-    } catch {
-      return undefined;
-    }
-  });
-}
-
-export const spRatings = (year: number) => ratingMap<SpRow>(`sp:${year}`, `/ratings/sp?year=${year}`, (r) => r.rating);
-export const fpiRatings = (year: number) => ratingMap<FpiRow>(`fpi:${year}`, `/ratings/fpi?year=${year}`, (r) => r.fpi);
-export const srsRatings = (year: number) => ratingMap<SrsRow>(`srs:${year}`, `/ratings/srs?year=${year}`, (r) => r.rating);
-export const eloRatings = (year: number) => ratingMap<EloRow>(`elo:${year}`, `/ratings/elo?year=${year}`, (r) => r.elo);
-
-/** CFBD's own pregame win probability and spread for a week, keyed by game id. */
-export function pregameWp(year: number, week: number, seasonType = "regular"): Promise<Map<number, WpRow> | undefined> {
-  return memo(`consensus:wp:${year}:${seasonType}:${week}`, SIX_HOURS, async () => {
-    try {
-      const rows = await cfbd<WpRow[]>(`/metrics/wp/pregame?year=${year}&week=${week}&seasonType=${seasonType}`);
-      return new Map(rows.map((r) => [r.gameId, r]));
-    } catch {
-      return undefined;
-    }
-  });
-}
-
 /* ------------------------------------------------------------ build */
 
 export interface ConsensusInput {
@@ -130,14 +78,17 @@ export interface ConsensusInput {
   seasonType?: string;
   home: Team;
   away: Team;
-  homeSchool: string;
+  homeSchool: string; // nickname
   awaySchool: string;
   neutral: boolean;
-  /** Pregame Elo from the games row, when CFBD has it. Falls back to the season Elo table. */
   homeElo?: number | null;
   awayElo?: number | null;
   market: Market;
   projection?: Projection;
+  /** Team tendencies for the EPA model row. */
+  homeAdv?: GenTeam;
+  awayAdv?: GenTeam;
+  means?: { offPpa: number; defPpa: number; plays: number };
 }
 
 /** Market margin, home positive, from the posted spread. */
@@ -146,14 +97,13 @@ export function marketHomeMargin(market: Market, homeAbbr: string): number | und
   return market.spread.team === homeAbbr ? -market.spread.line : market.spread.line;
 }
 
-export async function buildConsensus(i: ConsensusInput): Promise<Consensus> {
-  // Sequential on purpose: four small calls, each memoized for 6 hours, so a slate build fires them once.
-  const sp = await spRatings(i.season);
-  const fpi = await fpiRatings(i.season);
-  const srs = await srsRatings(i.season);
-  const eloTable = i.homeElo != null && i.awayElo != null ? undefined : await eloRatings(i.season);
-  const wp = await pregameWp(i.season, i.week, i.seasonType ?? "regular");
+function expectedPoints(off: GenTeam, def: GenTeam, means: { offPpa: number; defPpa: number }, plays: number): number {
+  const dev = (off.off.ppa - means.offPpa + (def.def.ppa - means.defPpa)) / 2;
+  return Math.max(3, AVG_PPG + plays * dev);
+}
 
+export async function buildConsensus(i: ConsensusInput): Promise<Consensus> {
+  const fpi = await fpiRatings(i.season);
   const hf = i.neutral ? 0 : HOME_PTS;
   const favOf = (m: number) => (m >= 0 ? i.home.abbr : i.away.abbr);
   const line = (key: SystemKey, system: string, source: string, ours: boolean, margin: number | undefined, winProb: number | undefined, note: string | undefined, unavailable?: string): SystemLine =>
@@ -161,40 +111,35 @@ export async function buildConsensus(i: ConsensusInput): Promise<Consensus> {
       ? { key, system, source, ours, available: false, note: unavailable ?? note }
       : { key, system, source, ours, available: true, margin: r1(margin), winProb: winProb ?? winProbFromMargin(margin), favorite: favOf(margin), note };
 
-  const diffSystem = (key: SystemKey, system: string, source: string, table: Map<string, number> | undefined, tableName: string): SystemLine => {
-    if (!table) return line(key, system, source, false, undefined, undefined, undefined, `${tableName} not available from CFBD right now.`);
-    const h = table.get(i.homeSchool);
-    const a = table.get(i.awaySchool);
-    if (h === undefined || a === undefined) {
-      const missing = [h === undefined ? i.home.abbr : null, a === undefined ? i.away.abbr : null].filter(Boolean).join(" and ");
-      return line(key, system, source, false, undefined, undefined, undefined, `No ${tableName} rating for ${missing}.`);
-    }
-    return line(key, system, source, false, h - a + hf, undefined, `${i.home.abbr} ${r1(h)}, ${i.away.abbr} ${r1(a)}${hf ? `, +${hf} home` : ", neutral"}`);
-  };
-
   const systems: SystemLine[] = [];
-  systems.push(diffSystem("sp", "SP+", "Bill Connelly, via CFBD", sp, "SP+"));
-  systems.push(diffSystem("fpi", "FPI", "ESPN, via CFBD", fpi, "FPI"));
-  systems.push(diffSystem("srs", "SRS", "Simple Rating System, via CFBD", srs, "SRS"));
 
-  // Elo: pregame values from the games row when present, otherwise the season table.
+  // FPI: points better than an average team, so the difference is the margin on a neutral field.
   {
-    const h = i.homeElo ?? eloTable?.get(i.homeSchool);
-    const a = i.awayElo ?? eloTable?.get(i.awaySchool);
-    if (h != null && a != null) {
-      const m = (h + (i.neutral ? 0 : HOME_ELO) - a) / ELO_PER_POINT;
-      systems.push(line("elo", "Elo", "CFBD Elo", false, m, undefined, `${i.home.abbr} ${h}, ${i.away.abbr} ${a}${i.neutral ? ", neutral" : `, +${HOME_ELO} home`}`));
-    } else systems.push(line("elo", "Elo", "CFBD Elo", false, undefined, undefined, undefined, "No Elo rating for one side."));
+    const h = fpi?.get(i.homeSchool);
+    const a = fpi?.get(i.awaySchool);
+    if (!fpi) systems.push(line("fpi", "FPI", "ESPN Football Power Index", false, undefined, undefined, undefined, "ESPN FPI did not answer right now."));
+    else if (!h || !a) systems.push(line("fpi", "FPI", "ESPN Football Power Index", false, undefined, undefined, undefined, `No FPI rating for ${!h ? i.home.abbr : i.away.abbr}.`));
+    else systems.push(line("fpi", "FPI", "ESPN Football Power Index", false, h.fpi - a.fpi + hf, undefined, `${i.home.abbr} ${r1(h.fpi)} (No. ${h.rank}), ${i.away.abbr} ${r1(a.fpi)} (No. ${a.rank})${hf ? `, +${hf} home` : ", neutral"}`));
   }
 
-  // CFBD pregame win probability: their spread is a home spread (positive = home underdog).
+  // Elo: our ratings before this game.
   {
-    const row = wp?.get(Number(i.gameId));
-    if (row && row.spread != null) {
-      const m = -row.spread;
-      const p = row.homeWinProbability != null ? (m >= 0 ? row.homeWinProbability : 1 - row.homeWinProbability) : undefined;
-      systems.push(line("cfbdwp", "CFBD pregame", "CFBD win probability model", false, m, p, `home spread ${row.spread}, home win prob ${row.homeWinProbability != null ? Math.round(row.homeWinProbability * 100) + "%" : "n/a"}`));
-    } else systems.push(line("cfbdwp", "CFBD pregame", "CFBD win probability model", false, undefined, undefined, undefined, wp ? "CFBD has not posted a pregame number for this game." : "CFBD pregame win probability not available right now."));
+    const h = i.homeElo;
+    const a = i.awayElo;
+    if (h != null && a != null) {
+      const m = (h + (i.neutral ? 0 : HOME_ELO) - a) / ELO_PER_POINT;
+      systems.push(line("elo", "Elo", "EdgeSheet Elo from results", false, m, undefined, `${i.home.abbr} ${h}, ${i.away.abbr} ${a}${i.neutral ? ", neutral" : `, +${HOME_ELO} home`}`));
+    } else systems.push(line("elo", "Elo", "EdgeSheet Elo from results", false, undefined, undefined, undefined, "No Elo rating for one side (run npm run ingest)."));
+  }
+
+  // EPA model: efficiency and pace, no Elo.
+  {
+    if (i.homeAdv && i.awayAdv && i.means && i.homeAdv.games && i.awayAdv.games) {
+      const pace = (i.homeAdv.off.plays / Math.max(1, i.homeAdv.games) + i.awayAdv.off.plays / Math.max(1, i.awayAdv.games)) / 2;
+      const hp = expectedPoints(i.homeAdv, i.awayAdv, i.means, pace);
+      const ap = expectedPoints(i.awayAdv, i.homeAdv, i.means, pace);
+      systems.push(line("epa", "EPA model", "EPA per play from play-by-play, this site", false, hp - ap + hf, undefined, `${i.home.abbr} ${hp.toFixed(1)}, ${i.away.abbr} ${ap.toFixed(1)} at ${pace.toFixed(0)} plays${hf ? `, +${hf} home` : ""}`));
+    } else systems.push(line("epa", "EPA model", "EPA per play from play-by-play, this site", false, undefined, undefined, undefined, "Needs play-by-play for both teams."));
   }
 
   // Our model, home positive.
@@ -212,7 +157,6 @@ export async function buildConsensus(i: ConsensusInput): Promise<Consensus> {
   let onNumber: number | undefined;
   let modelAgrees: boolean | undefined;
   if (marketMargin !== undefined && avail.length) {
-    // Inside half a point of the line is "on the number" and counts for neither side.
     const homeLean = avail.filter((s) => s.margin! - marketMargin >= ON_NUMBER);
     const awayLean = avail.filter((s) => s.margin! - marketMargin <= -ON_NUMBER);
     onNumber = avail.length - homeLean.length - awayLean.length;
@@ -227,7 +171,7 @@ export async function buildConsensus(i: ConsensusInput): Promise<Consensus> {
 
   const teamOf = (abbr: string) => (abbr === i.home.abbr ? i.home.short : i.away.short);
   let summary: string;
-  if (!avail.length) summary = "No outside projection system has a number for this game.";
+  if (!avail.length) summary = "No projection system has a number for this game.";
   else if (marketMargin !== undefined && side && sideCount !== undefined) {
     const tail = modelAgrees === true ? " The EdgeSheet model is one of them." : modelAgrees === false ? " The EdgeSheet model is on the other side." : avail.some((s) => s.ours) ? " The EdgeSheet model sits on the number." : "";
     const even = onNumber ? `, ${onNumber} sit${onNumber === 1 ? "s" : ""} on the number` : "";

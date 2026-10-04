@@ -1,23 +1,27 @@
 import type { Game, ScoreComponents } from "./types";
 
+/**
+ * Watch Score weights. Each component is 0 to 100.
+ *   competitive     closeness from the posted spread (a pick-em is 100, a 14-point spread about 40), Elo gap when no line
+ *   directMatchups  how many of the four unit axes carry a real edge (a mismatch is worth watching, so is strength on strength)
+ *   watchDensity    rookies, breakouts, and matchup players on the two rosters, weighted by their radar score
+ *   stakes          division game, standings position, and how late in the season it is (from the nflverse schedule and results)
+ *   availability    national window (NBC, ESPN, Prime, Netflix, NFL Network) versus a regional CBS/FOX window; finals score low
+ * Draft talent and future talent from the college product are gone: everyone here is already in the league.
+ */
 export const WEIGHTS: Record<keyof ScoreComponents, number> = {
-  draftTalent: 0.35,
-  directMatchups: 0.2,
-  futureTalent: 0.15,
-  // 2022-2025 backtest: competitive expectation tracks the excitement index (+0.35); style contrast runs the wrong way (-0.10).
-  competitive: 0.2,
-  styleContrast: 0.0,
-  storylines: 0.05,
-  availability: 0.05,
+  competitive: 0.3,
+  directMatchups: 0.25,
+  watchDensity: 0.15,
+  stakes: 0.2,
+  availability: 0.1,
 };
 
 export const COMPONENT_LABELS: Record<keyof ScoreComponents, string> = {
-  draftTalent: "Draft talent",
-  directMatchups: "Direct matchups",
-  futureTalent: "Future talent",
   competitive: "Competitive expectation",
-  styleContrast: "Style contrast",
-  storylines: "Storylines",
+  directMatchups: "Unit mismatches",
+  watchDensity: "Rookie and breakout density",
+  stakes: "Stakes",
   availability: "Availability",
 };
 
@@ -25,9 +29,9 @@ export const COMPONENT_KEYS = Object.keys(WEIGHTS) as (keyof ScoreComponents)[];
 
 /**
  * Each component is scored 0 to 100, then weighted. A null component means the
- * input does not exist yet (no charting, no prospect file). Those are excluded
- * and the remaining weights are renormalized so a game is not punished for
- * data the product has not ingested. The breakdown shows which were excluded.
+ * input does not exist yet (no play-by-play, no roster digest). Those are excluded
+ * and the remaining weights are renormalized so a game is not punished for data
+ * the product has not ingested. The breakdown shows which were excluded.
  */
 export function scoutScore(c: ScoreComponents): number {
   let sum = 0;
@@ -46,21 +50,23 @@ export function availableWeight(c: ScoreComponents): number {
   return COMPONENT_KEYS.reduce((w, k) => (c[k] === null || c[k] === undefined ? w : w + WEIGHTS[k]), 0);
 }
 
-export type ScoreTag = "Marquee" | "Hidden Gem" | "Prospect Heavy" | "Solid" | "Thin";
+export type ScoreTag = "Marquee" | "Hidden Gem" | "Rookie Heavy" | "Solid" | "Thin";
+
+const NATIONAL = /^(NBC|ESPN|ABC|ESPN\/ABC|Prime Video|Amazon|Netflix|NFL Network|Peacock|YouTube|YouTube TV|ESPN2)$/i;
 
 export function scoreTag(g: Game): ScoreTag {
   const s = scoutScore(g.scoreComponents);
-  // Marquee = national over-the-air or flagship cable. Everything else can be a Hidden Gem.
-  const marquee = g.division === "FBS" && /^(ABC|CBS|FOX|NBC|ESPN|TNT|Peacock)$/i.test(g.network.trim());
+  const marquee = NATIONAL.test(g.network.trim());
   if (s >= 75 && !marquee) return "Hidden Gem";
   if (s >= 80) return "Marquee";
-  if ((g.scoreComponents.draftTalent ?? 0) >= 70) return "Prospect Heavy";
+  if ((g.scoreComponents.watchDensity ?? 0) >= 70) return "Rookie Heavy";
   if (s >= 55) return "Solid";
   return "Thin";
 }
 
+/** likely = rookies, breakouts, and matchup players; future = watch names. Field names kept for the shared cards. */
 export function prospectCounts(g: Game) {
-  const likely = g.prospects.filter((p) => p.tier === "Established" || p.tier === "Emerging" || p.tier === "Eligible").length;
-  const future = g.prospects.filter((p) => p.tier === "Future" || p.tier === "Sleeper" || p.tier === "Watch only" || p.tier === "Watch").length;
+  const likely = g.prospects.filter((p) => p.tier === "Rookie" || p.tier === "Breakout" || p.tier === "Matchup").length;
+  const future = g.prospects.filter((p) => p.tier === "Watch").length;
   return { likely, future };
 }

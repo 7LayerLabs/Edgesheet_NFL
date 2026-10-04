@@ -46,3 +46,6 @@ next-env.d.ts
 
 # caches and logs from ingest scripts
 /data/cache/
+
+# rendered sheet PNGs
+/data/sheets/

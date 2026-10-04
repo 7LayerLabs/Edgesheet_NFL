@@ -1,7 +1,7 @@
 /**
  * Accountability archive. When a game is still upcoming, the report's call is
  * locked to disk: the edges, the pressure point, the radar names, the market,
- * the Scout Score. When the game goes final, the box score grades the call.
+ * the Watch Score. When the game goes final, the box score grades the call.
  * Nothing is edited after the fact. One JSON file per game under data/archive.
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -21,14 +21,14 @@ export interface EdgeCall {
   b: string;
   edge: "offense" | "defense" | "even";
   axis: string; // rush, pass, line, passing-downs
-  offTeam: string; // school name
+  offTeam: string; // nickname
   why: string;
 }
 
 export interface ProspectCall {
   id: string;
   name: string;
-  team: string; // school
+  team: string; // nickname
   pos: string;
   group: string;
   tier: string;
@@ -49,7 +49,7 @@ export interface Pregame {
   total?: number;
   abbr: { home: string; away: string };
   projection?: { winner: string; winProb: number; margin: number; home: number; away: number; modelSide?: string; confidence: string; modelTotal?: number; totalLean?: "over" | "under" | "none" };
-  /** Consensus of outside systems (SP+, FPI, SRS, Elo, CFBD pregame) plus ours: median home margin and the side most lean to against the number. */
+  /** Consensus of outside systems (FPI, Elo, EPA model, market) plus ours: median home margin and the side most lean to against the number. */
   consensus?: { median: number; favorite: string; side?: string; sideCount?: number; of: number };
 }
 
@@ -108,6 +108,7 @@ function writeEntry(e: ArchiveEntry) {
 
 function axisOf(m: Matchup): string {
   const t = `${m.a} ${m.b}`.toLowerCase();
+  if (t.includes("ground game")) return "line";
   if (t.includes("run game")) return "rush";
   if (t.includes("deep passing")) return "pass";
   if (t.includes("offensive line")) return "line";
@@ -154,7 +155,7 @@ export function lockPregame(game: Game, season: number): ArchiveEntry | undefine
         b: m.b,
         edge: m.edge ?? "even",
         axis: axisOf(m),
-        offTeam: m.a.replace(/ (run game|deep passing|offensive line|on passing downs)$/i, ""),
+        offTeam: m.a.replace(/ (run game|deep passing|offensive line|ground game|on passing downs)$/i, ""),
         why: m.why,
       })),
       prospects: game.prospects
@@ -193,7 +194,7 @@ function teamBox(box: BoxScore, school: string): TeamBox | undefined {
   const lines = [...box.byPlayer.values()].flat().filter((l) => l.team === school);
   const sum = (cat: string, key: string) => lines.filter((l) => l.category === cat).reduce((s, l) => s + Number(l.stats[key] ?? 0), 0);
   const max = (cat: string, key: string) => Math.max(0, ...lines.filter((l) => l.category === cat).map((l) => Number(l.stats[key] ?? 0)));
-  return { rushYds: sum("rushing", "YDS"), rushCar: sum("rushing", "CAR"), passYds: sum("passing", "YDS"), longPlay: Math.max(max("receiving", "LONG"), max("rushing", "LONG")) };
+  return { rushYds: sum("rushing", "YDS"), rushCar: sum("rushing", "CAR"), passYds: sum("passing", "YDS"), longPlay: Math.max(t.longPlay ?? 0, max("receiving", "LONG"), max("rushing", "LONG")) };
 }
 
 function gradeEdge(e: EdgeCall, off: TeamBox | undefined, gameId?: string): { verdict: Verdict; actual: string } {
@@ -225,6 +226,7 @@ function gradeEdge(e: EdgeCall, off: TeamBox | undefined, gameId?: string): { ve
 function gradeProspect(p: ProspectCall, box: BoxScore): { verdict: ProspectResult["verdict"]; line: string } {
   const lines = box.byPlayer.get(p.id) ?? [];
   if (p.group === "OL") return { verdict: "unmeasured", line: "Linemen have no box-score line." };
+  if (p.tier === "Matchup" && !lines.length) return { verdict: "quiet", line: "No box-score line." };
   if (!lines.length) return { verdict: "quiet", line: "No box-score line." };
   const n = (cat: string, k: string) => Number(lines.find((l) => l.category === cat)?.stats[k] ?? 0);
   const showed =

@@ -28,15 +28,12 @@ export function DivisionTag({ d }: { d: string }) {
 
 export function Tier({ tier }: { tier: string }) {
   const tone: Record<string, string> = {
-    Established: "bg-navy text-white",
-    Emerging: "bg-sky text-white",
-    Eligible: "bg-[#e8415b] text-white",
-    Future: "bg-sky text-white",
-    Sleeper: "bg-turf text-white",
-    "Watch only": "bg-ink-2 text-chalk-2",
+    Matchup: "bg-[#e8415b] text-white",
+    Rookie: "bg-navy text-white",
+    Breakout: "bg-turf text-white",
     Watch: "bg-ink-2 text-chalk-2",
   };
-  const label: Record<string, string> = { Eligible: "Draft eligible", Watch: "Watch" };
+  const label: Record<string, string> = { Matchup: "On the spot", Rookie: "Rookie", Breakout: "Breakout", Watch: "Watch" };
   return <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${tone[tier] ?? "bg-panel-2 text-chalk-3"}`}>{label[tier] ?? tier}</span>;
 }
 

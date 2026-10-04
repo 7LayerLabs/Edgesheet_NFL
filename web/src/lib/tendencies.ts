@@ -1,7 +1,7 @@
 /**
- * Team tendencies from CollegeFootballData advanced season stats.
+ * Team tendencies computed from nflverse play-by-play (scripts/ingest.mjs).
  * Produces the Team Style cards, the pressure point, unit matchups, and the
- * style-contrast input to the Scout Score. Every label is a threshold rule
+ * style-contrast input to the Watch Score. Every label is a threshold rule
  * over a published metric, with the team's rank inside its classification.
  */
 import { genTeams, type GenTeam, type GenUnit } from "./generated";
@@ -48,7 +48,12 @@ const DEFS: Def[] = [
   { key: "rushSr", label: "Rush success", off: "high", def: "low", fmt: pctF },
   { key: "passSr", label: "Pass success", off: "high", def: "low", fmt: pctF },
   { key: "passEx", label: "Pass explosiveness", off: "high", def: "low", fmt: f2 },
-  { key: "ly", label: "Line yards", off: "high", def: "low", fmt: f2 },
+  { key: "ly", label: "Run game EPA", off: "high", def: "low", fmt: f2 },
+  { key: "pressure", label: "Pressure rate", off: "low", def: "high", fmt: pctF },
+  { key: "blitz", label: "Blitz rate", off: "high", def: "high", fmt: pctF },
+  { key: "playAction", label: "Play-action rate", off: "high", def: "high", fmt: pctF },
+  { key: "earlyPass", label: "Early-down pass rate", off: "high", def: "high", fmt: pctF },
+  { key: "rzTd", label: "Red zone TD rate", off: "high", def: "low", fmt: pctF },
   { key: "stuff", label: "Stuff rate", off: "low", def: "high", fmt: pctF },
   { key: "havoc", label: "Havoc rate", off: "low", def: "high", fmt: pctF },
   { key: "havocF7", label: "Front-seven havoc", off: "low", def: "high", fmt: pctF },
@@ -56,13 +61,15 @@ const DEFS: Def[] = [
   { key: "ppo", label: "Points per trip inside 40", off: "high", def: "low", fmt: f2 },
 ];
 
+const STYLE_KEYS = new Set(["passRate", "blitz", "playAction", "earlyPass"]);
+
 interface Tables { off: Map<string, number[]>; def: Map<string, number[]> }
 
 function tables(): Map<string, Tables> {
   return memoSync("tend:tables", 3600, () => {
     const byCls = new Map<string, Tables>();
     for (const t of genTeams()) {
-      const c = t.c ?? "fbs";
+      const c = t.c ?? "nfl";
       const tb = byCls.get(c) ?? byCls.set(c, { off: new Map(), def: new Map() }).get(c)!;
       for (const d of DEFS) {
         const o = t.off[d.key];
@@ -89,7 +96,7 @@ function rankIn(sorted: number[], v: number, wantHigh: boolean): { rank: number;
 }
 
 function unit(t: GenTeam, side: "off" | "def"): UnitStyle {
-  const tb = tables().get(t.c ?? "fbs");
+  const tb = tables().get(t.c ?? "nfl");
   const u = t[side];
   const metrics: Metric[] = [];
   for (const d of DEFS) {
@@ -97,8 +104,8 @@ function unit(t: GenTeam, side: "off" | "def"): UnitStyle {
     if (typeof v !== "number") continue;
     const wantHigh = (side === "off" ? d.off : d.def) === "high";
     const sorted = tb?.[side].get(d.key);
-    // Pass rate is a style, not a quality: no rank.
-    const r = sorted && d.key !== "passRate" ? rankIn(sorted, v, wantHigh) : undefined;
+    // Pass rate, blitz rate, play-action rate, and early-down pass rate are styles, not qualities: no rank.
+    const r = sorted && !STYLE_KEYS.has(d.key) ? rankIn(sorted, v, wantHigh) : undefined;
     metrics.push({ key: d.key, label: d.label, value: d.fmt(v), rank: r?.rank, of: r?.of, pct: r?.pct });
   }
   const games = t.games ?? 0;
@@ -110,16 +117,16 @@ function unit(t: GenTeam, side: "off" | "def"): UnitStyle {
     const pace = u.drives ? u.plays / u.drives : 0;
     const balance = pr >= 0.58 ? "Pass-first" : pr <= 0.42 ? "Run-first" : "Balanced";
     const quality = (m("sr")?.pct ?? 50) >= 75 ? "efficient" : (m("ex")?.pct ?? 50) >= 75 ? "explosive" : (m("sr")?.pct ?? 50) <= 25 ? "struggling" : "average";
-    const trench = (m("ly")?.pct ?? 50) >= 75 ? "wins the line" : (m("ly")?.pct ?? 50) <= 25 ? "loses the line" : null;
+    const trench = (m("ly")?.pct ?? 50) >= 75 ? "runs it well" : (m("ly")?.pct ?? 50) <= 25 ? "run game stalls" : null;
     const label = `${balance}, ${quality}${trench ? `, ${trench}` : ""}`;
-    const summary = `${Math.round(pr * 100)}% pass. Success rate ${pctF(u.sr)} (No. ${m("sr")?.rank ?? "–"} of ${m("sr")?.of ?? "–"}), explosiveness ${f2(u.ex)} (No. ${m("ex")?.rank ?? "–"}). ${pace ? `${f1(pace)} plays per drive.` : ""}`;
+    const summary = `${Math.round(pr * 100)}% pass${typeof u.earlyPass === "number" ? ` (${Math.round(u.earlyPass * 100)}% on early downs)` : ""}. Success rate ${pctF(u.sr)} (No. ${m("sr")?.rank ?? "-"} of ${m("sr")?.of ?? "-"}), explosiveness ${f2(u.ex)} (No. ${m("ex")?.rank ?? "-"})${typeof u.playAction === "number" ? `, play action ${pctF(u.playAction)}` : ""}. ${pace ? `${f1(pace)} plays per drive.` : ""}`;
     return { label, summary, metrics, sample };
   }
   const havoc = u.havoc ?? 0;
-  const front = (m("havocF7")?.pct ?? 50) >= 70 ? "disruptive front" : (m("ly")?.pct ?? 50) >= 70 ? "stout front" : (m("ly")?.pct ?? 50) <= 30 ? "soft front" : "average front";
+  const front = (m("pressure")?.pct ?? 50) >= 70 ? "disruptive front" : (m("ly")?.pct ?? 50) >= 70 ? "stout run front" : (m("ly")?.pct ?? 50) <= 30 ? "soft run front" : "average front";
   const back = (m("passEx")?.pct ?? 50) >= 70 ? "limits deep shots" : (m("passEx")?.pct ?? 50) <= 30 ? "gives up explosives" : "average on explosives";
   const label = `${havoc >= 0.19 ? "Havoc" : havoc <= 0.13 ? "Bend-don't-break" : "Balanced"} defense, ${front}`;
-  const summary = `Havoc ${pctF(havoc)} (No. ${m("havoc")?.rank ?? "–"} of ${m("havoc")?.of ?? "–"}). Success allowed ${pctF(u.sr)} (No. ${m("sr")?.rank ?? "–"}). ${back[0].toUpperCase()}${back.slice(1)}.`;
+  const summary = `Havoc ${pctF(havoc)} (No. ${m("havoc")?.rank ?? "-"} of ${m("havoc")?.of ?? "-"}). Success allowed ${pctF(u.sr)} (No. ${m("sr")?.rank ?? "-"})${typeof u.pressure === "number" ? `, pressure ${pctF(u.pressure)} (No. ${m("pressure")?.rank ?? "-"})` : ""}${typeof u.blitz === "number" ? `, blitz ${pctF(u.blitz)}` : ""}. ${back[0].toUpperCase()}${back.slice(1)}.`;
   return { label, summary, metrics, sample };
 }
 
@@ -148,8 +155,8 @@ function meaning(axis: Axis, edge: UnitEdge["edge"], mag: number, offTeam: strin
   if (edge === "even") {
     const m: Record<Axis, string> = {
       rush: `Neither side has shown it can impose the run on a unit this good. The first stuffed series tells you who blinks.`,
-      pass: `${o} takes shots and ${d} gives up few. Whoever wins the first deep ball changes the other side's call sheet.`,
-      line: `The line of scrimmage is a coin flip by the numbers. Watch first contact on the first two drives.`,
+      pass: `The ${o} take shots and the ${d} give up few. Whoever wins the first deep ball changes the other side's call sheet.`,
+      line: `The ground game is a coin flip by the numbers. Watch first contact on the first two drives.`,
       pd: `Both sides are average on long downs. Early-down efficiency decides who sees more of them.`,
     };
     return { verdict: lead, meaning: m[axis], watch: `First quarter: who wins ${axis === "pass" ? "the first deep shot" : "first contact"}.` };
@@ -157,41 +164,41 @@ function meaning(axis: Axis, edge: UnitEdge["edge"], mag: number, offTeam: strin
   if (edge === "offense") {
     const m: Record<Axis, string> = {
       rush: tier === "dominant"
-        ? `Expect ${o} to lean on the run early and often, and to keep leaning. Once ${d} loads the box, play-action is the second punch.`
-        : `${o} should stay on schedule on the ground, which keeps third downs short and the clock moving.`,
+        ? `Expect the ${o} to lean on the run early and often, and to keep leaning. Once the ${d} load the box, play-action is the second punch.`
+        : `The ${o} should stay on schedule on the ground, which keeps third downs short and the clock moving.`,
       pass: tier === "dominant"
-        ? `${d} does not keep the lid on. ${o} will take shots, and the market total may be underpriced if they land.`
-        : `${o} has the deep ball available. Watch whether ${d} rolls a safety over after the first one.`,
+        ? `The ${d} do not keep the lid on. The ${o} will take shots, and the market total may be underpriced if they land.`
+        : `The ${o} have the deep ball available. Watch whether the ${d} roll a safety over after the first one.`,
       line: tier === "dominant"
-        ? `The line of scrimmage belongs to ${o}. Second-level runs and play-action are live all afternoon.`
-        : `${o} should win first contact more often than not, which makes every down shorter.`,
-      pd: `${o} converts the long downs ${d} needs to win. A third-and-8 is not a stop here.`,
+        ? `The line of scrimmage belongs to the ${o}. Second-level runs and play-action are live all afternoon.`
+        : `The ${o} should win first contact more often than not, which makes every down shorter.`,
+      pd: `The ${o} convert the long downs the ${d} need to win. A third-and-8 is not a stop here.`,
     };
     const w: Record<Axis, string> = {
-      rush: `Watch ${o}'s rushing attempts by halftime. North of 20 means the plan is working.`,
-      pass: `Watch the first deep shot. If it connects, ${d} changes shells and the run game opens.`,
-      line: `Watch yards before contact on ${o}'s first ten carries.`,
-      pd: `Watch ${o}'s third-and-long conversions. Two in the first half breaks ${d}'s plan.`,
+      rush: `Watch the ${o} rushing attempts by halftime. North of 20 means the plan is working.`,
+      pass: `Watch the first deep shot. If it connects, the ${d} change shells and the run game opens.`,
+      line: `Watch the first ten ${o} carries. Three or more that gain five means the front is winning.`,
+      pd: `Watch the ${o} on third-and-long. Two conversions in the first half break the ${d} plan.`,
     };
     return { verdict: lead, meaning: m[axis], watch: w[axis] };
   }
   const m: Record<Axis, string> = {
     rush: tier === "dominant"
-      ? `${d} erases the run. ${o} gets pushed into passing downs, and that is where this defense makes its money.`
-      : `${o} will find the run hard going. Expect more second-and-long than usual.`,
+      ? `The ${d} erase the run. The ${o} get pushed into passing downs, and that is where this defense makes its money.`
+      : `The ${o} will find the run hard going. Expect more second-and-long than usual.`,
     pass: tier === "dominant"
-      ? `Deep balls are the lowest-percentage play in this game. ${o} needs the underneath game and yards after catch.`
-      : `${d} keeps the lid on. ${o} should expect to drive the long way.`,
+      ? `Deep balls are the lowest-percentage play in this game. The ${o} need the underneath game and yards after catch.`
+      : `The ${d} keep the lid on. The ${o} should expect to drive the long way.`,
     line: tier === "dominant"
-      ? `${d} wins first contact. Backs get met in the backfield; screens and the quick game are the counter.`
-      : `${d} should hold the line of scrimmage. ${o}'s runs will need the second level to break.`,
-    pd: `${d} gets off the field on long downs. Early-down efficiency is everything for ${o}.`,
+      ? `The ${d} win first contact. Backs get met in the backfield; screens and the quick game are the counter.`
+      : `The ${d} should hold the line of scrimmage. ${o} runs will need the second level to break.`,
+    pd: `The ${d} get off the field on long downs. Early-down efficiency is everything for the ${o}.`,
   };
   const w: Record<Axis, string> = {
-    rush: `Watch ${o}'s yards per carry through the first quarter. Under 3 and the game plan has to change.`,
-    pass: `Watch ${o}'s longest completion. If it is under 25 yards at the half, ${d} has won the matchup.`,
-    line: `Watch tackles for loss. ${d} living in the backfield early is the tell.`,
-    pd: `Watch ${o} on third-and-7 or longer. Punts there mean the defense is winning.`,
+    rush: `Watch ${o} yards per carry through the first quarter. Under 3 and the game plan has to change.`,
+    pass: `Watch the longest ${o} completion. If it is under 25 yards at the half, the ${d} have won the matchup.`,
+    line: `Watch tackles for loss. The ${d} living in the backfield early is the tell.`,
+    pd: `Watch the ${o} on third-and-7 or longer. Punts there mean the defense is winning.`,
   };
   return { verdict: lead, meaning: m[axis], watch: w[axis] };
 }
@@ -217,7 +224,7 @@ export function unitEdges(offTeam: string, defTeam: string): UnitEdge[] {
   const axes: { key: string; axis: Axis; title: string; what: string; against: string }[] = [
     { key: "rushSr", axis: "rush", title: `${offTeam} run game vs ${defTeam} run defense`, what: "rush success rate", against: "against the run" },
     { key: "passEx", axis: "pass", title: `${offTeam} deep passing vs ${defTeam} secondary`, what: "pass explosiveness", against: "at limiting explosive passes" },
-    { key: "ly", axis: "line", title: `${offTeam} offensive line vs ${defTeam} front`, what: "line yards per carry", against: "at the line of scrimmage" },
+    { key: "ly", axis: "line", title: `${offTeam} ground game vs ${defTeam} run front`, what: "rush EPA per carry", against: "against the run by EPA" },
     { key: "pdSr", axis: "pd", title: `${offTeam} on passing downs vs ${defTeam} pressure`, what: "passing-downs success", against: "on passing downs" },
   ];
   const out: UnitEdge[] = [];
@@ -232,10 +239,10 @@ export function unitEdges(offTeam: string, defTeam: string): UnitEdge[] {
     const mn = meaning(a.axis, edge, mag, offTeam, defTeam);
     const text =
       edge === "offense"
-        ? `${offTeam} is No. ${x.rank} of ${x.of} in ${a.what} (${x.value}). ${defTeam} ranks No. ${y.rank} ${a.against} (${y.value}). ${mn.verdict} ${mn.meaning}`
+        ? `The ${offTeam} are No. ${x.rank} of ${x.of} in ${a.what} (${x.value}). The ${defTeam} rank No. ${y.rank} ${a.against} (${y.value}). ${mn.verdict} ${mn.meaning}`
         : edge === "defense"
-          ? `${defTeam} is No. ${y.rank} of ${y.of} ${a.against} (${y.value}). ${offTeam} ranks No. ${x.rank} in ${a.what} (${x.value}). ${mn.verdict} ${mn.meaning}`
-          : `${offTeam} is No. ${x.rank} in ${a.what} (${x.value}) and ${defTeam} is No. ${y.rank} ${a.against} (${y.value}). ${mn.verdict} ${mn.meaning}`;
+          ? `The ${defTeam} are No. ${y.rank} of ${y.of} ${a.against} (${y.value}). The ${offTeam} rank No. ${x.rank} in ${a.what} (${x.value}). ${mn.verdict} ${mn.meaning}`
+          : `The ${offTeam} are No. ${x.rank} in ${a.what} (${x.value}) and the ${defTeam} are No. ${y.rank} ${a.against} (${y.value}). ${mn.verdict} ${mn.meaning}`;
     out.push({
       title: a.title,
       text,
@@ -279,7 +286,7 @@ export function styleContrast(a: string, b: string): number | null {
 export function leagueMeans(cls: string): { offPpa: number; defPpa: number; plays: number; teams: number } {
   return memoSync(`tend:means:${cls}`, 3600, () => {
     const t = genTeams().filter((x) => (x.c ?? "fbs") === cls);
-    if (!t.length) return { offPpa: 0.16, defPpa: 0.06, plays: 67, teams: 0 };
+    if (!t.length) return { offPpa: 0.02, defPpa: 0.02, plays: 63, teams: 0 };
     const m = (f: (x: GenTeam) => number) => t.reduce((s, x) => s + f(x), 0) / t.length;
     return { offPpa: m((x) => x.off.ppa), defPpa: m((x) => x.def.ppa), plays: m((x) => x.off.plays / Math.max(1, x.games ?? 1)), teams: t.length };
   });

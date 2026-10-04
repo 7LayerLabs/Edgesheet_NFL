@@ -34,9 +34,11 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const flags = game.weather ? evaluateWeather(game.weather) : [];
   const { likely, future } = prospectCounts(game);
 
-  const byYear = new Map<number, Prospect[]>();
-  for (const p of game.prospects) byYear.set(p.draftYear, [...(byYear.get(p.draftYear) ?? []), p]);
-  const years = [...byYear.keys()].sort();
+  const TIERS: Prospect["tier"][] = ["Matchup", "Rookie", "Breakout", "Watch"];
+  const byTier = new Map<Prospect["tier"], Prospect[]>();
+  for (const p of game.prospects) byTier.set(p.tier, [...(byTier.get(p.tier) ?? []), p]);
+  const tiers = TIERS.filter((t) => byTier.has(t));
+  const TIER_TITLE: Record<Prospect["tier"], [string, string]> = { Matchup: ["On the spot", "the unit edges put these players in the game plan"], Rookie: ["Rookie class", "ranked against the draft slot"], Breakout: ["Breakout watch", "year 2 and 3 jumps against last season"], Watch: ["Watch", "starters worth knowing"] };
 
   return (
     <article className="rise">
@@ -78,7 +80,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
             {game.source === "live"
               ? likely + future === 0
                 ? "Nobody clears the radar yet"
-                : `${likely} draft-eligible on radar · ${future} future`
+                : `${likely} to watch · ${future} more on the radar`
               : `${likely} likely ${likely === 1 ? "pick" : "picks"} · ${future} future ${future === 1 ? "name" : "names"}`}
           </p>
         </div>
@@ -100,13 +102,14 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
           ["why", "Why watch"],
           ["report", "Report"],
           ["decided", "Decided by"],
-          ["radar", "Draft radar"],
+          ["radar", "Watch radar"],
           ["eye", "Eye on"],
           ["showed", game.status === "upcoming" ? "Live" : "Who showed up"],
           ["style", "Team style"],
           ["conditions", "Conditions"],
           ["market", "Market"],
           ["storylines", "Storylines"],
+          ["injuries", "Injuries"],
           ["feed", "Feed"],
           ["score", "Score"],
         ].map(([id, label]) => (
@@ -141,7 +144,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
             <p className="mt-2 text-lg leading-relaxed text-chalk">{game.pressurePoint}</p>
           </div>
           <p className="mt-4 max-w-3xl text-base text-chalk-3">
-            Each offense against the opposing defense on the four axes that decide games. Ranks are inside the division. The gap is in percentile points; 40 or more is a clear edge, 55 or more is a mismatch.
+            Each offense against the opposing defense on the four axes that decide games. Ranks are inside the 32. The gap is in percentile points; 40 or more is a clear edge, 55 or more is a mismatch.
           </p>
           <div className="mt-3 grid gap-3">
             {game.matchups.map((m, i) => {
@@ -181,29 +184,29 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
           {game.projection && <ProjectionBox game={game} />}
         </Section>
       ) : (
-        <Section n="Matchups" id="decided" title="Not charted for this division">
+        <Section n="Matchups" id="decided" title="Not charted yet">
           <p className="mt-2 text-base text-chalk-3">{game.pressurePoint}</p>
           {game.projection && <ProjectionBox game={game} />}
         </Section>
       )}
 
       {/* 6. Prospects */}
-      <Section n="Must watch" id="radar" title={game.prospects.length ? "Who NFL scouts are watching, by draft class" : "Nobody clears the radar yet"}>
+      <Section n="Must watch" id="radar" title={game.prospects.length ? "Who to watch, by lens" : "Nobody clears the radar yet"}>
         {game.prospects.some((p) => p.radar) && (
           <p className="mt-1 max-w-3xl text-sm text-chalk-3">
-            Radar entries rank evidence: season production against the division, recruiting pedigree, usage share, and NFL size norms. They are not draft grades.
+            Radar entries rank evidence: production percentile against the league at the position, snap share, draft slot, and last season's line. Injury status is the official report. They are not grades.
             {game.statsAsOf ? ` Stats as of ${asOf(game.statsAsOf)}.` : ""}
           </p>
         )}
-        {years.map((y) => (
+        {tiers.map((y) => (
           <div key={y} className="mt-5">
             <div className="flex items-baseline gap-3">
-              <span className="display text-3xl font-bold text-chalk">{y} draft</span>
-              <span className="mono text-xs text-chalk-3">{y === years[0] ? "this year" : y === years[0] + 1 ? "next year" : "the year after"}</span>
+              <span className="display text-3xl font-bold text-chalk">{TIER_TITLE[y][0]}</span>
+              <span className="mono text-xs text-chalk-3">{TIER_TITLE[y][1]}</span>
               <span className="h-px flex-1 bg-line" />
             </div>
             <div className="mt-2 grid gap-2.5 md:grid-cols-2">
-              {byYear.get(y)!.map((p) => (
+              {byTier.get(y)!.map((p) => (
                 <ProspectCard key={p.id} p={p} team={p.team === game.home.abbr ? game.home : game.away} />
               ))}
             </div>
@@ -211,13 +214,13 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
         ))}
         {game.odds && game.prospects.length > 0 && <PropsForRadar gameId={game.id} odds={game.odds} prospects={game.prospects} upcoming={game.status === "upcoming"} />}
         {game.prospects.length === 0 && (
-          <p className="mt-2 text-sm text-chalk-3">No player on either roster clears the production, pedigree, or size thresholds. See Keep an eye on below.</p>
+          <p className="mt-2 text-sm text-chalk-3">No player on either roster clears the production or snap-share thresholds. See Keep an eye on below.</p>
         )}
       </Section>
 
       {/* 8. Keep an eye on */}
       {game.keepAnEyeOn.length > 0 && (
-        <Section n="Keep an eye on" id="eye" title="Sleepers, risers, and young players">
+        <Section n="Keep an eye on" id="eye" title="More names on the radar">
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {game.keepAnEyeOn.map((k) => (
               <li key={k.name} className="card p-4">
@@ -259,7 +262,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
               ))}
             </div>
             <p className="mt-2 text-xs text-chalk-3">
-              {game.box.source === "espn" ? "In-game box from the ESPN feed; the settled CollegeFootballData box replaces it after the final. " : ""}
+              {game.box.source === "espn" ? "Box from the ESPN feed; the nflverse weekly stats replace it once posted. " : ""}
               Radar players above show their line from this game. Stock does not move automatically; one game is one data point.
             </p>
             {game.archive?.postgame && <Accountability entry={game.archive} />}
@@ -273,14 +276,14 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
         )}
         {game.status === "upcoming" && game.archive && (
           <p className="mono mt-3 text-xs text-chalk-3">
-            Pregame call locked {asOf(game.archive.pregame.capturedAt)}: {game.archive.pregame.edges.length} matchup calls, {game.archive.pregame.prospects.length} radar names, Scout Score {game.archive.pregame.scoutScore}. It gets graded against the box score after the final. <Link href="/history" className="text-sky">See the record</Link>.
+            Pregame call locked {asOf(game.archive.pregame.capturedAt)}: {game.archive.pregame.edges.length} matchup calls, {game.archive.pregame.prospects.length} radar names, Watch Score {game.archive.pregame.scoutScore}. It gets graded against the box score after the final. <Link href="/history" className="text-sky">See the record</Link>.
           </p>
         )}
       </Section>
 
       {/* 3. Team style */}
-      <Section n="Team style" id="style" title={game.offense[game.home.abbr]?.sample === "unavailable" ? "Tendencies not charted for this division" : "How each side wants to play"}>
-        {game.statsAsOf && <p className="mono mt-1 text-xs text-chalk-3">Season stats as of {asOf(game.statsAsOf)}. Ranks are within the team&apos;s division.</p>}
+      <Section n="Team style" id="style" title={game.offense[game.home.abbr]?.sample === "unavailable" ? "Tendencies not charted yet" : "How each side wants to play"}>
+        {game.statsAsOf && <p className="mono mt-1 text-xs text-chalk-3">Play-by-play through {asOf(game.statsAsOf)}. Ranks are inside the 32.</p>}
         <div className="mt-3 grid gap-2.5 md:grid-cols-2">
           {[game.away, game.home].map((t) => (
             <div key={t.id} className="card p-4">
@@ -324,7 +327,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
             {game.climate ? (
               <p className="mt-1 text-sm text-chalk-2">{baselineLine(game.climate, game.weather)}</p>
             ) : (
-              (game.division === "FBS" || game.division === "FCS") && <p className="mt-1 text-sm text-chalk-3">No weather baseline on file for this venue.</p>
+              <p className="mt-1 text-sm text-chalk-3">No weather baseline on file for this venue.</p>
             )}
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               {flags.length === 0 && (
@@ -383,6 +386,33 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
         </ul>
       </Section>
 
+      {/* Official injury report */}
+      {game.injuryReport && game.injuryReport.length > 0 && (
+        <Section n="Injury report" id="injuries" title={`Official report, week ${game.injuryReport[0].week}`}>
+          <p className="mt-1 text-sm text-chalk-3">From the nflverse injuries file (the league's official practice and game status reports). Out, Doubtful, and Questionable only.</p>
+          <div className="mt-3 grid gap-2.5 md:grid-cols-2">
+            {[game.away, game.home].map((t) => (
+              <div key={t.id} className="card p-4">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-4 w-1 rounded-sm" style={{ background: t.color }} />
+                  <span className="display text-2xl font-bold">{t.short}</span>
+                </div>
+                <ul className="mt-2 grid gap-1 text-sm">
+                  {game.injuryReport!.filter((i) => i.team === t.abbr).map((i) => (
+                    <li key={i.id + i.name} className="flex flex-wrap items-baseline gap-x-2">
+                      <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${i.status === "Out" ? "bg-brick text-white" : i.status === "Doubtful" ? "bg-warn text-chalk" : "bg-ink-2 text-chalk-2"}`}>{i.status}</span>
+                      <span className="font-medium text-chalk">{i.name}</span>
+                      <span className="mono text-xs text-chalk-3">{i.pos}{i.injury ? ` · ${i.injury}` : ""}{i.practice ? ` · ${i.practice}` : ""}</span>
+                    </li>
+                  ))}
+                  {game.injuryReport!.filter((i) => i.team === t.abbr).length === 0 && <li className="text-chalk-3">Nobody listed.</li>}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
       {/* Beat feed: posts and headlines about both teams, tagged to radar players. Context only, never a source for the report. */}
       <Section n="Beat feed" id="feed" title={`What people are saying about ${game.away.short} and ${game.home.short}`}>
         <Suspense fallback={<BeatFeedFallback />}>
@@ -394,7 +424,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
       </Section>
 
       {/* Score breakdown */}
-      <Section n="Scout Score" id="score" title={`${score} out of 100`}>
+      <Section n="Watch Score" id="score" title={`${score} out of 100`}>
         <div className="mt-3 grid gap-2">
           {COMPONENT_KEYS.map((k) => {
             const v = game.scoreComponents[k];
@@ -413,7 +443,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
             );
           })}
           <p className="mt-1 text-xs text-chalk-3">
-            Ranks viewing value, not team quality. Weather adjusts matchup interest but never adds points on its own.
+            Ranks viewing value, not team quality. Competitive expectation, unit mismatches, rookie and breakout density, stakes from the standings, and the broadcast window.
             {availableWeight(game.scoreComponents) < 0.999 && ` Scored on ${Math.round(availableWeight(game.scoreComponents) * 100)}% of the weights; excluded inputs are not ingested yet.`}
           </p>
         </div>
@@ -540,7 +570,7 @@ function ProjectionBox({ game }: { game: Game }) {
       </ul>
       <ConsensusTable game={game} />
       <p className="mt-2 text-xs text-chalk-3">
-        Margin is pregame Elo plus 40% of the unit-edge adjustment, with the market total for the score line. Win probability assumes a 16-point standard deviation.
+        Margin is our pregame Elo (K 20, 48 points of home field, 25 Elo per point) plus 40% of the unit-edge adjustment, with the market total for the score line. Win probability assumes a 13.5-point standard deviation.
         {locked && !graded && ` Locked ${asOf(game.archive!.pregame.capturedAt)}; graded after the final.`}
         {graded && ` Graded: winner ${graded.winnerRight ? "right" : "wrong"}, margin off by ${graded.marginError.toFixed(0)}${graded.modelSideCovered !== undefined ? `, model side ${graded.modelSideCovered ? "covered" : "did not cover"}` : ""}.`}
       </p>
@@ -598,7 +628,7 @@ function Accountability({ entry }: { entry: NonNullable<Game["archive"]> }) {
         ))}
       </ul>
       <p className="mt-3 text-sm text-chalk-3">
-        Scout Score was {pre.scoutScore}{post.excitement != null ? `; the feed's excitement index for the game was ${post.excitement.toFixed(1)}` : ""}. Every graded game goes into <Link href="/history" className="text-sky">the record</Link>, so the thresholds can be tuned against real results instead of opinion.
+        Watch Score was {pre.scoutScore}. Every graded game goes into <Link href="/history" className="text-sky">the record</Link>, so the thresholds can be tuned against real results instead of opinion.
       </p>
     </div>
   );
@@ -657,7 +687,7 @@ function StyleCard({ side, o, d }: { side: string; o?: OffenseProfile; d?: Defen
       {prof?.summary && <p className="mt-1 text-sm leading-snug text-chalk-2">{prof.summary}</p>}
       {metrics && metrics.length > 0 && (
         <dl className="mono mt-2 grid grid-cols-[1fr_auto_auto] items-center gap-x-3 gap-y-1.5 text-[13px]">
-          {metrics.filter((m) => ["passRate", "sr", "ex", "rushSr", "passEx", "ly", "havoc", "pdSr"].includes(m.key)).map((m) => (
+          {metrics.filter((m) => ["passRate", "earlyPass", "sr", "ex", "rushSr", "passEx", "ly", "pdSr", "pressure", "blitz", "playAction", "rzTd"].includes(m.key)).map((m) => (
             <MetricRow key={m.key} m={m} />
           ))}
         </dl>
@@ -683,7 +713,7 @@ function StyleCard({ side, o, d }: { side: string; o?: OffenseProfile; d?: Defen
         </dl>
       )}
       {sample === "unavailable" && (
-        <p className="mt-1 text-xs text-chalk-3">Advanced tendencies are published for FBS and FCS only.</p>
+        <p className="mt-1 text-xs text-chalk-3">Play-by-play has not been ingested for this team yet.</p>
       )}
     </div>
   );

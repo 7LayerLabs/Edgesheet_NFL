@@ -1,0 +1,203 @@
+{
+ "gameId": "401872973",
+ "season": 2026,
+ "week": 4,
+ "pregame": {
+  "capturedAt": "2026-10-04T02:06:10.288Z",
+  "kickoff": "2026-10-04T17:00:00.000Z",
+  "away": "Titans",
+  "home": "Ravens",
+  "abbr": {
+   "home": "BAL",
+   "away": "TEN"
+  },
+  "scoutScore": 65,
+  "whyWatch": "Anthony Hill Jr. (TEN LB, Rookie) is a top-of-the-radar name: drafted No. 60, producing like pick No. 35.",
+  "pressurePoint": "Titans ground game vs Ravens run front. The Titans are No. 8 of 32 in rush EPA per carry (-0.01). The Ravens rank No. 30 against the run by EPA (0.04). This is not a lean. It is a mismatch, and a prominent one. The line of scrimmage belongs to the Titans. Second-level runs and play-action are live all afternoon. Watch the first ten Titans carries. Three or more that gain five means the front is winning.",
+  "edges": [
+   {
+    "a": "Titans ground game",
+    "b": "Ravens run front",
+    "edge": "offense",
+    "axis": "line",
+    "offTeam": "Titans",
+    "why": "The Titans are No. 8 of 32 in rush EPA per carry (-0.01). The Ravens rank No. 30 against the run by EPA (0.04). This is not a lean. It is a mismatch, and a prominent one. The line of scrimmage belongs to the Titans. Second-level runs and play-action are live all afternoon."
+   },
+   {
+    "a": "Titans deep passing",
+    "b": "Ravens secondary",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Titans",
+    "why": "The Ravens are No. 11 of 32 at limiting explosive passes (1.26). The Titans rank No. 32 in pass explosiveness (0.93). This is not a lean. It is a mismatch, and a prominent one. Deep balls are the lowest-percentage play in this game. The Titans need the underneath game and yards after catch."
+   },
+   {
+    "a": "Ravens run game",
+    "b": "Titans run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Ravens",
+    "why": "The Ravens are No. 3 of 32 in rush success rate (51%). The Titans rank No. 19 against the run (43%). A clear edge, the kind that shapes a game plan. The Ravens should stay on schedule on the ground, which keeps third downs short and the clock moving."
+   },
+   {
+    "a": "Ravens deep passing",
+    "b": "Titans secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Ravens",
+    "why": "The Ravens are No. 12 of 32 in pass explosiveness (1.38). The Titans rank No. 27 at limiting explosive passes (1.45). A clear edge, the kind that shapes a game plan. The Ravens have the deep ball available. Watch whether the Titans roll a safety over after the first one."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "3126356",
+    "name": "Marlon Humphrey",
+    "team": "Ravens",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Matchup",
+    "score": 84
+   },
+   {
+    "id": "3916148",
+    "name": "Tony Pollard",
+    "team": "Titans",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 59
+   },
+   {
+    "id": "4870805",
+    "name": "Anthony Hill Jr.",
+    "team": "Titans",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 79
+   },
+   {
+    "id": "4871023",
+    "name": "Carnell Tate",
+    "team": "Titans",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 59
+   },
+   {
+    "id": "4702918",
+    "name": "Chandler Rivers",
+    "team": "Ravens",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 36
+   },
+   {
+    "id": "4839501",
+    "name": "Zion Young",
+    "team": "Ravens",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 34
+   },
+   {
+    "id": "4570469",
+    "name": "Marcus Harris",
+    "team": "Titans",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 85
+   },
+   {
+    "id": "4683188",
+    "name": "Mike Green",
+    "team": "Ravens",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 72
+   },
+   {
+    "id": "4429834",
+    "name": "Cedric Gray",
+    "team": "Titans",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 65
+   },
+   {
+    "id": "3916387",
+    "name": "Lamar Jackson",
+    "team": "Ravens",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Watch",
+    "score": 89
+   },
+   {
+    "id": "4036134",
+    "name": "Amani Hooker",
+    "team": "Titans",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 88
+   },
+   {
+    "id": "3915189",
+    "name": "Roquan Smith",
+    "team": "Ravens",
+    "pos": "ILB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 88
+   },
+   {
+    "id": "4035369",
+    "name": "Jeffery Simmons",
+    "team": "Titans",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "00-0036369",
+    "name": "John Simpson",
+    "team": "Ravens",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "BAL",
+   "line": -11.5
+  },
+  "total": 41.5,
+  "projection": {
+   "winner": "BAL",
+   "winProb": 0.8196610617025268,
+   "margin": 12.34,
+   "home": 27,
+   "away": 15,
+   "modelSide": "BAL",
+   "confidence": "high",
+   "modelTotal": 49.5,
+   "totalLean": "over"
+  },
+  "consensus": {
+   "median": 11.4,
+   "favorite": "BAL",
+   "side": "BAL",
+   "sideCount": 1,
+   "of": 4
+  }
+ }
+}

@@ -52,7 +52,7 @@ function prospectFacts(p: Prospect, idx: number): Fact[] {
   const base = `R${idx + 1}`;
   const out: Fact[] = [];
   const size = [p.ht, p.wt ? `${p.wt} lbs` : ""].filter(Boolean).join(", ");
-  out.push({ id: base, text: `${p.name}, ${p.team} ${p.pos}, ${p.cls}${size ? `, ${size}` : ""}. ${p.draftYear} draft class, tier ${p.tier}, projected ${p.projected}.${p.radar ? ` Radar score ${p.radar.score} (production ${p.radar.production}, pedigree ${p.radar.pedigree}, usage ${p.radar.usage}).` : ""}` });
+  out.push({ id: base, text: `${p.name}, ${p.team} ${p.pos}, ${p.cls}${size ? `, ${size}` : ""}. tier ${p.tier}, ${p.projected}.${p.radar ? ` Radar score ${p.radar.score} (production ${p.radar.production}, pedigree ${p.radar.pedigree}, usage ${p.radar.usage}).` : ""}` });
   if (p.stat) out.push({ id: `${base}s`, text: `${p.name}: ${p.stat}.` });
   const ev = p.radar?.evidence ?? p.traits.map((label) => ({ label, note: undefined as string | undefined }));
   ev.forEach((e, i) => out.push({ id: `${base}e${i + 1}`, text: `${p.name}: ${e.label}${e.note ? ` (${e.note})` : ""}.` }));
@@ -263,7 +263,7 @@ export function validateReport(r: Report, packet: Packet): string[] {
 
 /* ---------------------------------------------------------------- prompt */
 
-const SYSTEM = `You write the written report for EdgeSheet, a college football game guide seen through an NFL scouting lens.
+const SYSTEM = `You write the written report for EdgeSheet NFL, a game guide for people deciding what to watch on Sunday.
 Voice: confident, specific, numbers inside the sentences, no hedging filler, no emojis, no em dashes (use commas, periods, or "to"). Plain English. Short declarative sentences. Example of the house voice: "This is not a lean. It is a mismatch, and a prominent one."
 Rules that cannot be broken:
 1. Every number you write must appear in the evidence packet exactly as given (ranks, percentages, lines, scores, yards). Do not compute new numbers, do not round, do not add up.

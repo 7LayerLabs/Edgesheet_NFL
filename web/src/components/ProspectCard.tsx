@@ -6,15 +6,15 @@ import { FollowButton } from "./FollowButton";
 
 /**
  * One prospect, in the game report or on the radar board. Everything shown is
- * evidence with a source: production, pedigree, size, usage. The score ranks
- * evidence; it is not a draft grade and the card says so.
+ * evidence with a source: production, draft slot, size, snap share, breakout,
+ * and the official injury report. The score ranks evidence; it is not a grade.
  */
 export function ProspectCard({ p, team, gameLabel, gameHref, compact = false }: { p: Prospect; team: Team; gameLabel?: string; gameHref?: string; compact?: boolean }) {
   const r = p.radar;
   return (
     <div className="card flex flex-col gap-3 p-4">
       <div className="flex items-start gap-3">
-        <Avatar jersey={p.jersey} color={team.color} logo={team.logo} size={compact ? "sm" : "md"} playerId={p.id} name={p.name} />
+        <Avatar jersey={p.jersey} color={team.color} logo={team.logo} size={compact ? "sm" : "md"} playerId={p.id} name={p.name} src={p.headshot} />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <Link href={`/player/${p.id}`} className="display truncate text-2xl font-bold leading-none text-chalk hover:text-flag">
@@ -27,17 +27,18 @@ export function ProspectCard({ p, team, gameLabel, gameHref, compact = false }: 
           </p>
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
             <Tier tier={p.tier} />
-            <span className="text-chalk">{p.projected.includes("forecast") ? p.projected.replace(" (forecast)", "") : `${p.draftYear} draft`}</span>
-            {r?.stars ? <span className="text-warn">{"★".repeat(r.stars)}</span> : null}
+            <span className="text-chalk">{p.projected}</span>
+            {p.injury?.status && <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${p.injury.status === "Out" ? "bg-brick text-white" : p.injury.status === "Doubtful" ? "bg-warn text-chalk" : "border border-line bg-white text-chalk-2"}`} title={`Week ${p.injury.week} official report${p.injury.injury ? `: ${p.injury.injury}` : ""}`}>{p.injury.status}{p.injury.injury ? ` · ${p.injury.injury}` : ""}</span>}
           </div>
         </div>
       </div>
 
+      {p.lensNote && <p className="rounded border border-[#e8415b]/40 bg-[#e8415b]/5 px-3 py-2 text-sm leading-snug text-chalk">{p.lensNote}</p>}
       {r ? (
         <ul className="grid gap-1 text-sm">
-          {r.evidence.slice(0, compact ? 2 : 4).map((e) => (
+          {r.evidence.filter((e) => e.kind !== "matchup").slice(0, compact ? 2 : 4).map((e) => (
             <li key={e.kind + e.label} className="flex gap-2 leading-snug">
-              <span className={`mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full ${e.kind === "production" ? "bg-flag" : e.kind === "pedigree" ? "bg-sky" : e.kind === "size" ? "bg-turf" : "bg-chalk-3"}`} />
+              <span className={`mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full ${e.kind === "production" ? "bg-flag" : e.kind === "pedigree" ? "bg-sky" : e.kind === "breakout" ? "bg-turf" : e.kind === "injury" ? "bg-brick" : e.kind === "size" ? "bg-turf" : "bg-chalk-3"}`} />
               <span className="text-chalk-2">
                 {e.label}
                 {e.note && <span className="text-chalk-3"> · {e.note}</span>}

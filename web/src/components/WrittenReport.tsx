@@ -6,7 +6,7 @@ import { WriteReportButton } from "./WriteReportButton";
 
 /** Server component. Reads the cached report from disk; never calls a model on page load. */
 export function WrittenReport({ game }: { game: Game }) {
-  const d1 = game.division === "FBS" || game.division === "FCS";
+  const d1 = true;
   const cached = d1 ? readReport(seasonOf(game.kickoff), game.id) : undefined;
   const provider = reportProvider();
   const stale = cached?.report && cached.pregame && game.status !== "upcoming";
@@ -40,7 +40,7 @@ export function WrittenReport({ game }: { game: Game }) {
         </>
       ) : (
         <>
-          <h2 className="display mt-1 text-3xl font-bold leading-tight text-chalk sm:text-4xl">{d1 ? "No report written yet" : "Reports are written for Division I games"}</h2>
+          <h2 className="display mt-1 text-3xl font-bold leading-tight text-chalk sm:text-4xl">{d1 ? "No report written yet" : "No report"}</h2>
           {d1 && (
             <div className="card mt-3 p-5">
               {isUnavailable(provider) ? (

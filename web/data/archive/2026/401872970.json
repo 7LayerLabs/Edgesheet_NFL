@@ -1,0 +1,203 @@
+{
+ "gameId": "401872970",
+ "season": 2026,
+ "week": 4,
+ "pregame": {
+  "capturedAt": "2026-10-04T02:06:10.306Z",
+  "kickoff": "2026-10-04T17:00:00.000Z",
+  "away": "Rams",
+  "home": "Eagles",
+  "abbr": {
+   "home": "PHI",
+   "away": "LAR"
+  },
+  "scoutScore": 76,
+  "whyWatch": "One-score game by the market: LAR -3.5.",
+  "pressurePoint": "Rams run game vs Eagles run defense. The Rams are No. 7 of 32 in rush success rate (47%). The Eagles rank No. 27 against the run (47%). This is not a lean. It is a mismatch, and a prominent one. Expect the Rams to lean on the run early and often, and to keep leaning. Once the Eagles load the box, play-action is the second punch. Watch the Rams rushing attempts by halftime. North of 20 means the plan is working.",
+  "edges": [
+   {
+    "a": "Rams run game",
+    "b": "Eagles run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Rams",
+    "why": "The Rams are No. 7 of 32 in rush success rate (47%). The Eagles rank No. 27 against the run (47%). This is not a lean. It is a mismatch, and a prominent one. Expect the Rams to lean on the run early and often, and to keep leaning. Once the Eagles load the box, play-action is the second punch."
+   },
+   {
+    "a": "Rams on passing downs",
+    "b": "Eagles pressure",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Rams",
+    "why": "The Eagles are No. 8 of 32 on passing downs (33%). The Rams rank No. 24 in passing-downs success (32%). A clear edge, the kind that shapes a game plan. The Eagles get off the field on long downs. Early-down efficiency is everything for the Rams."
+   },
+   {
+    "a": "Rams deep passing",
+    "b": "Eagles secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Rams",
+    "why": "The Rams are No. 8 of 32 in pass explosiveness (1.46). The Eagles rank No. 21 at limiting explosive passes (1.38). A clear edge, the kind that shapes a game plan. The Rams have the deep ball available. Watch whether the Eagles roll a safety over after the first one."
+   },
+   {
+    "a": "Eagles run game",
+    "b": "Rams run defense",
+    "edge": "defense",
+    "axis": "rush",
+    "offTeam": "Eagles",
+    "why": "The Rams are No. 13 of 32 against the run (39%). The Eagles rank No. 23 in rush success rate (38%). A real edge, not a lock. The Eagles will find the run hard going. Expect more second-and-long than usual."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4685759",
+    "name": "Jalen Carter",
+    "team": "Eagles",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Matchup",
+    "score": 81
+   },
+   {
+    "id": "4430737",
+    "name": "Kyren Williams",
+    "team": "Rams",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 74
+   },
+   {
+    "id": "4430919",
+    "name": "Wesley Bailey",
+    "team": "Rams",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 49
+   },
+   {
+    "id": "4870795",
+    "name": "Makai Lemon",
+    "team": "Eagles",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 29
+   },
+   {
+    "id": "4685287",
+    "name": "Jihaad Campbell",
+    "team": "Eagles",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 93
+   },
+   {
+    "id": "4572371",
+    "name": "Josh Wallace",
+    "team": "Rams",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 82
+   },
+   {
+    "id": "4428550",
+    "name": "Omar Speights",
+    "team": "Rams",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 69
+   },
+   {
+    "id": "4432777",
+    "name": "Jeremiah Trotter Jr.",
+    "team": "Eagles",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 44
+   },
+   {
+    "id": "4249128",
+    "name": "Quentin Lake",
+    "team": "Rams",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 92
+   },
+   {
+    "id": "4426405",
+    "name": "Trent McDuffie",
+    "team": "Rams",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 92
+   },
+   {
+    "id": "3917657",
+    "name": "Zack Baun",
+    "team": "Eagles",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 89
+   },
+   {
+    "id": "4686273",
+    "name": "Quinyon Mitchell",
+    "team": "Eagles",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 86
+   },
+   {
+    "id": "00-0036603",
+    "name": "Alaric Jackson",
+    "team": "Rams",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0038112",
+    "name": "Cam Jurgens",
+    "team": "Eagles",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "LAR",
+   "line": -3.5
+  },
+  "total": 42.5,
+  "projection": {
+   "winner": "LAR",
+   "winProb": 0.508273806741355,
+   "margin": 0.28000000000000014,
+   "home": 21,
+   "away": 22,
+   "modelSide": "PHI",
+   "confidence": "high",
+   "modelTotal": 43,
+   "totalLean": "none"
+  },
+  "consensus": {
+   "median": -1.6,
+   "favorite": "LAR",
+   "side": "PHI",
+   "sideCount": 3,
+   "of": 4
+  }
+ }
+}

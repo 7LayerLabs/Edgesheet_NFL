@@ -11,7 +11,7 @@ export function ScoutScore({ score, tag, size = "md" }: { score: number; tag?: S
           <span className={`eyebrow ${tag === "Hidden Gem" ? "text-turf" : ""}`}>{tag}</span>
         )}
       </div>
-      <div className="meter" role="meter" aria-valuenow={score} aria-valuemin={0} aria-valuemax={100} aria-label="Scout Score">
+      <div className="meter" role="meter" aria-valuenow={score} aria-valuemin={0} aria-valuemax={100} aria-label="Watch Score">
         <span style={{ width: `${score}%`, background: tag === "Hidden Gem" ? "var(--turf)" : undefined }} />
       </div>
     </div>

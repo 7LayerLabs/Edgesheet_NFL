@@ -1,35 +1,14 @@
 {
+  "fittedAt": "2026-10-04T02:05:53.944Z",
+  "source": "scripts/backtest.mjs",
+  "elo": {
+    "home": 30,
+    "perPoint": 27,
+    "mae": 9.93
+  },
   "projection": {
-    "form": "additive",
     "eloWeight": 0.6,
-    "edgeDivisor": 30
-  },
-  "projectionBestVsClosingLine": {
-    "form": "additive",
-    "eloWeight": 0.7,
     "edgeDivisor": 40,
-    "lean4CoverRate": 0.53,
-    "lean4Graded": 838,
-    "mae": 12.424
-  },
-  "projectionWeightedForm": {
-    "form": "weighted",
-    "eloWeight": 0.8,
-    "edgeDivisor": 20,
-    "mae": 12.493,
-    "winnerRate": 0.712
-  },
-  "total": {
-    "avgPpg": 25.6,
-    "bias": -2.341,
-    "biasAtOld": 3.468
-  },
-  "radar": {
-    "prod": 0.55,
-    "pedigree": 0.22,
-    "usage": 0.13,
-    "size": 0.1
-  },
-  "comment": "Walk-forward backtest 2022, 2023, 2024, 2025 on 2361 FBS games from week 4 on, stats through the prior week only. Additive form (margin = elo + (1 - eloWeight) * net / edgeDivisor). Live (eloWeight 0.6, edgeDivisor 40): winner 0.711, margin error 12.412, cover 0.504, four-point leans 0.524 on 829. Best by margin error: eloWeight 0.6, edgeDivisor 30: winner 0.713, margin error 12.406, cover 0.511, four-point leans 0.527 on 843. Best against the closing line (four-point leans, at least 500 graded): eloWeight 0.7, edgeDivisor 40: 0.53 on 838, margin error 12.424. Elo only: winner 0.708, margin error 12.498. Closing line on the same games: winner 0.724, margin error 11.982. Weighted-average form, kept for comparison, best row eloWeight 0.8, edgeDivisor 20: margin error 12.493. Model total at AVG_PPG 25.6: bias -2.341 points per game (3.468 at the old 28.5), error 13.277 vs posted 12.461. Radar weights are the current constants; the draft backtest did not fit them (see data/backtest/README.md). projection.ts reads this file when present; the orchestrator decides whether to adopt it.",
-  "generatedAt": "2026-10-03T21:49:53.209Z"
+    "note": "unit-edge blend not replayed; live defaults kept"
+  }
 }

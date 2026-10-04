@@ -1,0 +1,338 @@
+import Link from "next/link";
+import { buildSheet, type Sheet } from "@/lib/sheet";
+import { telegramReady } from "@/lib/telegram";
+import { SheetActions } from "@/components/SheetActions";
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ searchParams }: PageProps<"/sheet">) {
+  const sp = await searchParams;
+  const date = typeof sp.date === "string" ? sp.date : undefined;
+  return { title: `EdgeSheet${date ? `, ${date}` : ""}`, description: "The one-page Sunday sheet: games that matter, unit edges, model leans, radar names, kickoff windows, weather flags." };
+}
+
+/**
+ * The Sunday sheet. One Letter page, light, dense. Built entirely from the
+ * app's own data via buildSheet(). `?print=1` hides the site chrome so the
+ * headless Chrome screenshot (src/lib/render.ts) captures only the sheet.
+ */
+export default async function SheetPage({ searchParams }: PageProps<"/sheet">) {
+  const sp = await searchParams;
+  const date = typeof sp.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(sp.date) ? sp.date : undefined;
+  const chromeless = sp.print === "1";
+  const sheet = await buildSheet(date);
+
+  return (
+    <div className={`sheet-root ${chromeless ? "sheet-chromeless" : ""}`}>
+      <style>{SHEET_CSS}</style>
+      {!chromeless && (
+        <div className="sheet-actions mb-3 flex flex-wrap items-center justify-between gap-2">
+          <Link href={`/?date=${sheet.date}`} className="mono text-xs text-chalk-3 hover:text-chalk">← Slate</Link>
+          <SheetActions date={sheet.date} telegramEnabled={telegramReady()} />
+        </div>
+      )}
+      <article className="sheet">
+        <Header s={sheet} />
+        <GamesThatMatter s={sheet} />
+        <div className="sheet-cols">
+          <Edges s={sheet} />
+          <Leans s={sheet} />
+        </div>
+        <Radar s={sheet} />
+        <div className="sheet-cols">
+          <Windows s={sheet} />
+          <Weather s={sheet} />
+        </div>
+        <footer className="sheet-foot">
+          <span>{sheet.notAPick} Elo plus unit edges against the posted number, graded on the Record page after every final.</span>
+          <span>
+            Schedule and lines from nflverse and The Odds API. Forecasts from the National Weather Service. Stats as of {sheet.statsAsOf ? sheet.statsAsOf.slice(0, 10) : "not available"}. Built {new Date(sheet.builtAt).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} ET.
+          </span>
+        </footer>
+      </article>
+    </div>
+  );
+}
+
+/* ----------------------------------------------------------- sections */
+
+function Header({ s }: { s: Sheet }) {
+  return (
+    <header className="sheet-head">
+      <div>
+        <p className="eyebrow">
+          {s.season}
+          {s.week ? ` · Week ${s.week}` : ""} · NFL
+        </p>
+        <h1 className="display sheet-title">{s.dateLong}</h1>
+      </div>
+      <div className="sheet-brand">
+        <div className="display sheet-logo">EdgeSheet</div>
+        <div className="mono sheet-counts">
+          {s.counts.d1} games · {s.counts.divGames} division games
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function SectionTitle({ n, children, note }: { n: string; children: React.ReactNode; note?: string }) {
+  return (
+    <div className="sheet-sec">
+      <span className="sheet-sec-n mono">{n}</span>
+      <span className="display sheet-sec-t">{children}</span>
+      {note && <span className="sheet-sec-note">{note}</span>}
+    </div>
+  );
+}
+
+function Empty({ children }: { children: React.ReactNode }) {
+  return <p className="sheet-empty">{children}</p>;
+}
+
+function GamesThatMatter({ s }: { s: Sheet }) {
+  return (
+    <section>
+      <SectionTitle n="01" note="top 8 by Watch Score">Games that matter</SectionTitle>
+      {!s.games.length ? (
+        <Empty>{s.notes[0] ?? "No games on this date."}</Empty>
+      ) : (
+        <table className="sheet-table">
+          <thead>
+            <tr>
+              <th className="w-8">Score</th>
+              <th>Game</th>
+              <th className="w-16">Kick</th>
+              <th className="w-14">TV</th>
+              <th className="w-20">Line</th>
+              <th className="w-8">O/U</th>
+              <th className="w-24">Model lean</th>
+              <th>Why</th>
+            </tr>
+          </thead>
+          <tbody>
+            {s.games.map((g) => (
+              <tr key={g.id}>
+                <td className="mono sheet-score">{g.score}</td>
+                <td className="sheet-game">
+                  <Link href={`/game/${g.id}`}>
+                    {g.away} <span className="text-chalk-3">at</span> {g.home}
+                  </Link>
+                  {g.status !== "upcoming" && <span className={`sheet-status ${g.status === "live" ? "text-turf" : "text-brick"}`}>{g.status}</span>}
+                </td>
+                <td className="mono">{g.kickoff}</td>
+                <td>{g.network || "no TV listed"}</td>
+                <td className="mono">{g.line ?? "no line"}</td>
+                <td className="mono">{g.total ?? "–"}</td>
+                <td className="mono">{g.lean ?? "no model"}</td>
+                <td className="sheet-why">{g.why}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  );
+}
+
+function Edges({ s }: { s: Sheet }) {
+  return (
+    <section>
+      <SectionTitle n="02" note="biggest unit mismatch per game, percentile gap">Edges</SectionTitle>
+      {!s.edges.length ? (
+        <Empty>No charted unit edges on this slate. Advanced stats are not ingested for these teams.</Empty>
+      ) : (
+        <ol className="sheet-list">
+          {s.edges.map((e) => (
+            <li key={`${e.gameId}-${e.title}`}>
+              <span className="mono sheet-gap">+{Math.round(e.gap)}</span>
+              <span>
+                <b>{e.winner}</b> <span className="text-chalk-3">{e.strength} edge</span>
+                <br />
+                <span className="sheet-sub">{e.title}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </section>
+  );
+}
+
+function Leans({ s }: { s: Sheet }) {
+  return (
+    <section>
+      <SectionTitle n="03" note="model vs the posted number">Leans</SectionTitle>
+      {!s.leans.length ? (
+        <Empty>No side or total gap clears the lean threshold (2 points side, 2.5 points total).</Empty>
+      ) : (
+        <ol className="sheet-list">
+          {s.leans.map((l) => (
+            <li key={`${l.gameId}-${l.kind}`}>
+              <span className={`sheet-strength ${l.strength === "strong" ? "sheet-strong" : ""}`}>{l.strength}</span>
+              <span>
+                <b>{l.kind === "side" ? "Side" : "Total"}</b> {l.text}
+                {l.confidence ? <span className="text-chalk-3"> · {l.confidence} confidence</span> : null}
+                <br />
+                <span className="sheet-sub">{l.matchup}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </section>
+  );
+}
+
+function Radar({ s }: { s: Sheet }) {
+  return (
+    <section>
+      <SectionTitle n="04" note="top 10 radar scores playing today">Radar names to watch</SectionTitle>
+      {!s.radar.length ? (
+        <Empty>No radar names on this slate. The roster ingest has not run for these teams.</Empty>
+      ) : (
+        <table className="sheet-table sheet-radar">
+          <thead>
+            <tr>
+              <th className="w-8">Radar</th>
+              <th>Player</th>
+              <th className="w-12">Team</th>
+              <th className="w-8">Pos</th>
+              <th className="w-8">Class</th>
+              <th className="w-28">Forecast</th>
+              <th>Production</th>
+              <th className="w-24">Game</th>
+              <th className="w-16">Kick</th>
+            </tr>
+          </thead>
+          <tbody>
+            {s.radar.map((p) => (
+              <tr key={p.id}>
+                <td className="mono sheet-score">{p.score}</td>
+                <td>
+                  <Link href={`/player/${p.id}`}>{p.name}</Link>
+                </td>
+                <td>{p.team}</td>
+                <td>{p.pos}</td>
+                <td>{p.cls}</td>
+                <td>{p.band ?? p.tier}</td>
+                <td className="sheet-why">{p.stat}</td>
+                <td className="mono">{p.matchup}</td>
+                <td className="mono">{p.kickoff}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  );
+}
+
+function Windows({ s }: { s: Sheet }) {
+  return (
+    <section>
+      <SectionTitle n="05" note={s.counts.ranked ? "ranked games by hour, ET" : "top games by hour, ET"}>Kickoff windows</SectionTitle>
+      {!s.windows.length ? (
+        <Empty>No games to place on the timeline.</Empty>
+      ) : (
+        <div className="sheet-timeline">
+          {s.windows.map((w) => (
+            <div key={w.hour} className="sheet-slot">
+              <div className="mono sheet-hour">{w.hour}</div>
+              <div className="sheet-slot-games">
+                {w.games.map((g) => (
+                  <div key={g.id} className="sheet-slot-game">
+                    <span className="mono sheet-slot-score">{g.score}</span>
+                    <span>{g.label}</span>
+                    <span className="text-chalk-3">{g.network}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function Weather({ s }: { s: Sheet }) {
+  return (
+    <section>
+      <SectionTitle n="06" note="NWS forecast through the rules engine">Weather flags</SectionTitle>
+      {!s.weather.length ? (
+        <Empty>No flags. Every forecast is inside normal ranges or the game is indoors.</Empty>
+      ) : (
+        <ul className="sheet-list">
+          {s.weather.slice(0, 8).map((w, i) => (
+            <li key={`${w.gameId}-${w.title}-${i}`}>
+              <span className={`sheet-strength ${w.level === "elevated" ? "sheet-elevated" : ""}`}>{w.level}</span>
+              <span>
+                <b>{w.title}</b> <span className="text-chalk-3">{w.matchup}, {w.kickoff}</span>
+                <br />
+                <span className="sheet-sub">{w.effect}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------- css */
+
+const SHEET_CSS = `
+.sheet-root { max-width: 8.5in; margin: 0 auto; }
+.sheet { background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 0.38in 0.42in; color: var(--chalk); font-size: 9.5px; line-height: 1.3; }
+.sheet section { margin-top: 10px; break-inside: avoid; }
+.sheet a { color: inherit; text-decoration: none; }
+.sheet-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--navy); padding-bottom: 6px; }
+.sheet-title { font-size: 30px; line-height: 1; margin-top: 2px; }
+.sheet-brand { text-align: right; }
+.sheet-logo { font-size: 22px; line-height: 1; color: var(--navy); }
+.sheet-counts { font-size: 8.5px; color: var(--chalk-3); margin-top: 3px; }
+.sheet-sec { display: flex; align-items: baseline; gap: 6px; border-bottom: 1px solid var(--line); padding-bottom: 2px; margin-bottom: 4px; }
+.sheet-sec-n { font-size: 8px; color: var(--chalk-3); }
+.sheet-sec-t { font-size: 14px; color: var(--navy); }
+.sheet-sec-note { font-size: 8px; color: var(--chalk-3); margin-left: auto; text-transform: uppercase; letter-spacing: 0.04em; }
+.sheet-table { width: 100%; border-collapse: collapse; }
+.sheet-table th { text-align: left; font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--chalk-3); font-weight: 600; padding: 1px 4px 2px 0; }
+.sheet-table td { padding: 2.5px 4px 2.5px 0; border-top: 1px solid var(--ink-2); vertical-align: top; }
+.sheet-table tr:first-child td { border-top: 0; }
+.sheet-score { font-weight: 600; font-size: 11px; color: var(--navy); }
+.sheet-game { font-weight: 600; font-size: 10px; white-space: nowrap; }
+.sheet-status { margin-left: 4px; font-size: 7.5px; text-transform: uppercase; font-weight: 700; }
+.sheet-why { color: var(--chalk-2); }
+.sheet-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.sheet-list { list-style: none; margin: 0; padding: 0; }
+.sheet-list li { display: flex; gap: 6px; padding: 2.5px 0; border-top: 1px solid var(--ink-2); }
+.sheet-list li:first-child { border-top: 0; }
+.sheet-gap { min-width: 24px; font-weight: 600; font-size: 11px; color: var(--turf); }
+.sheet-sub { color: var(--chalk-3); }
+.sheet-strength { min-width: 46px; font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; color: var(--chalk-3); padding-top: 1px; }
+.sheet-strong { color: var(--navy); }
+.sheet-elevated { color: var(--brick); }
+.sheet-empty { color: var(--chalk-3); padding: 2px 0; }
+.sheet-timeline { display: flex; flex-direction: column; gap: 3px; }
+.sheet-slot { display: grid; grid-template-columns: 44px 1fr; gap: 6px; border-top: 1px solid var(--ink-2); padding-top: 3px; }
+.sheet-slot:first-child { border-top: 0; padding-top: 0; }
+.sheet-hour { font-weight: 600; color: var(--navy); }
+.sheet-slot-games { display: flex; flex-direction: column; gap: 1px; }
+.sheet-slot-game { display: flex; gap: 5px; white-space: nowrap; }
+.sheet-slot-score { min-width: 16px; font-weight: 600; color: var(--chalk-2); }
+.sheet-foot { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 4px; display: flex; flex-direction: column; gap: 2px; font-size: 7.5px; color: var(--chalk-3); }
+.sheet-chromeless + *, body:has(.sheet-chromeless) .topbar, body:has(.sheet-chromeless) .tabbar, body:has(.sheet-chromeless) footer:not(.sheet-foot) { display: none !important; }
+body:has(.sheet-chromeless) main { padding: 0 !important; max-width: none !important; }
+body:has(.sheet-chromeless) .sheet-root { max-width: none; }
+body:has(.sheet-chromeless) .sheet { border: 0; border-radius: 0; }
+@media print {
+  @page { size: letter; margin: 0.3in; }
+  .topbar, .tabbar, .sheet-actions, body > footer { display: none !important; }
+  main { padding: 0 !important; max-width: none !important; }
+  .sheet-root { max-width: none; }
+  .sheet { border: 0; padding: 0; }
+  .sheet section { page-break-inside: avoid; }
+  .sheet a { color: inherit; }
+}
+`;

@@ -1,0 +1,185 @@
+{
+ "gameId": "401872975",
+ "season": 2026,
+ "week": 4,
+ "pregame": {
+  "capturedAt": "2026-10-04T02:06:10.325Z",
+  "kickoff": "2026-10-04T20:25:00.000Z",
+  "away": "Broncos",
+  "home": "49ers",
+  "abbr": {
+   "home": "SF",
+   "away": "DEN"
+  },
+  "scoutScore": 82,
+  "whyWatch": "Two winning teams: Broncos 2-1, 3rd in the AFC West; 49ers 3-0, 1st in the NFC West.",
+  "pressurePoint": "Broncos deep passing vs 49ers secondary. The 49ers are No. 6 of 32 at limiting explosive passes (1.17). The Broncos rank No. 24 in pass explosiveness (1.22). This is not a lean. It is a mismatch, and a prominent one. Deep balls are the lowest-percentage play in this game. The Broncos need the underneath game and yards after catch. Watch the longest Broncos completion. If it is under 25 yards at the half, the 49ers have won the matchup.",
+  "edges": [
+   {
+    "a": "Broncos deep passing",
+    "b": "49ers secondary",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Broncos",
+    "why": "The 49ers are No. 6 of 32 at limiting explosive passes (1.17). The Broncos rank No. 24 in pass explosiveness (1.22). This is not a lean. It is a mismatch, and a prominent one. Deep balls are the lowest-percentage play in this game. The Broncos need the underneath game and yards after catch."
+   },
+   {
+    "a": "49ers deep passing",
+    "b": "Broncos secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "49ers",
+    "why": "The 49ers are No. 6 of 32 in pass explosiveness (1.50). The Broncos rank No. 24 at limiting explosive passes (1.40). This is not a lean. It is a mismatch, and a prominent one. The Broncos do not keep the lid on. The 49ers will take shots, and the market total may be underpriced if they land."
+   },
+   {
+    "a": "49ers ground game",
+    "b": "Broncos run front",
+    "edge": "offense",
+    "axis": "line",
+    "offTeam": "49ers",
+    "why": "The 49ers are No. 14 of 32 in rush EPA per carry (-0.03). The Broncos rank No. 32 against the run by EPA (0.15). This is not a lean. It is a mismatch, and a prominent one. The line of scrimmage belongs to the 49ers. Second-level runs and play-action are live all afternoon."
+   },
+   {
+    "a": "Broncos run game",
+    "b": "49ers run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Broncos",
+    "why": "The Broncos are No. 20 of 32 in rush success rate (39%). The 49ers rank No. 32 against the run (52%). A real edge, not a lock. The Broncos should stay on schedule on the ground, which keeps third downs short and the clock moving."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4427325",
+    "name": "Renardo Green",
+    "team": "49ers",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Matchup",
+    "score": 92
+   },
+   {
+    "id": "3040151",
+    "name": "George Kittle",
+    "team": "49ers",
+    "pos": "TE",
+    "group": "TE",
+    "tier": "Matchup",
+    "score": 74
+   },
+   {
+    "id": "4685369",
+    "name": "Gracen Halton",
+    "team": "49ers",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Rookie",
+    "score": 64
+   },
+   {
+    "id": "4432244",
+    "name": "Romello Height",
+    "team": "49ers",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Rookie",
+    "score": 50
+   },
+   {
+    "id": "4702555",
+    "name": "Jonah Coleman",
+    "team": "Broncos",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Rookie",
+    "score": 32
+   },
+   {
+    "id": "4693337",
+    "name": "Marques Sigle",
+    "team": "49ers",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Breakout",
+    "score": 71
+   },
+   {
+    "id": "4600981",
+    "name": "Pat Bryant",
+    "team": "Broncos",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 65
+   },
+   {
+    "id": "4382401",
+    "name": "Riley Moss",
+    "team": "Broncos",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 92
+   },
+   {
+    "id": "4360853",
+    "name": "Talanoa Hufanga",
+    "team": "Broncos",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 91
+   },
+   {
+    "id": "4039059",
+    "name": "Brandon Jones",
+    "team": "Broncos",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 89
+   },
+   {
+    "id": "4361741",
+    "name": "Brock Purdy",
+    "team": "49ers",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0036256",
+    "name": "Colton McKivitz",
+    "team": "49ers",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "SF",
+   "line": -3
+  },
+  "total": 48.5,
+  "projection": {
+   "winner": "SF",
+   "winProb": 0.6094084600439507,
+   "margin": 3.75,
+   "home": 26,
+   "away": 23,
+   "modelSide": "SF",
+   "confidence": "high",
+   "modelTotal": 54,
+   "totalLean": "over"
+  },
+  "consensus": {
+   "median": 6.2,
+   "favorite": "SF",
+   "side": "SF",
+   "sideCount": 3,
+   "of": 4
+  }
+ }
+}

@@ -9,7 +9,7 @@ export const maxDuration = 120;
 /** GET ?id=: the evidence packet a report is checked against, and the cached report record. For auditing. */
 export async function GET(req: Request) {
   const id = new URL(req.url).searchParams.get("id") ?? "";
-  if (!/^\d+$/.test(id)) return NextResponse.json({ error: "bad id" }, { status: 400 });
+  if (!/^[\w-]+$/.test(id)) return NextResponse.json({ error: "bad id" }, { status: 400 });
   const game = await getGame(id);
   if (!game) return NextResponse.json({ error: "no such game" }, { status: 404 });
   const packet = buildPacket(game);
@@ -19,10 +19,9 @@ export async function GET(req: Request) {
 /** POST { id, force? }: write (or rewrite) the report for one game, validate it, cache it. */
 export async function POST(req: Request) {
   const body = (await req.json().catch(() => null)) as { id?: string; force?: boolean } | null;
-  if (!body?.id || !/^\d+$/.test(body.id)) return NextResponse.json({ error: "bad id" }, { status: 400 });
+  if (!body?.id || !/^[\w-]+$/.test(body.id)) return NextResponse.json({ error: "bad id" }, { status: 400 });
   const game = await getGame(body.id);
   if (!game) return NextResponse.json({ error: "no such game" }, { status: 404 });
-  if (game.division !== "FBS" && game.division !== "FCS") return NextResponse.json({ error: "reports are written for Division I games only" }, { status: 400 });
   try {
     const out = await generateReport(game, { force: Boolean(body.force) });
     if (isUnavailable(out)) return NextResponse.json({ error: out.unavailable, unavailable: true }, { status: 503 });

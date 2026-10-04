@@ -1,0 +1,203 @@
+{
+ "gameId": "401872977",
+ "season": 2026,
+ "week": 4,
+ "pregame": {
+  "capturedAt": "2026-10-04T02:06:10.323Z",
+  "kickoff": "2026-10-04T20:25:00.000Z",
+  "away": "Chargers",
+  "home": "Seahawks",
+  "abbr": {
+   "home": "SEA",
+   "away": "LAC"
+  },
+  "scoutScore": 72,
+  "whyWatch": "Genesis Smith (LAC SAF, Rookie) is a top-of-the-radar name: drafted No. 131, producing like pick No. 1.",
+  "pressurePoint": "Chargers ground game vs Seahawks run front. The Seahawks are No. 1 of 32 against the run by EPA (-0.35). The Chargers rank No. 28 in rush EPA per carry (-0.22). This is not a lean. It is a mismatch, and a prominent one. The Seahawks win first contact. Backs get met in the backfield; screens and the quick game are the counter. Watch tackles for loss. The Seahawks living in the backfield early is the tell.",
+  "edges": [
+   {
+    "a": "Chargers ground game",
+    "b": "Seahawks run front",
+    "edge": "defense",
+    "axis": "line",
+    "offTeam": "Chargers",
+    "why": "The Seahawks are No. 1 of 32 against the run by EPA (-0.35). The Chargers rank No. 28 in rush EPA per carry (-0.22). This is not a lean. It is a mismatch, and a prominent one. The Seahawks win first contact. Backs get met in the backfield; screens and the quick game are the counter."
+   },
+   {
+    "a": "Seahawks ground game",
+    "b": "Chargers run front",
+    "edge": "defense",
+    "axis": "line",
+    "offTeam": "Seahawks",
+    "why": "The Chargers are No. 12 of 32 against the run by EPA (-0.12). The Seahawks rank No. 30 in rush EPA per carry (-0.26). This is not a lean. It is a mismatch, and a prominent one. The Chargers win first contact. Backs get met in the backfield; screens and the quick game are the counter."
+   },
+   {
+    "a": "Seahawks deep passing",
+    "b": "Chargers secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Seahawks",
+    "why": "The Seahawks are No. 9 of 32 in pass explosiveness (1.43). The Chargers rank No. 23 at limiting explosive passes (1.40). A clear edge, the kind that shapes a game plan. The Seahawks have the deep ball available. Watch whether the Chargers roll a safety over after the first one."
+   },
+   {
+    "a": "Chargers on passing downs",
+    "b": "Seahawks pressure",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Chargers",
+    "why": "The Seahawks are No. 7 of 32 on passing downs (32%). The Chargers rank No. 20 in passing-downs success (34%). A clear edge, the kind that shapes a game plan. The Seahawks get off the field on long downs. Early-down efficiency is everything for the Chargers."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "2971622",
+    "name": "Leonard Williams",
+    "team": "Seahawks",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Matchup",
+    "score": 81
+   },
+   {
+    "id": "16710",
+    "name": "Khalil Mack",
+    "team": "Chargers",
+    "pos": "OLB",
+    "group": "EDGE",
+    "tier": "Matchup",
+    "score": 78
+   },
+   {
+    "id": "4950551",
+    "name": "Genesis Smith",
+    "team": "Chargers",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 84
+   },
+   {
+    "id": "4682818",
+    "name": "Nick Barrett",
+    "team": "Chargers",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Rookie",
+    "score": 61
+   },
+   {
+    "id": "4685512",
+    "name": "Jadarian Price",
+    "team": "Seahawks",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Rookie",
+    "score": 44
+   },
+   {
+    "id": "4427404",
+    "name": "Cam Hart",
+    "team": "Chargers",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 91
+   },
+   {
+    "id": "4567222",
+    "name": "Nehemiah Pritchett",
+    "team": "Seahawks",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 78
+   },
+   {
+    "id": "4612826",
+    "name": "Ladd McConkey",
+    "team": "Chargers",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 77
+   },
+   {
+    "id": "4576297",
+    "name": "AJ Barner",
+    "team": "Seahawks",
+    "pos": "TE",
+    "group": "TE",
+    "tier": "Breakout",
+    "score": 68
+   },
+   {
+    "id": "4046675",
+    "name": "Julian Love",
+    "team": "Seahawks",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 90
+   },
+   {
+    "id": "4430878",
+    "name": "Jaxon Smith-Njigba",
+    "team": "Seahawks",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Watch",
+    "score": 86
+   },
+   {
+    "id": "00-0039897",
+    "name": "Joe Alt",
+    "team": "Chargers",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0037009",
+    "name": "Rashawn Slater",
+    "team": "Chargers",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0037812",
+    "name": "Abraham Lucas",
+    "team": "Seahawks",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "SEA",
+   "line": -7
+  },
+  "total": 42.5,
+  "projection": {
+   "winner": "SEA",
+   "winProb": 0.8252489821505197,
+   "margin": 12.63,
+   "home": 28,
+   "away": 15,
+   "modelSide": "SEA",
+   "confidence": "high",
+   "modelTotal": 36.5,
+   "totalLean": "under"
+  },
+  "consensus": {
+   "median": 12.1,
+   "favorite": "SEA",
+   "side": "SEA",
+   "sideCount": 4,
+   "of": 4
+  }
+ }
+}

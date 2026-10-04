@@ -2,11 +2,11 @@ import Image from "next/image";
 import { Headshot } from "./Headshot";
 
 /** Same URL as headshotUrl() in src/lib/espn.ts, inlined so this file stays safe to import from client components. */
-const headshotUrl = (id: string | number) => `https://a.espncdn.com/i/headshots/college-football/players/full/${id}.png`;
+const headshotUrl = (id: string | number) => `https://a.espncdn.com/i/headshots/nfl/players/full/${id}.png`;
 
 /**
- * Player avatar. With a playerId it tries the ESPN headshot (CFBD athlete ids
- * are ESPN ids); when that 404s, or when there is no id, it shows the jersey
+ * Player avatar. With a playerId it tries the ESPN headshot (nflverse espn_id);
+ * when that 404s, or when there is no id, it shows the jersey
  * number in the team color. The team logo sits in the corner either way.
  */
 export function Avatar({
@@ -16,6 +16,7 @@ export function Avatar({
   size = "md",
   playerId,
   name,
+  src,
 }: {
   jersey?: number | null;
   color: string;
@@ -23,6 +24,8 @@ export function Avatar({
   size?: "sm" | "md" | "lg";
   playerId?: string | number;
   name?: string;
+  /** Explicit headshot URL (nflverse headshot_url). Wins over the ESPN id. */
+  src?: string;
 }) {
   const dim = size === "lg" ? "h-16 w-16 text-2xl" : size === "md" ? "h-12 w-12 text-lg" : "h-9 w-9 text-sm";
   const badge = size === "lg" ? "h-7 w-7 -right-1 -bottom-1" : size === "md" ? "h-5 w-5 -right-0.5 -bottom-0.5" : "h-4 w-4 -right-0.5 -bottom-0.5";
@@ -35,9 +38,9 @@ export function Avatar({
   );
   return (
     <span className={`relative inline-flex shrink-0 items-center justify-center rounded-full ${dim}`} style={{ background: color }}>
-      {playerId ? (
+      {src || (playerId && /^\d+$/.test(String(playerId))) ? (
         <Headshot
-          src={headshotUrl(playerId)}
+          src={src ?? headshotUrl(playerId!)}
           alt={name ?? ""}
           className="absolute inset-0 h-full w-full rounded-full bg-panel-2 object-cover object-top ring-1 ring-line"
           fallback={jerseyCircle}

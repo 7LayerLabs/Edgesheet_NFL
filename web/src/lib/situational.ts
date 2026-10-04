@@ -1,6 +1,6 @@
 /**
  * Situational tendencies from play-by-play (data/generated/situational.json,
- * written by scripts/ingest-plays.mjs). Server-only: reads the disk digest,
+ * written by scripts/ingest.mjs from nflverse play-by-play). Server-only: reads the disk digest,
  * memoized by file mtime like generated.ts.
  *
  * Every number shown comes from counted plays. Rates carry their sample size,
@@ -39,7 +39,7 @@ interface RawUnit {
 }
 export interface SituationName { name: string; id?: string; n: number; unmatched?: boolean }
 interface RawTeam {
-  c: "fbs" | "fcs" | "ii" | "iii" | null;
+  c: "nfl" | "fbs" | "fcs" | "ii" | "iii" | null;
   games: number;
   off: RawUnit;
   def: RawUnit;
@@ -159,7 +159,7 @@ function tables(): Map<string, number[]> {
     const dg = situationalDigest();
     if (!dg) return out;
     for (const t of Object.values(dg.teams)) {
-      if (t.c !== "fbs" && t.c !== "fcs") continue;
+      if (t.c !== "nfl" && t.c !== "fbs" && t.c !== "fcs") continue;
       for (const side of ["off", "def"] as Side[]) {
         const u = t[side];
         for (const d of SPLITS) {
@@ -195,7 +195,7 @@ function rows(t: RawTeam, side: Side): SplitRow[] {
     const rate = den > 0 ? num / den : null;
     const small = n < MIN_SAMPLE;
     let r: { rank: number; of: number; pct: number } | undefined;
-    if (rate !== null && !small && (t.c === "fbs" || t.c === "fcs")) {
+    if (rate !== null && !small && (t.c === "nfl" || t.c === "fbs" || t.c === "fcs")) {
       const sorted = tables().get(`${t.c}|${side}|${d.key}`);
       // style: rank 1 = highest rate (most pass-heavy). quality: rank 1 = best for this side. tempo: rank 1 = fastest.
       const wantHigh = d.kind === "style" ? true : d.kind === "tempo" ? Boolean(d.fastHigh) : side === "off" ? Boolean(d.offHigh) : !d.offHigh;
@@ -287,7 +287,7 @@ export function situationCues(offSchool: string, defSchool: string): SituationCu
     const c = row(d, "def", ck);
     const oc = row(o, "off", ck);
     if (ok(p) && ok(c) && ok(oc)) {
-      push(ck, `${offSchool} throws on ${p.value} of ${words} and converts ${oc.value.replace(/ \(.*/, "")} (${rankText(oc)}). ${defSchool} allows a ${c.value.replace(/ \(.*/, "")} conversion rate there (${rankText(c)}, ${c.n} plays).`, oc, c);
+      push(ck, `The ${offSchool} throw on ${p.value} of ${words} and convert ${oc.value.replace(/ \(.*/, "")} (${rankText(oc)}). The ${defSchool} allow a ${c.value.replace(/ \(.*/, "")} conversion rate there (${rankText(c)}, ${c.n} plays).`, oc, c);
     }
   }
 
@@ -296,7 +296,7 @@ export function situationCues(offSchool: string, defSchool: string): SituationCu
   const dh = row(d, "def", "pdHavoc");
   const ds = row(d, "def", "pdSucc");
   if (ok(ps) && ok(dh) && ok(ds)) {
-    push("pd", `On passing downs ${offSchool} succeeds ${ps.value} (${rankText(ps)}). ${defSchool} creates havoc on ${dh.value.replace(/ \(.*/, "")} of those snaps (${rankText(dh)}) and allows ${ds.value.replace(/ \(.*/, "")} success (${rankText(ds)}).`, ps, dh);
+    push("pd", `On passing downs the ${offSchool} succeed ${ps.value} (${rankText(ps)}). The ${defSchool} create havoc on ${dh.value.replace(/ \(.*/, "")} of those snaps (${rankText(dh)}) and allow ${ds.value.replace(/ \(.*/, "")} success (${rankText(ds)}).`, ps, dh);
   }
 
   // Red zone: offense run/pass habit and TD rate vs defense TD rate allowed.
@@ -304,8 +304,8 @@ export function situationCues(offSchool: string, defSchool: string): SituationCu
   const rt = row(o, "off", "rzTd");
   const dt = row(d, "def", "rzTd");
   if (ok(rp) && ok(rt) && ok(dt)) {
-    const habit = (rp.rate ?? 0.5) >= 0.55 ? "throws" : (rp.rate ?? 0.5) <= 0.4 ? "runs" : "stays balanced";
-    push("rz", `Inside the 20 ${offSchool} ${habit} (${rp.value} pass) and scores a touchdown on ${rt.value.replace(/ \(.*/, "")} of trips (${rankText(rt)}, ${rt.n} trips). ${defSchool} allows a touchdown on ${dt.value.replace(/ \(.*/, "")} of trips (${rankText(dt)}, ${dt.n} trips).`, rt, dt);
+    const habit = (rp.rate ?? 0.5) >= 0.55 ? "throw" : (rp.rate ?? 0.5) <= 0.4 ? "run" : "stay balanced";
+    push("rz", `Inside the 20 the ${offSchool} ${habit} (${rp.value} pass) and score a touchdown on ${rt.value.replace(/ \(.*/, "")} of trips (${rankText(rt)}, ${rt.n} trips). The ${defSchool} allow a touchdown on ${dt.value.replace(/ \(.*/, "")} of trips (${rankText(dt)}, ${dt.n} trips).`, rt, dt);
   }
 
   // Explosives: which kind the offense makes and the defense gives up.
@@ -316,8 +316,8 @@ export function situationCues(offSchool: string, defSchool: string): SituationCu
   if (ok(xr) && ok(dxr) && ok(xp) && ok(dxp)) {
     const rushGap = Math.abs((xr.pct ?? 50) - 50) + Math.abs((dxr.pct ?? 50) - 50);
     const passGap = Math.abs((xp.pct ?? 50) - 50) + Math.abs((dxp.pct ?? 50) - 50);
-    if (rushGap >= passGap) push("xRush", `${offSchool} rips a 12-plus yard run on ${xr.value} of carries (${rankText(xr)}). ${defSchool} allows one on ${dxr.value.replace(/ \(.*/, "")} (${rankText(dxr)}).`, xr, dxr);
-    else push("xPass", `${offSchool} completes a 20-plus yard pass on ${xp.value} of dropbacks (${rankText(xp)}). ${defSchool} allows one on ${dxp.value.replace(/ \(.*/, "")} (${rankText(dxp)}).`, xp, dxp);
+    if (rushGap >= passGap) push("xRush", `The ${offSchool} rip a 12-plus yard run on ${xr.value} of carries (${rankText(xr)}). The ${defSchool} allow one on ${dxr.value.replace(/ \(.*/, "")} (${rankText(dxr)}).`, xr, dxr);
+    else push("xPass", `The ${offSchool} complete a 20-plus yard pass on ${xp.value} of dropbacks (${rankText(xp)}). The ${defSchool} allow one on ${dxp.value.replace(/ \(.*/, "")} (${rankText(dxp)}).`, xp, dxp);
   }
 
   // Score state: how the offense changes when behind, and the defense's record against trailing offenses.
@@ -325,14 +325,14 @@ export function situationCues(offSchool: string, defSchool: string): SituationCu
   const cp = row(o, "off", "closePass");
   const dts = row(d, "def", "pdSucc");
   if (ok(tp) && ok(cp) && ok(dts) && Math.abs((tp.rate ?? 0) - (cp.rate ?? 0)) >= 0.12) {
-    push("trail", `${offSchool} throws on ${tp.value} when trailing by 9 or more, against ${cp.value.replace(/ \(.*/, "")} in one-score games. If they fall behind, ${defSchool}'s passing-downs defense (${rankText(dts)}) is the unit that matters.`, tp, dts);
+    push("trail", `The ${offSchool} throw on ${tp.value} when trailing by 9 or more, against ${cp.value.replace(/ \(.*/, "")} in one-score games. If they fall behind, the ${defSchool} passing-downs defense (${rankText(dts)}) is the unit that matters.`, tp, dts);
   }
 
   // Tempo: only when the offense is at either end.
   const nh = row(o, "off", "noHuddle");
   const ppm = row(o, "off", "playsPerMin");
   if (ok(nh) && ok(ppm) && ((nh.pct ?? 50) >= 80 || (nh.pct ?? 50) <= 20)) {
-    push("tempo", `${offSchool} goes no-huddle on ${nh.value} of tagged snaps (${rankText(nh)} fastest) and runs ${ppm.value.replace(/ \(.*/, "")} of possession (${rankText(ppm)}).`, nh, ppm);
+    push("tempo", `The ${offSchool} go no-huddle on ${nh.value} of tagged snaps (${rankText(nh)} fastest) and run ${ppm.value.replace(/ \(.*/, "")} of possession (${rankText(ppm)}).`, nh, ppm);
   }
 
   return out.sort((a, b) => b.weight - a.weight);
@@ -394,7 +394,7 @@ export type PassingDownsVerdict = "played out" | "mixed" | "did not play out" | 
 export function gradePassingDowns(gameId: string, offSchool: string, defSchool: string, edge: "offense" | "defense" | "even"): { verdict: PassingDownsVerdict; actual: string } | undefined {
   const g = gameSituation(gameId, offSchool);
   if (!g) return undefined;
-  const line = `${offSchool} on passing downs: ${g.pd.succ} of ${g.pd.n} successful${g.pd.rate !== null ? ` (${pctF(g.pd.rate)})` : ""}; third down ${g.third.conv} of ${g.third.n}${g.third.rate !== null ? ` (${pctF(g.third.rate)})` : ""}.`;
+  const line = `The ${offSchool} on passing downs: ${g.pd.succ} of ${g.pd.n} successful${g.pd.rate !== null ? ` (${pctF(g.pd.rate)})` : ""}; third down ${g.third.conv} of ${g.third.n}${g.third.rate !== null ? ` (${pctF(g.third.rate)})` : ""}.`;
   if (edge === "even") return { verdict: "unmeasured", actual: line };
   if (g.pd.n < 8 || g.pd.rate === null) return { verdict: "unmeasured", actual: `${line} Too few passing downs to grade.` };
   const base = seasonPd(edge === "offense" ? offSchool : defSchool, edge === "offense" ? "off" : "def");
@@ -405,6 +405,6 @@ export function gradePassingDowns(gameId: string, offSchool: string, defSchool: 
   const pdFor = pdDelta * sign;
   const thirdFor = thirdDelta * sign;
   const verdict: PassingDownsVerdict = pdFor >= 0.08 || (pdFor >= 0.04 && thirdFor >= 0.04) ? "played out" : pdFor <= -0.08 ? "did not play out" : "mixed";
-  const who = edge === "offense" ? `${offSchool}'s season rate` : `what ${defSchool} allows all season`;
+  const who = edge === "offense" ? `the ${offSchool} season rate` : `what the ${defSchool} allow all season`;
   return { verdict, actual: `${line} Season baseline ${pctF(base.pd)} (${who}, ${base.pdN} plays).` };
 }

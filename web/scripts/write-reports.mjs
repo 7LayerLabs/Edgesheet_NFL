@@ -50,7 +50,7 @@ if (!ids.length) {
   }
   rows.sort((a, b) => b.score - a.score);
   ids = rows.slice(0, limit).map((r) => r.id);
-  console.log(`${rows.length} locked Division I games on ${date}${Number.isFinite(limit) ? `, taking the top ${ids.length} by Scout Score` : ""}.`);
+  console.log(`${rows.length} locked Division I games on ${date}${Number.isFinite(limit) ? `, taking the top ${ids.length} by Watch Score` : ""}.`);
   for (const r of rows.slice(0, limit)) console.log(`  ${r.id}  ${r.label}  (score ${r.score})`);
 }
 

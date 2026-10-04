@@ -27,9 +27,9 @@ export interface Projection {
   confidence: "high" | "medium" | "low";
 }
 
-const HOME_ELO = 65; // typical college home-field edge in Elo points
-const ELO_PER_POINT = 28; // Elo difference per point of spread, college scale
-const SIGMA = 16; // standard deviation of college margins
+const HOME_ELO = 48; // NFL home-field edge in Elo points (scripts/lib/elo.mjs)
+const ELO_PER_POINT = 25; // Elo difference per point of spread, NFL scale
+const SIGMA = 13.5; // standard deviation of NFL margins
 
 /**
  * Blend weights. The constants below are the live model. scripts/backtest.mjs writes fitted
@@ -87,9 +87,8 @@ interface Input {
   weather?: WeatherInput;
 }
 
-// Calibrated 2026-10-03: 28.5 ran 3.5 points hot over four backtest seasons and 5.9 hot against today's market;
-// the four-season zero-bias value is 26.8 and scoring is trending down, so 26.2 splits the difference.
-const AVG_PPG = 26.2;
+// NFL average points per team per game, 2024 and 2025 regular seasons (22.9 and 22.6). Re-fit after scripts/backtest.mjs.
+const AVG_PPG = 22.8;
 
 /** Expected points for one offense against one defense: league average plus EPA deviations over the game's pace. */
 function expectedPoints(off: GenTeam, def: GenTeam, means: { offPpa: number; defPpa: number }, plays: number): number {
@@ -173,8 +172,8 @@ export function projectGame(i: Input): Projection | undefined {
   }
   if (modelTotal !== undefined && weatherAdj) modelTotal = Math.round((modelTotal + weatherAdj) * 2) / 2;
 
-  const total = i.market.total?.line ?? modelTotal ?? 50;
-  if (!i.market.total && modelTotal === undefined) basis.push("No market total and no tendency data; 50 assumed for the score line.");
+  const total = i.market.total?.line ?? modelTotal ?? 44;
+  if (!i.market.total && modelTotal === undefined) basis.push("No market total and no tendency data; 44 assumed for the score line.");
 
   let totalLean: Projection["totalLean"];
   let totalGap: number | undefined;
@@ -196,12 +195,12 @@ export function projectGame(i: Input): Projection | undefined {
   // Shape of the game from pass rates and the line-of-scrimmage edges.
   const hp = i.homePassRate ?? 0.5;
   const ap = i.awayPassRate ?? 0.5;
-  const lineEdges = i.matchups.filter((m) => /offensive line|run game/i.test(m.a) && m.edge !== "even");
+  const lineEdges = i.matchups.filter((m) => /offensive line|run game|ground game/i.test(m.a) && m.edge !== "even");
   let shape: string;
   if (hp <= 0.45 && ap <= 0.45) shape = "Two run-first offenses: fewer possessions, a lower-variance game where the first turnover matters more than usual.";
   else if (hp >= 0.56 && ap >= 0.56) shape = "Two pass-first offenses: more possessions, more variance, and the total has room on the high side if either secondary breaks.";
   else if (lineEdges.length >= 2 && lineEdges.every((m) => m.a.startsWith(winner === i.home.abbr ? i.homeSchool : i.awaySchool) ? m.edge === "offense" : m.edge === "defense"))
-    shape = `${winner} controls the line of scrimmage on both sides. Expect them to shorten the game once ahead.`;
+    shape = `${winner} control the ground game on both sides. Expect them to shorten the game once ahead.`;
   else shape = "Balanced styles. The unit edges above decide it more than tempo does.";
 
   // Where the model disagrees with the number.

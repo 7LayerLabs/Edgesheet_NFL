@@ -1,62 +1,110 @@
 /**
- * Scouting Radar: who NFL scouts are looking at, by draft class, built only
- * from verified inputs: the roster (class, size), season production,
- * usage share, recruiting pedigree, and the team's level of play.
+ * Watch radar: who is worth your eyes in an NFL game, built only from verified
+ * inputs: nflverse weekly stats (this season and last), snap counts, the draft
+ * file, the official injury report, and the depth chart.
  *
- * This is not a draft projection and never claims to be one. It ranks
- * evidence. Every number on a card can be traced to a source row.
+ * Three lenses, all from real data:
+ *   Rookie    first-year players ranked by production against their draft slot
+ *             ("drafted 118th, producing like a top-30 pick")
+ *   Breakout  year 2 and 3 players whose target share or production per game
+ *             jumped against last season
+ *   Matchup   the player a unit edge puts on the spot in one game (assigned per
+ *             game in slate.ts through matchupPlayers())
+ *   Watch     a starter worth knowing, by production and snap share
+ *
+ * It is not a grade and never claims to be one. It ranks evidence. Every number
+ * on a card can be traced to a source row.
  */
-import { genPlayers, genMeta, type GenPlayer } from "./generated";
+import { genPlayers, genMeta, type GenPlayer, type StatLine } from "./generated";
 import { memoSync } from "./memo";
+import { adjustedIndex, type QocLabel } from "./adjusted";
+import { movementFor, movementStamp } from "./movement";
 
 export type PosGroup = "QB" | "RB" | "WR" | "TE" | "OL" | "DL" | "EDGE" | "LB" | "CB" | "S" | "ST";
-export type RadarTier = "Eligible" | "Future" | "Sleeper" | "Watch";
+export type RadarTier = "Rookie" | "Breakout" | "Matchup" | "Watch";
 
 export interface Evidence {
   label: string; // "612 rec yds"
-  note?: string; // "top 4% of FBS WR"
-  kind: "production" | "pedigree" | "size" | "usage" | "unit";
+  note?: string; // "top 4% of NFL WR"
+  kind: "production" | "pedigree" | "size" | "usage" | "unit" | "breakout" | "injury" | "matchup";
+}
+
+export interface Breakout {
+  metric: string; // "target share", "production per game"
+  last: number;
+  now: number;
+  delta: number; // now - last, same unit
+  label: string; // "Target share 14% to 24%"
 }
 
 export interface RadarPlayer {
   id: string;
   name: string;
-  team: string;
-  classification: "fbs" | "fcs" | "ii" | "iii" | null;
+  team: string; // nickname
+  classification: "nfl";
   conference: string | null;
   pos: string;
   group: PosGroup;
-  classYear: number | null; // 1..4
-  cls: string; // Fr So Jr Sr
-  draftClass: number; // 2027, 2028, 2029
+  /** Years in the league, 1 = rookie. */
+  classYear: number | null;
+  /** "Rookie", "Year 2", "Year 3", "10th season". */
+  cls: string;
+  /** Draft year (rookie year for undrafted players). */
+  draftClass: number;
   eligibilityNote: string;
   height: number | null;
   weight: number | null;
   jersey: number | null;
-  score: number; // 0..100
-  production: number; // 0..100 percentile within classification + group
-  pedigree: number; // 0..100
-  usage: number; // 0..100
-  size: boolean | null; // meets NFL size norms for the position; null when unknown
+  score: number; // 0..100 Watch Score for the player
+  production: number; // 0..100 percentile within NFL + group
+  /** Draft slot score 0..100 (pick 1 = 100, pick 32 = 75, pick 100 = 55, undrafted = 8). Kept under the college name so shared UI compiles. */
+  pedigree: number;
+  usage: number; // 0..100 snap share
+  size: boolean | null;
   tier: RadarTier;
   evidence: Evidence[];
-  stat: string; // one-line stat summary
+  stat: string;
   statLine: { label: string; value: string }[];
-  watch: string; // what to watch, position-specific
+  watch: string;
+  /** Unused in the NFL (recruiting stars); null. */
   stars: number | null;
+  /** Overall draft pick. */
   recruitRank: number | null;
-  hometown: string | null;
+  hometown: string | null; // college
   gamesPlayed: number | null;
+  rawProduction: number;
+  adjustedProduction: number | null;
+  qoc: number | null;
+  qocLabel: QocLabel;
+  delta: number | null;
+  /* NFL additions */
+  slot: number | null;
+  slotYear: number | null;
+  /** Production percentile minus the slot score. Positive = producing above his draft slot. Rookies and second-year players only. */
+  vsSlot: number | null;
+  /** The pick his production percentile would correspond to ("producing like pick No. 21"). */
+  eqPick: number | null;
+  breakout: Breakout | null;
+  injury: { status: string | null; practice: string | null; injury: string | null; week: number } | null;
+  depth: { pos: string; rank: number } | null;
+  snapShare: number | null;
+  lastSeason: string | null;
+  college: string | null;
+  draftedBy: string | null;
+  /** nflverse headshot (nfl.com CDN), used when the ESPN id is missing. */
+  headshot: string | null;
+  /** Set by matchupPlayers(): why this player is on the spot in one game. */
+  lensNote?: string;
 }
 
 /* ----------------------------------------------------------- helpers */
 
 const GROUP: Record<string, PosGroup> = {
-  QB: "QB", RB: "RB", FB: "RB", WR: "WR", TE: "TE",
-  OL: "OL", OT: "OL", OG: "OL", C: "OL", G: "OL", T: "OL",
+  QB: "QB", RB: "RB", FB: "RB", HB: "RB", WR: "WR", TE: "TE",
+  OL: "OL", OT: "OL", OG: "OL", C: "OL", G: "OL", T: "OL", LT: "OL", RT: "OL", LG: "OL", RG: "OL",
   DL: "DL", DT: "DL", NT: "DL", DE: "EDGE", EDGE: "EDGE", OLB: "EDGE",
   LB: "LB", ILB: "LB", MLB: "LB",
-  DB: "CB", CB: "CB", S: "S", FS: "S", SS: "S",
+  DB: "CB", CB: "CB", NB: "CB", S: "S", FS: "S", SS: "S", SAF: "S",
   PK: "ST", K: "ST", P: "ST", LS: "ST",
 };
 
@@ -65,7 +113,21 @@ export const GROUP_LABEL: Record<PosGroup, string> = {
   DL: "Interior D-line", EDGE: "Edge", LB: "Linebacker", CB: "Cornerback", S: "Safety", ST: "Specialist",
 };
 
-const CLS = ["", "Fr", "So", "Jr", "Sr"];
+export function groupOf(p: GenPlayer): PosGroup | null {
+  const raw = p.p ?? p.pg ?? "";
+  const g = GROUP[raw] ?? GROUP[p.pg ?? ""] ?? null;
+  if (!g) return null;
+  // OLB is an edge rusher in a 3-4 and an off-ball linebacker in a 4-3: let the stat line decide.
+  if (raw === "OLB") {
+    const s = p.s ?? p.ps ?? {};
+    return (s.sk ?? 0) + (s.hur ?? 0) >= 2 || (s.tfl ?? 0) >= 2 ? "EDGE" : "LB";
+  }
+  // "DL" generic: an end-sized player is an edge.
+  if (raw === "DL" && p.w && p.w < 275) return "EDGE";
+  return g;
+}
+
+const OFFENSE = new Set<PosGroup>(["QB", "RB", "WR", "TE", "OL"]);
 
 /** NFL size norms (height inches, weight lbs). Rough, public, position-standard. */
 const SIZE: Partial<Record<PosGroup, { h?: number; w?: number }>> = {
@@ -73,92 +135,94 @@ const SIZE: Partial<Record<PosGroup, { h?: number; w?: number }>> = {
   DL: { w: 290 }, EDGE: { h: 75, w: 245 }, LB: { w: 228 }, CB: { h: 71 }, S: { w: 195 },
 };
 
-const LEVEL: Record<string, number> = { fbs: 1, fcs: 0.72, ii: 0.5, iii: 0.38 };
-
-function nextDraftYear(): number {
-  const m = genMeta();
-  return (m?.season ?? new Date().getFullYear()) + 1;
+/** Draft slot to a 0..100 score: pick 1 = 100, pick 32 = 75, pick 100 = 55, pick 224 = 33, undrafted = 8. */
+export function slotScore(pick: number | null): number {
+  if (pick == null) return 8;
+  return Math.max(5, Math.round(100 - 25 * Math.sqrt((pick - 1) / 31)));
+}
+/** Inverse of slotScore: the pick a production percentile corresponds to. */
+export function pickForPercentile(pct: number): number {
+  return Math.max(1, Math.round(1 + 31 * Math.pow((100 - pct) / 25, 2)));
 }
 
-/** Raw production number per group. Higher is better. Per-game where it matters. */
-function production(p: GenPlayer, group: PosGroup): number {
-  const s = p.s ?? {};
-  const g = Math.max(1, p.g ?? 1);
+const perGame = (s: StatLine, k: string) => (s[k] ?? 0) / Math.max(1, s.gp ?? 1);
+
+/** Raw production number per group. Higher is better. Per-game where it matters. Zero under the volume gate. */
+export function production(s: StatLine | null, group: PosGroup): number {
+  if (!s) return 0;
   switch (group) {
     case "QB": {
-      if ((s.pa ?? 0) < 40) return 0;
-      const ypa = s.ypa ?? (s.py ?? 0) / Math.max(1, s.pa ?? 1);
-      const pct = (s.pc ?? 0) / Math.max(1, s.pa ?? 1);
-      return (s.py ?? 0) / g * 0.5 + (s.ptd ?? 0) * 12 - (s.pint ?? 0) * 14 + ypa * 18 + pct * 120 + (s.ry ?? 0) / g * 0.6 + (s.rtd ?? 0) * 6;
+      if ((s.pa ?? 0) < 30) return 0;
+      return perGame(s, "pepa") * 1.2 + (s.ypa ?? 0) * 6 + (s.cpoe ?? 0) * 3 + (s.ptd ?? 0) * 4 - (s.pint ?? 0) * 5 + (s.cmp ?? 0) * 0.4 + perGame(s, "ry") * 0.25 + (s.rtd ?? 0) * 3;
     }
     case "RB": {
-      if ((s.ra ?? 0) < 20) return 0;
-      const ypc = s.ypc ?? (s.ry ?? 0) / Math.max(1, s.ra ?? 1);
-      return (s.ry ?? 0) / g * 1.0 + (s.rtd ?? 0) * 10 + ypc * 12 + (s.rcy ?? 0) / g * 0.8 + (s.rec ?? 0) * 1.5;
+      if ((s.ra ?? 0) < 10) return 0;
+      return perGame(s, "ry") * 1.0 + (s.rtd ?? 0) * 8 + (s.repa ?? 0) * 1.5 + perGame(s, "rcy") * 0.8 + (s.rec ?? 0) * 1 + ((s.ra ?? 0) >= 25 ? (s.ypc ?? 0) * 6 : 0);
     }
     case "WR":
     case "TE": {
-      if ((s.rec ?? 0) < 5) return 0;
-      const ypr = s.ypr ?? (s.rcy ?? 0) / Math.max(1, s.rec ?? 1);
-      return (s.rcy ?? 0) / g * 1.2 + (s.rec ?? 0) / g * 6 + (s.rctd ?? 0) * 10 + ypr * (group === "TE" ? 2.5 : 2);
+      if ((s.tgt ?? 0) < 5) return 0;
+      return perGame(s, "rcy") * 1.2 + perGame(s, "rec") * 5 + (s.rctd ?? 0) * 8 + (s.rcepa ?? 0) * 1.2 + (s.tshare ?? 0) * 100 * (group === "TE" ? 1.2 : 0.8);
     }
     case "EDGE":
     case "DL":
-      return (s.sk ?? 0) * 22 + (s.tfl ?? 0) * 10 + (s.hur ?? 0) * 6 + (s.tk ?? 0) / g * 3 + (s.pd ?? 0) * 3 + (s.fr ?? 0) * 5;
+      return (s.sk ?? 0) * 20 + (s.hur ?? 0) * 7 + (s.tfl ?? 0) * 8 + perGame(s, "tk") * 2 + (s.ff ?? 0) * 6 + (s.pd ?? 0) * 3;
     case "LB":
-      return (s.tk ?? 0) / g * 7 + (s.tfl ?? 0) * 8 + (s.sk ?? 0) * 12 + (s.pd ?? 0) * 5 + (s.int ?? 0) * 12 + (s.hur ?? 0) * 3;
+      return perGame(s, "tk") * 6 + (s.tfl ?? 0) * 7 + (s.sk ?? 0) * 10 + (s.pd ?? 0) * 5 + (s.int ?? 0) * 12 + (s.hur ?? 0) * 3 + (s.ff ?? 0) * 5;
     case "CB":
     case "S":
-      return (s.int ?? 0) * 25 + (s.pd ?? 0) * 10 + (s.tk ?? 0) / g * 4 + (s.tfl ?? 0) * 5 + (s.dtd ?? 0) * 15;
+      return (s.int ?? 0) * 20 + (s.pd ?? 0) * 9 + perGame(s, "tk") * 3 + (s.tfl ?? 0) * 4 + (s.dtd ?? 0) * 12 + (s.ff ?? 0) * 5;
     case "OL":
-      return 0; // no box-score stats; unit evidence is attached elsewhere
+      return 0;
     case "ST":
-      if ((s.fga ?? 0) >= 6) return (s.fgm ?? 0) * 5 + (s.fgp ?? 0) * 0.6 + (s.fglg ?? 0) * 0.5;
-      if ((s.pno ?? 0) >= 10) return (s.ypp ?? 0) * 2 + (s.pin20 ?? 0) * 2;
+      if ((s.fga ?? 0) >= 4) return (s.fgm ?? 0) * 4 + (s.fgp ?? 0) * 0.4 + (s.fglg ?? 0) * 0.4;
+      if ((s.pno ?? 0) >= 8) return (s.ypp ?? 0) * 2 + (s.pin20 ?? 0) * 2;
       return 0;
   }
 }
 
-function statLine(p: GenPlayer, group: PosGroup): { line: string; table: { label: string; value: string }[] } {
-  const s = p.s ?? {};
+function statLine(s: StatLine | null, group: PosGroup): { line: string; table: { label: string; value: string }[] } {
   const t: { label: string; value: string }[] = [];
+  const x = s ?? {};
   const add = (label: string, v: number | undefined, fmt: (n: number) => string = (n) => String(n)) => {
     if (v !== undefined && v !== null) t.push({ label, value: fmt(v) });
   };
+  const f1 = (n: number) => n.toFixed(1);
+  const pct = (n: number) => `${Math.round(n * 100)}%`;
   switch (group) {
     case "QB":
-      add("Comp / Att", s.pc !== undefined && s.pa !== undefined ? 0 : undefined, () => `${s.pc} / ${s.pa}`);
-      add("Pass yds", s.py); add("TD", s.ptd); add("INT", s.pint); add("Y/A", s.ypa, (n) => n.toFixed(1)); add("Rush yds", s.ry); add("Rush TD", s.rtd);
-      return { line: `${s.py ?? 0} pass yds, ${s.ptd ?? 0} TD, ${s.pint ?? 0} INT${s.ypa ? `, ${s.ypa.toFixed(1)} Y/A` : ""}`, table: t };
+      if (x.pc !== undefined && x.pa !== undefined) t.push({ label: "Comp / Att", value: `${x.pc} / ${x.pa}` });
+      add("Pass yds", x.py); add("TD", x.ptd); add("INT", x.pint); add("Y/A", x.ypa, f1); add("CPOE", x.cpoe, (n) => `${n > 0 ? "+" : ""}${n.toFixed(1)}`); add("Pass EPA", x.pepa, f1); add("Sacked", x.sks); add("Rush yds", x.ry);
+      return { line: s ? `${x.py ?? 0} pass yds, ${x.ptd ?? 0} TD, ${x.pint ?? 0} INT${x.ypa ? `, ${x.ypa.toFixed(1)} Y/A` : ""}${x.cpoe !== undefined ? `, CPOE ${x.cpoe > 0 ? "+" : ""}${x.cpoe.toFixed(1)}` : ""}` : "No stat line yet", table: t };
     case "RB":
-      add("Carries", s.ra); add("Rush yds", s.ry); add("Y/C", s.ypc, (n) => n.toFixed(1)); add("Rush TD", s.rtd); add("Rec", s.rec); add("Rec yds", s.rcy); add("Long", s.rlg);
-      return { line: `${s.ry ?? 0} rush yds on ${s.ra ?? 0} carries, ${s.rtd ?? 0} TD${s.rcy ? `, ${s.rcy} rec yds` : ""}`, table: t };
+      add("Carries", x.ra); add("Rush yds", x.ry); add("Y/C", x.ypc, f1); add("Rush TD", x.rtd); add("Rush EPA", x.repa, f1); add("Targets", x.tgt); add("Rec", x.rec); add("Rec yds", x.rcy);
+      return { line: s ? `${x.ry ?? 0} rush yds on ${x.ra ?? 0} carries, ${x.rtd ?? 0} TD${x.rcy ? `, ${x.rcy} rec yds` : ""}` : "No stat line yet", table: t };
     case "WR":
     case "TE":
-      add("Rec", s.rec); add("Rec yds", s.rcy); add("Y/R", s.ypr, (n) => n.toFixed(1)); add("TD", s.rctd); add("Long", s.rclg); add("Rush yds", s.ry);
-      return { line: `${s.rec ?? 0} rec, ${s.rcy ?? 0} yds, ${s.rctd ?? 0} TD${s.ypr ? `, ${s.ypr.toFixed(1)} Y/R` : ""}`, table: t };
+      add("Targets", x.tgt); add("Rec", x.rec); add("Rec yds", x.rcy); add("Y/R", x.ypr, f1); add("TD", x.rctd); add("Target share", x.tshare, pct); add("Air yards share", x.ayshare, pct); add("Rec EPA", x.rcepa, f1);
+      return { line: s ? `${x.rec ?? 0} rec, ${x.rcy ?? 0} yds, ${x.rctd ?? 0} TD${x.tshare ? `, ${Math.round(x.tshare * 100)}% target share` : ""}` : "No stat line yet", table: t };
     case "EDGE":
     case "DL":
     case "LB":
-      add("Tackles", s.tk); add("Solo", s.solo); add("TFL", s.tfl); add("Sacks", s.sk); add("QB hurries", s.hur); add("PD", s.pd); add("INT", s.int); add("Fum rec", s.fr);
-      return { line: `${s.tk ?? 0} tkl, ${s.tfl ?? 0} TFL, ${s.sk ?? 0} sacks${s.hur ? `, ${s.hur} hurries` : ""}`, table: t };
+      add("Tackles", x.tk); add("Solo", x.solo); add("TFL", x.tfl); add("Sacks", x.sk); add("QB hits", x.hur); add("PD", x.pd); add("INT", x.int); add("FF", x.ff);
+      return { line: s ? `${x.tk ?? 0} tkl, ${x.tfl ?? 0} TFL, ${x.sk ?? 0} sacks${x.hur ? `, ${x.hur} QB hits` : ""}` : "No stat line yet", table: t };
     case "CB":
     case "S":
-      add("Tackles", s.tk); add("INT", s.int); add("PD", s.pd); add("TFL", s.tfl); add("INT yds", s.inty); add("Def TD", s.dtd);
-      return { line: `${s.int ?? 0} INT, ${s.pd ?? 0} PD, ${s.tk ?? 0} tkl`, table: t };
+      add("Tackles", x.tk); add("INT", x.int); add("PD", x.pd); add("TFL", x.tfl); add("INT yds", x.inty); add("Def TD", x.dtd); add("FF", x.ff);
+      return { line: s ? `${x.int ?? 0} INT, ${x.pd ?? 0} PD, ${x.tk ?? 0} tkl` : "No stat line yet", table: t };
     case "OL":
       return { line: "No box-score stats for linemen. See unit evidence.", table: t };
     case "ST":
-      if ((s.fga ?? 0) > 0) { add("FG", 0, () => `${s.fgm} / ${s.fga}`); add("Long", s.fglg); add("Pct", s.fgp, (n) => `${n}%`); return { line: `${s.fgm ?? 0}/${s.fga ?? 0} FG, long ${s.fglg ?? 0}`, table: t }; }
-      add("Punts", s.pno); add("Avg", s.ypp, (n) => n.toFixed(1)); add("Inside 20", s.pin20);
-      return { line: `${s.pno ?? 0} punts, ${s.ypp?.toFixed(1) ?? "0"} avg`, table: t };
+      if ((x.fga ?? 0) > 0) { t.push({ label: "FG", value: `${x.fgm ?? 0} / ${x.fga}` }); add("Long", x.fglg); add("Pct", x.fgp, (n) => `${n}%`); return { line: `${x.fgm ?? 0}/${x.fga ?? 0} FG, long ${x.fglg ?? 0}`, table: t }; }
+      add("Punts", x.pno); add("Avg", x.ypp, f1); add("Inside 20", x.pin20);
+      return { line: `${x.pno ?? 0} punts, ${x.ypp?.toFixed(1) ?? "0"} avg`, table: t };
   }
 }
 
-/** Position-specific scouting checklist. Domain knowledge, not a claim about the player. */
+/** Position-specific viewing checklist. Domain knowledge, not a claim about the player. */
 const WATCH: Record<PosGroup, string> = {
   QB: "Ball placement outside the numbers, how he resets his feet when the first read is covered, and whether he throws on time against pressure.",
-  RB: "Contact balance through the first tackler, vision on zone cuts, and whether he is trusted in pass protection on third down.",
+  RB: "Contact balance through the first tackler, vision on zone cuts, and whether he stays on the field on third down.",
   WR: "Release against press, separation at the top of the route, and hands away from his frame in traffic.",
   TE: "Whether he stays in to block on early downs, how he wins in the seam, and if the offense trusts him on third down.",
   OL: "Pass-set depth against speed off the edge, hand placement on first contact, and whether he climbs cleanly to linebackers.",
@@ -182,92 +246,111 @@ function pct(sorted: number[], v: number): number {
   return Math.round((lo / sorted.length) * 100);
 }
 
+const ordinal = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : n % 10 === 1 ? "st" : n % 10 === 2 ? "nd" : n % 10 === 3 ? "rd" : "th"}`;
+
+/** Breakout test for year 2 and 3 players: target share up 7 points, or production per game up 40% on a real base. */
+function detectBreakout(p: GenPlayer, group: PosGroup): Breakout | null {
+  if (!p.s || !p.ps) return null;
+  const gpNow = p.s.gp ?? 0;
+  const gpLast = p.ps.gp ?? 0;
+  if (gpNow < 2 || gpLast < 4) return null;
+  if ((group === "WR" || group === "TE" || group === "RB") && p.s.tshare !== undefined && p.ps.tshare !== undefined) {
+    const d = p.s.tshare - p.ps.tshare;
+    if (d >= 0.07 && p.s.tshare >= 0.15) return { metric: "target share", last: p.ps.tshare, now: p.s.tshare, delta: d, label: `Target share ${Math.round(p.ps.tshare * 100)}% to ${Math.round(p.s.tshare * 100)}%` };
+  }
+  const now = production(p.s, group) / Math.max(1, gpNow);
+  const last = production(p.ps, group) / Math.max(1, gpLast);
+  if (now > 0 && last > 0 && now >= last * 1.4 && now - last > 2) {
+    return { metric: "production per game", last, now, delta: now - last, label: `Production per game up ${Math.round(((now - last) / last) * 100)}% on last season` };
+  }
+  return null;
+}
+
 /* ----------------------------------------------------------- index */
 
 export interface RadarIndex {
   byId: Map<string, RadarPlayer>;
   byTeam: Map<string, RadarPlayer[]>;
   all: RadarPlayer[]; // sorted by score desc
-  nextDraft: number;
+  season: number;
+  /** Every tracked player by team, radar or not (for matchup lookups). */
+  rosterByTeam: Map<string, RadarPlayer[]>;
 }
 
 function buildIndex(): RadarIndex {
   const players = genPlayers();
-  const nextDraft = nextDraftYear();
+  const season = genMeta()?.season ?? new Date().getFullYear();
+  const adjIdx = adjustedIndex();
 
-  // Percentile tables per classification + group over players with real volume.
   const tables = new Map<string, number[]>();
   const raw = new Map<string, number>();
   for (const p of players) {
-    const group = GROUP[p.p ?? ""] ?? null;
-    if (!group || !p.c) continue;
-    const v = production(p, group);
+    const group = groupOf(p);
+    if (!group) continue;
+    const v = production(p.s, group);
     raw.set(p.id, v);
-    if (v > 0) {
-      const key = `${p.c}:${group}`;
-      (tables.get(key) ?? tables.set(key, []).get(key)!).push(v);
-    }
+    if (v > 0) (tables.get(group) ?? tables.set(group, []).get(group)!).push(v);
   }
   for (const arr of tables.values()) arr.sort((a, b) => a - b);
 
-  const out: RadarPlayer[] = [];
+  const all: RadarPlayer[] = [];
+  const roster: RadarPlayer[] = [];
   for (const p of players) {
-    const group = GROUP[p.p ?? ""] ?? null;
-    if (!group || !p.c || !p.p) continue;
+    const group = groupOf(p);
+    if (!group || !p.p) continue;
     if (group === "ST") continue;
-    const level = LEVEL[p.c] ?? 0.5;
     const v = raw.get(p.id) ?? 0;
-    const prodPct = v > 0 ? pct(tables.get(`${p.c}:${group}`) ?? [], v) : 0;
+    const rawPct = v > 0 ? pct(tables.get(group) ?? [], v) : 0;
+    const adj = adjIdx.byId.get(p.id);
+    const prodPct = adj && v > 0 ? Math.round(0.5 * rawPct + 0.5 * adj.adjPct) : rawPct;
 
-    const stars = p.r?.st ?? null;
-    const pedigree = stars === 5 ? 100 : stars === 4 ? 72 : stars === 3 ? 38 : stars === 2 ? 15 : 0;
-    const usageShare = p.u?.o ?? 0;
-    // 33% of team usage = 100. Quarterbacks touch every pass, so their share is halved to keep the board honest across positions.
-    const usage = Math.min(100, Math.round(usageShare * (group === "QB" ? 150 : 300)));
-
+    const pick = p.r.pk;
+    const slot = slotScore(pick);
+    const share = p.u ? (OFFENSE.has(group) ? p.u.o : p.u.d) : null;
+    const usage = share === null ? 0 : Math.min(100, Math.round(share * 100));
     const norm = SIZE[group];
     const size = norm && (p.h || p.w) ? (norm.h ? (p.h ?? 0) >= norm.h : true) && (norm.w ? (p.w ?? 0) >= norm.w : true) : null;
-
     const y = p.y ?? null;
-    const cls = y ? CLS[y] ?? "" : "";
-    const draftClass = y === 4 ? nextDraft : y === 3 ? nextDraft : y === 2 ? nextDraft + 1 : nextDraft + 2;
-    const eligibilityNote =
-      y === 4 ? "Senior. Eligible for the next draft." :
-      y === 3 ? "Junior. Eligible to declare for the next draft." :
-      y === 2 ? "Sophomore. Earliest eligible the draft after next unless redshirted." :
-      y === 1 ? "Freshman. Earliest eligible in two drafts; redshirt status unknown." : "Class unknown.";
+    const cls = y === 1 ? "Rookie" : y === 2 ? "Year 2" : y === 3 ? "Year 3" : y ? `${ordinal(y)} season` : "";
+    const draftClass = p.r.yr ?? p.r.entry ?? season;
+    const breakout = y === 2 || y === 3 ? detectBreakout(p, group) : null;
+    const rookie = y === 1 || p.r.yr === season;
+    const vsSlot = (rookie || y === 2) && v > 0 ? prodPct - slot : null;
+    const eqPick = vsSlot !== null ? pickForPercentile(prodPct) : null;
 
-    // Position weights from the 2022-2025 backtest against NFL outcomes (nflverse value per season):
-    // production is the better signal at RB, QB, TE, and interior DL; pedigree wins at WR, CB, S, LB, EDGE.
-    // Linemen have no box-score stats, so production is zero and unit evidence is added by the game report.
-    const PROD_FIRST = new Set<PosGroup>(["RB", "QB", "TE", "DL"]);
-    const prodWeight = group === "OL" ? 0 : PROD_FIRST.has(group) ? 0.55 : 0.35;
-    const pedWeight = group === "OL" ? 0.22 : PROD_FIRST.has(group) ? 0.22 : 0.42;
-    const base = prodWeight * prodPct + pedWeight * pedigree + 0.13 * usage + 0.10 * (size ? 100 : size === null ? 40 : 0);
-    const olBonus = group === "OL" ? (y && y >= 3 ? 25 : 10) + (size ? 20 : 0) : 0;
-    const score = Math.round(Math.min(100, (base + olBonus) * level));
+    // Watch Score for the player: production 50%, snap share 30%, context 20% (slot beaten, breakout, or starter default).
+    const context = breakout ? 100 : vsSlot !== null ? Math.max(0, Math.min(100, 50 + vsSlot)) : p.dc?.rank === 1 ? 60 : 40;
+    let score: number;
+    if (group === "OL") score = Math.round((p.dc?.rank === 1 ? 45 : 25) + usage * 0.3 + (size ? 10 : 0));
+    else score = Math.round(Math.min(100, 0.5 * prodPct + 0.3 * usage + 0.2 * context));
 
-    // Tiering. Honest labels: nothing here says "Round 2".
+    const eligibilityNote = rookie
+      ? pick ? `Rookie, pick No. ${pick}${p.r.rd ? ` (round ${p.r.rd})` : ""} in ${draftClass} by the ${p.r.club ?? "team"}${p.home ? `, out of ${p.home}` : ""}.` : `Rookie, undrafted${p.home ? `, out of ${p.home}` : ""}.`
+      : pick ? `${cls}. Pick No. ${pick} in the ${draftClass} draft by the ${p.r.club ?? "team"}.` : `${cls}. Undrafted (${draftClass}).`;
+
     let tier: RadarTier | null = null;
-    const upper = y === 3 || y === 4;
-    if (upper && score >= 62) tier = "Eligible";
-    else if (upper && score >= 45) tier = "Sleeper";
-    else if (!upper && (score >= 55 || (pedigree >= 72 && usage >= 20))) tier = "Future";
-    else if (pedigree >= 72 || (upper && score >= 36) || (!upper && score >= 45)) tier = "Watch";
-    if (!tier) continue;
+    const starter = (p.dc?.rank ?? 9) === 1 || (share ?? 0) >= 0.5;
+    if (rookie && (prodPct >= 25 || usage >= 40 || (pick !== null && pick <= 64))) tier = "Rookie";
+    else if (breakout && prodPct >= 45) tier = "Breakout";
+    else if (group !== "OL" && starter && score >= 50) tier = "Watch";
+    else if (group === "OL" && p.dc?.rank === 1 && usage >= 70) tier = "Watch";
 
     const evidence: Evidence[] = [];
-    const sl = statLine(p, group);
-    if (v > 0) evidence.push({ kind: "production", label: sl.line, note: prodPct >= 50 ? `top ${Math.max(1, 100 - prodPct)}% of ${p.c.toUpperCase()} ${group}` : undefined });
-    if (stars) evidence.push({ kind: "pedigree", label: `${stars}-star recruit${p.r?.rk ? `, No. ${p.r.rk} in the ${p.r.yr} class` : ""}`, note: p.r?.rt ? `rating ${p.r.rt.toFixed(4)}` : undefined });
+    const sl = statLine(p.s, group);
+    if (v > 0) evidence.push({ kind: "production", label: sl.line, note: prodPct >= 50 ? `top ${Math.max(1, 100 - prodPct)}% of NFL ${group}` : `${ordinal(prodPct)} percentile of NFL ${group}` });
+    if (vsSlot !== null && eqPick !== null) evidence.push({ kind: "pedigree", label: pick ? `Drafted No. ${pick}, producing like pick No. ${eqPick}` : `Undrafted, producing like pick No. ${eqPick}`, note: vsSlot >= 10 ? "above his slot" : vsSlot <= -10 ? "below his slot" : "about on slot" });
+    else if (pick) evidence.push({ kind: "pedigree", label: `Pick No. ${pick}, ${draftClass}${p.r.club ? ` (${p.r.club})` : ""}` });
+    if (breakout) evidence.push({ kind: "breakout", label: breakout.label, note: `last season ${p.ps?.gp ?? 0} games` });
     if (p.h && p.w) evidence.push({ kind: "size", label: `${Math.floor(p.h / 12)}-${p.h % 12}, ${p.w} lb`, note: size ? "NFL size for the position" : size === false ? "under NFL size norms" : undefined });
-    if (usageShare >= 0.1) evidence.push({ kind: "usage", label: `${Math.round(usageShare * 100)}% of team usage`, note: p.u?.pd ? `${Math.round(p.u.pd * 100)}% on passing downs` : undefined });
+    if (share !== null && share >= 0.1) evidence.push({ kind: "usage", label: `${Math.round(share * 100)}% of ${OFFENSE.has(group) ? "offensive" : "defensive"} snaps`, note: p.s?.tshare ? `${Math.round(p.s.tshare * 100)}% target share` : p.dc ? `${p.dc.pos} No. ${p.dc.rank} on the depth chart` : undefined });
+    if (p.inj?.st) evidence.push({ kind: "injury", label: `${p.inj.st}${p.inj.inj ? ` (${p.inj.inj.toLowerCase()})` : ""}`, note: p.inj.pr ? `week ${p.inj.wk} report: ${p.inj.pr.toLowerCase()}` : `week ${p.inj.wk} report` });
 
-    out.push({
+    const lastLine = p.ps ? statLine(p.ps, group).line : null;
+    const row: RadarPlayer = {
       id: p.id,
       name: p.n,
       team: p.t,
-      classification: p.c,
+      classification: "nfl",
       conference: p.cf,
       pos: p.p,
       group,
@@ -280,37 +363,59 @@ function buildIndex(): RadarIndex {
       jersey: p.j,
       score,
       production: prodPct,
-      pedigree,
+      pedigree: slot,
       usage,
       size,
-      tier,
+      tier: tier ?? "Watch",
       evidence,
       stat: sl.line,
       statLine: sl.table,
       watch: WATCH[group],
-      stars,
-      recruitRank: p.r?.rk ?? null,
+      stars: null,
+      recruitRank: pick,
       hometown: p.home,
-      gamesPlayed: p.g,
-    });
+      gamesPlayed: p.s?.gp ?? null,
+      rawProduction: rawPct,
+      adjustedProduction: adj && v > 0 ? adj.adjPct : null,
+      qoc: adj?.qoc ?? null,
+      qocLabel: adj?.qocLabel ?? "unmeasured",
+      delta: movementFor(p.id)?.scoreDelta ?? null,
+      slot: pick,
+      slotYear: pick ? draftClass : null,
+      vsSlot,
+      eqPick,
+      breakout,
+      injury: p.inj ? { status: p.inj.st, practice: p.inj.pr, injury: p.inj.inj, week: p.inj.wk } : null,
+      depth: p.dc ? { pos: p.dc.pos, rank: p.dc.rank } : null,
+      snapShare: share,
+      lastSeason: lastLine && lastLine !== "No stat line yet" ? lastLine : null,
+      college: p.home,
+      draftedBy: p.r.club,
+      headshot: p.r.hs,
+    };
+    roster.push(row);
+    if (tier) all.push(row);
   }
 
-  out.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
-  const byId = new Map(out.map((p) => [p.id, p]));
+  all.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+  const byId = new Map(roster.map((p) => [p.id, p]));
   const byTeam = new Map<string, RadarPlayer[]>();
-  for (const p of out) (byTeam.get(p.team) ?? byTeam.set(p.team, []).get(p.team)!).push(p);
-  return { byId, byTeam, all: out, nextDraft };
+  for (const p of all) (byTeam.get(p.team) ?? byTeam.set(p.team, []).get(p.team)!).push(p);
+  const rosterByTeam = new Map<string, RadarPlayer[]>();
+  for (const p of roster) (rosterByTeam.get(p.team) ?? rosterByTeam.set(p.team, []).get(p.team)!).push(p);
+  return { byId, byTeam, all, season, rosterByTeam };
 }
 
-export const radarIndex = (): RadarIndex => memoSync(`radar:${genMeta()?.ingestedAt ?? "none"}`, 3600, buildIndex);
+export const radarIndex = (): RadarIndex => memoSync(`radar:${genMeta()?.ingestedAt ?? "none"}:${adjustedIndex().stamp}:${movementStamp()}`, 3600, buildIndex);
 
-export const radarForTeam = (school: string): RadarPlayer[] => radarIndex().byTeam.get(school) ?? [];
+export const radarForTeam = (team: string): RadarPlayer[] => radarIndex().byTeam.get(team) ?? [];
 export const radarPlayer = (id: string): RadarPlayer | undefined => radarIndex().byId.get(id);
+export const rosterForTeam = (team: string): RadarPlayer[] => radarIndex().rosterByTeam.get(team) ?? [];
 
 export interface BoardFilter {
-  draftClass?: number;
+  tier?: RadarTier;
   group?: PosGroup;
-  classification?: "fbs" | "fcs" | "ii" | "iii";
+  team?: string;
   q?: string;
   limit?: number;
 }
@@ -318,20 +423,48 @@ export interface BoardFilter {
 export function radarBoard(f: BoardFilter = {}): RadarPlayer[] {
   const q = f.q?.trim().toLowerCase();
   let list = radarIndex().all;
-  if (f.draftClass) list = list.filter((p) => p.draftClass === f.draftClass);
+  if (f.tier) list = list.filter((p) => p.tier === f.tier);
   if (f.group) list = list.filter((p) => p.group === f.group);
-  if (f.classification) list = list.filter((p) => p.classification === f.classification);
-  if (q) list = list.filter((p) => `${p.name} ${p.team} ${p.pos} ${p.conference ?? ""}`.toLowerCase().includes(q));
+  if (f.team) list = list.filter((p) => p.team === f.team);
+  if (q) list = list.filter((p) => `${p.name} ${p.team} ${p.pos} ${p.college ?? ""}`.toLowerCase().includes(q));
   return list.slice(0, f.limit ?? 100);
 }
 
-/** Players a game report should surface for one team: top eligible, then future, capped. */
-export function radarForGame(school: string, cap = 6): RadarPlayer[] {
-  const list = radarForTeam(school);
-  // Eligible names in score order, but the fourth slot has to earn it.
-  const eligible = list.filter((p) => p.tier === "Eligible").filter((p, i) => i < 3 || p.score >= 75).slice(0, 4);
-  const future = list.filter((p) => p.tier === "Future").filter((p, i) => i < 1 || p.score >= 65).slice(0, 2);
-  const sleepers = eligible.length < 2 ? list.filter((p) => p.tier === "Sleeper").slice(0, 1) : [];
+/** Players a game report should surface for one team: top rookies, breakouts, then watch names, capped. */
+export function radarForGame(team: string, cap = 6): RadarPlayer[] {
+  const list = radarForTeam(team);
+  const rookies = list.filter((p) => p.tier === "Rookie" && p.production > 0).slice(0, 2);
+  const breakouts = list.filter((p) => p.tier === "Breakout").slice(0, 2);
+  const watch = list.filter((p) => p.tier === "Watch").slice(0, 3);
   const seen = new Set<string>();
-  return [...eligible, ...future, ...sleepers].filter((p) => (seen.has(p.id) ? false : seen.add(p.id))).slice(0, cap);
+  return [...rookies, ...breakouts, ...watch].filter((p) => (seen.has(p.id) ? false : seen.add(p.id))).slice(0, cap);
+}
+
+/* ------------------------------------------------------------ lenses */
+
+export type EdgeAxis = "rush" | "pass" | "line" | "pd";
+
+/**
+ * The player a unit edge puts on the spot. Offense edge: the man who carries that
+ * unit (RB1 by carries, WR1 by target share, the starting QB). Defense edge: the
+ * defender who produces there (top DB by passes defended plus picks, top front
+ * player by tackles for loss plus sacks). Returns a copy tagged Matchup with a
+ * one-line note. Undefined when nobody on the roster has the volume.
+ */
+export function matchupPlayer(axis: EdgeAxis, side: "offense" | "defense", team: string, note: string): RadarPlayer | undefined {
+  const roster = rosterForTeam(team);
+  const stat = (p: RadarPlayer, k: string) => Number(p.statLine.find((s) => s.label === k)?.value ?? 0);
+  let pick: RadarPlayer | undefined;
+  const byMax = (list: RadarPlayer[], f: (p: RadarPlayer) => number) => list.filter((p) => f(p) > 0).sort((a, b) => f(b) - f(a))[0];
+  if (side === "offense") {
+    if (axis === "rush" || axis === "line") pick = byMax(roster.filter((p) => p.group === "RB"), (p) => stat(p, "Carries"));
+    else if (axis === "pass") pick = byMax(roster.filter((p) => p.group === "WR" || p.group === "TE"), (p) => parseFloat(p.statLine.find((s) => s.label === "Target share")?.value ?? "0"));
+    else pick = byMax(roster.filter((p) => p.group === "QB"), (p) => Number((p.statLine.find((s) => s.label === "Comp / Att")?.value ?? "0 / 0").split("/")[1]));
+  } else {
+    if (axis === "pass") pick = byMax(roster.filter((p) => p.group === "CB" || p.group === "S"), (p) => stat(p, "PD") * 2 + stat(p, "INT") * 4 + stat(p, "Tackles") * 0.1);
+    else if (axis === "pd") pick = byMax(roster.filter((p) => p.group === "EDGE" || p.group === "DL"), (p) => stat(p, "Sacks") * 3 + stat(p, "QB hits"));
+    else pick = byMax(roster.filter((p) => p.group === "EDGE" || p.group === "DL" || p.group === "LB"), (p) => stat(p, "TFL") * 2 + stat(p, "Sacks") + stat(p, "Tackles") * 0.1);
+  }
+  if (!pick) return undefined;
+  return { ...pick, tier: "Matchup", lensNote: note, evidence: [{ kind: "matchup", label: note }, ...pick.evidence] };
 }

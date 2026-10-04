@@ -1,8 +1,9 @@
-export type Division = "FBS" | "FCS" | "DII" | "DIII" | "NAIA";
+export type Division = "NFL";
 export type Coverage = "Full" | "Standard" | "Limited";
 export type GameStatus = "upcoming" | "live" | "final";
-/** Established/Emerging come from curated boards. Eligible/Future/Sleeper/Watch come from the production-based radar. */
-export type ProspectTier = "Established" | "Emerging" | "Eligible" | "Future" | "Sleeper" | "Watch only" | "Watch";
+/** Watch radar lenses. Rookie = first-year player ranked against his draft slot. Breakout = year 2 or 3 player whose usage or efficiency jumped.
+ *  Matchup = the player a unit edge puts on the spot in this game. Watch = a starter worth knowing. */
+export type ProspectTier = "Rookie" | "Breakout" | "Matchup" | "Watch";
 
 export interface Team {
   id: string;
@@ -13,9 +14,15 @@ export interface Team {
   conference: string;
   color: string;
   logo?: string;
-  /** Poll rank for the team's division (AP Top 25 for FBS, coaches polls below). */
+  /** Poll rank (unused in the NFL; kept so shared components compile). */
   rank?: number;
   rankPoll?: string;
+  /** nflverse code (LA, WAS); abbr is the ESPN abbreviation (LAR, WSH). */
+  code?: string;
+  div?: string;
+  /** Division standing line, "2nd AFC West" with the record. */
+  standing?: string;
+  seed?: number;
 }
 
 export interface WeatherInput {
@@ -71,6 +78,12 @@ export interface Prospect {
   radar?: import("./radar").RadarPlayer;
   /** This game's box-score lines for the player, when the game has started. */
   lines?: { category: string; headline: string }[];
+  /** Official injury report status for the week (nflverse injuries file). */
+  injury?: { status: string | null; practice: string | null; injury: string | null; week: number };
+  /** Why this player is on the game's radar, one line ("WR1 against the No. 31 pass defense by EPA"). */
+  lensNote?: string;
+  /** nflverse headshot URL, the fallback when the ESPN id is missing. */
+  headshot?: string;
 }
 
 export interface Matchup {
@@ -93,8 +106,8 @@ export interface BoxLeader {
 
 export interface BoxSummary {
   teams: { team: string; abbr: string; points: number | null; leaders: BoxLeader[] }[];
-  /** "cfbd" is the settled box; "espn" is the in-game box used until CFBD publishes. */
-  source?: "cfbd" | "espn";
+  /** "nflverse" is the settled weekly stats file; "espn" is the in-game box used until nflverse publishes. */
+  source?: "nflverse" | "espn";
 }
 
 export interface StyleMetric {
@@ -140,12 +153,10 @@ export interface DefenseProfile {
 /** Each component is 0 to 100. null means the input is not available yet;
  *  the score renormalizes over the components it can actually see. */
 export interface ScoreComponents {
-  draftTalent: number | null;
-  directMatchups: number | null;
-  futureTalent: number | null;
   competitive: number | null;
-  styleContrast: number | null;
-  storylines: number | null;
+  directMatchups: number | null;
+  watchDensity: number | null;
+  stakes: number | null;
   availability: number | null;
 }
 
@@ -213,7 +224,15 @@ export interface Game {
   /** Line movement, closing line, and props from The Odds API (game page only). */
   odds?: import("./odds").GameOdds;
   reportAsOf: string;
-  /** "live" = CollegeFootballData, "sample" = hand-written prototype data */
+  /** "live" = nflverse plus ESPN, "sample" = hand-written prototype data */
   source: "live" | "sample";
   week?: number;
+  weekLabel?: string;
+  divGame?: boolean;
+  /** Days since each team's last game (nflverse away_rest/home_rest). */
+  rest?: { home: number | null; away: number | null };
+  /** Official injury report for both teams, Out/Doubtful/Questionable only, latest week. */
+  injuryReport?: { team: string; id: string; name: string; pos: string; status: string; practice: string | null; injury: string | null; week: number }[];
+  /** Standings context: "Winner takes first in the AFC North" and the like. */
+  stakes?: string[];
 }

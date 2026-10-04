@@ -125,7 +125,7 @@ export function SituationalCues({ cues }: { cues: SituationCue[] }) {
           </li>
         ))}
       </ul>
-      <p className="mono mt-2 text-xs text-chalk-3">Play-by-play splits with at least 15 plays on both sides. Ranks are inside the division.</p>
+      <p className="mono mt-2 text-xs text-chalk-3">Play-by-play splits with at least 15 plays on both sides. Ranks are inside the 32.</p>
     </div>
   );
 }

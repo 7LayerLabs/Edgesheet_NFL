@@ -10,7 +10,7 @@
  * more than ODDS_RESERVE (default 40) credits left. The cron script is the
  * intended sampler; see scripts/odds-snapshot.mjs.
  */
-import { getTeams } from "./cfbd";
+import { nflTeams } from "./nfl";
 import { memo } from "./memo";
 import {
   appendSnapshot,
@@ -81,9 +81,18 @@ export function eventOdds(eventId: string, markets?: string): Promise<OddsEvent>
   return fetchEventProps(ROOT, key, eventId, markets);
 }
 
+/** Our games carry nicknames; books list "Kansas City Chiefs". school = location, mascot = nickname, keyed by nickname. */
 async function teamsBySchool(season: number): Promise<Map<string, TeamLike>> {
-  const teams = await getTeams(season).catch(() => []);
-  return new Map(teams.map((t) => [t.school, { school: t.school, mascot: t.mascot, abbreviation: t.abbreviation }]));
+  void season;
+  return new Map(nflTeams().map((t) => [t.short, { school: t.location, mascot: t.short, abbreviation: t.abbr }]));
+}
+
+/** The newest snapshot's consensus for a game (home spread, negative = home favored), for the slate's current line. */
+export function latestLine(season: number, gameId: string): { spread?: number; total?: number; mlHome?: number; mlAway?: number; books: number; at: string } | undefined {
+  const f = readOddsFile(ROOT, season, gameId);
+  const s = f?.snapshots?.[f.snapshots.length - 1];
+  if (!s) return undefined;
+  return { spread: s.consensus.spread, total: s.consensus.total, mlHome: s.consensus.mlHome, mlAway: s.consensus.mlAway, books: s.consensus.books, at: s.at };
 }
 
 function quotaOk(): { ok: boolean; why?: string } {

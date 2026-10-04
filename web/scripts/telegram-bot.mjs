@@ -2,10 +2,10 @@
 /**
  * EdgeSheet Telegram bot. Long-running process for PM2:
  *
- *   cd web && pm2 start scripts/telegram-bot.mjs --name scout-telegram --time
+ *   cd web && pm2 start scripts/telegram-bot.mjs --name nfl-telegram --time
  *
  * Schedule (all Eastern time):
- *   - Morning slate at 8:00 AM on any day with Division I games.
+ *   - Morning slate at 8:00 AM on any day with games.
  *   - Kickoff reminders every 15 minutes while games are in a window, for
  *     followed teams (data/follows.json) with a kickoff in the next 60 minutes.
  *   - Postgame grades every 10 minutes while games are live or recently final,
@@ -50,7 +50,7 @@ function loadEnv(file) {
 
 // Wait for the token instead of crash-looping under PM2. Re-reads .env.local every 5 minutes.
 while (!process.env.TELEGRAM_BOT_TOKEN) {
-  warn("TELEGRAM_BOT_TOKEN is not set in web/.env.local. Get a token from @BotFather, add it, and this process will pick it up within 5 minutes (or pm2 restart scout-telegram).");
+  warn("TELEGRAM_BOT_TOKEN is not set in web/.env.local. Get a token from @BotFather, add it, and this process will pick it up within 5 minutes (or pm2 restart nfl-telegram).");
   await sleep(5 * 60_000);
   loadEnv(ENV_FILE);
 }
@@ -100,7 +100,7 @@ function etParts(d = new Date()) {
   const p = Object.fromEntries(f.formatToParts(d).map((x) => [x.type, x.value]));
   return { hour: Number(p.hour) % 24, minute: Number(p.minute), date: slateLib.etDate(d) };
 }
-const isD1 = (g) => g.division === "FBS" || g.division === "FCS";
+const isD1 = (g) => g.division === "NFL";
 
 async function push(text, label) {
   if (!tg.telegramChatId()) {

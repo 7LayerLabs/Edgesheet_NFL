@@ -149,3 +149,48 @@ export async function getUpdates(offset?: number, timeoutSeconds = 30): Promise<
 export async function getMe(): Promise<{ id: number; username?: string; first_name?: string }> {
   return call("getMe", {});
 }
+
+/* ------------------------------------------------------------- photos */
+
+export interface PhotoOptions {
+  chatId?: string | number;
+  parseMode?: "HTML" | "MarkdownV2";
+  silent?: boolean;
+}
+
+/**
+ * Send a local image file as a Telegram photo with an optional caption
+ * (1024 characters max; longer captions are cut). Multipart upload with
+ * fetch and FormData, no packages. Retried once on failure.
+ */
+export async function sendPhoto(filePath: string, caption?: string, opts: PhotoOptions = {}): Promise<SentMessage> {
+  const token = telegramToken();
+  if (!token) throw new Error("TELEGRAM_BOT_TOKEN is not set");
+  const chatId = opts.chatId ?? telegramChatId();
+  if (!chatId) throw new Error("TELEGRAM_CHAT_ID is not set");
+  const { readFileSync } = await import("node:fs");
+  const { basename } = await import("node:path");
+  const bytes = readFileSync(filePath);
+  const send = async (): Promise<SentMessage> => {
+    const form = new FormData();
+    form.append("chat_id", String(chatId));
+    form.append("photo", new Blob([new Uint8Array(bytes)], { type: "image/png" }), basename(filePath));
+    if (caption) form.append("caption", caption.length > 1024 ? `${caption.slice(0, 1021)}...` : caption);
+    if (opts.parseMode) form.append("parse_mode", opts.parseMode);
+    if (opts.silent) form.append("disable_notification", "true");
+    const res = await fetch(`${API}/bot${token}/sendPhoto`, { method: "POST", body: form });
+    const json = (await res.json().catch(() => undefined)) as TgResponse<SentMessage> | undefined;
+    if (json?.ok && json.result) return json.result;
+    throw new Error(`Telegram sendPhoto failed: ${json?.description ?? `HTTP ${res.status}`}`);
+  };
+  try {
+    return await send();
+  } catch (first) {
+    await new Promise((r) => setTimeout(r, 1500));
+    try {
+      return await send();
+    } catch {
+      throw first;
+    }
+  }
+}

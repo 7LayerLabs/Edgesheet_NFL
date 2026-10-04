@@ -4,10 +4,14 @@ import { asOf, kickoffTime } from "@/lib/format";
 import { LedgerSection } from "@/components/Ledger";
 import { SendToTelegram } from "@/components/SendToTelegram";
 import { telegramReady } from "@/lib/telegram";
+import { BUCKET_MIN, RATE_MIN, gated, type GatedValue } from "@/lib/gate";
+import { Gated } from "@/components/Gated";
 
 export const dynamic = "force-dynamic";
 
 const pct = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)}%` : "–");
+/** A hit rate as a percentage, or "too early" until the sample reaches RATE_MIN graded games. */
+const rate = (a: number, b: number) => gated(b, RATE_MIN, pct(a, b));
 
 export default function HistoryPage() {
   const entries = listEntries();
@@ -23,7 +27,7 @@ export default function HistoryPage() {
         <SendToTelegram type="grades" enabled={telegramReady()} />
       </div>
       <p className="mt-2 max-w-3xl text-base text-chalk-3">
-        Every Division I game gets its pregame call locked before kickoff: the matchup edges, the pressure point, the radar names, the Scout Score, the line.
+        Every game gets its pregame call locked before kickoff: the matchup edges, the pressure point, the radar names, the Watch Score, the line.
         After the final, the box score grades it. Nothing is edited after the fact. This is the archive the thresholds get tuned against.
       </p>
       <p className="mt-1 text-sm"><Link href="/backtest" className="text-sky">See the historical track record</Link>: the models replayed on four past seasons.</p>
@@ -38,27 +42,35 @@ export default function HistoryPage() {
       {entries.length > 0 && (
         <section className="mt-6 grid gap-2 sm:grid-cols-4 lg:grid-cols-8">
           <Tile label="Games locked" value={String(stats.games)} sub={`${stats.graded} graded`} />
-          <Tile label="Model winner" value={pct(stats.winnerRight, stats.winnerGraded)} sub={`${stats.winnerRight} of ${stats.winnerGraded}${stats.avgMarginError != null ? ` · margin off by ${stats.avgMarginError.toFixed(1)} avg` : ""}`} />
-          <Tile label="Model vs number" value={pct(stats.modelSideCovered, stats.modelSideGraded)} sub={`${stats.modelSideCovered} of ${stats.modelSideGraded} model sides covered`} />
-          <Tile label="Model total lean" value={pct(stats.totalLeanRight, stats.totalLeanGraded)} sub={`${stats.totalLeanRight} of ${stats.totalLeanGraded} over/under leans right`} />
-          <Tile label="Consensus vs number" value={pct(stats.consensusSideCovered, stats.consensusSideGraded)} sub={`${stats.consensusSideCovered} of ${stats.consensusSideGraded} consensus sides covered · winner ${stats.consensusWinnerRight} of ${stats.consensusWinnerGraded}`} />
-          <Tile label="Matchup calls" value={pct(stats.edgePlayedOut, stats.edgeCalls)} sub={`${stats.edgePlayedOut} played out, ${stats.edgeMissed} missed, of ${stats.edgeCalls}`} />
-          <Tile label="Pressure point" value={pct(stats.pressurePlayedOut, stats.pressureGraded)} sub={`${stats.pressurePlayedOut} of ${stats.pressureGraded}`} />
-          <Tile label="Radar names" value={pct(stats.prospectShowedUp, stats.prospectCalls)} sub={`${stats.prospectShowedUp} of ${stats.prospectCalls} showed up`} />
-          <Tile label="Favorites covered" value={pct(stats.favoriteCovered, stats.spreadGraded)} sub={`${stats.favoriteCovered} of ${stats.spreadGraded} (context, not picks)`} />
+          <Tile label="Model winner" value={rate(stats.winnerRight, stats.winnerGraded)} sub={`${stats.winnerRight} of ${stats.winnerGraded}${stats.avgMarginError != null ? ` · margin off by ${stats.avgMarginError.toFixed(1)} avg` : ""}`} />
+          <Tile label="Model vs number" value={rate(stats.modelSideCovered, stats.modelSideGraded)} sub={`${stats.modelSideCovered} of ${stats.modelSideGraded} model sides covered`} />
+          <Tile label="Model total lean" value={rate(stats.totalLeanRight, stats.totalLeanGraded)} sub={`${stats.totalLeanRight} of ${stats.totalLeanGraded} over/under leans right`} />
+          <Tile label="Consensus vs number" value={rate(stats.consensusSideCovered, stats.consensusSideGraded)} sub={`${stats.consensusSideCovered} of ${stats.consensusSideGraded} consensus sides covered · winner ${stats.consensusWinnerRight} of ${stats.consensusWinnerGraded}`} />
+          <Tile label="Matchup calls" value={rate(stats.edgePlayedOut, stats.edgeCalls)} sub={`${stats.edgePlayedOut} played out, ${stats.edgeMissed} missed, of ${stats.edgeCalls}`} />
+          <Tile label="Pressure point" value={rate(stats.pressurePlayedOut, stats.pressureGraded)} sub={`${stats.pressurePlayedOut} of ${stats.pressureGraded}`} />
+          <Tile label="Radar names" value={rate(stats.prospectShowedUp, stats.prospectCalls)} sub={`${stats.prospectShowedUp} of ${stats.prospectCalls} showed up`} />
+          <Tile label="Favorites covered" value={rate(stats.favoriteCovered, stats.spreadGraded)} sub={`${stats.favoriteCovered} of ${stats.spreadGraded} (context, not picks)`} />
         </section>
       )}
 
-      {stats.graded > 0 && (
+      {entries.length > 0 && stats.graded < RATE_MIN && (
+        <p className="mono mt-2 text-xs text-chalk-3">Hit rates show as percentages once {RATE_MIN} games are graded. Until then the counts are the record.</p>
+      )}
+
+      {stats.graded > 0 && stats.graded < BUCKET_MIN && (
+        <p className="mono mt-6 text-xs text-chalk-3">Watch Score vs excitement chart appears at {BUCKET_MIN} graded games ({stats.graded} so far).</p>
+      )}
+
+      {stats.graded >= BUCKET_MIN && (
         <section className="mt-8">
-          <h2 className="display text-3xl font-bold text-chalk">Scout Score vs how the game actually played</h2>
-          <p className="mt-1 text-sm text-chalk-3">Average excitement index (from the data feed, 0 to 10) by pregame Scout Score bucket. If the score means anything, the top bucket should sit highest.</p>
+          <h2 className="display text-3xl font-bold text-chalk">Watch Score vs how the game actually played</h2>
+          <p className="mt-1 text-sm text-chalk-3">Average excitement index (from the data feed, 0 to 10) by pregame Watch Score bucket. If the score means anything, the top bucket should sit highest. Buckets with fewer than 3 games show the count only.</p>
           <div className="mt-3 grid gap-1.5">
             {stats.byBucket.map((b) => (
               <div key={b.label} className="grid grid-cols-[6rem_1fr_6rem] items-center gap-3 text-sm">
                 <span className="display text-xl font-bold text-chalk">{b.label}</span>
-                <div className="meter !h-3"><span style={{ width: `${((b.avgExcitement ?? 0) / 10) * 100}%` }} /></div>
-                <span className="mono text-right text-xs text-chalk-2">{b.avgExcitement != null ? b.avgExcitement.toFixed(1) : "–"} · {b.games} g</span>
+                <div className="meter !h-3"><span style={{ width: `${b.games >= 3 ? ((b.avgExcitement ?? 0) / 10) * 100 : 0}%` }} /></div>
+                <span className="mono text-right text-xs text-chalk-2">{b.games >= 3 && b.avgExcitement != null ? b.avgExcitement.toFixed(1) : "–"} · {b.games} g</span>
               </div>
             ))}
           </div>
@@ -85,13 +97,13 @@ export default function HistoryPage() {
                       {e.pregame.away} {p.score.away} @ {e.pregame.home} {p.score.home}
                     </Link>
                     <p className="mono mt-0.5 text-xs text-chalk-3">
-                      {asOf(e.pregame.kickoff)} · Scout Score {e.pregame.scoutScore}{p.excitement != null ? ` · excitement ${p.excitement.toFixed(1)}` : ""}{p.spreadResult ? ` · ${p.spreadResult}` : ""}
+                      {asOf(e.pregame.kickoff)} · Watch Score {e.pregame.scoutScore}{p.excitement != null ? ` · excitement ${p.excitement.toFixed(1)}` : ""}{p.spreadResult ? ` · ${p.spreadResult}` : ""}
                     </p>
                     <p className="mt-1 text-sm text-chalk-2">{e.pregame.pressurePoint.split(". ").slice(0, 2).join(". ")}.</p>
                   </div>
                   <div className="flex gap-2 text-center">
-                    <Badge value={`${hits}/${edges.length}`} label="edges" tone={hits >= edges.length / 2 ? "good" : "bad"} />
-                    <Badge value={`${showed}/${pros.length}`} label="radar" tone={showed >= pros.length / 2 ? "good" : "bad"} />
+                    {edges.length > 0 && <Badge value={`${hits}/${edges.length}`} label="edges" tone={hits >= edges.length / 2 ? "good" : "bad"} />}
+                    {pros.length > 0 && <Badge value={`${showed}/${pros.length}`} label="radar" tone={showed >= pros.length / 2 ? "good" : "bad"} />}
                     <Badge value={p.pressurePointVerdict === "played out" ? "yes" : p.pressurePointVerdict === "did not play out" ? "no" : "–"} label="pressure" tone={p.pressurePointVerdict === "played out" ? "good" : p.pressurePointVerdict === "did not play out" ? "bad" : "neutral"} />
                   </div>
                 </li>
@@ -126,11 +138,11 @@ export default function HistoryPage() {
   );
 }
 
-function Tile({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function Tile({ label, value, sub }: { label: string; value: GatedValue; sub?: string }) {
   return (
     <div className="card p-4">
       <p className="eyebrow">{label}</p>
-      <p className="display mt-1 text-4xl font-bold text-chalk">{value}</p>
+      <p className="display mt-1 text-4xl font-bold text-chalk"><Gated value={value} /></p>
       {sub && <p className="mt-0.5 text-xs text-chalk-3">{sub}</p>}
     </div>
   );

@@ -32,6 +32,30 @@ export interface FeedItem {
   team: string;
   /** Community or feed the item came from, for display ("r/CFB", "r/clemsontigers"). */
   where?: string;
+  /** Jev chips (judgeFeed): shown when the probability clears FEED_CHIP_MIN. Absent when Jev is off. */
+  chips?: FeedChip[];
+  /** Per tagged player, the raw Jev probabilities (judgeFeed). Absent when Jev is off. */
+  judged?: Record<string, FeedJudgment>;
+  /** Player ids the regex tagged but Jev said the post is not about (judgeFeed). Already removed from `tags`. */
+  droppedTags?: string[];
+}
+
+export type FeedChip = "injury" | "availability" | "promoted" | "demoted";
+
+/** Raw Jev probabilities for one (item, player) pair. Policy lives in judgeFeed, not here. */
+export interface FeedJudgment {
+  /** The post reports an injury to this player. */
+  injury: number;
+  /** The post reports availability news that is not an injury: out, suspended, questionable, transferring, back. */
+  availability: number;
+  /** Promoted, named the starter, or moved up the depth chart. */
+  promoted: number;
+  /** Demoted, benched, or moved down the depth chart. */
+  demoted: number;
+  /** A reporter or outlet praising the player's play. */
+  praise: number;
+  /** The post is about this player (same person, same team), not a namesake. */
+  refersToPlayer: number;
 }
 
 export interface FeedPlayer {
@@ -122,69 +146,93 @@ function tagAttr(block: string, tag: string, attr: string): string {
 
 /* ----------------------------------------------------------- team names */
 
-/** Mascots for search precision ("Miami Hurricanes", not Dolphins or Heat). Unknown schools fall back to "<School> football". */
-const MASCOT: Record<string, string> = {
-  Alabama: "Crimson Tide", Arkansas: "Razorbacks", Auburn: "Tigers", Florida: "Gators", Georgia: "Bulldogs", Kentucky: "Wildcats",
-  LSU: "Tigers", "Mississippi State": "Bulldogs", Missouri: "Tigers", "Ole Miss": "Rebels", Oklahoma: "Sooners", "South Carolina": "Gamecocks",
-  Tennessee: "Volunteers", Texas: "Longhorns", "Texas A&M": "Aggies", Vanderbilt: "Commodores",
-  Illinois: "Fighting Illini", Indiana: "Hoosiers", Iowa: "Hawkeyes", Maryland: "Terrapins", Michigan: "Wolverines", "Michigan State": "Spartans",
-  Minnesota: "Golden Gophers", Nebraska: "Cornhuskers", Northwestern: "Wildcats", "Ohio State": "Buckeyes", Oregon: "Ducks", "Penn State": "Nittany Lions",
-  Purdue: "Boilermakers", Rutgers: "Scarlet Knights", UCLA: "Bruins", USC: "Trojans", Washington: "Huskies", Wisconsin: "Badgers",
-  "Boston College": "Eagles", California: "Golden Bears", Clemson: "Tigers", Duke: "Blue Devils", "Florida State": "Seminoles", "Georgia Tech": "Yellow Jackets",
-  Louisville: "Cardinals", Miami: "Hurricanes", "NC State": "Wolfpack", "North Carolina": "Tar Heels", Pittsburgh: "Panthers", SMU: "Mustangs",
-  Stanford: "Cardinal", Syracuse: "Orange", Virginia: "Cavaliers", "Virginia Tech": "Hokies", "Wake Forest": "Demon Deacons",
-  Arizona: "Wildcats", "Arizona State": "Sun Devils", Baylor: "Bears", BYU: "Cougars", Cincinnati: "Bearcats", Colorado: "Buffaloes", Houston: "Cougars",
-  "Iowa State": "Cyclones", Kansas: "Jayhawks", "Kansas State": "Wildcats", "Oklahoma State": "Cowboys", TCU: "Horned Frogs", "Texas Tech": "Red Raiders",
-  UCF: "Knights", Utah: "Utes", "West Virginia": "Mountaineers",
-  "Notre Dame": "Fighting Irish", UConn: "Huskies", "Oregon State": "Beavers", "Washington State": "Cougars",
-  "Boise State": "Broncos", "Fresno State": "Bulldogs", "San Diego State": "Aztecs", UNLV: "Rebels", "Air Force": "Falcons", Army: "Black Knights", Navy: "Midshipmen",
-  Memphis: "Tigers", Tulane: "Green Wave", "South Florida": "Bulls", "North Texas": "Mean Green", UTSA: "Roadrunners", "Army West Point": "Black Knights",
-  "Appalachian State": "Mountaineers", "James Madison": "Dukes", "Coastal Carolina": "Chanticleers", Liberty: "Flames", Toledo: "Rockets", "Ohio": "Bobcats",
-  "Miami (OH)": "RedHawks", "Western Kentucky": "Hilltoppers", "Texas State": "Bobcats", "Louisiana": "Ragin' Cajuns", Troy: "Trojans", Marshall: "Thundering Herd",
-  "Sam Houston": "Bearkats", "Jacksonville State": "Gamecocks", "Georgia Southern": "Eagles", "Old Dominion": "Monarchs", Temple: "Owls", Tulsa: "Golden Hurricane",
-  "Colorado State": "Rams", "Utah State": "Aggies", Wyoming: "Cowboys", "San José State": "Spartans", "San Jose State": "Spartans", "Hawai‘i": "Rainbow Warriors", "Hawai'i": "Rainbow Warriors",
-  "North Dakota State": "Bison", "South Dakota State": "Jackrabbits", Montana: "Grizzlies", "Montana State": "Bobcats", "Sacramento State": "Hornets", "Idaho": "Vandals",
-  Villanova: "Wildcats", Delaware: "Blue Hens", Richmond: "Spiders", "William & Mary": "Tribe", Furman: "Paladins", Mercer: "Bears", "Illinois State": "Redbirds",
-  "Southern Illinois": "Salukis", "UC Davis": "Aggies", "Eastern Washington": "Eagles", "Weber State": "Wildcats", "Incarnate Word": "Cardinals",
+/** Full names for search precision ("Kansas City Chiefs", never a bare "Chiefs"). Keyed by nickname, the join key everywhere. */
+const FULL_NAME: Record<string, string> = {
+  "Cardinals": "Arizona Cardinals",
+  "Falcons": "Atlanta Falcons",
+  "Ravens": "Baltimore Ravens",
+  "Bills": "Buffalo Bills",
+  "Panthers": "Carolina Panthers",
+  "Bears": "Chicago Bears",
+  "Bengals": "Cincinnati Bengals",
+  "Browns": "Cleveland Browns",
+  "Cowboys": "Dallas Cowboys",
+  "Broncos": "Denver Broncos",
+  "Lions": "Detroit Lions",
+  "Packers": "Green Bay Packers",
+  "Texans": "Houston Texans",
+  "Colts": "Indianapolis Colts",
+  "Jaguars": "Jacksonville Jaguars",
+  "Chiefs": "Kansas City Chiefs",
+  "Rams": "Los Angeles Rams",
+  "Chargers": "Los Angeles Chargers",
+  "Raiders": "Las Vegas Raiders",
+  "Dolphins": "Miami Dolphins",
+  "Vikings": "Minnesota Vikings",
+  "Patriots": "New England Patriots",
+  "Saints": "New Orleans Saints",
+  "Giants": "New York Giants",
+  "Jets": "New York Jets",
+  "Eagles": "Philadelphia Eagles",
+  "Steelers": "Pittsburgh Steelers",
+  "Seahawks": "Seattle Seahawks",
+  "49ers": "San Francisco 49ers",
+  "Buccaneers": "Tampa Bay Buccaneers",
+  "Titans": "Tennessee Titans",
+  "Commanders": "Washington Commanders"
 };
 
-/** Team subreddits for the Power 4 and the common G5 and FCS programs. Anything else falls back to r/CFB search only. */
+/** Team subreddits, all 32. */
 const SUBREDDIT: Record<string, string> = {
-  Alabama: "rolltide", Arkansas: "razorbacks", Auburn: "wde", Florida: "FloridaGators", Georgia: "georgiabulldogs", Kentucky: "wildcats",
-  LSU: "LSUFootball", "Mississippi State": "hailstate", Missouri: "mizzou", "Ole Miss": "olemiss", Oklahoma: "sooners", "South Carolina": "Gamecocks",
-  Tennessee: "ockytop", Texas: "LonghornNation", "Texas A&M": "aggies", Vanderbilt: "vanderbilt",
-  Illinois: "fightingillini", Indiana: "IndianaHoosiers", Iowa: "hawkeyes", Maryland: "terps", Michigan: "MichiganWolverines", "Michigan State": "MSUSpartans",
-  Minnesota: "gophersports", Nebraska: "huskers", Northwestern: "Northwestern", "Ohio State": "OhioStateFootball", Oregon: "ducks", "Penn State": "PennStateUniversity",
-  Purdue: "Purdue", Rutgers: "rutgers", UCLA: "ucla", USC: "USCTrojans", Washington: "Huskies", Wisconsin: "wisconsinbadgers",
-  "Boston College": "bostoncollege", California: "berkeley", Clemson: "clemsontigers", Duke: "duke", "Florida State": "fsusports", "Georgia Tech": "gatech",
-  Louisville: "Louisville", Miami: "MiamiHurricanes", "NC State": "ncsu", "North Carolina": "tarheels", Pittsburgh: "Pitt", SMU: "smu",
-  Stanford: "stanford", Syracuse: "cuse", Virginia: "wahoowa", "Virginia Tech": "hokies", "Wake Forest": "wakeforest",
-  Arizona: "ArizonaWildcats", "Arizona State": "ASU", Baylor: "Baylor", BYU: "byu", Cincinnati: "bearcats", Colorado: "CUBuffs", Houston: "UHCougars",
-  "Iowa State": "cyclones", Kansas: "kansasfootball", "Kansas State": "KState", "Oklahoma State": "okstate", TCU: "TCU", "Texas Tech": "texastech",
-  UCF: "ucf", Utah: "Utah", "West Virginia": "WVU", "Notre Dame": "notredamefootball", UConn: "UConn", "Oregon State": "OregonState", "Washington State": "wsu",
-  "Boise State": "BoiseState", "Fresno State": "fresnostate", "San Diego State": "aztecs", UNLV: "unlv", "Air Force": "AirForceFalcons", Army: "ArmyFootball", Navy: "NavyFootball",
-  Memphis: "memphistigers", Tulane: "Tulane", "South Florida": "USF", "North Texas": "unt", UTSA: "UTSA", "Appalachian State": "AppState",
-  "James Madison": "JMU", "Coastal Carolina": "CoastalCarolina", Liberty: "LibertyUniversity", Toledo: "UToledo", "Miami (OH)": "miamioh", "Western Kentucky": "WKU",
-  Marshall: "marshall", Temple: "Temple", Tulsa: "Tulsa", "Colorado State": "CSUFootball", "Utah State": "USU", Wyoming: "wyomingcowboys",
-  "North Dakota State": "NDSU", "South Dakota State": "SDSU", Montana: "Montana", "Montana State": "MontanaState", Villanova: "villanova", Delaware: "udel",
+  "Cardinals": "AZCardinals",
+  "Falcons": "falcons",
+  "Ravens": "ravens",
+  "Bills": "buffalobills",
+  "Panthers": "panthers",
+  "Bears": "CHIBears",
+  "Bengals": "bengals",
+  "Browns": "Browns",
+  "Cowboys": "cowboys",
+  "Broncos": "DenverBroncos",
+  "Lions": "detroitlions",
+  "Packers": "GreenBayPackers",
+  "Texans": "Texans",
+  "Colts": "Colts",
+  "Jaguars": "Jaguars",
+  "Chiefs": "KansasCityChiefs",
+  "Rams": "LosAngelesRams",
+  "Chargers": "Chargers",
+  "Raiders": "raiders",
+  "Dolphins": "miamidolphins",
+  "Vikings": "minnesotavikings",
+  "Patriots": "Patriots",
+  "Saints": "Saints",
+  "Giants": "NYGiants",
+  "Jets": "nyjets",
+  "Eagles": "eagles",
+  "Steelers": "steelers",
+  "Seahawks": "Seahawks",
+  "49ers": "49ers",
+  "Buccaneers": "buccaneers",
+  "Titans": "Tennesseetitans",
+  "Commanders": "Commanders"
 };
 
-export function teamQuery(school: string): string {
-  const m = MASCOT[school];
-  return m ? `"${school} ${m}"` : `"${school}" football`;
+export function teamQuery(team: string): string {
+  const full = FULL_NAME[team];
+  return full ? `"${full}"` : `"${team}" NFL`;
 }
 
-/** Does the text plausibly talk about this school? Keeps "Miami" from pulling in the Dolphins. */
-function mentionsTeam(text: string, school: string): boolean {
+/** Nicknames that other sports or common words also use; those need a football word nearby. */
+const AMBIGUOUS = new Set(["Giants", "Cardinals", "Panthers", "Rams", "Jets", "Lions", "Bears", "Eagles", "Texans", "Titans", "Bills", "Browns", "Saints", "Chargers", "Jaguars", "Falcons", "Ravens", "Colts", "Dolphins", "Patriots", "Raiders", "Vikings", "Cowboys", "Broncos", "Chiefs", "Steelers", "Seahawks", "49ers", "Buccaneers", "Commanders", "Packers", "Bengals"]);
+
+/** Does the text plausibly talk about this team? Keeps the Giants' pennant race out of a Giants football feed. */
+function mentionsTeam(text: string, team: string): boolean {
   const t = text.toLowerCase();
-  const s = school.toLowerCase();
-  const m = MASCOT[school]?.toLowerCase();
-  if (m && t.includes(m)) return true;
-  if (!t.includes(s)) return false;
-  // Short or ambiguous names need the mascot or the word football nearby.
-  if (school.length <= 5 || ["Miami", "Ohio", "Texas", "Washington", "Houston", "Memphis", "Louisiana", "Georgia", "Virginia", "Kansas", "Utah", "Montana", "Idaho", "Delaware", "Richmond", "Temple", "Tulsa", "Troy", "Navy", "Army"].includes(school)) {
-    return /football|cfb|ncaa|college|kickoff|coach|quarterback|\bqb\b|touchdown|\bwr\b|\brb\b|recruit|draft|game thread|halftime/i.test(text);
-  }
+  const full = FULL_NAME[team]?.toLowerCase();
+  if (full && t.includes(full)) return true;
+  if (!t.includes(team.toLowerCase())) return false;
+  if (AMBIGUOUS.has(team)) return /\bnfl\b|football|quarterback|\bqb\b|touchdown|\bwr\b|\brb\b|coach|week \d|injur|practice|game thread|halftime|snap|sack|kickoff|playoff|draft/i.test(text);
   return true;
 }
 
@@ -306,9 +354,9 @@ async function redditRss(url: string, where: string, team: string, mustMention: 
   });
 }
 
-async function redditSearch(school: string): Promise<FeedItem[]> {
-  const q = encodeURIComponent(school);
-  return redditRss(`https://www.reddit.com/r/CFB/search.rss?q=${q}&restrict_sr=1&sort=new&t=week`, "r/CFB", school, true);
+async function redditSearch(team: string): Promise<FeedItem[]> {
+  const q = encodeURIComponent(FULL_NAME[team] ?? team);
+  return redditRss(`https://www.reddit.com/r/nfl/search.rss?q=${q}&restrict_sr=1&sort=new&t=week`, "r/nfl", team, true);
 }
 
 async function redditTeamSub(school: string): Promise<FeedItem[]> {
@@ -435,8 +483,8 @@ export async function feedForTeams(schools: string[], players: FeedPlayer[] = []
     const jobs: Job[] = [];
     for (const t of teams) {
       jobs.push({ source: "bluesky", label: `Bluesky: ${t}`, run: () => bluesky(teamQuery(t), t) });
-      jobs.push({ source: "news", label: `News: ${t}`, run: () => googleNews(`${teamQuery(t)} football`, t) });
-      jobs.push({ source: "reddit", label: `r/CFB: ${t}`, run: () => redditSearch(t) });
+      jobs.push({ source: "news", label: `News: ${t}`, run: () => googleNews(`${teamQuery(t)} NFL`, t) });
+      jobs.push({ source: "reddit", label: `r/nfl: ${t}`, run: () => redditSearch(t) });
       if (SUBREDDIT[t]) jobs.push({ source: "reddit", label: `r/${SUBREDDIT[t]}`, run: () => redditTeamSub(t) });
     }
     const named = roster.filter((p) => teams.includes(p.team)).slice(0, MAX_PLAYER_QUERIES);
@@ -511,6 +559,147 @@ export async function youtubeFor(playerName: string, team: string): Promise<YouT
   });
 }
 
-export function subredditFor(school: string): string | undefined {
-  return SUBREDDIT[school];
+export function subredditFor(team: string): string | undefined {
+  return SUBREDDIT[team];
+}
+
+/* ------------------------------------------------------------- Jev judgments */
+
+import { batchNouls, jevAvailable } from "./jev";
+
+/** A chip shows when its probability clears this. */
+export const FEED_CHIP_MIN = 0.7;
+/** A regex tag is dropped when Jev says the post is this unlikely to be about the player. */
+export const FEED_TAG_MIN = 0.4;
+const JUDGE_TTL_MS = 6 * 3600 * 1000;
+
+const judgeCache = new Map<string, { at: number; value: FeedJudgment }>();
+
+export const FEED_CHIP_LABEL: Record<FeedChip, string> = { injury: "Injury", availability: "Availability", promoted: "Promoted", demoted: "Demoted" };
+
+/** Chips from one judgment, policy only. */
+export function chipsFor(j: FeedJudgment): FeedChip[] {
+  const out: FeedChip[] = [];
+  if (j.injury >= FEED_CHIP_MIN) out.push("injury");
+  if (j.availability >= FEED_CHIP_MIN) out.push("availability");
+  if (j.promoted >= FEED_CHIP_MIN) out.push("promoted");
+  if (j.demoted >= FEED_CHIP_MIN) out.push("demoted");
+  return out;
+}
+
+const SOURCE_KIND_TEXT: Record<FeedKind, string> = {
+  fan: "a fan's social post or forum thread (opinion, may be a rumor)",
+  outlet: "a reporter or outlet account on a social network",
+  news: "a news article headline",
+};
+
+/**
+ * Ask Jev about every (item, tagged player) pair in ONE request (chunked only past 30 pairs),
+ * then apply the policy: chips at >= 0.7, drop a tag under 0.4 on "about this player".
+ * Items without tags are untouched. Results memoized per item id and player for 6 hours.
+ * Returns the same items (new objects where judged). Never throws; without a key it returns the input.
+ */
+export async function judgeFeed(items: FeedItem[], players: FeedPlayer[], opts: { purpose?: string; ref?: string } = {}): Promise<FeedItem[]> {
+  if (!jevAvailable()) return items;
+  const byId = new Map(players.map((p) => [p.id, p]));
+  type Pair = { item: FeedItem; player: FeedPlayer; key: string };
+  const pending: Pair[] = [];
+  const have = new Map<string, FeedJudgment>();
+  const now = Date.now();
+  for (const it of items) {
+    for (const id of it.tags) {
+      const p = byId.get(id);
+      if (!p) continue;
+      const key = `${it.id}|${id}`;
+      const hit = judgeCache.get(key);
+      if (hit && now - hit.at < JUDGE_TTL_MS) have.set(key, hit.value);
+      else pending.push({ item: it, player: p, key });
+    }
+  }
+  if (pending.length) {
+    try {
+      const rows = await batchNouls(
+        pending.map(({ item, player }) => ({
+          post: item.text,
+          source_kind: SOURCE_KIND_TEXT[item.kind],
+          author: item.author,
+          player: { name: player.name, team: player.team, position: (player as FeedPlayer & { pos?: string }).pos ?? "unknown" },
+        })),
+        {
+          injury: { q: "Does ITEM.post report an injury to ITEM.player (hurt, injured, a named body part, carted off, surgery, out with an injury)?", yes: "The post says this player is injured or hurt, or gives an injury status.", no: "No injury to this player is reported. Other players' injuries do not count." },
+          availability: { q: "Does ITEM.post report availability news about ITEM.player other than an injury (suspended, out, doubtful, questionable, game-time decision, not traveling, transferring, dismissed, eligible, cleared, or returning)?", yes: "The post says whether this player will or will not play, or that he is leaving or returning.", no: "Nothing about whether this player is available." },
+          promoted: { q: "Does ITEM.post report that ITEM.player moved UP: named the starter, promoted on the depth chart, or taking over a role?", yes: "He was promoted, named a starter, or is getting the job.", no: "No upward depth chart move is reported." },
+          demoted: { q: "Does ITEM.post report that ITEM.player moved DOWN: benched, demoted, lost the starting job, or replaced?", yes: "He was benched, demoted, or replaced.", no: "No downward depth chart move is reported." },
+          praise: { q: "Is ITEM.post a reporter or outlet praising how ITEM.player has played (performance, talent, draft stock), given ITEM.source_kind?", yes: "A reporter or outlet speaks well of this player's play or prospects.", no: "Not praise, or it comes from a fan rather than a reporter or outlet." },
+          refersToPlayer: { q: "Is ITEM.post about ITEM.player, the player with that name on that team, rather than a different person with the same name or only a passing namesake mention?", yes: "The post is talking about this specific player at this team.", no: "A different person, a different team, or the name only appears in a list or as a namesake." },
+        },
+        { purpose: opts.purpose ?? "feed", ref: opts.ref, chunk: 30 },
+      );
+      if (rows) {
+        rows.forEach((r, i) => {
+          const j: FeedJudgment = { injury: r.injury, availability: r.availability, promoted: r.promoted, demoted: r.demoted, praise: r.praise, refersToPlayer: r.refersToPlayer };
+          judgeCache.set(pending[i].key, { at: now, value: j });
+          have.set(pending[i].key, j);
+        });
+      }
+    } catch {}
+  }
+  if (!have.size) return items;
+  return items.map((it) => {
+    if (!it.tags.length) return it;
+    const judged: Record<string, FeedJudgment> = {};
+    const keep: string[] = [];
+    const dropped: string[] = [];
+    for (const id of it.tags) {
+      const j = have.get(`${it.id}|${id}`);
+      if (!j) {
+        keep.push(id);
+        continue;
+      }
+      judged[id] = j;
+      if (j.refersToPlayer < FEED_TAG_MIN) dropped.push(id);
+      else keep.push(id);
+    }
+    if (!Object.keys(judged).length) return it;
+    const chips = new Set<FeedChip>();
+    for (const id of keep) if (judged[id]) for (const c of chipsFor(judged[id])) chips.add(c);
+    return { ...it, tags: keep, judged, chips: [...chips], ...(dropped.length ? { droppedTags: dropped } : {}) };
+  });
+}
+
+/** True when the item carries an injury or availability chip. */
+export const isAvailabilityItem = (it: FeedItem): boolean => Boolean(it.chips?.some((c) => c === "injury" || c === "availability"));
+
+export interface AvailabilityNote {
+  playerId: string;
+  /** "Reported questionable" style lead, from the chip. */
+  lead: string;
+  /** Short quote from the post. */
+  text: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  probability: number;
+}
+
+/**
+ * For each player, the strongest injury or availability item (highest probability, then newest).
+ * Only items judged at or above FEED_CHIP_MIN and about the player (>= FEED_TAG_MIN) count.
+ */
+export function availabilityNotes(items: FeedItem[]): Record<string, AvailabilityNote> {
+  const best: Record<string, AvailabilityNote> = {};
+  for (const it of items) {
+    if (!it.judged) continue;
+    for (const id of it.tags) {
+      const j = it.judged[id];
+      if (!j || j.refersToPlayer < FEED_TAG_MIN) continue;
+      const p = Math.max(j.injury, j.availability);
+      if (p < FEED_CHIP_MIN) continue;
+      const lead = j.injury >= j.availability ? (j.demoted >= FEED_CHIP_MIN ? "Reported injured, benched" : "Reported injured") : j.promoted >= FEED_CHIP_MIN ? "Reported available, promoted" : "Reported availability news";
+      const cur = best[id];
+      if (cur && (cur.probability > p || (cur.probability === p && cur.publishedAt >= it.publishedAt))) continue;
+      best[id] = { playerId: id, lead, text: it.text.replace(/\s+/g, " ").slice(0, 140), url: it.url, source: it.where ?? SOURCE_LABEL[it.source], publishedAt: it.publishedAt, probability: p };
+    }
+  }
+  return best;
 }

@@ -3,7 +3,7 @@
 /* ------------------------------------------------------------------
    Press box at night.
    Dark slate ground, chalk text, penalty-flag yellow for the one
-   number that matters (Scout Score), turf green for live, brick for
+   number that matters (Watch Score), turf green for live, brick for
    weather warnings, sky blue for market/info.
 ------------------------------------------------------------------- */
 :root {
@@ -101,7 +101,7 @@ body {
   border-color: var(--line-2);
 }
 
-/* Scout Score meter: ten hash marks like yard lines. */
+/* Watch Score meter: ten hash marks like yard lines. */
 .meter {
   position: relative;
   height: 8px;

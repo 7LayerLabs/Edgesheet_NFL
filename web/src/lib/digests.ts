@@ -18,7 +18,7 @@ import type { Game } from "./types";
 
 /* ----------------------------------------------------------------- config */
 
-export const DEFAULT_BASE_URL = "http://localhost:3000";
+export const DEFAULT_BASE_URL = "http://localhost:3100";
 
 export function baseUrl(): string {
   return (process.env.PUBLIC_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
@@ -26,7 +26,7 @@ export function baseUrl(): string {
 
 export const NOT_A_PICK = "Model, not a pick.";
 
-const isD1 = (g: Game) => g.division === "FBS" || g.division === "FCS";
+const isD1 = (g: Game) => g.division === "NFL";
 
 const ET = "America/New_York";
 
@@ -69,7 +69,7 @@ export type Lean = SideLean | TotalLean;
 /** Thresholds in points. A side lean under 2 and a total lean under 2.5 are "no lean" in projection.ts already. */
 export const LEAN_THRESHOLDS = { side: { strong: 4, moderate: 2 }, total: { strong: 5, moderate: 2.5 } };
 
-/** Model leans for Division I games that have both a projection and a posted market number. */
+/** Model leans for games that have both a projection and a posted market number. */
 export function modelLeans(games: Game[]): Lean[] {
   const out: Lean[] = [];
   for (const g of games) {
@@ -112,7 +112,7 @@ export function leansSection(games: Game[], base = baseUrl(), opts: LeanOptions 
   const lines: string[] = [];
   if (!leans.length) {
     const eligible = games.filter((g) => isD1(g) && g.projection && g.market.spread && g.status !== "final").length;
-    lines.push(eligible ? `No side or total gap clears the lean threshold today. ${NOT_A_PICK}` : "No Division I game today has both a projection and a posted line. Nothing to lean on.");
+    lines.push(eligible ? `No side or total gap clears the lean threshold today. ${NOT_A_PICK}` : "No game today has both a projection and a posted line. Nothing to lean on.");
     return lines.join("\n");
   }
   const group = (title: string, xs: Lean[]) => {
@@ -157,7 +157,7 @@ export function morningSlate(slate: SlateLike, base = baseUrl()): string {
   const d1 = games.filter(isD1);
   const lines: string[] = [];
   lines.push(`<b>EdgeSheet slate, ${h(longDate(slate.date))}</b>${slate.week ? ` · Week ${slate.week.week}` : ""}`);
-  lines.push(`${games.length} games on the slate, ${d1.length} Division I.`);
+  lines.push(`${games.length} games on the slate.`);
   if (!games.length) {
     lines.push("No games on this date.");
     lines.push(`<a href="${base}/">Open the slate</a>`);
@@ -165,7 +165,7 @@ export function morningSlate(slate: SlateLike, base = baseUrl()): string {
   }
   const sorted = [...games].sort((a, b) => scoutScore(b.scoreComponents) - scoutScore(a.scoreComponents));
   lines.push("");
-  lines.push("<b>Top 5 by Scout Score</b>");
+  lines.push("<b>Top 5 by Watch Score</b>");
   for (const g of sorted.slice(0, 5)) lines.push(gameLine(g, base, scoutScore(g.scoreComponents)));
 
   const top5 = new Set(sorted.slice(0, 5).map((g) => g.id));
@@ -216,7 +216,7 @@ export function kickoffReminder(hits: ReminderHit[], base = baseUrl()): string |
     const who = teams.length ? `You follow ${teams.map(h).join(" and ")}.` : "On your watchlist.";
     const line = g.market.spread ? ` · ${h(g.market.spread.team)} ${g.market.spread.line}${g.market.total ? `, total ${g.market.total.line}` : ""}` : "";
     lines.push(`• ${gameLink(g, base)} in ${minutes} min (${h(kickoffTime(g.kickoff))} ET) · ${h(g.network)}${line}`);
-    lines.push(`   ${who} Scout Score ${scoutScore(g.scoreComponents)}. ${h(g.whyWatch)}`);
+    lines.push(`   ${who} Watch Score ${scoutScore(g.scoreComponents)}. ${h(g.whyWatch)}`);
   }
   return lines.join("\n");
 }
@@ -231,7 +231,7 @@ export function gradeLine(e: ArchiveEntry, base = baseUrl()): string {
   const pros = p.prospects.filter((x) => x.verdict !== "unmeasured");
   const showed = pros.filter((x) => x.verdict === "showed up").length;
   const parts: string[] = [];
-  parts.push(`Scout Score ${pre.scoutScore}${p.excitement != null ? ` vs excitement ${p.excitement.toFixed(1)}` : ", excitement not available"}`);
+  parts.push(`Watch Score ${pre.scoutScore}${p.excitement != null ? ` vs excitement ${p.excitement.toFixed(1)}` : ", excitement not available"}`);
   parts.push(edges.length ? `matchup calls ${hits} of ${edges.length}` : "matchup calls unmeasured");
   parts.push(pros.length ? `radar names ${showed} of ${pros.length}` : "radar names unmeasured");
   const pr = p.projectionResult;
@@ -318,7 +318,7 @@ export function recordDigest(entries: ArchiveEntry[], base = baseUrl()): string 
   ];
   const buckets = s.byBucket.filter((b) => b.games);
   if (buckets.length) {
-    lines.push("Scout Score bucket vs excitement:");
+    lines.push("Watch Score bucket vs excitement:");
     for (const b of buckets) lines.push(`• ${b.label}: ${b.avgExcitement != null ? b.avgExcitement.toFixed(1) : "n/a"} avg over ${b.games} g`);
   }
   lines.push(`<i>${NOT_A_PICK}</i>`);
@@ -359,7 +359,7 @@ export function resolveSchool(games: Game[], query: string): string | undefined 
 export function gameDigest(g: Game, base = baseUrl()): string {
   const s = scoutScore(g.scoreComponents);
   const lines: string[] = [];
-  lines.push(`<b>${h(matchupLabel(g))}</b> · Scout Score ${s} · ${h(scoreTag(g))}`);
+  lines.push(`<b>${h(matchupLabel(g))}</b> · Watch Score ${s} · ${h(scoreTag(g))}`);
   const status = g.status === "final" && g.score && Number.isFinite(g.score.home) ? `Final: ${h(g.away.abbr)} ${g.score.away}, ${h(g.home.abbr)} ${g.score.home}` : g.status === "live" ? "In progress (schedule-based; no live feed)" : `${h(kickoffTime(g.kickoff))} ET, ${h(longDate(g.kickoff.slice(0, 10)))}`;
   lines.push(`${status} · ${h(g.network)}${g.venue ? ` · ${h(g.venue)}` : ""}`);
   if (g.away.record || g.home.record) lines.push(`${h(g.away.short)} ${h(g.away.record || "record n/a")}, ${h(g.home.short)} ${h(g.home.record || "record n/a")}`);
@@ -386,7 +386,7 @@ export function gameDigest(g: Game, base = baseUrl()): string {
   const radar = g.prospects.slice(0, 6);
   if (radar.length) {
     lines.push("");
-    lines.push("<b>Draft radar</b>");
+    lines.push("<b>Watch radar</b>");
     for (const p of radar) lines.push(`• ${h(p.name)} (${h(p.team)} ${h(p.pos)}, ${h(p.cls)}) ${h(p.tier)}${p.radar ? ` ${p.radar.score}` : ""}${p.stat ? `: ${h(p.stat)}` : ""}${p.lines?.length ? `\n   Today: ${h(p.lines.map((l) => l.headline).join(" · "))}` : ""}`);
   } else lines.push("\nNo player from either team clears the radar threshold.");
   if (g.archive?.postgame) {
@@ -409,7 +409,7 @@ export function teamRadarDigest(school: string, players: RadarPlayer[], game: Ga
     return lines.join("\n");
   }
   for (const p of players.slice(0, 10)) {
-    lines.push(`• <b>${h(p.name)}</b> ${h(p.pos)} ${h(p.cls)} · ${h(p.tier)} ${p.score} · ${p.draftClass} class\n   ${h(p.stat || p.evidence.map((e) => e.label).join(", ") || "no production line")}`);
+    lines.push(`• <b>${h(p.name)}</b> ${h(p.pos)} ${h(p.cls)} · ${h(p.tier)} ${p.score}${p.slot ? ` · pick No. ${p.slot}` : " · undrafted"}\n   ${h(p.stat || p.evidence.map((e) => e.label).join(", ") || "no production line")}`);
   }
   if (players.length > 10) lines.push(`and ${players.length - 10} more on the site.`);
   lines.push(`<a href="${base}/radar">Radar board</a>`);
@@ -424,7 +424,7 @@ export function helpDigest(): string {
     "/slate · today's slate: top 5, hidden gems, model leans",
     "/leans · model side and total leans (model, not a pick)",
     "/record · how the calls have graded out",
-    "/radar &lt;team&gt; · that team's draft radar",
+    "/radar &lt;team&gt; · that team's watch radar",
     "/game &lt;team&gt; · that team's game this week",
     "/help · this list",
   ].join("\n");

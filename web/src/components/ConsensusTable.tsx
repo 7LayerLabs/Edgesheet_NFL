@@ -3,8 +3,8 @@ import { spreadText } from "@/lib/format";
 
 /**
  * Compact "Other systems" table under the EdgeSheet projection. Every row is a
- * projected home margin from an outside rating system (SP+, FPI, SRS, Elo, CFBD
- * pregame) or our own model, with the posted line as a reference row and the
+ * projected home margin from a rating system (ESPN FPI, our Elo, our EPA model)
+ * or our own blended model, with the posted line as a reference row and the
  * consensus sentence beneath. Server component, plain props.
  */
 export function ConsensusTable({ game }: { game: Game }) {
@@ -16,7 +16,7 @@ export function ConsensusTable({ game }: { game: Game }) {
   const graded = game.archive?.postgame?.consensusResult;
   return (
     <div className="mt-3 rounded border border-line bg-panel-2 p-3">
-      <p className="eyebrow">Other systems · outside ratings via CollegeFootballData</p>
+      <p className="eyebrow">Other systems · FPI from ESPN, Elo and the EPA model from this site</p>
       <table className="mt-2 w-full text-sm">
         <thead>
           <tr className="text-left text-[11px] uppercase tracking-wider text-chalk-3">
@@ -77,7 +77,7 @@ export function ConsensusTable({ game }: { game: Game }) {
       </table>
       <p className="mt-2 text-sm text-chalk">{c.summary}</p>
       <p className="mt-1 text-[11px] text-chalk-3">
-        SP+, FPI, SRS, and Elo are rating differences plus 2.5 points of home field (Elo uses 65 Elo points, 28 per point of spread). Win probability for each uses the same 16-point normal as the model. CFBD pregame is CollegeFootballData&apos;s own number. None of these are ours except the marked row.
+        FPI is ESPN&apos;s rating difference plus 2 points of home field. Elo is ours from results (K 20, 48 Elo points of home field, 25 per point of spread). The EPA model is each offense&apos;s EPA per play against the other defense over the game&apos;s pace. Win probability for each uses the same 13.5-point normal as the model.
         {graded && ` Graded: consensus winner ${graded.winnerRight ? "right" : "wrong"}, margin off by ${graded.marginError.toFixed(0)}${graded.sideCovered !== undefined ? `, consensus side ${graded.sideCovered ? "covered" : "did not cover"}` : ""}.`}
       </p>
     </div>
@@ -97,9 +97,9 @@ export function ConsensusLine({ game }: { game: Game }) {
   );
 }
 
-/** Market-implied favorite probability from a spread, same 16-point normal as the model. */
+/** Market-implied favorite probability from a spread, same 13.5-point normal as the model. */
 function impliedProb(margin: number): number {
-  const x = Math.abs(margin) / (16 * Math.SQRT2);
+  const x = Math.abs(margin) / (13.5 * Math.SQRT2);
   const s = Math.sign(x);
   const a = Math.abs(x);
   const t = 1 / (1 + 0.3275911 * a);

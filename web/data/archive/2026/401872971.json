@@ -1,0 +1,194 @@
+{
+ "gameId": "401872971",
+ "season": 2026,
+ "week": 4,
+ "pregame": {
+  "capturedAt": "2026-10-04T02:06:10.291Z",
+  "kickoff": "2026-10-04T17:00:00.000Z",
+  "away": "Patriots",
+  "home": "Bills",
+  "abbr": {
+   "home": "BUF",
+   "away": "NE"
+  },
+  "scoutScore": 77,
+  "whyWatch": "Division game: the Bills lead the AFC East at 3-0; the Patriots are 1-2, 3rd.",
+  "pressurePoint": "Patriots on passing downs vs Bills pressure. The Patriots are No. 18 of 32 in passing-downs success (36%). The Bills rank No. 27 on passing downs (45%). A real edge, not a lock. The Patriots convert the long downs the Bills need to win. A third-and-8 is not a stop here. Watch the Patriots on third-and-long. Two conversions in the first half break the Bills plan.",
+  "edges": [
+   {
+    "a": "Bills ground game",
+    "b": "Patriots run front",
+    "edge": "offense",
+    "axis": "line",
+    "offTeam": "Bills",
+    "why": "The Bills are No. 3 of 32 in rush EPA per carry (0.08). The Patriots rank No. 27 against the run by EPA (0.03). This is not a lean. It is a mismatch, and a prominent one. The line of scrimmage belongs to the Bills. Second-level runs and play-action are live all afternoon."
+   },
+   {
+    "a": "Bills run game",
+    "b": "Patriots run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Bills",
+    "why": "The Bills are No. 1 of 32 in rush success rate (53%). The Patriots rank No. 11 against the run (39%). A real edge, not a lock. The Bills should stay on schedule on the ground, which keeps third downs short and the clock moving."
+   },
+   {
+    "a": "Patriots on passing downs",
+    "b": "Bills pressure",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Patriots",
+    "why": "The Patriots are No. 18 of 32 in passing-downs success (36%). The Bills rank No. 27 on passing downs (45%). A real edge, not a lock. The Patriots convert the long downs the Bills need to win. A third-and-8 is not a stop here."
+   },
+   {
+    "a": "Bills on passing downs",
+    "b": "Patriots pressure",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Bills",
+    "why": "The Bills are No. 5 of 32 in passing-downs success (49%). The Patriots rank No. 12 on passing downs (35%). A real edge, not a lock. The Bills convert the long downs the Patriots need to win. A third-and-8 is not a stop here."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4379399",
+    "name": "James Cook",
+    "team": "Bills",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 82
+   },
+   {
+    "id": "4837244",
+    "name": "Gabe Jacas",
+    "team": "Patriots",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 77
+   },
+   {
+    "id": "4832035",
+    "name": "Davison Igbinosun",
+    "team": "Bills",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 48
+   },
+   {
+    "id": "4890074",
+    "name": "Erick Hunter",
+    "team": "Patriots",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 37
+   },
+   {
+    "id": "4870886",
+    "name": "TJ Parker",
+    "team": "Bills",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 12
+   },
+   {
+    "id": "4831989",
+    "name": "Deone Walker",
+    "team": "Bills",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Breakout",
+    "score": 87
+   },
+   {
+    "id": "4688432",
+    "name": "Elijah Ponder",
+    "team": "Patriots",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 86
+   },
+   {
+    "id": "4428930",
+    "name": "Craig Woodson",
+    "team": "Patriots",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Breakout",
+    "score": 80
+   },
+   {
+    "id": "3918298",
+    "name": "Josh Allen",
+    "team": "Bills",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "00-0036979",
+    "name": "Alijah Vera-Tucker",
+    "team": "Patriots",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "4686772",
+    "name": "Christian Gonzalez",
+    "team": "Patriots",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0037428",
+    "name": "Alec Anderson",
+    "team": "Bills",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0035679",
+    "name": "Connor McGovern",
+    "team": "Bills",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "BUF",
+   "line": -7
+  },
+  "total": 49.5,
+  "projection": {
+   "winner": "BUF",
+   "winProb": 0.6692262775607531,
+   "margin": 5.91,
+   "home": 28,
+   "away": 22,
+   "modelSide": "NE",
+   "confidence": "high",
+   "modelTotal": 47.5,
+   "totalLean": "none"
+  },
+  "consensus": {
+   "median": 6.2,
+   "favorite": "BUF",
+   "side": "NE",
+   "sideCount": 3,
+   "of": 4
+  }
+ }
+}

@@ -7,21 +7,19 @@ import path from "node:path";
 import { memoSync } from "./memo";
 
 const FILE = path.join(process.cwd(), "data", "backtest", "results.json");
-const WEIGHTS = path.join(process.cwd(), "data", "weights.json");
 
-export type BlendForm = "additive" | "weighted";
-
-export interface GridRow {
-  form: BlendForm;
-  eloWeight: number;
-  edgeDivisor: number;
-  net: "live" | "raw";
+export interface GradeRow {
   games: number;
+  withLine: number;
   winnerRate: number | null;
   winnerRight: number;
   winnerGraded: number;
   mae: number | null;
   rmse: number | null;
+  bias: number | null;
+  marketWinnerRate: number | null;
+  marketMae: number | null;
+  marketRmse: number | null;
   coverRate: number | null;
   coverRight: number;
   coverGraded: number;
@@ -29,174 +27,48 @@ export interface GridRow {
   lean2Graded: number;
   lean4CoverRate: number | null;
   lean4Graded: number;
-}
-
-export interface MarketRow extends GridRow {
   favoriteCoverRate: number | null;
   favoriteGraded: number;
-}
-
-export interface TotalGrade {
-  avgPpg: number;
-  bias: number | null;
-  graded: number;
-  leans: number;
-  leanRate: number | null;
-  leanRight: number;
-  overLeans: number;
-  overRate: number | null;
-  underLeans: number;
-  underRate: number | null;
-  modelMae: number | null;
-  marketMae: number | null;
   pushes: number;
-}
-
-export interface ProjectionGrade {
-  season?: number;
-  seasons?: number[];
-  mode: "full" | "walk";
-  counts: { fbsCompleted: number; graded: number; noElo: number; notCharted: number; noClosingLine: number };
-  market: MarketRow;
-  grid: GridRow[];
-  total: TotalGrade;
-  totalOld: TotalGrade;
+  homeWinRate: number | null;
   calibration: { bucket: string; games: number; winRate: number | null }[];
 }
 
-export interface ProjectionSection {
-  overall: ProjectionGrade;
-  best: GridRow | null;
-  bestWeighted?: GridRow | null;
-  bestCover?: GridRow | null;
-  live: { form: BlendForm; eloWeight: number; edgeDivisor: number };
-  minWeek?: number;
-  leaky?: boolean;
-  perSeason: ProjectionGrade[];
-}
-
-export interface DraftAcc {
-  drafted: number;
-  onRadar: number;
-  onRadarRate: number | null;
-  inPool: number;
-  inPoolRate: number | null;
-  r1: number;
-  r1Hit: number;
-  r1HitRate: number | null;
-  top100: number;
-  top100Hit: number;
-  top100HitRate: number | null;
-  matchedById: number;
-  matchedByName: number;
-  rankCorrelation: number | null;
-  correlationN: number;
-}
-
-export interface BandRow {
-  band: string;
-  entries: number;
-  drafted: number;
-  draftedRate: number | null;
-  r1: number;
-  top100: number;
-}
-
-export interface DraftGrade {
-  season: number;
-  draftYear: number;
-  available: boolean;
-  reason?: string;
-  poolSize?: number;
-  boardSize?: number;
-  radarSize?: number;
-  bands?: BandRow[];
-  total?: DraftAcc;
-  byGroup?: Record<string, DraftAcc>;
-}
-
-export interface DraftSection {
-  overall: { draftYears: number[]; bands: BandRow[]; total: DraftAcc; byGroup: Record<string, DraftAcc> };
-  perSeason: DraftGrade[];
-}
-
-export interface Corr {
-  n: number;
-  pearson: number | null;
-  spearman: number | null;
-}
-
-export interface ExcitementGrade {
-  season: number;
-  games: number;
-  competitive: Corr;
-  styleContrast: Corr;
-  proxy: Corr;
-  byCompetitiveBucket: { label: string; games: number; avgExcitement: number | null }[];
-}
-
-export interface NflSummary {
-  group: string;
-  n: number;
-  avgValuePerSeason: number | null;
-  production: number | null;
-  pedigree: number | null;
-  usage: number | null;
-  radarScore: number | null;
-  realPick: number | null;
-}
-
-export interface NflSection {
-  source: string;
-  lastNflSeason: number;
-  matched: number;
-  ofRadarDraftees: number;
-  valueMetric: string;
-  overall: NflSummary;
-  byGroup: NflSummary[];
-  byDraftYear: (NflSummary & { draftYear: number })[];
-  error?: string;
+export interface FitRow {
+  home: number;
+  perPoint: number;
+  mae: number | null;
+  winnerRate: number | null;
+  coverRate: number | null;
+  lean4CoverRate: number | null;
 }
 
 export interface BacktestResults {
-  generatedAt: string;
+  ranAt: string;
   seasons: number[];
-  skipped: { season: number; reason: string }[];
-  drift: string[];
+  live: { home: number; perPoint: number; k: number; regress: string; sigma: number };
+  overall: GradeRow;
+  overallRegular: GradeRow;
+  perSeason: { season: number; regular: GradeRow; all: GradeRow }[];
+  fit: { best: FitRow; top: FitRow[] };
   notes: string[];
-  walkForward: ProjectionSection | null;
-  projection: ProjectionSection | null;
-  excitement: { perSeason: ExcitementGrade[] } | null;
-  draft: DraftSection | null;
-  nfl: NflSection | null;
 }
 
-export interface Weights {
-  projection?: { form?: BlendForm; eloWeight?: number; edgeDivisor?: number };
-  projectionBestVsClosingLine?: { form?: BlendForm; eloWeight: number; edgeDivisor: number; lean4CoverRate: number | null; lean4Graded: number; mae: number | null } | null;
-  projectionWeightedForm?: { form?: BlendForm; eloWeight: number; edgeDivisor: number; mae: number | null; winnerRate: number | null } | null;
-  total?: { avgPpg: number; bias: number | null; biasAtOld: number | null };
-  radar?: Record<string, number>;
-  comment?: string;
-  generatedAt?: string;
-}
-
-function stamp(f: string) {
+function stamp() {
   try {
-    return String(statSync(f).mtimeMs);
+    return String(statSync(FILE).mtimeMs);
   } catch {
     return "missing";
   }
 }
 
-function readJson<T>(f: string): T | undefined {
-  if (!existsSync(f)) return undefined;
-  try {
-    return JSON.parse(readFileSync(f, "utf8")) as T;
-  } catch {
-    return undefined;
-  }
+export function backtestResults(): BacktestResults | undefined {
+  return memoSync(`backtest:${stamp()}`, 300, () => {
+    if (!existsSync(FILE)) return undefined;
+    try {
+      return JSON.parse(readFileSync(FILE, "utf8")) as BacktestResults;
+    } catch {
+      return undefined;
+    }
+  });
 }
-
-export const backtestResults = (): BacktestResults | undefined => memoSync(`backtest:${stamp(FILE)}`, 300, () => readJson<BacktestResults>(FILE));
-export const recommendedWeights = (): Weights | undefined => memoSync(`weights:${stamp(WEIGHTS)}`, 300, () => readJson<Weights>(WEIGHTS));

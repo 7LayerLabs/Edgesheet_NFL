@@ -56,7 +56,7 @@ export default async function Today({ searchParams }: PageProps<"/">) {
 
       {games.length > 0 && (
         <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
-          <Callout label="Highest Scout Score" game={top} tone="flag" />
+          <Callout label="Highest Watch Score" game={top} tone="flag" />
           {gem ? <Callout label="Hidden Gem" game={gem} tone="turf" /> : <Callout label="Next best" game={sorted[1] ?? top} tone="flag" />}
         </div>
       )}

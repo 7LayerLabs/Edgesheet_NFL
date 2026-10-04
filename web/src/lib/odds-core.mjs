@@ -15,7 +15,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-export const SPORT = "americanfootball_ncaaf";
+export const SPORT = "americanfootball_nfl";
 export const BASE = "https://api.the-odds-api.com/v4";
 export const SLATE_MARKETS = "h2h,spreads,totals";
 export const PROP_MARKETS = "player_pass_yds,player_rush_yds,player_reception_yds,player_anytime_td";

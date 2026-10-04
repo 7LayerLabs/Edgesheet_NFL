@@ -3,6 +3,8 @@ import type { ArchiveEntry } from "@/lib/archive";
 import { buildLedger, type BetResult } from "@/lib/ledger";
 import { hasOddsKey } from "@/lib/odds";
 import { asOf, spreadText } from "@/lib/format";
+import { LEDGER_MIN, gated, type GatedValue } from "@/lib/gate";
+import { Gated } from "@/components/Gated";
 
 /**
  * Ledger: every graded game with a strong or moderate model lean, the number at
@@ -30,11 +32,14 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
       </p>
 
       <div className="mt-3 grid gap-2 sm:grid-cols-4">
-        <Tile label="Simulated units" value={stats.bets ? u(stats.units) : "–"} sub={stats.bets ? `${stats.wins}-${stats.losses}${stats.pushes ? `-${stats.pushes}` : ""} on ${stats.bets} strong leans · ROI ${stats.roi}%` : "no strong leans graded yet"} tone={stats.units > 0 ? "good" : stats.units < 0 ? "bad" : undefined} />
-        <Tile label="With moderate leans" value={stats.betsAll ? u(stats.unitsAll) : "–"} sub={stats.betsAll ? `${stats.betsAll} bets at one unit · ROI ${stats.roiAll}%` : "none graded yet"} />
-        <Tile label="CLV average" value={stats.clvAvg != null ? `${stats.clvAvg > 0 ? "+" : ""}${stats.clvAvg.toFixed(2)}` : "–"} sub={stats.clvCount ? `${stats.clvPositive} of ${stats.clvCount} legs beat the close · side ${clvText(stats.sideClvAvg ?? undefined)}, total ${clvText(stats.totalClvAvg ?? undefined)}` : keyMissing ? "needs ODDS_API_KEY for closing lines" : "no closing snapshots before kickoff yet"} tone={stats.clvAvg != null ? (stats.clvAvg > 0 ? "good" : stats.clvAvg < 0 ? "bad" : undefined) : undefined} />
+        <Tile label="Simulated units" value={stats.bets ? gated(stats.bets, LEDGER_MIN, u(stats.units)) : "–"} sub={stats.bets ? `${stats.wins}-${stats.losses}${stats.pushes ? `-${stats.pushes}` : ""} on ${stats.bets} strong leans${stats.bets >= LEDGER_MIN ? ` · ROI ${stats.roi}%` : ""}` : "no strong leans graded yet"} tone={stats.bets >= LEDGER_MIN ? (stats.units > 0 ? "good" : stats.units < 0 ? "bad" : undefined) : undefined} />
+        <Tile label="With moderate leans" value={stats.betsAll ? gated(stats.betsAll, LEDGER_MIN, u(stats.unitsAll)) : "–"} sub={stats.betsAll ? `${stats.betsAll} bets at one unit${stats.betsAll >= LEDGER_MIN ? ` · ROI ${stats.roiAll}%` : ""}` : "none graded yet"} />
+        <Tile label="CLV average" value={stats.clvAvg != null ? gated(stats.clvCount, LEDGER_MIN, `${stats.clvAvg > 0 ? "+" : ""}${stats.clvAvg.toFixed(2)}`) : "–"} sub={stats.clvCount ? `${stats.clvPositive} of ${stats.clvCount} legs beat the close${stats.clvCount >= LEDGER_MIN ? ` · side ${clvText(stats.sideClvAvg ?? undefined)}, total ${clvText(stats.totalClvAvg ?? undefined)}` : ""}` : keyMissing ? "needs ODDS_API_KEY for closing lines" : "no closing snapshots before kickoff yet"} tone={stats.clvAvg != null && stats.clvCount >= LEDGER_MIN ? (stats.clvAvg > 0 ? "good" : stats.clvAvg < 0 ? "bad" : undefined) : undefined} />
         <Tile label="Leans graded" value={String(stats.rows)} sub={`${stats.bets} strong, ${stats.betsAll - stats.bets} moderate legs`} />
       </div>
+      {(stats.bets < LEDGER_MIN || stats.clvCount < LEDGER_MIN) && stats.rows > 0 && (
+        <p className="mono mt-2 text-xs text-chalk-3">Units, ROI, and CLV averages show once {LEDGER_MIN} legs are staked or closed. The table below is the full record either way.</p>
+      )}
 
       {keyMissing && (
         <p className="mt-2 text-xs text-warn">Add ODDS_API_KEY to .env.local and run odds:snapshot on a schedule so the closing columns fill in. Results and units grade from the archive without it.</p>
@@ -111,11 +116,11 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
   );
 }
 
-function Tile({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: "good" | "bad" }) {
+function Tile({ label, value, sub, tone }: { label: string; value: GatedValue; sub?: string; tone?: "good" | "bad" }) {
   return (
     <div className="card p-4">
       <p className="eyebrow">{label}</p>
-      <p className={`display mt-1 text-4xl font-bold ${tone === "good" ? "text-turf" : tone === "bad" ? "text-brick" : "text-chalk"}`}>{value}</p>
+      <p className={`display mt-1 text-4xl font-bold ${tone === "good" ? "text-turf" : tone === "bad" ? "text-brick" : "text-chalk"}`}><Gated value={value} /></p>
       {sub && <p className="mt-0.5 text-xs text-chalk-3">{sub}</p>}
     </div>
   );

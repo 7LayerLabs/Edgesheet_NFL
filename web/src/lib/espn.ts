@@ -1,9 +1,9 @@
 /**
  * ESPN public JSON (no key): live scores, clock, situation, win probability,
- * drives, scoring plays, and box score players for Division I games.
+ * drives, scoring plays, and box score players for NFL games.
  *
- * Game ids are shared with CollegeFootballData, athlete ids too, so the two
- * sources join on id with no name matching. Nothing here is invented: every
+ * Game ids are the `espn` column of the nflverse schedule and athlete ids are
+ * nflverse espn_id, so the sources join on id with no name matching. Nothing here is invented: every
  * field below is read from a response or is undefined.
  *
  * Verified 2026-10-03 against live games:
@@ -17,8 +17,7 @@
  */
 import { memo } from "./memo";
 
-const BASE = "https://site.api.espn.com/apis/site/v2/sports/football/college-football";
-const GROUPS = { FBS: 80, FCS: 81 } as const;
+const BASE = "https://site.api.espn.com/apis/site/v2/sports/football/nfl";
 
 /* ------------------------------------------------------------ raw shapes */
 
@@ -197,11 +196,13 @@ export interface LiveSummary {
     score: boolean;
     current?: boolean;
   }[];
-  /** Box score leaders per side, in the same shape the CFBD box uses. */
+  /** Box score leaders per side, in the same shape the nflverse box uses. */
   box: { homeAway: "home" | "away"; abbr: string; leaders: LiveBoxLeader[] }[];
-  /** Every player's lines keyed by ESPN (= CFBD) athlete id. */
+  /** Every player's lines keyed by ESPN athlete id. */
   byPlayer: Record<string, { category: string; headline: string }[]>;
   playersSeen: number;
+  /** Raw per-player stat rows (ESPN keys) so boxscore.ts can grade a final before nflverse posts the weekly file. */
+  lines: { id: string; name: string; homeAway: "home" | "away"; category: string; stats: Record<string, string> }[];
   broadcast?: string;
   asOf: string;
 }
@@ -335,9 +336,7 @@ export function liveScoreboard(dateYYYYMMDD: string): Promise<Map<string, LiveGa
   const d = espnDate(dateYYYYMMDD);
   return memo(`espn:sb:${d}`, 30, async () => {
     const now = Date.now();
-    const pages = await Promise.all(
-      Object.values(GROUPS).map((g) => getJson<EspnScoreboard>(`${BASE}/scoreboard?groups=${g}&limit=400&dates=${d}`)),
-    );
+    const pages = await Promise.all([getJson<EspnScoreboard>(`${BASE}/scoreboard?limit=100&dates=${d}`)]);
     const out = new Map<string, LiveGame>();
     for (const page of pages) {
       for (const e of page?.events ?? []) {
@@ -359,7 +358,7 @@ export async function liveGame(gameId: string, dateYYYYMMDD: string): Promise<Li
 
 const n0 = (v: string | undefined) => Number(v ?? 0) || 0;
 
-/** Headline in the same voice as the CFBD box (src/lib/boxscore.ts) so the UI does not change by source. */
+/** Headline in the same voice as the nflverse box (src/lib/boxscore.ts) so the UI does not change by source. */
 function headline(category: string, keys: string[], stats: string[]): { text: string; yards: number } | undefined {
   const get = (k: string) => stats[keys.indexOf(k)];
   switch (category) {
@@ -455,12 +454,14 @@ function toSummary(id: string, s: EspnSummary, now: number): LiveSummary | undef
 
   const byPlayer: Record<string, { category: string; headline: string }[]> = {};
   const box: LiveSummary["box"] = [];
+  const rawLines: LiveSummary["lines"] = [];
   let playersSeen = 0;
   for (const side of s.boxscore?.players ?? []) {
     const homeAway: "home" | "away" = side.homeAway ?? (side.team.id === homeC.team.id ? "home" : "away");
     const lines: LiveBoxLeader[] = [];
     for (const cat of side.statistics) {
       for (const a of cat.athletes) {
+        rawLines.push({ id: a.athlete.id, name: a.athlete.displayName, homeAway, category: cat.name, stats: Object.fromEntries(cat.keys.map((k, i) => [k, a.stats[i] ?? ""])) });
         const h = headline(cat.name, cat.keys, a.stats);
         if (!h) continue;
         playersSeen++;
@@ -497,6 +498,7 @@ function toSummary(id: string, s: EspnSummary, now: number): LiveSummary | undef
     box,
     byPlayer,
     playersSeen,
+    lines: rawLines,
     broadcast: bc,
     asOf: new Date(now).toISOString(),
   };
@@ -517,5 +519,5 @@ export function liveSummary(gameId: string): Promise<LiveSummary | undefined> {
 
 /** ESPN headshot URL for a CFBD/ESPN athlete id. Many ids 404; the Avatar falls back on error. */
 export function headshotUrl(athleteId: string | number): string {
-  return `https://a.espncdn.com/i/headshots/college-football/players/full/${athleteId}.png`;
+  return `https://a.espncdn.com/i/headshots/nfl/players/full/${athleteId}.png`;
 }

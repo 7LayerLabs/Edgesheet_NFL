@@ -1,14 +1,14 @@
 /**
  * Offline check of the report validator with fake model output. No key needed.
  *   npx tsx scripts/test-report-validation.ts
- * Builds the packet from a real archived game if the CFBD key is present, otherwise a stub.
+ * Builds the packet from a real archived game if the schedule digest is present, otherwise a stub.
  */
 import { buildPacket, validateReport, type Report } from "../src/lib/report";
 import type { Game } from "../src/lib/types";
 
 const game: Game = {
   id: "401858249",
-  division: "FBS",
+  division: "NFL",
   home: { id: "228", name: "Clemson Tigers", short: "Clemson", abbr: "CLEM", record: "3-1", conference: "ACC", color: "#f66733" },
   away: { id: "2390", name: "Miami Hurricanes", short: "Miami", abbr: "MIA", record: "4-0", conference: "ACC", color: "#005030", rank: 4, rankPoll: "AP Top 25" },
   kickoff: "2026-10-03T23:30:00.000Z",
@@ -21,7 +21,7 @@ const game: Game = {
   whyWatchReasons: ["No. 4 Miami visits Clemson (3-1).", "One-score game by the market: CLEM -2.5.", "Miami offensive line against clemson front: advantage offense. Miami No. 4 of 138 in line yards (3.89), Clemson No. 135 (3.46)."],
   market: { spread: { team: "CLEM", line: -2.5, open: -3 }, total: { line: 48.5, open: 47 }, books: 6, asOf: "2026-10-03T20:00:00.000Z" },
   prospects: [
-    { id: "4567", name: "Rueben Bain Jr.", team: "MIA", jersey: 4, pos: "DL", cls: "Jr", ht: "6-3", wt: 275, draftYear: 2027, eligibilityConfidence: "High", tier: "Eligible", projected: "Round 1 range (forecast)", sourceCount: 0, projectionConfidence: "High", traits: ["5 sacks", "9 TFL"], watchFor: "Get-off on first and second down.", stat: "5 sacks, 9 TFL in 4 games" },
+    { id: "4567", name: "Rueben Bain Jr.", team: "MIA", jersey: 4, pos: "DL", cls: "Jr", ht: "6-3", wt: 275, draftYear: 2027, eligibilityConfidence: "High", tier: "Rookie", projected: "Round 1 range (forecast)", sourceCount: 0, projectionConfidence: "High", traits: ["5 sacks", "9 TFL"], watchFor: "Get-off on first and second down.", stat: "5 sacks, 9 TFL in 4 games" },
   ],
   matchups: [{ a: "Miami offensive line", b: "Clemson front", why: "Miami is No. 4 of 138 in line yards per carry (3.89). Clemson ranks No. 135 at the line of scrimmage (3.46). This is not a lean. It is a mismatch, and a prominent one.", evidence: "line yards 3.89 vs 3.46, gap 61 percentile points", edge: "offense", strength: "dominant", watch: "Yards before contact on Miami's first ten carries." }],
   keepAnEyeOn: [{ name: "Tyler Smith", team: "CLEM", note: "WR, Fr. 212 rec yds. Eligible in 2029." }],
@@ -29,7 +29,7 @@ const game: Game = {
   offense: { CLEM: { label: "Balanced, slow", sample: "full", summary: "Pass rate 52%.", metrics: [{ key: "sr", label: "Success rate", value: "41%", rank: 77, of: 138 }] }, MIA: { label: "Run first", sample: "full", metrics: [{ key: "ly", label: "Line yards", value: "3.89", rank: 4, of: 138 }] } },
   defense: { CLEM: { label: "Soft front", sample: "full", metrics: [] }, MIA: { label: "Run erasing", sample: "full", metrics: [{ key: "rushSr", label: "Rush success", value: "26%", rank: 1, of: 138 }] } },
   pressurePoint: "Miami offensive line vs Clemson front. The line of scrimmage belongs to Miami.",
-  scoreComponents: { draftTalent: 60, directMatchups: 80, futureTalent: 30, competitive: 89, styleContrast: 40, storylines: 65, availability: 100 },
+  scoreComponents: { competitive: 60, directMatchups: 50, watchDensity: 40, stakes: 50, availability: 100 },
   projection: { winner: "MIA", winProb: 0.58, margin: 3.2, total: 49, home: 23, away: 26, shape: "Miami controls the line and the clock.", basis: ["Elo gap 85"], confidence: "high", modelTotal: 51, totalLean: "over", totalGap: 2.5, totalNote: "Model 51 against a posted 48.5." },
   reportAsOf: "2026-10-03T20:26:54.596Z",
   source: "live",

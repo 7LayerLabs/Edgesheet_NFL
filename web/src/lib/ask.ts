@@ -7,7 +7,6 @@
 import { etDate, getGame, getSlate } from "./slate";
 import { buildPacket } from "./report";
 import { radarBoard, type PosGroup } from "./radar";
-import { forecastNextDraft, pickText } from "./forecast";
 import { historyStats, listEntries } from "./archive";
 import { scoutScore, scoreTag } from "./score";
 import { kickoffTime, spreadText } from "./format";
@@ -29,15 +28,15 @@ export interface AskResult {
 
 const GROUPS: PosGroup[] = ["QB", "RB", "WR", "TE", "OL", "DL", "EDGE", "LB", "CB", "S"];
 
-const SYSTEM = `You answer questions about today's college football slate for EdgeSheet, a game guide seen through an NFL scouting lens.
+const SYSTEM = `You answer questions about this week's NFL slate for EdgeSheet NFL, a game guide for people deciding what to watch.
 You know nothing on your own. Use the tools, then answer only from what they returned.
 Rules:
 1. Never state a stat, line, rank, score, injury, or player that did not come back from a tool. If the tools do not cover the question, say "not in the data" and stop. Do not fill gaps from memory.
 2. Keep answers short: two to five sentences, numbers inside the sentences, plain English, no emojis, no em dashes, no bullet lists unless the user asks for a list.
 3. Explain and rank evidence. You may describe a model lean the way the tool describes it (a model, not a pick). Never give betting advice or tell the user what to bet.
 4. Finish by calling the finish tool with the answer, the ids of every game you relied on, the ids of every player you named, and whether the answer is "not in the data". Set notInData true whenever any part of the question could not be answered from the tools, and say which part.
-5. The data has no depth chart, no injury report, no career history, and no quotes. Never call a player a starter; say "the radar lists X at QB for Miami". Always tie a player to the team the tool gives for him, and check that the team matches the one the user asked about before answering.
-Tool notes: getSlate lists a day's games (default today) with each game's single biggest unit matchup; getGame returns the full evidence for one game (all four matchups with percentile gaps, every radar name with evidence, style metrics); radarBoard lists players by draft class and position; forecastBoard is the 2027 draft forecast; getRecord is the accountability archive of locked calls and how they graded. Call getSlate first for anything about "today", "tonight", or "the slate". A spread is not a matchup: for questions about a matchup, a unit, a line of scrimmage, or who to watch, pick the two or three best candidates from the slate and call getGame on each before answering. Rank by the percentile gap and the strength label (mismatch beats clear edge beats edge), not by the point spread.`;
+5. The data has an official injury report (game status and practice status), a depth chart rank, snap shares, and draft slots, but no career history and no quotes. Always tie a player to the team the tool gives for him, and check that the team matches the one the user asked about before answering.
+Tool notes: getSlate lists a day's games (default today) with each game's single biggest unit matchup; getGame returns the full evidence for one game (all four matchups with percentile gaps, every radar name with evidence, style metrics); radarBoard lists players by lens (Rookie, Breakout, Watch) and position; getRecord is the accountability archive of locked calls and how they graded. Call getSlate first for anything about "today", "tonight", or "the slate". A spread is not a matchup: for questions about a matchup, a unit, a line of scrimmage, or who to watch, pick the two or three best candidates from the slate and call getGame on each before answering. Rank by the percentile gap and the strength label (mismatch beats clear edge beats edge), not by the point spread.`;
 
 const slim = (g: Game) => ({
   id: g.id,
@@ -70,12 +69,11 @@ export async function ask(question: string): Promise<AskResult | Unavailable> {
   const tools: ToolDef[] = [
     {
       name: "getSlate",
-      description: "Games on one day (ET), with Scout Score, line, projection, and the top radar names for each. Default is today.",
-      inputSchema: { properties: { date: { type: "string", description: "YYYY-MM-DD in Eastern time. Omit for today." }, division: { type: "string", enum: ["FBS", "FCS", "DII", "DIII"] } }, additionalProperties: false },
+      description: "Games on one day (ET), with Watch Score, line, projection, and the top radar names for each. Default is today.",
+      inputSchema: { properties: { date: { type: "string", description: "YYYY-MM-DD in Eastern time. Omit for today." } }, additionalProperties: false },
       run: async (i) => {
         const s = await getSlate(typeof i.date === "string" ? i.date : undefined);
         let games = s.games;
-        if (typeof i.division === "string") games = games.filter((g) => g.division === i.division);
         games = [...games].sort((a, b) => scoutScore(b.scoreComponents) - scoutScore(a.scoreComponents));
         for (const g of games) {
           noteGame(g);
@@ -100,12 +98,11 @@ export async function ask(question: string): Promise<AskResult | Unavailable> {
     },
     {
       name: "radarBoard",
-      description: "Scouting radar board: players ranked by evidence (production, pedigree, usage, size). Filter by draft class, position group, level, or a name/team search.",
+      description: "Watch radar board: players ranked by evidence (production percentile, snap share, draft slot, breakout). Filter by lens (Rookie, Breakout, Watch), position group, or a name/team search.",
       inputSchema: {
         properties: {
-          draftClass: { type: "integer", description: "2027, 2028, or 2029" },
+          tier: { type: "string", enum: ["Rookie", "Breakout", "Watch"] },
           group: { type: "string", enum: GROUPS },
-          classification: { type: "string", enum: ["fbs", "fcs", "ii", "iii"] },
           q: { type: "string", description: "Name, team, or conference search" },
           limit: { type: "integer", description: "Default 15, max 40" },
         },
@@ -114,32 +111,13 @@ export async function ask(question: string): Promise<AskResult | Unavailable> {
       run: (i) => {
         const limit = Math.min(40, Math.max(1, Number(i.limit) || 15));
         const list = radarBoard({
-          draftClass: typeof i.draftClass === "number" ? i.draftClass : undefined,
+          tier: ["Rookie", "Breakout", "Watch"].includes(String(i.tier)) ? (i.tier as "Rookie") : undefined,
           group: GROUPS.includes(i.group as PosGroup) ? (i.group as PosGroup) : undefined,
-          classification: ["fbs", "fcs", "ii", "iii"].includes(String(i.classification)) ? (i.classification as "fbs") : undefined,
           q: typeof i.q === "string" ? i.q : undefined,
           limit,
         });
         for (const p of list) notePlayer(p.id, p.name, `${p.team} ${p.pos}`);
         return list.map((p) => ({ id: p.id, name: p.name, team: p.team, pos: p.pos, cls: p.cls, draftClass: p.draftClass, score: p.score, tier: p.tier, stat: p.stat, evidence: p.evidence.map((e) => e.label + (e.note ? ` (${e.note})` : "")), size: p.size, level: p.classification }));
-      },
-    },
-    {
-      name: "forecastBoard",
-      description: "Next draft forecast: supply from the radar against position demand from the last five drafts. Returns band (Round 1 range, Day 2 range, etc.) and an estimated pick range. A model, not a scouting consensus.",
-      inputSchema: { properties: { group: { type: "string", enum: GROUPS }, limit: { type: "integer", description: "Default 20, max 50" }, q: { type: "string", description: "Name or team search" } }, additionalProperties: false },
-      run: (i) => {
-        const fc = forecastNextDraft();
-        const limit = Math.min(50, Math.max(1, Number(i.limit) || 20));
-        let board = fc.board;
-        if (GROUPS.includes(i.group as PosGroup)) board = fc.byGroup.get(i.group as PosGroup) ?? [];
-        if (typeof i.q === "string" && i.q.trim()) {
-          const s = i.q.trim().toLowerCase();
-          board = board.filter((e) => `${e.player.name} ${e.player.team}`.toLowerCase().includes(s));
-        }
-        const rows = board.slice(0, limit);
-        for (const e of rows) notePlayer(e.player.id, e.player.name, `${e.player.team} ${e.player.pos}`);
-        return { draftYear: fc.draftYear, basedOnDrafts: fc.years, entries: rows.map((e) => ({ id: e.player.id, name: e.player.name, team: e.player.team, pos: e.player.pos, cls: e.player.cls, overall: e.overall, posRank: e.posRank, band: e.band, pick: pickText(e), decision: e.decision, radarScore: e.player.score })) };
       },
     },
     {

@@ -1,0 +1,203 @@
+{
+ "gameId": "401872969",
+ "season": 2026,
+ "week": 4,
+ "pregame": {
+  "capturedAt": "2026-10-04T02:06:10.296Z",
+  "kickoff": "2026-10-04T17:00:00.000Z",
+  "away": "Jaguars",
+  "home": "Bengals",
+  "abbr": {
+   "home": "CIN",
+   "away": "JAX"
+  },
+  "scoutScore": 85,
+  "whyWatch": "Two winning teams: Jaguars 2-1, 1st in the AFC South; Bengals 2-1, 2nd in the AFC North.",
+  "pressurePoint": "Jaguars deep passing vs Bengals secondary. The Bengals are No. 7 of 32 at limiting explosive passes (1.22). The Jaguars rank No. 14 in pass explosiveness (1.36). A real edge, not a lock. The Bengals keep the lid on. The Jaguars should expect to drive the long way. Watch the longest Jaguars completion. If it is under 25 yards at the half, the Bengals have won the matchup.",
+  "edges": [
+   {
+    "a": "Bengals deep passing",
+    "b": "Jaguars secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Bengals",
+    "why": "The Bengals are No. 13 of 32 in pass explosiveness (1.37). The Jaguars rank No. 22 at limiting explosive passes (1.39). A real edge, not a lock. The Bengals have the deep ball available. Watch whether the Jaguars roll a safety over after the first one."
+   },
+   {
+    "a": "Bengals on passing downs",
+    "b": "Jaguars pressure",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Bengals",
+    "why": "The Bengals are No. 9 of 32 in passing-downs success (44%). The Jaguars rank No. 18 on passing downs (39%). A real edge, not a lock. The Bengals convert the long downs the Jaguars need to win. A third-and-8 is not a stop here."
+   },
+   {
+    "a": "Jaguars deep passing",
+    "b": "Bengals secondary",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Jaguars",
+    "why": "The Bengals are No. 7 of 32 at limiting explosive passes (1.22). The Jaguars rank No. 14 in pass explosiveness (1.36). A real edge, not a lock. The Bengals keep the lid on. The Jaguars should expect to drive the long way."
+   },
+   {
+    "a": "Jaguars ground game",
+    "b": "Bengals run front",
+    "edge": "offense",
+    "axis": "line",
+    "offTeam": "Jaguars",
+    "why": "The Jaguars are No. 2 of 32 in rush EPA per carry (0.10). The Bengals rank No. 9 against the run by EPA (-0.16). A real edge, not a lock. The Jaguars should win first contact more often than not, which makes every down shorter."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4362628",
+    "name": "Ja'Marr Chase",
+    "team": "Bengals",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Matchup",
+    "score": 83
+   },
+   {
+    "id": "3915511",
+    "name": "Joe Burrow",
+    "team": "Bengals",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Matchup",
+    "score": 79
+   },
+   {
+    "id": "4836472",
+    "name": "Bryan Thomas Jr.",
+    "team": "Jaguars",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Rookie",
+    "score": 46
+   },
+   {
+    "id": "4710752",
+    "name": "Cashius Howell",
+    "team": "Bengals",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Rookie",
+    "score": 40
+   },
+   {
+    "id": "4726127",
+    "name": "Tacario Davis",
+    "team": "Bengals",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 36
+   },
+   {
+    "id": "4431519",
+    "name": "Barrett Carter",
+    "team": "Bengals",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 91
+   },
+   {
+    "id": "4426448",
+    "name": "Jarrian Jones",
+    "team": "Jaguars",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 84
+   },
+   {
+    "id": "4685415",
+    "name": "Travis Hunter",
+    "team": "Jaguars",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 78
+   },
+   {
+    "id": "4430065",
+    "name": "Cedric Johnson",
+    "team": "Bengals",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Breakout",
+    "score": 67
+   },
+   {
+    "id": "4426422",
+    "name": "Daxton Hill",
+    "team": "Bengals",
+    "pos": "DB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 90
+   },
+   {
+    "id": "4567098",
+    "name": "Jordan Battle",
+    "team": "Bengals",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 88
+   },
+   {
+    "id": "00-0038934",
+    "name": "Anton Harrison",
+    "team": "Jaguars",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0036327",
+    "name": "Ezra Cleveland",
+    "team": "Jaguars",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 83
+   },
+   {
+    "id": "00-0036985",
+    "name": "Robert Hainsey",
+    "team": "Jaguars",
+    "pos": "C",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 83
+   }
+  ],
+  "spread": {
+   "team": "CIN",
+   "line": -2.5
+  },
+  "total": 51.5,
+  "projection": {
+   "winner": "JAX",
+   "winProb": 0.5159534988046361,
+   "margin": 0.5400000000000001,
+   "home": 25,
+   "away": 27,
+   "modelSide": "JAX",
+   "confidence": "high",
+   "modelTotal": 45,
+   "totalLean": "under"
+  },
+  "consensus": {
+   "median": -0.9,
+   "favorite": "JAX",
+   "side": "JAX",
+   "sideCount": 4,
+   "of": 4
+  }
+ }
+}

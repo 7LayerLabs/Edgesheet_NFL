@@ -15,7 +15,7 @@ export function GameCard({ game, index = 0 }: { game: Game; index?: number }) {
   const risk = weatherRisk(game.weather);
   const topFlag = game.weather ? evaluateWeather(game.weather).find((f) => f.level !== "note") : undefined;
   const projectionsKnown = game.source === "sample" || likely + future > 0;
-  const topName = game.source === "live" ? game.prospects.find((p) => p.tier === "Eligible" || p.tier === "Established") : undefined;
+  const topName = game.source === "live" ? game.prospects.find((p) => p.tier === "Rookie" || p.tier === "Breakout" || p.tier === "Matchup") : undefined;
 
   return (
     <Link
@@ -52,13 +52,13 @@ export function GameCard({ game, index = 0 }: { game: Game; index?: number }) {
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
             {projectionsKnown ? (
               <span className="text-chalk-2">
-                <span className="text-chalk">{likely}</span> {game.source === "live" ? "on radar" : `likely ${likely === 1 ? "pick" : "picks"}`}
+                <span className="text-chalk">{likely}</span> {game.source === "live" ? "to watch" : `likely ${likely === 1 ? "pick" : "picks"}`}
                 {future > 0 && (
                   <>
-                    , <span className="text-chalk">{future}</span> future
+                    , <span className="text-chalk">{future}</span> more
                   </>
                 )}
-                {topName && <span className="text-chalk-3"> · {topName.name} ({topName.pos})</span>}
+                {topName && <span className="text-chalk-3"> · {topName.name} ({topName.pos}{topName.tier === "Rookie" ? ", rookie" : topName.tier === "Breakout" ? ", breakout" : ""})</span>}
               </span>
             ) : (
               <span className="text-chalk-3">Nobody on radar yet</span>

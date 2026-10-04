@@ -1,0 +1,203 @@
+{
+ "gameId": "401872976",
+ "season": 2026,
+ "week": 4,
+ "pregame": {
+  "capturedAt": "2026-10-04T02:06:10.319Z",
+  "kickoff": "2026-10-04T20:25:00.000Z",
+  "away": "Chiefs",
+  "home": "Raiders",
+  "abbr": {
+   "home": "LV",
+   "away": "KC"
+  },
+  "scoutScore": 87,
+  "whyWatch": "Division game for first place: the Chiefs lead the AFC West at 3-0, the Raiders are 3-0.",
+  "pressurePoint": "Chiefs on passing downs vs Raiders pressure. The Chiefs are No. 8 of 32 in passing-downs success (45%). The Raiders rank No. 22 on passing downs (41%). A clear edge, the kind that shapes a game plan. The Chiefs convert the long downs the Raiders need to win. A third-and-8 is not a stop here. Watch the Chiefs on third-and-long. Two conversions in the first half break the Raiders plan.",
+  "edges": [
+   {
+    "a": "Raiders run game",
+    "b": "Chiefs run defense",
+    "edge": "defense",
+    "axis": "rush",
+    "offTeam": "Raiders",
+    "why": "The Chiefs are No. 5 of 32 against the run (33%). The Raiders rank No. 29 in rush success rate (32%). This is not a lean. It is a mismatch, and a prominent one. The Chiefs erase the run. The Raiders get pushed into passing downs, and that is where this defense makes its money."
+   },
+   {
+    "a": "Chiefs on passing downs",
+    "b": "Raiders pressure",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Chiefs",
+    "why": "The Chiefs are No. 8 of 32 in passing-downs success (45%). The Raiders rank No. 22 on passing downs (41%). A clear edge, the kind that shapes a game plan. The Chiefs convert the long downs the Raiders need to win. A third-and-8 is not a stop here."
+   },
+   {
+    "a": "Raiders on passing downs",
+    "b": "Chiefs pressure",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Raiders",
+    "why": "The Chiefs are No. 13 of 32 on passing downs (35%). The Raiders rank No. 26 in passing-downs success (30%). A clear edge, the kind that shapes a game plan. The Chiefs get off the field on long downs. Early-down efficiency is everything for the Raiders."
+   },
+   {
+    "a": "Raiders ground game",
+    "b": "Chiefs run front",
+    "edge": "defense",
+    "axis": "line",
+    "offTeam": "Raiders",
+    "why": "The Chiefs are No. 15 of 32 against the run by EPA (-0.06). The Raiders rank No. 26 in rush EPA per carry (-0.20). A real edge, not a lock. The Chiefs should hold the line of scrimmage. Raiders runs will need the second level to break."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "3129310",
+    "name": "Drue Tranquill",
+    "team": "Chiefs",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Matchup",
+    "score": 80
+   },
+   {
+    "id": "3139477",
+    "name": "Patrick Mahomes",
+    "team": "Chiefs",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Matchup",
+    "score": 72
+   },
+   {
+    "id": "4917354",
+    "name": "Hezekiah Masses",
+    "team": "Raiders",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 89
+   },
+   {
+    "id": "4880124",
+    "name": "Mansoor Delane",
+    "team": "Chiefs",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 74
+   },
+   {
+    "id": "4697757",
+    "name": "Treydan Stukes",
+    "team": "Raiders",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 71
+   },
+   {
+    "id": "5081927",
+    "name": "R Mason Thomas",
+    "team": "Chiefs",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Rookie",
+    "score": 56
+   },
+   {
+    "id": "4610705",
+    "name": "Nohl Williams",
+    "team": "Chiefs",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 92
+   },
+   {
+    "id": "4685232",
+    "name": "Jaden Hicks",
+    "team": "Chiefs",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Breakout",
+    "score": 82
+   },
+   {
+    "id": "4890973",
+    "name": "Ashton Jeanty",
+    "team": "Raiders",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Breakout",
+    "score": 81
+   },
+   {
+    "id": "4426340",
+    "name": "Nakobe Dean",
+    "team": "Raiders",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 91
+   },
+   {
+    "id": "4362759",
+    "name": "Nick Bolton",
+    "team": "Chiefs",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "4432665",
+    "name": "Brock Bowers",
+    "team": "Raiders",
+    "pos": "TE",
+    "group": "TE",
+    "tier": "Watch",
+    "score": 86
+   },
+   {
+    "id": "00-0036623",
+    "name": "Creed Humphrey",
+    "team": "Chiefs",
+    "pos": "C",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0034759",
+    "name": "Kolton Miller",
+    "team": "Raiders",
+    "pos": "T",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "KC",
+   "line": -4.5
+  },
+  "total": 47.5,
+  "projection": {
+   "winner": "KC",
+   "winProb": 0.6243921814589133,
+   "margin": 4.279999999999999,
+   "home": 22,
+   "away": 26,
+   "modelSide": "LV",
+   "confidence": "high",
+   "modelTotal": 42,
+   "totalLean": "under"
+  },
+  "consensus": {
+   "median": -3.3,
+   "favorite": "KC",
+   "side": "LV",
+   "sideCount": 2,
+   "of": 4
+  }
+ }
+}

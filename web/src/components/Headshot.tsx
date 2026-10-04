@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from "react";
 
 /**
- * ESPN headshot with a graceful fallback. Many college ids return 404, so the
+ * ESPN headshot with a graceful fallback. Some ids return 404, so the
  * image swaps to the jersey circle the moment it fails to load. The parent
  * stays a server component; only this leaf is client-side.
  */

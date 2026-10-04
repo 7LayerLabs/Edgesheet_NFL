@@ -1,0 +1,194 @@
+{
+ "gameId": "401872978",
+ "season": 2026,
+ "week": 4,
+ "pregame": {
+  "capturedAt": "2026-10-04T02:06:10.331Z",
+  "kickoff": "2026-10-05T00:20:00.000Z",
+  "away": "Lions",
+  "home": "Panthers",
+  "abbr": {
+   "home": "CAR",
+   "away": "DET"
+  },
+  "scoutScore": 79,
+  "whyWatch": "Will Lee III (CAR CB, Rookie) is a top-of-the-radar name: drafted No. 129, producing like pick No. 8.",
+  "pressurePoint": "Lions on passing downs vs Panthers pressure. The Lions are No. 4 of 32 in passing-downs success (49%). The Panthers rank No. 26 on passing downs (44%). This is not a lean. It is a mismatch, and a prominent one. The Lions convert the long downs the Panthers need to win. A third-and-8 is not a stop here. Watch the Lions on third-and-long. Two conversions in the first half break the Panthers plan.",
+  "edges": [
+   {
+    "a": "Lions on passing downs",
+    "b": "Panthers pressure",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Lions",
+    "why": "The Lions are No. 4 of 32 in passing-downs success (49%). The Panthers rank No. 26 on passing downs (44%). This is not a lean. It is a mismatch, and a prominent one. The Lions convert the long downs the Panthers need to win. A third-and-8 is not a stop here."
+   },
+   {
+    "a": "Panthers on passing downs",
+    "b": "Lions pressure",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Panthers",
+    "why": "The Panthers are No. 15 of 32 in passing-downs success (38%). The Lions rank No. 31 on passing downs (52%). A clear edge, the kind that shapes a game plan. The Panthers convert the long downs the Lions need to win. A third-and-8 is not a stop here."
+   },
+   {
+    "a": "Panthers deep passing",
+    "b": "Lions secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Panthers",
+    "why": "The Panthers are No. 5 of 32 in pass explosiveness (1.56). The Lions rank No. 19 at limiting explosive passes (1.35). A clear edge, the kind that shapes a game plan. The Panthers have the deep ball available. Watch whether the Lions roll a safety over after the first one."
+   },
+   {
+    "a": "Lions ground game",
+    "b": "Panthers run front",
+    "edge": "offense",
+    "axis": "line",
+    "offTeam": "Lions",
+    "why": "The Lions are No. 9 of 32 in rush EPA per carry (-0.01). The Panthers rank No. 17 against the run by EPA (-0.04). A real edge, not a lock. The Lions should win first contact more often than not, which makes every down shorter."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "3046779",
+    "name": "Jared Goff",
+    "team": "Lions",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Matchup",
+    "score": 87
+   },
+   {
+    "id": "4685720",
+    "name": "Bryce Young",
+    "team": "Panthers",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Matchup",
+    "score": 83
+   },
+   {
+    "id": "5151083",
+    "name": "Will Lee III",
+    "team": "Panthers",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 80
+   },
+   {
+    "id": "5103940",
+    "name": "Skyler Gill-Howard",
+    "team": "Lions",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Rookie",
+    "score": 62
+   },
+   {
+    "id": "4566384",
+    "name": "Zakee Wheatley",
+    "team": "Panthers",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 60
+   },
+   {
+    "id": "5093004",
+    "name": "Keith Abney II",
+    "team": "Lions",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 40
+   },
+   {
+    "id": "4695883",
+    "name": "Jalen Coker",
+    "team": "Panthers",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 85
+   },
+   {
+    "id": "4685472",
+    "name": "Tetairoa McMillan",
+    "team": "Panthers",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 84
+   },
+   {
+    "id": "4569323",
+    "name": "Thomas Harper",
+    "team": "Lions",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Breakout",
+    "score": 75
+   },
+   {
+    "id": "4260409",
+    "name": "Derrick Barnes",
+    "team": "Lions",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 89
+   },
+   {
+    "id": "4372099",
+    "name": "Aidan Hutchinson",
+    "team": "Lions",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Watch",
+    "score": 88
+   },
+   {
+    "id": "4243256",
+    "name": "Devin Lloyd",
+    "team": "Panthers",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 88
+   },
+   {
+    "id": "00-0037814",
+    "name": "Luke Fortner",
+    "team": "Panthers",
+    "pos": "C",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 84
+   }
+  ],
+  "spread": {
+   "team": "DET",
+   "line": -3.5
+  },
+  "total": 51.5,
+  "projection": {
+   "winner": "DET",
+   "winProb": 0.5752002995465633,
+   "margin": 2.56,
+   "home": 24,
+   "away": 28,
+   "modelSide": "CAR",
+   "confidence": "high",
+   "modelTotal": 55,
+   "totalLean": "over"
+  },
+  "consensus": {
+   "median": -2.5,
+   "favorite": "DET",
+   "side": "CAR",
+   "sideCount": 4,
+   "of": 4
+  }
+ }
+}
