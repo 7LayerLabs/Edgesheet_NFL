@@ -153,3 +153,16 @@ Open: the side leans ignore QB injuries (Colts at Commanders reads WSH by 5.3 "h
 - Applied: `AVG_PPG` 22.4, `TOTAL_SHRINK` 0.5 in projection.ts. The last-season blend was a hair better but needs last season's team rates in teams.json; not done.
 - No gap size beats a coin flip on the over/under (5+ gap: 52% on 281 games with the old model, noise). `LEAN_BACKTEST_NOTE` now says so for totals too.
 - consensus.ts keeps its own EPA margin model with the old constants; the total backtest does not speak to margins, so it was left alone.
+
+## Session 2026-10-04, part 6: DraftKings projection backtest (3:50 PM)
+
+`npm run backtest:dfs` (`scripts/backtest-dfs.mjs`, `data/backtest/dfs.json`). Walk-forward 2024 and 2025, week 3 on, 4,121 player-weeks (QB RB WR TE with 2+ games and 8+ DK points a game so far).
+
+| | MAE (DK pts) | corr with actual |
+| --- | --- | --- |
+| Old live: this season only, matchup x 0.5 | 6.72 | 0.353 |
+| This season only, no matchup | 6.70 | 0.357 |
+| New live: last season worth 3 games, matchup x 0.25 | 6.59 | 0.381 |
+
+- The defense-vs-position factor barely matters and half strength was worse than none; a quarter is the best fit. Last season's per-game line is the real gain. Applied as `PRIOR_GAMES` 3 and `MATCHUP_WEIGHT` 0.25 in dfs.ts; the why line shows last season.
+- Not tested: the next-man-up bump (needs injury history joined to the weekly files) and the defensive prop scores (no historical prop lines).

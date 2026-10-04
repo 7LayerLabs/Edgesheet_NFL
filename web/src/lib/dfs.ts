@@ -13,8 +13,8 @@
  * lost; 6 per return TD. Two-point conversions are not in the weekly file, so they are
  * left out. Nothing is invented: a player without a salary is not shown as a play.
  *
- * Projection (shown as "proj"): our average, blended with last season's per-game line
- * while this season has under 2 games, times half the matchup factor (DK points the
+ * Projection (shown as "proj"): our average, blended with last season's per-game line at
+ * weight 3 / (games + 3), times a quarter of the matchup factor (DK points the
  * opponent allows to the position against the league average, capped 0.7 to 1.35),
  * plus half of an Out or Doubtful teammate's average handed to the next man up.
  */
@@ -53,6 +53,9 @@ export function dkPoints(s: StatLine | null | undefined): number {
 }
 
 const round1 = (x: number) => Math.round(x * 10) / 10;
+/** Backtest fits (scripts/backtest-dfs.mjs): last season counts as 3 games; the matchup factor at a quarter (half was worse than none). */
+const PRIOR_GAMES = 3;
+const MATCHUP_WEIGHT = 0.25;
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 const pct = (x: number | undefined | null) => (x == null ? undefined : Math.round(x * 100));
 const ordinal = (n: number) => `No. ${n}`;
@@ -430,16 +433,17 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
       // A backup quarterback only plays when the starter is out, and then he carries the bump.
       if (pos === "QB" && p?.dc && p.dc.rank > 1 && !bumps.has(p.id)) continue;
       const sd = p ? season.get(p.id) : undefined;
-      const prior = p?.ps?.gp ? dkPoints(p.ps) / p.ps.gp : undefined;
+      // Last season per game from season totals (no 100- and 300-yard bonuses), blended in at 3 / (games + 3):
+      // scripts/backtest-dfs.mjs on 2024 and 2025 (4,121 player-weeks) cut the miss from 6.72 to 6.59 DK points.
+      const prior = p?.ps?.gp && p.ps.gp >= 4 ? dkPoints(p.ps) / p.ps.gp : undefined;
       let base: number | undefined;
-      if (sd && sd.games >= 2) base = sd.avg;
-      else if (sd && prior !== undefined) base = (sd.avg * sd.games + prior * (2 - sd.games)) / 2;
+      if (sd && prior !== undefined) base = (sd.avg * sd.games + prior * PRIOR_GAMES) / (sd.games + PRIOR_GAMES);
       else base = sd?.avg ?? prior ?? row.dkPpg;
       if (base === undefined) continue;
       const allowed = table.get(opp.short)?.[pos];
       const factor = allowed && league[pos] ? Math.min(1.35, Math.max(0.7, allowed.perGame / league[pos])) : 1;
       const bump = p ? bumps.get(p.id) : undefined;
-      const proj = round1(base * (1 + 0.5 * (factor - 1)) + (bump?.pts ?? 0));
+      const proj = round1(base * (1 + MATCHUP_WEIGHT * (factor - 1)) + (bump?.pts ?? 0));
       const gp = p?.s?.gp ?? sd?.games ?? 0;
       const snap = pct(p?.u?.o);
       const tshare = pct(p?.s?.tshare);
@@ -447,7 +451,7 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
       const targets = gp && p?.s?.tgt ? round1(p.s.tgt / gp) : undefined;
 
       const bits: string[] = [];
-      if (sd) bits.push(`${sd.avg} DK pts a game over ${sd.games}${sd.last !== undefined ? ` (${sd.last} last time out)` : ""}`);
+      if (sd) bits.push(`${sd.avg} DK pts a game over ${sd.games}${sd.last !== undefined ? ` (${sd.last} last time out)` : ""}${prior !== undefined ? `, ${round1(prior)} last season` : ""}`);
       else if (prior !== undefined) bits.push(`${round1(prior)} DK pts a game last season, no 2026 line yet`);
       if (pos === "RB" && (carries || targets)) bits.push(`${plural(carries ?? 0, "carry", "carries")} and ${plural(targets ?? 0, "target")} a game${snap ? `, ${snap}% of snaps` : ""}`);
       else if ((pos === "WR" || pos === "TE") && tshare) bits.push(`${tshare}% target share${snap ? `, ${snap}% of snaps` : ""}`);
