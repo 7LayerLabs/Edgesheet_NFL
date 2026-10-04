@@ -92,7 +92,7 @@ export function modelLeans(games: Game[]): Lean[] {
 function leanLine(l: Lean, base: string): string {
   const s = l.game.market.spread!;
   if (l.kind === "side") {
-    return `${gameLink(l.game, base)}: model leans <b>${h(l.team)}</b> by ${l.gap.toFixed(1)} vs ${h(s.team)} ${s.line} (${h(l.game.projection!.confidence)} confidence)`;
+    return `${gameLink(l.game, base)}: model leans <b>${h(l.team)}</b> by ${l.gap.toFixed(1)} vs ${h(s.team)} ${s.line}`;
   }
   return `${gameLink(l.game, base)}: model leans <b>${l.direction}</b> by ${l.gap.toFixed(1)}, model total ${l.modelTotal} vs posted ${l.marketTotal}`;
 }
@@ -122,16 +122,23 @@ export function leansSection(games: Game[], base = baseUrl(), opts: LeanOptions 
     for (const l of shown) lines.push(`• ${leanLine(l, base)}`);
     if (shown.length < xs.length) lines.push(`   plus ${xs.length - shown.length} more, send /leans for the full list`);
   };
-  group(`Strong side leans, ${LEAN_THRESHOLDS.side.strong}+ pts vs the spread`, leans.filter((l) => l.strength === "strong" && l.kind === "side"));
-  group(`Strong total leans, ${LEAN_THRESHOLDS.total.strong}+ pts vs the total`, leans.filter((l) => l.strength === "strong" && l.kind === "total"));
-  group(`Moderate side leans, ${LEAN_THRESHOLDS.side.moderate} to ${LEAN_THRESHOLDS.side.strong} pts`, leans.filter((l) => l.strength === "moderate" && l.kind === "side"));
-  group(`Moderate total leans, ${LEAN_THRESHOLDS.total.moderate} to ${LEAN_THRESHOLDS.total.strong} pts`, leans.filter((l) => l.strength === "moderate" && l.kind === "total"));
+  group(`Side gaps of ${LEAN_THRESHOLDS.side.strong}+ pts vs the spread`, leans.filter((l) => l.strength === "strong" && l.kind === "side"));
+  group(`Total gaps of ${LEAN_THRESHOLDS.total.strong}+ pts vs the total`, leans.filter((l) => l.strength === "strong" && l.kind === "total"));
+  group(`Side gaps of ${LEAN_THRESHOLDS.side.moderate} to ${LEAN_THRESHOLDS.side.strong} pts`, leans.filter((l) => l.strength === "moderate" && l.kind === "side"));
+  group(`Total gaps of ${LEAN_THRESHOLDS.total.moderate} to ${LEAN_THRESHOLDS.total.strong} pts`, leans.filter((l) => l.strength === "moderate" && l.kind === "total"));
   const overs = leans.filter((l) => l.kind === "total" && l.direction === "over").length;
   const unders = leans.filter((l) => l.kind === "total" && l.direction === "under").length;
   if (overs + unders) lines.push(`<i>Totals skew: ${overs} over, ${unders} under.</i>`);
-  lines.push(`<i>${NOT_A_PICK} Elo plus unit edges against the posted number. Graded on the Record page after every final.</i>`);
+  lines.push(`<i>${NOT_A_PICK} ${LEAN_BACKTEST_NOTE} Graded on the Record page after every final.</i>`);
   return lines.join("\n");
 }
+
+/**
+ * What the leans have earned so far, from scripts/backtest-qb.mjs (data/backtest/qb.json). Said next to
+ * every lean list so a gap reads as a disagreement with the market, not a pick. Update after re-running.
+ */
+export const LEAN_BACKTEST_NOTE =
+  "Backtest 2022 to 2025 (Elo plus the QB adjustment, 1,139 games): the model side covered about 48% against the closing line, and no gap size beat the 52.4% break-even. Totals are not backtested yet. Read these as disagreements with the market, not picks.";
 
 /** Standalone /leans reply. */
 export function leansDigest(games: Game[], date: string, base = baseUrl()): string {

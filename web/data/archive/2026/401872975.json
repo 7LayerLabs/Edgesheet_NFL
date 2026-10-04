@@ -165,17 +165,17 @@
   "total": 48,
   "projection": {
    "winner": "SF",
-   "winProb": 0.6458253378445745,
-   "margin": 5.05,
-   "home": 27,
-   "away": 21,
+   "winProb": 0.6291600159894286,
+   "margin": 4.45,
+   "home": 26,
+   "away": 22,
    "modelSide": "SF",
    "confidence": "high",
-   "modelTotal": 55.5,
+   "modelTotal": 55,
    "totalLean": "over"
   },
   "consensus": {
-   "median": 6.8,
+   "median": 6.5,
    "favorite": "SF",
    "side": "SF",
    "sideCount": 3,
@@ -200,6 +200,6 @@
     "totalLean": "over"
    }
   },
-  "updatedAt": "2026-10-04T18:35:26.044Z"
+  "updatedAt": "2026-10-04T18:40:26.779Z"
  }
 }

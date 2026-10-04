@@ -88,7 +88,7 @@ export function AvailabilityPanel({ game, a }: { game: Game; a: GameAvailability
         ))}
       </div>
       <p className="mt-3 max-w-3xl text-xs leading-relaxed text-chalk-3">
-        Sources: {a.sources.join(", ")}. QB: expected starter's EPA a play (this season plus half of last, shrunk toward replacement) against the QBs whose snaps built this season's numbers, times QB plays a game. Skill players: EPA a touch or target above the 25th percentile at the position, half credit. Linemen and defenders: fixed starter values times snap share (assumed, not measured). Weighted by games played and the chance he sits (Questionable 25%, 50% with no practice on the final day).
+        Sources: {a.sources.join(", ")}. QB: expected starter's EPA a play (this season plus half of last, shrunk toward replacement) against the QBs whose snaps built the team's numbers (this season and last), times QB plays a game, times 0.75 (backtest fit on 2022 to 2025). Skill players: EPA a touch or target above the 25th percentile at the position, half credit. Linemen and defenders: fixed starter values times snap share (assumed, not measured). Weighted by games played and the chance he sits (Questionable 25%, 50% with no practice on the final day).
         {a.notes.length ? ` ${a.notes.join(" ")}` : ""}
       </p>
     </div>

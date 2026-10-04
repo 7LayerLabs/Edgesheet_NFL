@@ -1,0 +1,453 @@
+{
+  "builtAt": "2026-10-04T18:38:41.035Z",
+  "seasons": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "levels": {
+    "repl": -0.06,
+    "mean": 0.025
+  },
+  "games": 1139,
+  "marketMae": 9.536,
+  "all": [
+    {
+      "k": 0,
+      "mae": 9.954,
+      "cover": 0.496,
+      "n": 1110,
+      "cover2": 0.495,
+      "n2": 566,
+      "cover4": 0.528,
+      "n4": 199
+    },
+    {
+      "k": 0.25,
+      "mae": 9.899,
+      "cover": 0.49,
+      "n": 1110,
+      "cover2": 0.494,
+      "n2": 520,
+      "cover4": 0.539,
+      "n4": 154
+    },
+    {
+      "k": 0.5,
+      "mae": 9.875,
+      "cover": 0.482,
+      "n": 1110,
+      "cover2": 0.48,
+      "n2": 490,
+      "cover4": 0.525,
+      "n4": 120
+    },
+    {
+      "k": 0.75,
+      "mae": 9.876,
+      "cover": 0.483,
+      "n": 1110,
+      "cover2": 0.484,
+      "n2": 479,
+      "cover4": 0.552,
+      "n4": 116
+    },
+    {
+      "k": 1,
+      "mae": 9.902,
+      "cover": 0.485,
+      "n": 1110,
+      "cover2": 0.489,
+      "n2": 499,
+      "cover4": 0.49,
+      "n4": 149
+    },
+    {
+      "k": 1.25,
+      "mae": 9.958,
+      "cover": 0.471,
+      "n": 1110,
+      "cover2": 0.482,
+      "n2": 533,
+      "cover4": 0.481,
+      "n4": 187
+    },
+    {
+      "k": 1.5,
+      "mae": 10.047,
+      "cover": 0.468,
+      "n": 1110,
+      "cover2": 0.478,
+      "n2": 569,
+      "cover4": 0.487,
+      "n4": 236
+    }
+  ],
+  "qbChanged": {
+    "games": 386,
+    "marketMae": 9.817,
+    "grid": [
+      {
+        "k": 0,
+        "mae": 10.321,
+        "cover": 0.517,
+        "n": 377,
+        "cover2": 0.523,
+        "n2": 243,
+        "cover4": 0.532,
+        "n4": 126
+      },
+      {
+        "k": 0.25,
+        "mae": 10.159,
+        "cover": 0.517,
+        "n": 377,
+        "cover2": 0.527,
+        "n2": 207,
+        "cover4": 0.56,
+        "n4": 84
+      },
+      {
+        "k": 0.5,
+        "mae": 10.082,
+        "cover": 0.501,
+        "n": 377,
+        "cover2": 0.511,
+        "n2": 180,
+        "cover4": 0.537,
+        "n4": 54
+      },
+      {
+        "k": 0.75,
+        "mae": 10.074,
+        "cover": 0.515,
+        "n": 377,
+        "cover2": 0.511,
+        "n2": 178,
+        "cover4": 0.604,
+        "n4": 48
+      },
+      {
+        "k": 1,
+        "mae": 10.131,
+        "cover": 0.515,
+        "n": 377,
+        "cover2": 0.513,
+        "n2": 199,
+        "cover4": 0.493,
+        "n4": 73
+      },
+      {
+        "k": 1.25,
+        "mae": 10.271,
+        "cover": 0.472,
+        "n": 377,
+        "cover2": 0.516,
+        "n2": 221,
+        "cover4": 0.505,
+        "n4": 103
+      },
+      {
+        "k": 1.5,
+        "mae": 10.495,
+        "cover": 0.467,
+        "n": 377,
+        "cover2": 0.502,
+        "n2": 253,
+        "cover4": 0.514,
+        "n4": 148
+      }
+    ]
+  },
+  "qbTermVsMarketMinusElo": 0.605,
+  "qbTermVsActualMinusElo": 0.165,
+  "bySeason": [
+    {
+      "season": 2022,
+      "games": 284,
+      "elo": {
+        "k": 0,
+        "mae": 9.061,
+        "cover": 0.515,
+        "n": 274,
+        "cover2": 0.529,
+        "n2": 153,
+        "cover4": 0.603,
+        "n4": 58
+      },
+      "eloQb": {
+        "k": 1,
+        "mae": 9.26,
+        "cover": 0.464,
+        "n": 274,
+        "cover2": 0.433,
+        "n2": 134,
+        "cover4": 0.551,
+        "n4": 49
+      }
+    },
+    {
+      "season": 2023,
+      "games": 285,
+      "elo": {
+        "k": 0,
+        "mae": 10.495,
+        "cover": 0.465,
+        "n": 271,
+        "cover2": 0.471,
+        "n2": 138,
+        "cover4": 0.512,
+        "n4": 43
+      },
+      "eloQb": {
+        "k": 1,
+        "mae": 10.422,
+        "cover": 0.465,
+        "n": 271,
+        "cover2": 0.528,
+        "n2": 106,
+        "cover4": 0.458,
+        "n4": 24
+      }
+    },
+    {
+      "season": 2024,
+      "games": 285,
+      "elo": {
+        "k": 0,
+        "mae": 10.117,
+        "cover": 0.498,
+        "n": 281,
+        "cover2": 0.506,
+        "n2": 154,
+        "cover4": 0.554,
+        "n4": 56
+      },
+      "eloQb": {
+        "k": 1,
+        "mae": 10.072,
+        "cover": 0.466,
+        "n": 281,
+        "cover2": 0.512,
+        "n2": 129,
+        "cover4": 0.512,
+        "n4": 43
+      }
+    },
+    {
+      "season": 2025,
+      "games": 285,
+      "elo": {
+        "k": 0,
+        "mae": 10.137,
+        "cover": 0.507,
+        "n": 284,
+        "cover2": 0.463,
+        "n2": 121,
+        "cover4": 0.405,
+        "n4": 42
+      },
+      "eloQb": {
+        "k": 1,
+        "mae": 9.849,
+        "cover": 0.542,
+        "n": 284,
+        "cover2": 0.492,
+        "n2": 130,
+        "cover4": 0.394,
+        "n4": 33
+      }
+    }
+  ],
+  "biggest": [
+    {
+      "id": "401671715",
+      "season": 2024,
+      "week": 12,
+      "qbs": "Cooper Rush at Marcus Mariota",
+      "qb": 11.06,
+      "elo": 4.36,
+      "market": 10.5,
+      "actual": -8
+    },
+    {
+      "id": "401671768",
+      "season": 2024,
+      "week": 12,
+      "qbs": "Brandon Allen at Jordan Love",
+      "qb": 10.08,
+      "elo": 1.36,
+      "market": 6.5,
+      "actual": 28
+    },
+    {
+      "id": "401772622",
+      "season": 2025,
+      "week": 17,
+      "qbs": "Bo Nix at Chris Oladokun",
+      "qb": -9.88,
+      "elo": -2.64,
+      "market": -13.5,
+      "actual": -7
+    },
+    {
+      "id": "401671845",
+      "season": 2024,
+      "week": 18,
+      "qbs": "Joshua Dobbs at Kyler Murray",
+      "qb": 9.74,
+      "elo": -1.68,
+      "market": 4.5,
+      "actual": 23
+    },
+    {
+      "id": "401671696",
+      "season": 2024,
+      "week": 1,
+      "qbs": "Aaron Rodgers at Brock Purdy",
+      "qb": -9.74,
+      "elo": 9.04,
+      "market": 3.5,
+      "actual": 13
+    },
+    {
+      "id": "401772968",
+      "season": 2025,
+      "week": 18,
+      "qbs": "Clayton Tune at J.J. McCarthy",
+      "qb": 9.56,
+      "elo": 0.88,
+      "market": 12.5,
+      "actual": 13
+    },
+    {
+      "id": "401671662",
+      "season": 2024,
+      "week": 3,
+      "qbs": "Skylar Thompson at Geno Smith",
+      "qb": 9.41,
+      "elo": 2.32,
+      "market": 4,
+      "actual": 21
+    },
+    {
+      "id": "401437903",
+      "season": 2022,
+      "week": 15,
+      "qbs": "Tyler Huntley at Deshaun Watson",
+      "qb": 9.18,
+      "elo": -2.4,
+      "market": 2.5,
+      "actual": 10
+    },
+    {
+      "id": "401671723",
+      "season": 2024,
+      "week": 2,
+      "qbs": "Anthony Richardson at Malik Willis",
+      "qb": -9.17,
+      "elo": 5.32,
+      "market": -3,
+      "actual": 6
+    },
+    {
+      "id": "401671636",
+      "season": 2024,
+      "week": 2,
+      "qbs": "Aaron Rodgers at Will Levis",
+      "qb": -9.07,
+      "elo": 0.92,
+      "market": -3.5,
+      "actual": -7
+    },
+    {
+      "id": "401671838",
+      "season": 2024,
+      "week": 18,
+      "qbs": "Carson Wentz at Bo Nix",
+      "qb": 8.76,
+      "elo": -6.52,
+      "market": 10.5,
+      "actual": 38
+    },
+    {
+      "id": "401772743",
+      "season": 2025,
+      "week": 5,
+      "qbs": "C.J. Stroud at Cooper Rush",
+      "qb": -8.7,
+      "elo": 5.48,
+      "market": -2.5,
+      "actual": -34
+    },
+    {
+      "id": "401772957",
+      "season": 2025,
+      "week": 18,
+      "qbs": "Chris Oladokun at Kenny Pickett",
+      "qb": 8.67,
+      "elo": -7.88,
+      "market": -3.5,
+      "actual": 2
+    },
+    {
+      "id": "401437955",
+      "season": 2022,
+      "week": 18,
+      "qbs": "Joe Flacco at Skylar Thompson",
+      "qb": -8.65,
+      "elo": 5.04,
+      "market": 3.5,
+      "actual": 5
+    },
+    {
+      "id": "401671622",
+      "season": 2024,
+      "week": 4,
+      "qbs": "Bo Nix at Aaron Rodgers",
+      "qb": 8.44,
+      "elo": 2.04,
+      "market": 7.5,
+      "actual": -1
+    }
+  ],
+  "byGap": [
+    {
+      "gap": "0 to 1",
+      "games": 336,
+      "coverEloQb": 0.467,
+      "n": 323
+    },
+    {
+      "gap": "1 to 2",
+      "games": 312,
+      "coverEloQb": 0.497,
+      "n": 308
+    },
+    {
+      "gap": "2 to 3",
+      "games": 228,
+      "coverEloQb": 0.502,
+      "n": 221
+    },
+    {
+      "gap": "3 to 4",
+      "games": 144,
+      "coverEloQb": 0.401,
+      "n": 142
+    },
+    {
+      "gap": "4 to 6",
+      "games": 101,
+      "coverEloQb": 0.571,
+      "n": 98
+    },
+    {
+      "gap": "6 to more",
+      "games": 18,
+      "coverEloQb": 0.444,
+      "n": 18
+    }
+  ]
+}

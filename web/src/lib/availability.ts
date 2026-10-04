@@ -12,7 +12,7 @@
 ^ *   QB          (expected starter EPA per play - the play-weighted EPA per play of the QBs who built the
  *               this season's snaps) x the team's QB plays per game. EPA per play blends this season
  *               with half of last season and is shrunk toward replacement level with a 200-play prior.
- *               Replacement level is the 25th percentile of QBs with 150+ plays. Capped at 12.
+ *               Replacement level is the 25th percentile of QBs with 150+ plays. Times 0.75 (backtest fit), capped at 12.
  *   RB WR TE    (his EPA per touch or target - the 25th percentile at the position) x his plays per
  *               game x 0.5 (credit shared with the quarterback and the line), capped at 3.
  *   OL DL LB DB fixed value for a full-time starter: OL 0.4, DL 0.4, LB 0.25, CB 0.4, S 0.25 points,
@@ -191,6 +191,13 @@ const levels = () =>
   });
 
 const QB_PRIOR = 200;
+/**
+ * Share of the raw QB difference that goes into the margin. scripts/backtest-qb.mjs on 2022 to 2025
+ * (1,139 games, walk-forward): Elo MAE 9.95, Elo + 0.75 x QB 9.88 (best on the grid), full strength 9.90;
+ * on the 386 games with a 2+ point QB term, 10.32 to 10.07. It does not improve cover rate against the
+ * closing line, which already prices the QB.
+ */
+const QB_SCALE = 0.75;
 
 /**
  * Shrunk EPA per play for a quarterback over his weighted track record (up to five seasons, recent ones
@@ -353,7 +360,7 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
       const next = healthy[1];
       const q = first.st.absence; // 0, or 0.25 when questionable
       const expectedEpa = next && q > 0 ? (1 - q) * firstEpa + q * qbEpaPerPlay(next.p).value : firstEpa;
-      const pts = Math.max(-12, Math.min(12, round1((expectedEpa - baseline) * playsPerGame)));
+      const pts = Math.max(-12, Math.min(12, round1((expectedEpa - baseline) * playsPerGame * QB_SCALE)));
       const sat = candidates.filter((c) => c.st.absence >= 0.5 && (used.get(c.p.id) ?? 0) > 0);
       const arrived = lastTeam.get(first.p.id) && lastTeam.get(first.p.id)!.team !== team;
       const why = [
@@ -361,7 +368,7 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
         ...sat.map((c) => `${c.p.n} ${c.st.status.toLowerCase()} (${c.st.source})`),
         arrived ? `new from the ${lastTeam.get(first.p.id)!.team}` : "",
         `${round3(expectedEpa)} EPA a play over his track record against ${round3(baseline)} for the QBs who built the team's numbers (${baselineQbs})`,
-        `at ${round1(playsPerGame)} QB plays a game`,
+        `at ${round1(playsPerGame)} QB plays a game, scaled ${QB_SCALE} (fit on 2022 to 2025)`,
       ].filter(Boolean);
       qb = { expected: first.p.n, expectedEpa: round3(expectedEpa), baseline: round3(baseline), baselineQbs, playsPerGame: round1(playsPerGame), pts, note: why.join("; "), uncertain: q > 0 };
       if (Math.abs(pts) >= 0.5) items.push({ id: first.p.id, name: first.p.n, pos: "QB", side: "offense", kind: "qb", status: q > 0 ? first.st.status : "Starts", source: first.st.source || "depth chart", absence: 0, weight: 1, pts, note: why.join("; "), measured: true });

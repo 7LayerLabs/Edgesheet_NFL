@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { buildSheet, type Sheet } from "@/lib/sheet";
+import { LEAN_BACKTEST_NOTE } from "@/lib/digests";
 import { telegramReady } from "@/lib/telegram";
 import { SheetActions } from "@/components/SheetActions";
 
@@ -55,7 +56,8 @@ export default async function SheetPage({ searchParams }: PageProps<"/sheet">) {
           </>
         )}
         <footer className="sheet-foot">
-          <span>{sheet.notAPick} Elo plus unit edges against the posted number, graded on the Record page after every final.</span>
+          <span>{sheet.notAPick} Elo, unit edges, and who is playing against the posted number, graded on the Record page after every final.</span>
+          {part !== 2 && <span>{LEAN_BACKTEST_NOTE}</span>}
           {part !== 1 && sheet.dfs.source && <span>{sheet.dfs.source}. DK pts scored from nflverse game lines with Classic rules (no two-point conversions). Proj = our average times half the matchup factor, plus half of a new Out teammate's average. Value = proj per $1,000.</span>}
           <span>
             Schedule and lines from nflverse and The Odds API. Forecasts from the National Weather Service. Stats as of {sheet.statsAsOf ? sheet.statsAsOf.slice(0, 10) : "not available"}. Built {new Date(sheet.builtAt).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} ET.
@@ -174,17 +176,16 @@ function Edges({ s }: { s: Sheet }) {
 function Leans({ s }: { s: Sheet }) {
   return (
     <section>
-      <SectionTitle n="03" note="model vs the posted number">Leans</SectionTitle>
+      <SectionTitle n="03" note="gaps to the posted number, not picks">Leans</SectionTitle>
       {!s.leans.length ? (
         <Empty>No side or total gap clears the lean threshold (2 points side, 2.5 points total).</Empty>
       ) : (
         <ol className="sheet-list">
           {s.leans.map((l) => (
             <li key={`${l.gameId}-${l.kind}`}>
-              <span className={`sheet-strength ${l.strength === "strong" ? "sheet-strong" : ""}`}>{l.strength}</span>
+              <span className={`sheet-strength ${l.strength === "strong" ? "sheet-strong" : ""}`}>{l.strength === "strong" ? "big gap" : "gap"}</span>
               <span>
                 <b>{l.kind === "side" ? "Side" : "Total"}</b> {l.text}
-                {l.confidence ? <span className="text-chalk-3"> · {l.confidence} confidence</span> : null}
                 <br />
                 <span className="sheet-sub">{l.matchup}</span>
               </span>

@@ -121,3 +121,20 @@ Open: the side leans ignore QB injuries (Colts at Commanders reads WSH by 5.3 "h
 - QB value = weighted EPA a play over up to five seasons (this season 1, last 0.7, then 0.5, 0.35, 0.25), shrunk with a 200-play prior whose mean slides from replacement level (thin record) to the league average (500+ weighted plays). Daniels now 0.099 against Mariota 0.040 (was about even on the old one-and-a-half-season window).
 - QB baseline blends this season's QB snaps with last season's, this season weighted games / (games + 6), because the Elo still carries most of last season. Side effect, on purpose: a healthy starter whose team's Elo was built with backups last year gets credit (Burrow +2.8, Kyler Murray over last year's McCarthy +2.7). Same idea as QB-adjusted Elo; not backtested yet.
 - Open: backtest the QB adjustment on 2022 to 2025 (starter by game from the weekly files, replay Elo with and without, compare margin error against finals and closing lines), then tune weights and the STRONG thresholds. Live and final game pages show in-game injury changes in the displayed projection; the archive lock is frozen at kickoff, so grading is not affected.
+
+## Session 2026-10-04, part 4: QB backtest (3:15 PM)
+
+`npm run backtest:qb` (`scripts/backtest-qb.mjs`, results in `data/backtest/qb.json`). Walk-forward over 2022 to 2025, 1,139 games: each starter (nflverse schedule QB names, matched in the weekly files) is valued only from plays before kickoff, with the same weights, prior, and baseline as the live model. Downloads 2018 to 2021 weekly files to the cache for the track records.
+
+| | MAE vs final margin | side cover vs close |
+| --- | --- | --- |
+| Market (closing line) | 9.54 | |
+| Elo alone | 9.95 | 49.6% |
+| Elo + 0.75 x QB (live) | 9.88 | 48.3% |
+| Elo + 1.0 x QB | 9.90 | 48.5% |
+| QB-change games (386), Elo alone / + 0.75 x QB | 10.32 / 10.07 | 51.7% / 51.5% |
+
+- The QB term correlates 0.61 with how far the market sits from Elo and 0.17 with how far the result lands from Elo: real information, already in the price. It makes the model more accurate and pulls it toward the closing line; it does not make the side beat the close.
+- Cover by gap to the close (k 0.75): 0-1 46.7%, 1-2 49.7%, 2-3 50.2%, 3-4 40.1%, 4-6 57.1% (98), 6+ 44.4% (18). No gap size clears 52.4%; noise around 50.
+- Changes: QB term scaled 0.75 (`QB_SCALE`). Leans relabeled from strong/moderate and "high confidence" to "big gap"/"gap"; the sheet and Telegram lean lists carry `LEAN_BACKTEST_NOTE` (digests.ts). Totals are still untested (needs play-by-play per season for the EPA total).
+- Next: backtest the total (download pbp 2022 to 2025, rebuild the EPA total walk-forward), then the unit-edge blend; only then decide whether any lean deserves a stronger label.

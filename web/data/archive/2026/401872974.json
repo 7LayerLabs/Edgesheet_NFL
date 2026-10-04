@@ -183,8 +183,8 @@
   "total": 38.5,
   "projection": {
    "winner": "MIN",
-   "winProb": 0.8540754678014911,
-   "margin": 14.229999999999999,
+   "winProb": 0.840086822347814,
+   "margin": 13.43,
    "home": 26,
    "away": 13,
    "modelSide": "MIN",
@@ -218,6 +218,6 @@
     "totalLean": "none"
    }
   },
-  "updatedAt": "2026-10-04T18:35:26.038Z"
+  "updatedAt": "2026-10-04T18:40:26.777Z"
  }
 }
