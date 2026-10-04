@@ -180,7 +180,7 @@
    "team": "KC",
    "line": -4.5
   },
-  "total": 48,
+  "total": 47.5,
   "projection": {
    "winner": "KC",
    "winProb": 0.6271991433158162,
@@ -189,7 +189,7 @@
    "away": 26,
    "modelSide": "LV",
    "confidence": "high",
-   "modelTotal": 42,
+   "modelTotal": 44,
    "totalLean": "under"
   },
   "consensus": {
@@ -218,6 +218,6 @@
     "totalLean": "under"
    }
   },
-  "updatedAt": "2026-10-04T14:58:40.550Z"
+  "updatedAt": "2026-10-04T18:35:26.041Z"
  }
 }

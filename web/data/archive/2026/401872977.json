@@ -183,13 +183,13 @@
   "total": 42.5,
   "projection": {
    "winner": "SEA",
-   "winProb": 0.8436636021563597,
-   "margin": 13.63,
+   "winProb": 0.8418818505726787,
+   "margin": 13.530000000000001,
    "home": 28,
    "away": 15,
    "modelSide": "SEA",
    "confidence": "high",
-   "modelTotal": 36,
+   "modelTotal": 37,
    "totalLean": "under"
   },
   "consensus": {
@@ -218,6 +218,6 @@
     "totalLean": "under"
    }
   },
-  "updatedAt": "2026-10-04T14:58:40.555Z"
+  "updatedAt": "2026-10-04T18:35:26.043Z"
  }
 }

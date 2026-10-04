@@ -262,11 +262,101 @@
     "mlAway": -220,
     "books": 9
    }
+  },
+  {
+   "at": "2026-10-04T16:00:00.104Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T15:59:15Z",
+     "mlHome": 1140,
+     "mlAway": -3600,
+     "spread": 11.5,
+     "spreadPrice": -119,
+     "awaySpreadPrice": -111,
+     "total": 45.5,
+     "overPrice": -135,
+     "underPrice": 102
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T15:59:46Z",
+     "mlHome": 1060,
+     "mlAway": -3500,
+     "spread": 10.5,
+     "spreadPrice": -125,
+     "awaySpreadPrice": -106,
+     "total": 45.5,
+     "overPrice": -118,
+     "underPrice": -112
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T15:59:18Z",
+     "mlHome": 1000,
+     "mlAway": -2000,
+     "spread": 10.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -108,
+     "total": 45.5,
+     "overPrice": -120,
+     "underPrice": 100
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T15:51:39Z",
+     "mlHome": 650,
+     "mlAway": -1200,
+     "spread": 9.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -125,
+     "total": 46,
+     "overPrice": -120,
+     "underPrice": -110
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T15:58:04Z",
+     "mlHome": 650,
+     "mlAway": -1667,
+     "spread": 9.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -133,
+     "total": 46.5,
+     "overPrice": -105,
+     "underPrice": -133
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T15:59:47Z",
+     "mlHome": 1150,
+     "mlAway": -5000,
+     "spread": 10.5,
+     "spreadPrice": -117,
+     "awaySpreadPrice": -112,
+     "total": 46,
+     "overPrice": -112,
+     "underPrice": -117
+    }
+   ],
+   "consensus": {
+    "spread": 10.5,
+    "total": 46,
+    "mlHome": 1030,
+    "mlAway": -2750,
+    "books": 6
+   }
   }
  ],
  "eventId": "c9d8ed8aa4889486eaf10a630138ede0",
  "eventHome": "Washington Commanders",
  "eventAway": "Indianapolis Colts",
  "swapped": false,
- "lastChecked": "2026-10-04T12:34:27.055Z"
+ "lastChecked": "2026-10-04T16:00:00.104Z"
 }

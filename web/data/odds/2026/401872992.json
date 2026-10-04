@@ -183,11 +183,73 @@
     "mlAway": 150,
     "books": 7
    }
+  },
+  {
+   "at": "2026-10-04T16:00:00.104Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T15:59:16Z",
+     "mlHome": -175,
+     "mlAway": 145,
+     "spread": -3,
+     "spreadPrice": -112,
+     "awaySpreadPrice": -108,
+     "total": 47.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T15:59:46Z",
+     "mlHome": -200,
+     "mlAway": 168,
+     "spread": -3.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 47.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T15:58:04Z",
+     "spread": -3.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 47.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T15:59:47Z",
+     "mlHome": -186,
+     "mlAway": 150,
+     "spread": -3.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -117,
+     "total": 47.5,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": -3.5,
+    "total": 47.5,
+    "mlHome": -186,
+    "mlAway": 150,
+    "books": 4
+   }
   }
  ],
  "eventId": "8e5d515b10d8a5ffb324640ed60bcc55",
  "eventHome": "Seattle Seahawks",
  "eventAway": "San Francisco 49ers",
  "swapped": false,
- "lastChecked": "2026-10-04T15:00:12.555Z"
+ "lastChecked": "2026-10-04T16:00:00.104Z"
 }

@@ -80,6 +80,8 @@ const FILES = [
   ["draft_picks/draft_picks.csv", "draft_picks.csv"],
   [`ftn_charting/ftn_charting_${season}.csv`, `ftn_charting_${season}.csv`, { optional: true }],
   [`pbp/play_by_play_${season}.csv`, `play_by_play_${season}.csv`],
+  // Three more seasons of player weeks for the availability model (QB track records); history.json only.
+  ...[season - 2, season - 3, season - 4].map((y) => [`stats_player/stats_player_week_${y}.csv`, `stats_player_week_${y}.csv`, { optional: true }]),
 ];
 
 async function download(rel, name, { optional = false } = {}) {
@@ -803,6 +805,42 @@ const meta = {
   plays,
   source: "nflverse",
 };
+
+/* ------------------------------------------------------------- history */
+// For src/lib/availability.ts. players: seasons before last, compact QB and skill totals per current player
+// (this season and last are already on players.json as s and ps). teamQb: last season's regular-season QB
+// plays and EPA by team, so the QB baseline can follow the Elo, which still carries most of last season.
+const HIST_KEYS = ["gp", "pa", "sks", "ra", "pepa", "repa", "tgt", "rcepa"];
+const history = { seasons: [], players: {}, teamQb: {} };
+const pidByGsis = new Map(players.map((p) => [p.gsis, p.id]));
+for (const y of [season - 2, season - 3, season - 4]) {
+  const f = local[`stats_player_week_${y}.csv`];
+  if (!f) continue;
+  const st = await loadStats(f, y);
+  history.seasons.push(y);
+  for (const [gsis, s] of st.totals) {
+    const pid = pidByGsis.get(gsis);
+    if (!pid || !["QB", "RB", "WR", "TE"].includes(st.posOf.get(gsis))) continue;
+    const c = {};
+    for (const k of HIST_KEYS) if (s[k]) c[k] = Math.round(s[k] * 1000) / 1000;
+    (history.players[pid] ??= {})[y] = c;
+  }
+}
+const teamQbPrev = {};
+await readCsv(local[`stats_player_week_${prev}.csv`], (r) => {
+  if (r.position !== "QB" || r.season_type !== "REG" || !r.player_id) return;
+  const n = (num(r.attempts) ?? 0) + (num(r.sacks_suffered) ?? 0) + (num(r.carries) ?? 0);
+  if (!n) return;
+  const e = (num(r.passing_epa) ?? 0) + (num(r.rushing_epa) ?? 0);
+  const row = (teamQbPrev[nick(r.team)] ??= {});
+  const id = pidByGsis.get(r.player_id) ?? r.player_id;
+  const cur = (row[id] ??= { n: 0, e: 0, name: r.player_display_name || r.player_name || id });
+  cur.n += n;
+  cur.e = Math.round((cur.e + e) * 1000) / 1000;
+});
+history.teamQb[prev] = teamQbPrev;
+log("history seasons", history.seasons.join(", ") || "none", "players", Object.keys(history.players).length);
+await writeFile(path.join(OUT, "history.json"), JSON.stringify(history));
 
 await writeFile(path.join(OUT, "schedule.json"), JSON.stringify(schedule));
 await writeFile(path.join(OUT, "teams.json"), JSON.stringify(teamsOut));

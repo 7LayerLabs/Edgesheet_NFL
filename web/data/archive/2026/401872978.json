@@ -171,13 +171,13 @@
    "team": "DET",
    "line": -3.5
   },
-  "total": 51,
+  "total": 51.5,
   "projection": {
    "winner": "DET",
-   "winProb": 0.5896584828022036,
-   "margin": 3.06,
+   "winProb": 0.5925362165002155,
+   "margin": 3.16,
    "home": 24,
-   "away": 27,
+   "away": 28,
    "modelSide": "CAR",
    "confidence": "high",
    "modelTotal": 55,
@@ -209,6 +209,6 @@
     "totalLean": "over"
    }
   },
-  "updatedAt": "2026-10-04T14:58:40.558Z"
+  "updatedAt": "2026-10-04T18:35:26.045Z"
  }
 }

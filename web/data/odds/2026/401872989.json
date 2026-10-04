@@ -183,11 +183,73 @@
     "mlAway": -135,
     "books": 7
    }
+  },
+  {
+   "at": "2026-10-04T16:00:00.104Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T15:59:16Z",
+     "mlHome": 114,
+     "mlAway": -135,
+     "spread": 2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 43.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T15:59:46Z",
+     "mlHome": 118,
+     "mlAway": -138,
+     "spread": 2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 43.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T15:58:04Z",
+     "spread": 2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 43,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T15:59:47Z",
+     "mlHome": 110,
+     "mlAway": -134,
+     "spread": 2,
+     "spreadPrice": -112,
+     "awaySpreadPrice": -109,
+     "total": 43.5,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": 2.5,
+    "total": 43.5,
+    "mlHome": 114,
+    "mlAway": -135,
+    "books": 4
+   }
   }
  ],
  "eventId": "d1d408fdfd272046fb517fe992a1c5a0",
  "eventHome": "Los Angeles Chargers",
  "eventAway": "Denver Broncos",
  "swapped": false,
- "lastChecked": "2026-10-04T15:00:12.555Z"
+ "lastChecked": "2026-10-04T16:00:00.104Z"
 }

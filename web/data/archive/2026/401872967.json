@@ -183,8 +183,8 @@
   "total": 48.5,
   "projection": {
    "winner": "HOU",
-   "winProb": 0.6162151724844789,
-   "margin": 3.9899999999999998,
+   "winProb": 0.6190408878964652,
+   "margin": 4.09,
    "home": 26,
    "away": 23,
    "modelSide": "HOU",
@@ -193,7 +193,7 @@
    "totalLean": "over"
   },
   "consensus": {
-   "median": 2,
+   "median": 2.1,
    "favorite": "HOU",
    "side": "HOU",
    "sideCount": 2,
@@ -218,6 +218,6 @@
     "totalLean": "over"
    }
   },
-  "updatedAt": "2026-10-04T14:58:40.536Z"
+  "updatedAt": "2026-10-04T16:00:07.999Z"
  }
 }

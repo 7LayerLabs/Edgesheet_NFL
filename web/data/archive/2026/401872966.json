@@ -162,16 +162,16 @@
    "team": "ARI",
    "line": -2.5
   },
-  "total": 44.5,
+  "total": 44,
   "projection": {
    "winner": "NYG",
-   "winProb": 0.5106372495126292,
-   "margin": 0.3599999999999999,
+   "winProb": 0.5076828971720788,
+   "margin": 0.2599999999999998,
    "home": 22,
-   "away": 23,
+   "away": 22,
    "modelSide": "NYG",
    "confidence": "high",
-   "modelTotal": 49,
+   "modelTotal": 47.5,
    "totalLean": "over"
   },
   "consensus": {
@@ -200,6 +200,6 @@
     "totalLean": "over"
    }
   },
-  "updatedAt": "2026-10-04T15:00:11.414Z"
+  "updatedAt": "2026-10-04T16:00:08.000Z"
  }
 }

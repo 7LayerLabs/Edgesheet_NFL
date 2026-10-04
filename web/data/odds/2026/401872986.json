@@ -183,11 +183,73 @@
     "mlAway": 160,
     "books": 7
    }
+  },
+  {
+   "at": "2026-10-04T16:00:00.104Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T15:59:15Z",
+     "mlHome": -198,
+     "mlAway": 164,
+     "spread": -3.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 44.5,
+     "overPrice": -105,
+     "underPrice": -115
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T15:59:46Z",
+     "mlHome": -198,
+     "mlAway": 166,
+     "spread": -3.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 43.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T15:58:04Z",
+     "spread": -3.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T15:59:47Z",
+     "mlHome": -182,
+     "mlAway": 150,
+     "spread": -3.5,
+     "spreadPrice": -109,
+     "awaySpreadPrice": -112,
+     "total": 44,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": -3.5,
+    "total": 44,
+    "mlHome": -198,
+    "mlAway": 164,
+    "books": 4
+   }
   }
  ],
  "eventId": "6b024bad1abb54f597225e4ab9b39d89",
  "eventHome": "New England Patriots",
  "eventAway": "Las Vegas Raiders",
  "swapped": false,
- "lastChecked": "2026-10-04T15:00:12.555Z"
+ "lastChecked": "2026-10-04T16:00:00.104Z"
 }

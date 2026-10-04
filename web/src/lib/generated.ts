@@ -201,3 +201,12 @@ export interface GenGameLogs {
 
 export const genGamelogs = (): GenGameLogs | undefined => memoSync(`gen:gamelogs:${stamp("gamelogs.json")}`, 3600, () => readJson<GenGameLogs | undefined>("gamelogs.json", undefined));
 export const gamelogsStamp = () => stamp("gamelogs.json");
+
+/** Seasons before last for QB and skill players (compact totals), plus last season's QB plays and EPA by team. */
+export interface GenHistory {
+  seasons: number[];
+  players: Record<string, Record<string, StatLine>>;
+  teamQb: Record<string, Record<string, Record<string, { n: number; e: number; name: string }>>>;
+}
+export const genHistory = (): GenHistory | undefined => memoSync(`gen:history:${stamp("history.json")}`, 3600, () => readJson<GenHistory | undefined>("history.json", undefined));
+export const historyStamp = () => stamp("history.json");

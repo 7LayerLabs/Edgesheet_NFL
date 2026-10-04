@@ -180,16 +180,16 @@
    "team": "CIN",
    "line": -2.5
   },
-  "total": 51.5,
+  "total": 52,
   "projection": {
    "winner": "JAX",
-   "winProb": 0.524807136655669,
-   "margin": 0.8400000000000001,
-   "home": 25,
-   "away": 27,
+   "winProb": 0.5218570698523834,
+   "margin": 0.7400000000000002,
+   "home": 26,
+   "away": 26,
    "modelSide": "JAX",
    "confidence": "high",
-   "modelTotal": 45.5,
+   "modelTotal": 46,
    "totalLean": "under"
   },
   "consensus": {
@@ -218,6 +218,6 @@
     "totalLean": "under"
    }
   },
-  "updatedAt": "2026-10-04T14:58:40.534Z"
+  "updatedAt": "2026-10-04T16:00:07.998Z"
  }
 }

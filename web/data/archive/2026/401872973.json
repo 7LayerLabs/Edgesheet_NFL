@@ -183,13 +183,13 @@
   "total": 42.5,
   "projection": {
    "winner": "BAL",
-   "winProb": 0.8036732073585305,
-   "margin": 11.54,
+   "winProb": 0.8077486200536014,
+   "margin": 11.74,
    "home": 27,
    "away": 16,
    "modelSide": "BAL",
    "confidence": "high",
-   "modelTotal": 48,
+   "modelTotal": 49.5,
    "totalLean": "over"
   },
   "consensus": {
@@ -218,6 +218,6 @@
     "totalLean": "over"
    }
   },
-  "updatedAt": "2026-10-04T15:00:11.412Z"
+  "updatedAt": "2026-10-04T15:50:07.599Z"
  }
 }

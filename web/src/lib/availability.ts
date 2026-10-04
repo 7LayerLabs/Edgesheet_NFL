@@ -9,7 +9,7 @@
  * The adjustment is measured against the players whose snaps built the team's numbers, so an
  * absence that already showed up in earlier games is not charged twice:
  *
- *   QB          (expected starter EPA per play - the play-weighted EPA per play of the QBs who took
+^ *   QB          (expected starter EPA per play - the play-weighted EPA per play of the QBs who built the
  *               this season's snaps) x the team's QB plays per game. EPA per play blends this season
  *               with half of last season and is shrunk toward replacement level with a 200-play prior.
  *               Replacement level is the 25th percentile of QBs with 150+ plays. Capped at 12.
@@ -26,7 +26,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { genGamelogs, genPlayers, gamelogsStamp, type GenPlayer, type StatLine } from "./generated";
+import { genGamelogs, genHistory, genMeta, genPlayers, gamelogsStamp, historyStamp, type GenPlayer, type StatLine } from "./generated";
 import { memo, memoSync } from "./memo";
 import { nflTeams } from "./nfl";
 
@@ -146,13 +146,34 @@ function pctile(xs: number[], p: number): number {
   return a[Math.min(a.length - 1, Math.max(0, Math.floor(p * (a.length - 1))))];
 }
 
+/** Season weights for a quarterback's track record: this season, last, and three before that. */
+const QB_SEASON_WEIGHTS = [1, 0.7, 0.5, 0.35, 0.25];
+
+/** Weighted QB plays and EPA across up to five seasons (this season and last from players.json, older from history.json). */
+function qbRecord(p: GenPlayer): { n: number; e: number; seasons: number } {
+  const season = genMeta()?.season ?? new Date().getFullYear();
+  const hist = genHistory()?.players[p.id] ?? {};
+  const lines: (StatLine | null | undefined)[] = [p.s, p.ps, hist[season - 2], hist[season - 3], hist[season - 4]];
+  let n = 0;
+  let e = 0;
+  let seasons = 0;
+  lines.forEach((s, i) => {
+    const plays = qbPlays(s);
+    if (!plays) return;
+    n += QB_SEASON_WEIGHTS[i] * plays;
+    e += QB_SEASON_WEIGHTS[i] * qbEpa(s);
+    seasons++;
+  });
+  return { n, e, seasons };
+}
+
 /** Replacement levels: QB EPA per play, and skill EPA per touch or target by position. */
 const levels = () =>
-  memoSync(`avail:levels:${gamelogsStamp()}`, 3600, () => {
+  memoSync(`avail:levels:${gamelogsStamp()}:${historyStamp()}`, 3600, () => {
     const players = genPlayers();
     const qb = players
       .filter((p) => p.pg === "QB")
-      .map((p) => ({ n: qbPlays(p.s) + qbPlays(p.ps), e: qbEpa(p.s) + qbEpa(p.ps) }))
+      .map((p) => qbRecord(p))
       .filter((r) => r.n >= 150)
       .map((r) => r.e / r.n);
     const skill: Record<string, number> = {};
@@ -171,12 +192,19 @@ const levels = () =>
 
 const QB_PRIOR = 200;
 
-/** Shrunk EPA per play for a quarterback: this season plus half of last season, pulled toward replacement. */
+/**
+ * Shrunk EPA per play for a quarterback over his weighted track record (up to five seasons, recent ones
+ * count more). The pull is toward a backup-level QB for a thin record and toward an average QB once he
+ * has about 500 weighted plays, so one injured season cannot erase a proven starter.
+ */
 export function qbEpaPerPlay(p: GenPlayer): { value: number; plays: number } {
-  const { qbRepl } = levels();
-  const n = qbPlays(p.s) + 0.5 * qbPlays(p.ps);
-  const e = qbEpa(p.s) + 0.5 * qbEpa(p.ps);
-  return { value: (e + qbRepl * QB_PRIOR) / (n + QB_PRIOR), plays: Math.round(n) };
+  return shrinkQb(qbRecord(p));
+}
+
+function shrinkQb(r: { n: number; e: number }): { value: number; plays: number } {
+  const { qbRepl, qbMean } = levels();
+  const prior = qbRepl + (qbMean - qbRepl) * Math.min(1, r.n / 500);
+  return { value: (r.e + prior * QB_PRIOR) / (r.n + QB_PRIOR), plays: Math.round(r.n) };
 }
 
 const FIXED: Record<string, number> = { OL: 0.4, DL: 0.4, LB: 0.25, CB: 0.4, S: 0.25 };
@@ -292,15 +320,27 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
 
   const items: AvailItem[] = [];
 
-  // Quarterback: the expected starter against the QBs whose snaps built this season's numbers.
+  // Quarterback: the expected starter against the QBs whose snaps built the team's numbers. The unit edges
+  // are this season's; the Elo still carries most of last season, so early in the year the baseline leans on
+  // last season's QBs and shifts to this season's as games pile up (this season's weight = games / (games + 6)).
   let qb: TeamAvailability["qb"];
   const qbLines = lines.filter((l) => byId.get(l.id)?.pg === "QB");
   const used = new Map<string, number>();
   for (const l of qbLines) used.set(l.id, (used.get(l.id) ?? 0) + qbPlays(l.s));
   const usedTotal = [...used.values()].reduce((a, b) => a + b, 0);
   if (usedTotal > 0) {
-    const baseline = [...used.entries()].reduce((a, [id, n]) => a + (byId.get(id) ? qbEpaPerPlay(byId.get(id)!).value * n : 0), 0) / usedTotal;
-    const baselineQbs = [...used.entries()].sort((a, b) => b[1] - a[1]).map(([id, n]) => `${byId.get(id)?.n ?? id} ${Math.round((n / usedTotal) * 100)}%`).join(", ");
+    const valueOf = (id: string, raw?: { n: number; e: number }) => (byId.get(id) ? qbEpaPerPlay(byId.get(id)!).value : raw ? shrinkQb(raw).value : levels().qbRepl);
+    const nowMix = [...used.entries()].reduce((a, [id, n]) => a + valueOf(id) * n, 0) / usedTotal;
+    const prevRows = Object.entries(genHistory()?.teamQb[String((genMeta()?.season ?? 0) - 1)]?.[team] ?? {});
+    const prevTotal = prevRows.reduce((a, [, r]) => a + r.n, 0);
+    const prevMix = prevTotal ? prevRows.reduce((a, [id, r]) => a + valueOf(id, r) * r.n, 0) / prevTotal : undefined;
+    const wNow = prevMix === undefined ? 1 : teamGames / (teamGames + 6);
+    const baseline = wNow * nowMix + (1 - wNow) * (prevMix ?? nowMix);
+    const share = (rows: [string, number][], total: number) => [...rows].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([name, n]) => `${name} ${Math.round((n / total) * 100)}%`).join(", ");
+    const baselineQbs = [
+      `this season ${share([...used.entries()].map(([id, n]) => [byId.get(id)?.n ?? id, n]), usedTotal)}`,
+      prevMix !== undefined ? `last season ${share(prevRows.map(([, r]) => [r.name, r.n]), prevTotal)}` : "",
+    ].filter(Boolean).join("; ") + (prevMix !== undefined ? `; weighted ${Math.round(wNow * 100)}/${Math.round((1 - wNow) * 100)}` : "");
     const playsPerGame = usedTotal / Math.max(1, teamGames);
     const candidates = roster
       .filter((p) => p.pg === "QB")
@@ -320,7 +360,7 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
         `${first.p.n} expected to start${q > 0 ? ` (${first.st.status}; ${Math.round(q * 100)}% chance ${next?.p.n ?? "the backup"} plays)` : ""}`,
         ...sat.map((c) => `${c.p.n} ${c.st.status.toLowerCase()} (${c.st.source})`),
         arrived ? `new from the ${lastTeam.get(first.p.id)!.team}` : "",
-        `${round3(expectedEpa)} EPA a play against ${round3(baseline)} for this season's QB snaps (${baselineQbs})`,
+        `${round3(expectedEpa)} EPA a play over his track record against ${round3(baseline)} for the QBs who built the team's numbers (${baselineQbs})`,
         `at ${round1(playsPerGame)} QB plays a game`,
       ].filter(Boolean);
       qb = { expected: first.p.n, expectedEpa: round3(expectedEpa), baseline: round3(baseline), baselineQbs, playsPerGame: round1(playsPerGame), pts, note: why.join("; "), uncertain: q > 0 };

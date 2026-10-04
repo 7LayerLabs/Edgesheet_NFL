@@ -180,11 +180,11 @@
    "team": "LAR",
    "line": -3.5
   },
-  "total": 42.5,
+  "total": 43,
   "projection": {
    "winner": "LAR",
-   "winProb": 0.5171345349280764,
-   "margin": 0.5800000000000001,
+   "winProb": 0.5200864436477838,
+   "margin": 0.6800000000000002,
    "home": 21,
    "away": 22,
    "modelSide": "PHI",
@@ -193,7 +193,7 @@
    "totalLean": "none"
   },
   "consensus": {
-   "median": -1.7,
+   "median": -1.8,
    "favorite": "LAR",
    "side": "PHI",
    "sideCount": 3,
@@ -218,6 +218,6 @@
     "totalLean": "none"
    }
   },
-  "updatedAt": "2026-10-04T14:58:40.538Z"
+  "updatedAt": "2026-10-04T16:00:08.001Z"
  }
 }

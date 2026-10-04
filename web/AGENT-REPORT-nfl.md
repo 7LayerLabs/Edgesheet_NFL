@@ -114,3 +114,10 @@ Open: the side leans ignore QB injuries (Colts at Commanders reads WSH by 5.3 "h
 - Archive: the pregame lock now follows the news until kickoff (projection, spread, total, consensus refreshed together so the grade uses the line the call was made against); the first lock is kept in `pregame.first`. Nothing moves after kickoff.
 - Game page: "Who is playing" section (`#playing`). DraftKings lens uses ESPN status too (DK tag, then ESPN, then the report).
 - Known limit: QB value only sees this season and last. Jayden Daniels prices near Marcus Mariota on that window, so the model moves Colts at Commanders far less than the market did.
+
+## Session 2026-10-04, part 3: QB track records (2:30 PM)
+
+- Ingest pulls `stats_player_week` for 2022 to 2024 too (optional files) and writes `data/generated/history.json`: compact QB and skill totals per current player for seasons before last, plus last season's regular-season QB plays and EPA by team (`teamQb`).
+- QB value = weighted EPA a play over up to five seasons (this season 1, last 0.7, then 0.5, 0.35, 0.25), shrunk with a 200-play prior whose mean slides from replacement level (thin record) to the league average (500+ weighted plays). Daniels now 0.099 against Mariota 0.040 (was about even on the old one-and-a-half-season window).
+- QB baseline blends this season's QB snaps with last season's, this season weighted games / (games + 6), because the Elo still carries most of last season. Side effect, on purpose: a healthy starter whose team's Elo was built with backups last year gets credit (Burrow +2.8, Kyler Murray over last year's McCarthy +2.7). Same idea as QB-adjusted Elo; not backtested yet.
+- Open: backtest the QB adjustment on 2022 to 2025 (starter by game from the weekly files, replay Elo with and without, compare margin error against finals and closing lines), then tune weights and the STRONG thresholds. Live and final game pages show in-game injury changes in the displayed projection; the archive lock is frozen at kickoff, so grading is not affected.

@@ -183,11 +183,73 @@
     "mlAway": 114,
     "books": 7
    }
+  },
+  {
+   "at": "2026-10-04T16:00:00.104Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T15:59:16Z",
+     "mlHome": -135,
+     "mlAway": 114,
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 45.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T15:59:46Z",
+     "mlHome": -134,
+     "mlAway": 114,
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 45.5,
+     "overPrice": -102,
+     "underPrice": -120
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T15:58:04Z",
+     "spread": -2,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 45,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T15:59:47Z",
+     "mlHome": -136,
+     "mlAway": 112,
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 45.5,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": -2.5,
+    "total": 45.5,
+    "mlHome": -135,
+    "mlAway": 114,
+    "books": 4
+   }
   }
  ],
  "eventId": "2caea57b1e5cfbba1334cfbfd46f6771",
  "eventHome": "Green Bay Packers",
  "eventAway": "Chicago Bears",
  "swapped": false,
- "lastChecked": "2026-10-04T15:00:12.555Z"
+ "lastChecked": "2026-10-04T16:00:00.104Z"
 }

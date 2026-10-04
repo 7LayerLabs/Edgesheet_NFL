@@ -181,5 +181,215 @@
    "sideCount": 4,
    "of": 4
   }
+ },
+ "postgame": {
+  "projectionResult": {
+   "winnerRight": false,
+   "marginError": 17.75,
+   "modelSideCovered": false,
+   "totalLeanRight": false
+  },
+  "clv": {
+   "closingAt": "2026-10-04T12:34:27.055Z",
+   "hoursBeforeKick": 0.9,
+   "closingBooks": 9,
+   "closingSpread": {
+    "team": "IND",
+    "line": -4.5
+   },
+   "sideClv": 0,
+   "closingTotal": 46.5,
+   "totalClv": 0
+  },
+  "consensusResult": {
+   "winnerRight": false,
+   "marginError": 17.4,
+   "sideCovered": false
+  },
+  "capturedAt": "2026-10-04T16:45:08.205Z",
+  "score": {
+   "home": 13,
+   "away": 30
+  },
+  "excitement": null,
+  "spreadResult": "favorite covered",
+  "totalResult": "under",
+  "edges": [
+   {
+    "a": "Commanders run game",
+    "b": "Colts run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Commanders",
+    "why": "The Commanders are No. 18 of 32 in rush success rate (40%). The Colts rank No. 30 against the run (47%). A real edge, not a lock. The Commanders should stay on schedule on the ground, which keeps third downs short and the clock moving.",
+    "verdict": "mixed",
+    "actual": "100 rush yds on 22 carries (4.5 per)"
+   },
+   {
+    "a": "Commanders ground game",
+    "b": "Colts run front",
+    "edge": "offense",
+    "axis": "line",
+    "offTeam": "Commanders",
+    "why": "The Commanders are No. 21 of 32 in rush EPA per carry (-0.11). The Colts rank No. 31 against the run by EPA (0.08). A real edge, not a lock. The Commanders should win first contact more often than not, which makes every down shorter.",
+    "verdict": "mixed",
+    "actual": "100 rush yds on 22 carries (4.5 per)"
+   },
+   {
+    "a": "Colts run game",
+    "b": "Commanders run defense",
+    "edge": "even",
+    "axis": "rush",
+    "offTeam": "Colts",
+    "why": "The Colts are No. 11 in rush success rate (44%) and the Commanders are No. 6 against the run (34%). Strength on strength. Neither side has shown it can impose the run on a unit this good. The first stuffed series tells you who blinks.",
+    "verdict": "unmeasured",
+    "actual": "128 rush yds on 30 carries (4.3 per)"
+   },
+   {
+    "a": "Colts on passing downs",
+    "b": "Commanders pressure",
+    "edge": "even",
+    "axis": "passing-downs",
+    "offTeam": "Colts",
+    "why": "The Colts are No. 14 in passing-downs success (40%) and the Commanders are No. 17 on passing downs (38%). Strength on strength. Both sides are average on long downs. Early-down efficiency decides who sees more of them.",
+    "verdict": "unmeasured",
+    "actual": "128 rush yds on 30 carries (4.3 per)"
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4575131",
+    "name": "Jacory Croskey-Merritt",
+    "team": "Commanders",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 60,
+    "verdict": "quiet",
+    "line": "9 car, 15 yds, 0 TD · 2 rec, 35 yds, 0 TD (4 tgt)"
+   },
+   {
+    "id": "5081807",
+    "name": "Sonny Styles",
+    "team": "Commanders",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 81,
+    "verdict": "showed up",
+    "line": "8 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "5081432",
+    "name": "Antonio Williams",
+    "team": "Commanders",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 47,
+    "verdict": "quiet",
+    "line": "3 rec, 21 yds, 0 TD (8 tgt)"
+   },
+   {
+    "id": "5153072",
+    "name": "Kapena Gushiken",
+    "team": "Colts",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 46,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4905664",
+    "name": "A.J. Haulcy",
+    "team": "Colts",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 42,
+    "verdict": "quiet",
+    "line": "3 tkl, 0 TFL, 0 sacks, 1 PD"
+   },
+   {
+    "id": "4431459",
+    "name": "Tyler Warren",
+    "team": "Colts",
+    "pos": "TE",
+    "group": "TE",
+    "tier": "Breakout",
+    "score": 89,
+    "verdict": "quiet",
+    "line": "5 rec, 41 yds, 0 TD (5 tgt)"
+   },
+   {
+    "id": "4427984",
+    "name": "Kain Medrano",
+    "team": "Commanders",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 57,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4239694",
+    "name": "Amik Robertson",
+    "team": "Commanders",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 89,
+    "verdict": "showed up",
+    "line": "9 tkl, 0 TFL, 0 sacks, 1 PD"
+   },
+   {
+    "id": "2971282",
+    "name": "DeForest Buckner",
+    "team": "Colts",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Watch",
+    "score": 86,
+    "verdict": "quiet",
+    "line": "4 tkl, 1 TFL, 0 sacks, 1 PD, 3 QB hits"
+   },
+   {
+    "id": "4242335",
+    "name": "Jonathan Taylor",
+    "team": "Colts",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Watch",
+    "score": 86,
+    "verdict": "showed up",
+    "line": "20 car, 95 yds, 2 TD · 1 rec, 2 yds, 0 TD (4 tgt)"
+   },
+   {
+    "id": "00-0037757",
+    "name": "Bernhard Raimann",
+    "team": "Colts",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0037092",
+    "name": "Chris Paul",
+    "team": "Commanders",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   }
+  ],
+  "pressurePointVerdict": "mixed"
  }
 }

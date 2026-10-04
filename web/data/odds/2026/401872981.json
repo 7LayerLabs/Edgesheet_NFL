@@ -183,11 +183,73 @@
     "mlAway": 136,
     "books": 7
    }
+  },
+  {
+   "at": "2026-10-04T16:00:00.104Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T15:59:15Z",
+     "mlHome": -162,
+     "mlAway": 136,
+     "spread": -3,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44.5,
+     "overPrice": -105,
+     "underPrice": -115
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T15:59:46Z",
+     "mlHome": -162,
+     "mlAway": 136,
+     "spread": -3,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44.5,
+     "overPrice": -106,
+     "underPrice": -114
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T15:58:04Z",
+     "spread": -3,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T15:59:47Z",
+     "mlHome": -155,
+     "mlAway": 128,
+     "spread": -3,
+     "spreadPrice": -107,
+     "awaySpreadPrice": -114,
+     "total": 44.5,
+     "overPrice": -113,
+     "underPrice": -108
+    }
+   ],
+   "consensus": {
+    "spread": -3,
+    "total": 44.5,
+    "mlHome": -162,
+    "mlAway": 136,
+    "books": 4
+   }
   }
  ],
  "eventId": "21b26266f3d78af02eb672e606275d95",
  "eventHome": "Jacksonville Jaguars",
  "eventAway": "Philadelphia Eagles",
  "swapped": false,
- "lastChecked": "2026-10-04T15:00:12.555Z"
+ "lastChecked": "2026-10-04T16:00:00.104Z"
 }
