@@ -8,6 +8,8 @@ const LABELS: Record<string, string> = {
   player_rush_yds: "rush yds",
   player_reception_yds: "rec yds",
   player_anytime_td: "anytime TD",
+  player_tackles_assists: "tackles + ast",
+  player_sacks: "sacks",
 };
 
 const BOOK: Record<string, string> = { draftkings: "DK", fanduel: "FD", betmgm: "MGM", caesars: "CZR", williamhill_us: "CZR", betrivers: "BR", espnbet: "ESPN", fanatics: "FAN", hardrockbet: "HR", bovada: "BOV", betonlineag: "BOL", pointsbetus: "PB", ballybet: "BALLY", fliff: "FLIFF" };

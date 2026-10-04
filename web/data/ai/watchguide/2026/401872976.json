@@ -1,0 +1,104 @@
+{
+ "gameId": "401872976",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:37:44.635Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "957d40c0cf23",
+ "candidateCount": 14,
+ "top": [
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Raiders run game vs Chiefs run defense (dominant defense edge)",
+   "jev": 2.69,
+   "playerIds": []
+  },
+  {
+   "id": "PLV1",
+   "kind": "player",
+   "title": "Nakobe Dean (Raiders LB, radar 91)",
+   "jev": 2.42,
+   "playerIds": [
+    "4426340"
+   ]
+  },
+  {
+   "id": "S2",
+   "kind": "situation",
+   "title": "pd situation, Chiefs offense vs Raiders defense",
+   "jev": 2.25,
+   "playerIds": []
+  },
+  {
+   "id": "E3",
+   "kind": "edge",
+   "title": "Raiders on passing downs vs Chiefs pressure (clear defense edge)",
+   "jev": 2.22,
+   "playerIds": []
+  },
+  {
+   "id": "PLV2",
+   "kind": "player",
+   "title": "Hezekiah Masses (Raiders CB, radar 89)",
+   "jev": 2.21,
+   "playerIds": [
+    "4917354"
+   ]
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 3193,
+  "outputTokens": 814,
+  "cacheReadTokens": 0,
+  "costUsd": 0.014526
+ },
+ "guide": {
+  "headline": "Chiefs run defense and Raiders third downs decide this one",
+  "hook": "The Chiefs defense erases the run and strangles passing downs, so watch whether the Raiders can survive long enough to let their rookie corner and his three interceptions matter.",
+  "items": [
+   {
+    "title": "Chiefs run D versus Raiders run game",
+    "what": "The Chiefs rank No. 5 of 32 against the run at a 33% success rate, while the Raiders rank No. 29 in rush success at 32%. That is a 77 percentile point gap, not a lean. If the Raiders can't get push on the ground, they get shoved into obvious passing downs where this defense feasts.",
+    "when": "First quarter, watch Raiders yards per carry; under 3 and the game plan changes",
+    "who": "Raiders run game vs Chiefs run defense",
+    "factIds": [
+     "E1",
+     "E1e",
+     "E1w"
+    ]
+   },
+   {
+    "title": "Raiders on long passing downs",
+    "what": "The Raiders rank No. 26 of 32 on passing downs at 30% success, and the Chiefs defense ranks No. 13 at 35%. That is a 42 percentile point edge for Kansas City, and it compounds the run game problem by pushing Las Vegas into exactly the situations they are worst at.",
+    "when": "Third-and-7 or longer for the Raiders",
+    "who": "Raiders on passing downs vs Chiefs pressure",
+    "factIds": [
+     "E3",
+     "E3e",
+     "E3w"
+    ]
+   },
+   {
+    "title": "Hezekiah Masses hunting the ball",
+    "what": "Masses is a rookie fifth round pick, No. 175 overall, playing like a top pick with 3 interceptions, 4 pass deflections and 8 tackles, top 1 percent production for an NFL cornerback. He is the No. 1 right cornerback on the depth chart at 64% of defensive snaps, so if the Chiefs are forced into obvious passing downs by their own run struggles, he is the man on the island who could turn a stalled Chiefs drive into a turnover.",
+    "when": "Any third-and-long throw into his side of the field",
+    "who": "Hezekiah Masses",
+    "whoPlayerId": "4917354",
+    "factIds": [
+     "PLV2",
+     "PLV2s",
+     "PLV2e1",
+     "PLV2e4"
+    ]
+   }
+  ],
+  "cardLine": "The Chiefs erase the run and own passing downs, setting up rookie ball hawk Hezekiah Masses and his three interceptions to steal the headline."
+ }
+}

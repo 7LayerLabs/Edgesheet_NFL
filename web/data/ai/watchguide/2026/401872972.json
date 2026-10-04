@@ -1,0 +1,103 @@
+{
+ "gameId": "401872972",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:36:17.121Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "16be04e7910b",
+ "candidateCount": 15,
+ "top": [
+  {
+   "id": "PCHI1",
+   "kind": "player",
+   "title": "Dillon Thieneman (Bears SAF, radar 91)",
+   "jev": 2.27,
+   "playerIds": [
+    "4954445"
+   ]
+  },
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Bears deep passing vs Jets secondary (clear defense edge)",
+   "jev": 2.25,
+   "playerIds": []
+  },
+  {
+   "id": "E3",
+   "kind": "edge",
+   "title": "Jets on passing downs vs Bears pressure (real defense edge)",
+   "jev": 2.08,
+   "playerIds": []
+  },
+  {
+   "id": "E2",
+   "kind": "edge",
+   "title": "Bears run game vs Jets run defense (real offense edge)",
+   "jev": 2.02,
+   "playerIds": []
+  },
+  {
+   "id": "S1",
+   "kind": "situation",
+   "title": "pd situation, Jets offense vs Bears defense",
+   "jev": 2.02,
+   "playerIds": []
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 2895,
+  "outputTokens": 731,
+  "cacheReadTokens": 0,
+  "costUsd": 0.0131
+ },
+ "guide": {
+  "headline": "Jets defense tries to cage a Bears offense built on the ground",
+  "hook": "This is a slow bleed game, Jets secondary against Bears explosiveness and Bears run game against a shaky Jets front, with a rookie safety flying around the middle of it all.",
+  "items": [
+   {
+    "title": "Thieneman roams the Bears secondary",
+    "what": "Dillon Thieneman is playing 100 percent of Bears defensive snaps as the No. 1 safety, and he is producing like a top-two pick despite being drafted at No. 25. He already has one interception, three pass breakups, and 15 tackles, top 5 percent production for an NFL safety.",
+    "when": "Any time the Jets push the ball down the field or into the middle of the field.",
+    "who": "Dillon Thieneman",
+    "whoPlayerId": "4954445",
+    "factIds": [
+     "PCHI1",
+     "PCHI1s",
+     "PCHI1e1",
+     "PCHI1e2",
+     "PCHI1e4"
+    ]
+   },
+   {
+    "title": "Jets secondary caps the deep ball",
+    "what": "The Jets are No. 1 of 32 in limiting explosive passes, allowing just 1.05 on that measure, while the Bears offense ranks a middling No. 16 at 1.34. That is a 48 percentile point gap, a clear defensive edge that should force Chicago to drive the long way.",
+    "when": "Track the longest Bears completion by halftime.",
+    "who": "Bears deep passing vs Jets secondary",
+    "factIds": [
+     "E1",
+     "E1e",
+     "E1w"
+    ]
+   },
+   {
+    "title": "Bears lean on the ground game",
+    "what": "The Bears rush success rate sits at 41 percent, No. 15 of 32, and the Jets run defense ranks No. 26 at 46 percent allowed, a 36 percentile point gap in Chicago's favor. If the Bears stay committed, they keep third downs short and the clock moving.",
+    "when": "Count Bears rushing attempts by halftime.",
+    "who": "Bears run game vs Jets run defense",
+    "factIds": [
+     "E2",
+     "E2e",
+     "E2w"
+    ]
+   }
+  ],
+  "cardLine": "Watch a rookie safety roam center field while the Bears try to grind it out on the ground against a shaky Jets run defense."
+ }
+}

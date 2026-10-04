@@ -1,0 +1,272 @@
+{
+ "gameId": "401872975",
+ "season": 2026,
+ "home": "49ers",
+ "away": "Broncos",
+ "kickoff": "2026-10-04T20:25:00.000Z",
+ "snapshots": [
+  {
+   "at": "2026-10-04T12:34:27.055Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T12:34:26Z",
+     "mlHome": -148,
+     "mlAway": 124,
+     "spread": -3,
+     "spreadPrice": 100,
+     "awaySpreadPrice": -120,
+     "total": 48.5,
+     "overPrice": -105,
+     "underPrice": -115
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T12:34:12Z",
+     "mlHome": -145,
+     "mlAway": 125,
+     "spread": -2,
+     "spreadPrice": -120,
+     "awaySpreadPrice": 100,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": -148,
+     "mlAway": 126,
+     "spread": -2.5,
+     "spreadPrice": -118,
+     "awaySpreadPrice": -104,
+     "total": 47.5,
+     "overPrice": -114,
+     "underPrice": -106
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T12:33:40Z",
+     "mlHome": -145,
+     "mlAway": 125,
+     "spread": -2.5,
+     "spreadPrice": -117,
+     "awaySpreadPrice": -103,
+     "total": 48.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T12:33:59Z",
+     "mlHome": -145,
+     "mlAway": 125,
+     "spread": -2.5,
+     "spreadPrice": -113,
+     "awaySpreadPrice": 102,
+     "total": 48.5,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": -148,
+     "mlAway": 120,
+     "spread": -2.5,
+     "spreadPrice": -114,
+     "awaySpreadPrice": -107,
+     "total": 47.5,
+     "overPrice": -113,
+     "underPrice": -108
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T12:34:01Z",
+     "mlHome": -160,
+     "mlAway": 136,
+     "spread": -3,
+     "spreadPrice": 100,
+     "awaySpreadPrice": -120,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T12:34:14Z",
+     "mlHome": -150,
+     "mlAway": 125,
+     "spread": -2.5,
+     "spreadPrice": -118,
+     "awaySpreadPrice": -102,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -108
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T12:33:44Z",
+     "mlHome": -150,
+     "mlAway": 130,
+     "spread": -2.5,
+     "spreadPrice": -120,
+     "awaySpreadPrice": 100,
+     "total": 48.5,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": -2.5,
+    "total": 48,
+    "mlHome": -148,
+    "mlAway": 125,
+    "books": 9
+   }
+  },
+  {
+   "at": "2026-10-04T15:00:12.555Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T14:59:58Z",
+     "mlHome": -162,
+     "mlAway": 136,
+     "spread": -3,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 48.5,
+     "overPrice": -105,
+     "underPrice": -115
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T14:59:45Z",
+     "mlHome": -165,
+     "mlAway": 142,
+     "spread": -3,
+     "spreadPrice": 100,
+     "awaySpreadPrice": -120,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T14:59:47Z",
+     "mlHome": -152,
+     "mlAway": 128,
+     "spread": -2.5,
+     "spreadPrice": -122,
+     "awaySpreadPrice": 100,
+     "total": 47.5,
+     "overPrice": -114,
+     "underPrice": -106
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T14:59:29Z",
+     "mlHome": -164,
+     "mlAway": 144,
+     "spread": -3,
+     "spreadPrice": -107,
+     "awaySpreadPrice": -113,
+     "total": 48.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T14:59:44Z",
+     "mlHome": -164,
+     "mlAway": 144,
+     "spread": -3,
+     "spreadPrice": -102,
+     "awaySpreadPrice": -108,
+     "total": 48.5,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T14:59:31Z",
+     "mlHome": -148,
+     "mlAway": 120,
+     "spread": -2.5,
+     "spreadPrice": -114,
+     "awaySpreadPrice": -107,
+     "total": 47.5,
+     "overPrice": -113,
+     "underPrice": -108
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T14:58:00Z",
+     "mlHome": -161,
+     "mlAway": 136,
+     "spread": -3,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T14:59:46Z",
+     "mlHome": -160,
+     "mlAway": 135,
+     "spread": -3,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -110,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -108
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T14:57:59Z",
+     "mlHome": -160,
+     "mlAway": 135,
+     "spread": -3,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 48.5,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": -3,
+    "total": 48,
+    "mlHome": -161,
+    "mlAway": 136,
+    "books": 9
+   }
+  }
+ ],
+ "eventId": "a7e7efb75a9792ac63480ae6328dca18",
+ "eventHome": "San Francisco 49ers",
+ "eventAway": "Denver Broncos",
+ "swapped": false,
+ "lastChecked": "2026-10-04T15:00:12.555Z"
+}

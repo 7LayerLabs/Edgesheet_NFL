@@ -1,0 +1,105 @@
+{
+ "gameId": "401872977",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:37:55.391Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "e8e0176cf2a9",
+ "candidateCount": 15,
+ "top": [
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Chargers ground game vs Seahawks run front (dominant defense edge)",
+   "jev": 2.73,
+   "playerIds": []
+  },
+  {
+   "id": "PSEA2",
+   "kind": "player",
+   "title": "Jaxon Smith-Njigba (Seahawks WR, radar 86)",
+   "jev": 2.69,
+   "playerIds": [
+    "4430878"
+   ]
+  },
+  {
+   "id": "E3",
+   "kind": "edge",
+   "title": "Seahawks deep passing vs Chargers secondary (clear offense edge)",
+   "jev": 2.22,
+   "playerIds": []
+  },
+  {
+   "id": "PSEA1",
+   "kind": "player",
+   "title": "Julian Love (Seahawks SAF, radar 90)",
+   "jev": 2.2,
+   "playerIds": [
+    "4046675"
+   ]
+  },
+  {
+   "id": "E4",
+   "kind": "edge",
+   "title": "Chargers on passing downs vs Seahawks pressure (clear defense edge)",
+   "jev": 2.07,
+   "playerIds": []
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 3424,
+  "outputTokens": 876,
+  "cacheReadTokens": 0,
+  "costUsd": 0.015608
+ },
+ "guide": {
+  "headline": "Seahawks run defense and deep shots put Chargers in a bind",
+  "hook": "The Seahawks can stop the run and throw over the top, and the Chargers have to find answers to both in the same afternoon.",
+  "items": [
+   {
+    "title": "Chargers backs meet a brick wall",
+    "what": "The Seahawks are No. 1 of 32 against the run by EPA at -0.35, and the Chargers rank No. 28 in rush EPA per carry at -0.22. That gap is 87 percentile points, not a scheme quirk but a mismatch. If the Chargers can't find room, expect screens and quick game as the counterpunch.",
+    "when": "First drive, early-down runs before the Chargers abandon the ground game",
+    "who": "Chargers ground game vs Seahawks run front",
+    "factIds": [
+     "E1",
+     "E1e",
+     "E1w"
+    ]
+   },
+   {
+    "title": "Smith-Njigba eats up the target share",
+    "what": "Jaxon Smith-Njigba has 27 catches for 405 yards and six touchdowns on a 40 percent target share, good for the top 1 percent of NFL wide receivers. He's playing 81 percent of offensive snaps, so he's on the field for nearly every play Seattle runs. Watch his release against press and his separation at the top of the route, that's where the production comes from.",
+    "when": "Any passing down, especially when Seattle needs a chunk play",
+    "who": "Jaxon Smith-Njigba",
+    "whoPlayerId": "4430878",
+    "factIds": [
+     "PSEA2s",
+     "PSEA2l",
+     "PSEA2e1",
+     "PSEA2e4",
+     "PSEA2w"
+    ]
+   },
+   {
+    "title": "Seahawks test the deep ball early",
+    "what": "The Seahawks rank No. 9 of 32 in pass explosiveness at 1.43, and the Chargers rank No. 23 at limiting explosive passes at 1.40, a 45 percentile point gap. If Seattle's first deep shot connects, watch for the Chargers to change their safety shell afterward, and that shift is what opens the run game underneath.",
+    "when": "First deep shot, likely in the first two drives",
+    "who": "Seahawks deep passing vs Chargers secondary",
+    "factIds": [
+     "E3",
+     "E3e",
+     "E3w"
+    ]
+   }
+  ],
+  "cardLine": "Seattle's No. 1 run defense and a top-9 deep passing attack both have real edges on a shaky Chargers unit."
+ }
+}

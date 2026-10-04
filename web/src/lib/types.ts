@@ -233,6 +233,8 @@ export interface Game {
   rest?: { home: number | null; away: number | null };
   /** Official injury report for both teams, Out/Doubtful/Questionable only, latest week. */
   injuryReport?: { team: string; id: string; name: string; pos: string; status: string; practice: string | null; injury: string | null; week: number }[];
+  /** Who is actually playing, priced in points (src/lib/availability.ts): ESPN injuries, the official report, roster moves. */
+  availability?: import("./availability").GameAvailability;
   /** Standings context: "Winner takes first in the AFC North" and the like. */
   stakes?: string[];
 }

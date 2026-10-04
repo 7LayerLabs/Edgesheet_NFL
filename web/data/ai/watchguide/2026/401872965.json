@@ -1,0 +1,113 @@
+{
+ "gameId": "401872965",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:35:41.177Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "91db43177395",
+ "candidateCount": 12,
+ "top": [
+  {
+   "id": "PIND2",
+   "kind": "player",
+   "title": "DeForest Buckner (Colts DT, radar 86)",
+   "jev": 2.18,
+   "playerIds": [
+    "2971282"
+   ]
+  },
+  {
+   "id": "PIND1",
+   "kind": "player",
+   "title": "Tyler Warren (Colts TE, radar 89)",
+   "jev": 2.13,
+   "playerIds": [
+    "4431459"
+   ]
+  },
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Commanders run game vs Colts run defense (real offense edge)",
+   "jev": 2.13,
+   "playerIds": []
+  },
+  {
+   "id": "E2",
+   "kind": "edge",
+   "title": "Commanders ground game vs Colts run front (real offense edge)",
+   "jev": 2.02,
+   "playerIds": []
+  },
+  {
+   "id": "PWSH1",
+   "kind": "player",
+   "title": "Amik Robertson (Commanders CB, radar 89)",
+   "jev": 2.01,
+   "playerIds": [
+    "4239694"
+   ]
+  }
+ ],
+ "attempts": 2,
+ "attemptLog": [
+  [
+   "names or proper nouns not in the candidate facts: Indy, TFLs"
+  ],
+  []
+ ],
+ "usage": {
+  "inputTokens": 7922,
+  "outputTokens": 1840,
+  "cacheReadTokens": 0,
+  "costUsd": 0.034244
+ },
+ "guide": {
+  "headline": "Commanders want to run it down the Colts' throat",
+  "hook": "Washington's ground game has a real shot against a Colts run defense that ranks near the bottom of the league, while two standout players fight it out on the other side of the ball.",
+  "items": [
+   {
+    "title": "Commanders lean on the run",
+    "what": "The Commanders rank No. 18 of 32 in rush success rate at 40 percent, nothing special on its own. But the Colts rank No. 30 against the run at 47 percent, a 39 percentile point gap that favors Washington staying on schedule. If the Commanders are rushing more than 20 times by halftime, their plan is working and third downs stay short.",
+    "when": "First drive and every early-down snap for Washington.",
+    "who": "Commanders run game vs Colts run defense",
+    "factIds": [
+     "E1",
+     "E1e",
+     "E1w"
+    ]
+   },
+   {
+    "title": "Warren is the Colts' breakout weapon",
+    "what": "Tyler Warren is seeing 92 percent of offensive snaps and a 23 percent target share, with 18 catches for 89 yards and two touchdowns already this year. His production per game is up 301 percent from last season, and at 6-6, 256 pounds he's a problem in the seam for a Washington defense trying to contain him on third down.",
+    "when": "Third down and anytime Warren releases up the seam.",
+    "who": "Tyler Warren",
+    "whoPlayerId": "4431459",
+    "factIds": [
+     "PIND1",
+     "PIND1s",
+     "PIND1e3",
+     "PIND1e5",
+     "PIND1w"
+    ]
+   },
+   {
+    "title": "Buckner hunts the quarterback",
+    "what": "DeForest Buckner already has three sacks, two TFL and four QB hits this season, numbers that put him in the top one percent of NFL defensive linemen. He's playing 81 percent of defensive snaps as the Colts' No. 1 right defensive tackle, so he's on the field for nearly every passing down. Watch whether he has a second move when his first rush gets stonewalled.",
+    "when": "Passing downs, especially third-and-medium or longer.",
+    "who": "DeForest Buckner",
+    "whoPlayerId": "2971282",
+    "factIds": [
+     "PIND2",
+     "PIND2s",
+     "PIND2e1",
+     "PIND2e4",
+     "PIND2w"
+    ]
+   }
+  ],
+  "cardLine": "Washington's run game has a real edge on a Colts defense ranked No. 30 against the rush, while Tyler Warren and DeForest Buckner duel on the other side of the ball."
+ }
+}

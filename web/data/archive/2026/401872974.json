@@ -183,21 +183,41 @@
   "total": 38.5,
   "projection": {
    "winner": "MIN",
-   "winProb": 0.823334654984621,
-   "margin": 12.53,
-   "home": 26,
-   "away": 13,
-   "modelSide": "MIN",
+   "winProb": 0.7689994596286513,
+   "margin": 9.93,
+   "home": 24,
+   "away": 15,
+   "modelSide": "MIA",
    "confidence": "high",
-   "modelTotal": 37.5,
-   "totalLean": "none"
+   "modelTotal": 34,
+   "totalLean": "under"
   },
   "consensus": {
-   "median": 11.6,
+   "median": 10.8,
    "favorite": "MIN",
    "side": "MIN",
-   "sideCount": 4,
+   "sideCount": 3,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-04T02:06:10.316Z",
+   "spread": {
+    "team": "MIN",
+    "line": -10
+   },
+   "total": 38.5,
+   "projection": {
+    "winner": "MIN",
+    "winProb": 0.823334654984621,
+    "margin": 12.53,
+    "home": 26,
+    "away": 13,
+    "modelSide": "MIN",
+    "confidence": "high",
+    "modelTotal": 37.5,
+    "totalLean": "none"
+   }
+  },
+  "updatedAt": "2026-10-04T14:58:40.547Z"
  }
 }

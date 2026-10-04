@@ -53,7 +53,7 @@ export function categoriesOf(s: Record<string, number>): { category: string; sta
   if (s.pa) out.push({ category: "passing", stats: { "C/ATT": `${s.pc ?? 0}/${s.pa}`, YDS: str(s.py), TD: str(s.ptd), INT: str(s.pint) } });
   if (s.ra) out.push({ category: "rushing", stats: { CAR: str(s.ra), YDS: str(s.ry), TD: str(s.rtd) } });
   if (s.rec || s.tgt) out.push({ category: "receiving", stats: { REC: str(s.rec), YDS: str(s.rcy), TD: str(s.rctd), TGT: str(s.tgt) } });
-  const tk = (s.solo ?? 0) + (s.ast ?? 0);
+  const tk = s.tk ?? (s.solo ?? 0) + (s.ast ?? 0) + (s.tast ?? 0);
   if (tk || s.sk || s.tfl || s.pd || s.hur) out.push({ category: "defensive", stats: { TOT: str(tk), SOLO: str(s.solo), SACKS: str(s.sk), TFL: str(s.tfl), PD: str(s.pd), QBH: str(s.hur) } });
   if (s.int) out.push({ category: "interceptions", stats: { INT: str(s.int), YDS: str(s.inty) } });
   return out;

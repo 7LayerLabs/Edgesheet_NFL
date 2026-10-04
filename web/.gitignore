@@ -49,3 +49,8 @@ next-env.d.ts
 
 # rendered sheet PNGs
 /data/sheets/
+
+# live feed caches and bot cursor (rebuilt on demand)
+/data/dk/
+/data/espn/
+/data/telegram-state.json

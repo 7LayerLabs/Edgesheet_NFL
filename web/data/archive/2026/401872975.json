@@ -160,26 +160,46 @@
   ],
   "spread": {
    "team": "SF",
-   "line": -3
+   "line": -2.5
   },
-  "total": 48.5,
+  "total": 48,
   "projection": {
    "winner": "SF",
-   "winProb": 0.6094084600439507,
-   "margin": 3.75,
-   "home": 26,
+   "winProb": 0.5835996820572754,
+   "margin": 2.85,
+   "home": 25,
    "away": 23,
    "modelSide": "SF",
    "confidence": "high",
-   "modelTotal": 54,
+   "modelTotal": 53.5,
    "totalLean": "over"
   },
   "consensus": {
-   "median": 6.2,
+   "median": 5.7,
    "favorite": "SF",
    "side": "SF",
-   "sideCount": 3,
+   "sideCount": 2,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-04T02:06:10.325Z",
+   "spread": {
+    "team": "SF",
+    "line": -3
+   },
+   "total": 48.5,
+   "projection": {
+    "winner": "SF",
+    "winProb": 0.6094084600439507,
+    "margin": 3.75,
+    "home": 26,
+    "away": 23,
+    "modelSide": "SF",
+    "confidence": "high",
+    "modelTotal": 54,
+    "totalLean": "over"
+   }
+  },
+  "updatedAt": "2026-10-04T14:58:40.557Z"
  }
 }

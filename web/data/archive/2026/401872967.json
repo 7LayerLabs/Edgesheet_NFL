@@ -183,13 +183,13 @@
   "total": 48.5,
   "projection": {
    "winner": "HOU",
-   "winProb": 0.6133832643520648,
-   "margin": 3.8899999999999997,
+   "winProb": 0.6162151724844789,
+   "margin": 3.9899999999999998,
    "home": 26,
    "away": 23,
    "modelSide": "HOU",
    "confidence": "high",
-   "modelTotal": 53,
+   "modelTotal": 53.5,
    "totalLean": "over"
   },
   "consensus": {
@@ -198,6 +198,26 @@
    "side": "HOU",
    "sideCount": 2,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-04T02:06:10.297Z",
+   "spread": {
+    "team": "HOU",
+    "line": -3
+   },
+   "total": 48.5,
+   "projection": {
+    "winner": "HOU",
+    "winProb": 0.6133832643520648,
+    "margin": 3.8899999999999997,
+    "home": 26,
+    "away": 23,
+    "modelSide": "HOU",
+    "confidence": "high",
+    "modelTotal": 53,
+    "totalLean": "over"
+   }
+  },
+  "updatedAt": "2026-10-04T14:58:40.536Z"
  }
 }

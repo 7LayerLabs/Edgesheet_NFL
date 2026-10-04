@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { listEntries } from "@/lib/archive";
 import { NOT_A_PICK, baseUrl, leansDigest, longDate, morningSlate, postgameDigest } from "@/lib/digests";
-import { renderSheetPng } from "@/lib/render";
+import { renderSheetPages } from "@/lib/render";
 import { etDate, getSlate } from "@/lib/slate";
-import { sendMessage, sendPhoto, telegramMissing, telegramReady } from "@/lib/telegram";
+import { sendMessage, sendPhotoAlbum, telegramMissing, telegramReady } from "@/lib/telegram";
 
 export const dynamic = "force-dynamic";
 
@@ -20,12 +20,12 @@ export async function POST(req: Request) {
   if (!telegramReady()) return NextResponse.json({ error: telegramMissing() }, { status: 503 });
 
   if (type === "sheet") {
-    // The Sunday sheet as a photo: render /sheet?print=1 with headless Chrome, then sendPhoto.
+    // The Sunday sheet as a two-page album: render /sheet?print=1&part=1 and 2 with headless Chrome, then sendMediaGroup.
     const date = body?.date && /^\d{4}-\d{2}-\d{2}$/.test(body.date) ? body.date : etDate();
     try {
-      const png = await renderSheetPng(date, baseUrl());
-      const sent = await sendPhoto(png, `EdgeSheet, ${longDate(date)}. ${NOT_A_PICK} ${baseUrl()}/sheet?date=${date}`);
-      return NextResponse.json({ ok: true, messages: 1, file: png, messageId: sent.message_id });
+      const pngs = await renderSheetPages(date, baseUrl());
+      const sent = await sendPhotoAlbum(pngs, `EdgeSheet, ${longDate(date)}. ${NOT_A_PICK} ${baseUrl()}/sheet?date=${date}`);
+      return NextResponse.json({ ok: true, messages: sent.length, files: pngs, messageId: sent[0]?.message_id });
     } catch (e) {
       return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 502 });
     }

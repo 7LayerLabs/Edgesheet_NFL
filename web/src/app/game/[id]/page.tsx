@@ -21,6 +21,8 @@ import { ConsensusLine, ConsensusTable } from "@/components/ConsensusTable";
 import { Suspense } from "react";
 import { BeatFeed, BeatFeedFallback } from "@/components/BeatFeed";
 import { SituationalCues, SituationsTable } from "@/components/Situations";
+import { DfsPanel } from "@/components/DfsPanel";
+import { AvailabilityPanel } from "@/components/AvailabilityPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -103,12 +105,14 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
           ["report", "Report"],
           ["decided", "Decided by"],
           ["radar", "Watch radar"],
+          ["dfs", "DraftKings"],
           ["eye", "Eye on"],
           ["showed", game.status === "upcoming" ? "Live" : "Who showed up"],
           ["style", "Team style"],
           ["conditions", "Conditions"],
           ["market", "Market"],
           ["storylines", "Storylines"],
+          ["playing", "Who plays"],
           ["injuries", "Injuries"],
           ["feed", "Feed"],
           ["score", "Score"],
@@ -216,6 +220,13 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
         {game.prospects.length === 0 && (
           <p className="mt-2 text-sm text-chalk-3">No player on either roster clears the production or snap-share thresholds. See Keep an eye on below.</p>
         )}
+      </Section>
+
+      {/* DraftKings and props */}
+      <Section n="DraftKings and props" id="dfs" title="Who to play, and the defenders to bet">
+        <Suspense fallback={<p className="mt-3 text-sm text-chalk-3">Loading DraftKings salaries.</p>}>
+          <DfsPanel game={game} />
+        </Suspense>
       </Section>
 
       {/* 8. Keep an eye on */}
@@ -385,6 +396,13 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
           ))}
         </ul>
       </Section>
+
+      {/* Who is playing: availability priced into the projection */}
+      {game.availability && (
+        <Section n="Who is playing" id="playing" title={game.availability.home.total === game.availability.away.total ? "Lineups as expected" : "What the lineups cost"}>
+          <AvailabilityPanel game={game} a={game.availability} />
+        </Section>
+      )}
 
       {/* Official injury report */}
       {game.injuryReport && game.injuryReport.length > 0 && (

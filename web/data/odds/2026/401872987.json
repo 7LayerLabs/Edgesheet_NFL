@@ -1,0 +1,193 @@
+{
+ "gameId": "401872987",
+ "season": 2026,
+ "home": "Saints",
+ "away": "Vikings",
+ "kickoff": "2026-10-11T17:00:00.000Z",
+ "snapshots": [
+  {
+   "at": "2026-10-04T12:34:27.055Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T12:34:26Z",
+     "mlHome": 120,
+     "mlAway": -142,
+     "spread": 2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44.5,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": 108,
+     "mlAway": -126,
+     "spread": 1.5,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -112,
+     "total": 45.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T12:34:01Z",
+     "spread": 2,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 45,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T12:33:40Z",
+     "spread": 1.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T12:33:59Z",
+     "spread": 1.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -105,
+     "total": 44,
+     "overPrice": -113,
+     "underPrice": -102
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": 112,
+     "mlAway": -136,
+     "spread": 2,
+     "spreadPrice": -109,
+     "awaySpreadPrice": -112,
+     "total": 45.5,
+     "overPrice": -109,
+     "underPrice": -112
+    }
+   ],
+   "consensus": {
+    "spread": 2,
+    "total": 45,
+    "mlHome": 112,
+    "mlAway": -136,
+    "books": 6
+   }
+  },
+  {
+   "at": "2026-10-04T15:00:12.555Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T14:59:58Z",
+     "mlHome": 120,
+     "mlAway": -142,
+     "spread": 2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44.5,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T14:59:45Z",
+     "spread": 1.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T14:59:47Z",
+     "mlHome": 108,
+     "mlAway": -126,
+     "spread": 1.5,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -112,
+     "total": 45.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T14:58:00Z",
+     "spread": 2,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 45,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T14:59:29Z",
+     "spread": 1.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T14:59:44Z",
+     "spread": 1.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -105,
+     "total": 44,
+     "overPrice": -113,
+     "underPrice": -102
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T14:59:31Z",
+     "mlHome": 112,
+     "mlAway": -136,
+     "spread": 2,
+     "spreadPrice": -109,
+     "awaySpreadPrice": -112,
+     "total": 45.5,
+     "overPrice": -109,
+     "underPrice": -112
+    }
+   ],
+   "consensus": {
+    "spread": 1.5,
+    "total": 44.5,
+    "mlHome": 112,
+    "mlAway": -136,
+    "books": 7
+   }
+  }
+ ],
+ "eventId": "2cda9bf0fbe35a2735f0dd8aaafe9eff",
+ "eventHome": "New Orleans Saints",
+ "eventAway": "Minnesota Vikings",
+ "swapped": false,
+ "lastChecked": "2026-10-04T15:00:12.555Z"
+}

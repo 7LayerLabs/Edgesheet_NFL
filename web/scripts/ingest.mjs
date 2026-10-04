@@ -303,7 +303,7 @@ const SUM = {
   attempts: "pa", completions: "pc", passing_yards: "py", passing_tds: "ptd", passing_interceptions: "pint", sacks_suffered: "sks", passing_epa: "pepa", passing_first_downs: "pfd", passing_air_yards: "pay",
   carries: "ra", rushing_yards: "ry", rushing_tds: "rtd", rushing_epa: "repa", rushing_first_downs: "rfd",
   receptions: "rec", targets: "tgt", receiving_yards: "rcy", receiving_tds: "rctd", receiving_epa: "rcepa", receiving_air_yards: "rays", receiving_yards_after_catch: "ryac", receiving_first_downs: "rcfd",
-  def_tackles_solo: "solo", def_tackles_with_assist: "ast", def_tackles_for_loss: "tfl", def_sacks: "sk", def_qb_hits: "hur", def_pass_defended: "pd", def_interceptions: "int", def_interception_yards: "inty", def_tds: "dtd", def_fumbles_forced: "ff", fumble_recovery_opp: "fr",
+  def_tackles_solo: "solo", def_tackles_with_assist: "ast", def_tackle_assists: "tast", def_tackles_for_loss: "tfl", def_sacks: "sk", def_qb_hits: "hur", def_pass_defended: "pd", def_interceptions: "int", def_interception_yards: "inty", def_tds: "dtd", def_fumbles_forced: "ff", fumble_recovery_opp: "fr",
   fumbles_total: "fum", fumbles_lost_total: "fl",
   fg_made: "fgm", fg_att: "fga", pat_made: "xpm", pat_att: "xpa",
   pt_att: "pno", pt_yards: "pty", pt_inside_20: "pin20",
@@ -316,7 +316,8 @@ function finish(s) {
   if (s.pa) { s.ypa = Math.round((s.py / s.pa) * 10) / 10; s.cmp = Math.round((s.pc / s.pa) * 1000) / 10; }
   if (s.ra) s.ypc = Math.round((s.ry / s.ra) * 10) / 10;
   if (s.rec) s.ypr = Math.round((s.rcy / s.rec) * 10) / 10;
-  if (s.solo !== undefined || s.ast !== undefined) s.tk = (s.solo ?? 0) + (s.ast ?? 0);
+  // Combined tackles the way books grade "tackles + assists": solo, plus tackles made with help, plus assists.
+  if (s.solo !== undefined || s.ast !== undefined || s.tast !== undefined) s.tk = (s.solo ?? 0) + (s.ast ?? 0) + (s.tast ?? 0);
   if (s.fga) s.fgp = Math.round((s.fgm / s.fga) * 1000) / 10;
   if (s.pno) s.ypp = Math.round((s.pty / s.pno) * 10) / 10;
   if (s._cpoeW) { s.cpoe = Math.round((s._cpoe / s._cpoeW) * 10) / 10; }

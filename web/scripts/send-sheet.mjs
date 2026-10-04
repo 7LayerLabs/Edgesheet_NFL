@@ -37,9 +37,9 @@ const date = args.find((a) => /^\d{4}-\d{2}-\d{2}$/.test(a)) ?? slateLib.etDate(
 const base = digests.baseUrl();
 
 const t0 = Date.now();
-console.log(`Rendering ${base}/sheet?date=${date}&print=1 ...`);
-const png = await render.renderSheetPng(date, base);
-console.log(`Wrote ${png} in ${Date.now() - t0} ms`);
+console.log(`Rendering ${base}/sheet?date=${date}&print=1 as two pages ...`);
+const pngs = await render.renderSheetPages(date, base);
+console.log(`Wrote ${pngs.join(", ")} in ${Date.now() - t0} ms`);
 
 if (dry) process.exit(0);
 if (!tg.telegramReady()) {
@@ -47,5 +47,5 @@ if (!tg.telegramReady()) {
   process.exit(2);
 }
 const caption = `EdgeSheet, ${digests.longDate(date)}. ${digests.NOT_A_PICK} ${base}/sheet?date=${date}`;
-const sent = await tg.sendPhoto(png, caption);
-console.log(`Sent as Telegram message ${sent.message_id}.`);
+const sent = await tg.sendPhotoAlbum(pngs, caption);
+console.log(`Sent as a Telegram album, messages ${sent.map((m) => m.message_id).join(", ")}.`);

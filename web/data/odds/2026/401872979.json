@@ -1,0 +1,272 @@
+{
+ "gameId": "401872979",
+ "season": 2026,
+ "home": "Saints",
+ "away": "Falcons",
+ "kickoff": "2026-10-06T00:15:00.000Z",
+ "snapshots": [
+  {
+   "at": "2026-10-04T12:34:27.055Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T12:34:26Z",
+     "mlHome": -130,
+     "mlAway": 110,
+     "spread": -1.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 47.5,
+     "overPrice": -112,
+     "underPrice": -108
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T12:34:12Z",
+     "mlHome": -125,
+     "mlAway": 105,
+     "spread": -1,
+     "spreadPrice": -120,
+     "awaySpreadPrice": 100,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": -132,
+     "mlAway": 112,
+     "spread": -2.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 47.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T12:33:40Z",
+     "mlHome": -123,
+     "mlAway": 103,
+     "spread": -1,
+     "spreadPrice": -122,
+     "awaySpreadPrice": 102,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T12:33:59Z",
+     "mlHome": -123,
+     "mlAway": 103,
+     "spread": -1,
+     "spreadPrice": -118,
+     "awaySpreadPrice": 107,
+     "total": 48,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": -136,
+     "mlAway": 110,
+     "spread": -2,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 47.5,
+     "overPrice": -109,
+     "underPrice": -112
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T12:34:01Z",
+     "mlHome": -131,
+     "mlAway": 107,
+     "spread": -2,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T12:34:14Z",
+     "mlHome": -130,
+     "mlAway": 110,
+     "spread": -1.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -108,
+     "total": 47.5,
+     "overPrice": -110,
+     "underPrice": -108
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T12:33:44Z",
+     "mlHome": -125,
+     "mlAway": 105,
+     "spread": -1.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": -1.5,
+    "total": 48,
+    "mlHome": -130,
+    "mlAway": 107,
+    "books": 9
+   }
+  },
+  {
+   "at": "2026-10-04T15:00:12.555Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T14:59:58Z",
+     "mlHome": -130,
+     "mlAway": 110,
+     "spread": -1.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 47.5,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T14:59:45Z",
+     "mlHome": -125,
+     "mlAway": 105,
+     "spread": -1,
+     "spreadPrice": -120,
+     "awaySpreadPrice": 100,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T14:59:47Z",
+     "mlHome": -126,
+     "mlAway": 108,
+     "spread": -2.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 47.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T14:59:29Z",
+     "mlHome": -123,
+     "mlAway": 103,
+     "spread": -1,
+     "spreadPrice": -122,
+     "awaySpreadPrice": 102,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T14:59:44Z",
+     "mlHome": -123,
+     "mlAway": 103,
+     "spread": -1,
+     "spreadPrice": -118,
+     "awaySpreadPrice": 107,
+     "total": 48,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T14:59:31Z",
+     "mlHome": -136,
+     "mlAway": 110,
+     "spread": -2,
+     "spreadPrice": -112,
+     "awaySpreadPrice": -109,
+     "total": 47.5,
+     "overPrice": -109,
+     "underPrice": -112
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T14:58:00Z",
+     "mlHome": -131,
+     "mlAway": 107,
+     "spread": -2,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T14:59:46Z",
+     "mlHome": -130,
+     "mlAway": 110,
+     "spread": -1.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -108,
+     "total": 47.5,
+     "overPrice": -110,
+     "underPrice": -108
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T14:57:59Z",
+     "mlHome": -125,
+     "mlAway": 105,
+     "spread": -1.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 48,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": -1.5,
+    "total": 48,
+    "mlHome": -126,
+    "mlAway": 107,
+    "books": 9
+   }
+  }
+ ],
+ "eventId": "8bd90781e17e6d97df3941063cedae1e",
+ "eventHome": "New Orleans Saints",
+ "eventAway": "Atlanta Falcons",
+ "swapped": false,
+ "lastChecked": "2026-10-04T15:00:12.555Z"
+}

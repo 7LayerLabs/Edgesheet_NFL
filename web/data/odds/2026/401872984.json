@@ -1,0 +1,193 @@
+{
+ "gameId": "401872984",
+ "season": 2026,
+ "home": "Titans",
+ "away": "Texans",
+ "kickoff": "2026-10-11T17:00:00.000Z",
+ "snapshots": [
+  {
+   "at": "2026-10-04T12:34:27.055Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T12:34:26Z",
+     "mlHome": 245,
+     "mlAway": -305,
+     "spread": 6.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 39.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": 265,
+     "mlAway": -330,
+     "spread": 6.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 38.5,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T12:34:01Z",
+     "spread": 6.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 39,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T12:33:40Z",
+     "spread": 6.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 38.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T12:33:59Z",
+     "spread": 6.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -105,
+     "total": 38.5,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": 250,
+     "mlAway": -315,
+     "spread": 6.5,
+     "spreadPrice": -112,
+     "awaySpreadPrice": -109,
+     "total": 39,
+     "overPrice": -112,
+     "underPrice": -109
+    }
+   ],
+   "consensus": {
+    "spread": 6.5,
+    "total": 39,
+    "mlHome": 250,
+    "mlAway": -315,
+    "books": 6
+   }
+  },
+  {
+   "at": "2026-10-04T15:00:12.555Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T14:59:58Z",
+     "mlHome": 245,
+     "mlAway": -305,
+     "spread": 6.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 39.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T14:59:45Z",
+     "spread": 6.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 38.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T14:59:47Z",
+     "mlHome": 265,
+     "mlAway": -330,
+     "spread": 6.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 38.5,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T14:58:00Z",
+     "spread": 6.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 39,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T14:59:29Z",
+     "spread": 6.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 38.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T14:59:44Z",
+     "spread": 6.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -105,
+     "total": 38.5,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T14:59:31Z",
+     "mlHome": 250,
+     "mlAway": -315,
+     "spread": 6.5,
+     "spreadPrice": -112,
+     "awaySpreadPrice": -109,
+     "total": 39,
+     "overPrice": -112,
+     "underPrice": -109
+    }
+   ],
+   "consensus": {
+    "spread": 6.5,
+    "total": 38.5,
+    "mlHome": 250,
+    "mlAway": -315,
+    "books": 7
+   }
+  }
+ ],
+ "eventId": "cc52bba56e74f5cddbe9011046181c3d",
+ "eventHome": "Tennessee Titans",
+ "eventAway": "Houston Texans",
+ "swapped": false,
+ "lastChecked": "2026-10-04T15:00:12.555Z"
+}

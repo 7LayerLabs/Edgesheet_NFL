@@ -1,0 +1,102 @@
+{
+ "gameId": "401872968",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:37:17.975Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "b2f73f31c64a",
+ "candidateCount": 16,
+ "top": [
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Packers ground game vs Buccaneers run front (dominant defense edge)",
+   "jev": 2.6,
+   "playerIds": []
+  },
+  {
+   "id": "E2",
+   "kind": "edge",
+   "title": "Packers run game vs Buccaneers run defense (dominant defense edge)",
+   "jev": 2.45,
+   "playerIds": []
+  },
+  {
+   "id": "PGB1",
+   "kind": "player",
+   "title": "Edgerrin Cooper (Packers LB, radar 97)",
+   "jev": 2.2,
+   "playerIds": [
+    "4430438"
+   ]
+  },
+  {
+   "id": "E3",
+   "kind": "edge",
+   "title": "Packers on passing downs vs Buccaneers pressure (dominant defense edge)",
+   "jev": 2.4,
+   "playerIds": []
+  },
+  {
+   "id": "S3",
+   "kind": "situation",
+   "title": "thirdLongConv situation, Buccaneers offense vs Packers defense",
+   "jev": 2.16,
+   "playerIds": []
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 3123,
+  "outputTokens": 909,
+  "cacheReadTokens": 0,
+  "costUsd": 0.015336
+ },
+ "guide": {
+  "headline": "Buccaneers front versus a broken Packers run game",
+  "hook": "Tampa Bay's defense is built to smother the run and get off the field on third-and-long, and Green Bay's ground game walks right into it.",
+  "items": [
+   {
+    "title": "Packers run game meets a wall",
+    "what": "The Packers rank No. 32 of 32 in rush EPA per carry at -0.41, and the Buccaneers rank No. 6 against the run at -0.21, an 84 percentile point gap. This is not a lean, it's a mismatch. Watch for tackles for loss piling up early; if Green Bay's backs are getting met in the backfield on first and second down, that's the Buccaneers front winning first contact.",
+    "when": "First drive, early first and second down runs",
+    "who": "Packers ground game",
+    "factIds": [
+     "E1",
+     "E1e",
+     "E1w"
+    ]
+   },
+   {
+    "title": "Third-and-long turns into a punt",
+    "what": "The Buccaneers are No. 1 of 32 on passing downs, holding offenses to a 27% success rate, while the Packers rank No. 21 at 34%, a 65 percentile point gap. Green Bay's early-down efficiency has to carry this game because once they hit third-and-7 or longer, the math flips hard against them. Watch for empty-handed trips in that situation; a punt there is the defense winning the series.",
+    "when": "Third-and-7 or longer for the Packers",
+    "who": "Packers on passing downs",
+    "factIds": [
+     "E3",
+     "E3e",
+     "E3w"
+    ]
+   },
+   {
+    "title": "Cooper flying to the ball",
+    "what": "Edgerrin Cooper has 14 tackles, 6 tackles for loss, two sacks, and two QB hits this year, playing 92% of defensive snaps as the No. 1 linebacker on the depth chart. He's listed questionable with a shoulder issue but was full participation in practice, so watch how fast he diagnoses run fits and covers tight ends and backs out of the backfield. If he's moving sideline to sideline like his numbers suggest, he's a big reason the Packers run game stalls.",
+    "when": "Run downs and check-downs to backs or tight ends",
+    "who": "Edgerrin Cooper",
+    "whoPlayerId": "4430438",
+    "factIds": [
+     "PGB1s",
+     "PGB1e1",
+     "PGB1e5",
+     "PGB1e6"
+    ]
+   }
+  ],
+  "cardLine": "Green Bay's broken run game crashes into Tampa Bay's No. 6 run defense and No. 1 passing-downs unit, with Edgerrin Cooper flying around to make sure of it."
+ }
+}

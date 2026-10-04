@@ -1,0 +1,104 @@
+{
+ "gameId": "401872966",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:36:55.494Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "27e8d3823d03",
+ "candidateCount": 16,
+ "top": [
+  {
+   "id": "PNYG1",
+   "kind": "player",
+   "title": "Jevon Holland (Giants SAF, radar 92)",
+   "jev": 2.69,
+   "playerIds": [
+    "4373809"
+   ]
+  },
+  {
+   "id": "PARI1",
+   "kind": "player",
+   "title": "Trey McBride (Cardinals TE, radar 87)",
+   "jev": 2.35,
+   "playerIds": [
+    "4361307"
+   ]
+  },
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Cardinals deep passing vs Giants secondary (clear defense edge)",
+   "jev": 2.28,
+   "playerIds": []
+  },
+  {
+   "id": "E2",
+   "kind": "edge",
+   "title": "Cardinals run game vs Giants run defense (clear offense edge)",
+   "jev": 2.07,
+   "playerIds": []
+  },
+  {
+   "id": "E4",
+   "kind": "edge",
+   "title": "Cardinals on passing downs vs Giants pressure (real offense edge)",
+   "jev": 2.03,
+   "playerIds": []
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 3396,
+  "outputTokens": 1007,
+  "cacheReadTokens": 0,
+  "costUsd": 0.016862
+ },
+ "guide": {
+  "headline": "Jevon Holland lurks over the top of every deep shot",
+  "hook": "Arizona wants to throw it deep and New York has the one safety built to end that plan with the ball in his hands.",
+  "items": [
+   {
+    "title": "Jevon Holland hunting the deep ball",
+    "what": "Holland has three interceptions, four pass breakups and seven tackles this season, production in the top 1 percent of NFL safeties, and he is on the field for 100 percent of Giants defensive snaps. He lines up against a Cardinals deep passing attack ranked No. 31 of 32 in the league, a clear edge for the defense. If Arizona tries to take a shot early, Holland is the one who turns it into a turnover.",
+    "when": "First drive, any play where the Cardinals release two receivers vertically",
+    "who": "Jevon Holland",
+    "whoPlayerId": "4373809",
+    "factIds": [
+     "PNYG1",
+     "PNYG1s",
+     "PNYG1e1",
+     "PNYG1e2"
+    ]
+   },
+   {
+    "title": "Cardinals lean on the ground game",
+    "what": "Arizona ranks No. 9 of 32 in rush success rate at 45 percent, and the Giants rank just No. 24 against the run at 44 percent, a 48 percentile point gap that favors the offense. That means the Cardinals can stay on schedule on early downs and keep the clock moving instead of trusting the deep ball. Watch their rushing attempts by halftime, north of 20 means the plan is working.",
+    "when": "Early downs through the first half",
+    "who": "Cardinals run game",
+    "factIds": [
+     "E2",
+     "E2e",
+     "E2w"
+    ]
+   },
+   {
+    "title": "Third-and-long is not safe for Giants",
+    "what": "On passing downs the Cardinals convert at 37 percent, No. 17 in the league, while the Giants defense ranks No. 25 at stopping those downs at 43 percent, a 25 percentile point real edge for Arizona. That means third-and-8 is not an automatic stop here, the Cardinals have the tools to keep drives alive. Two conversions on third-and-long in the first half would break the Giants defensive plan.",
+    "when": "Third-and-long situations, especially in the first half",
+    "who": "Cardinals on passing downs",
+    "factIds": [
+     "E4",
+     "E4e",
+     "E4w"
+    ]
+   }
+  ],
+  "cardLine": "Jevon Holland sits over the top of a Cardinals deep passing game ranked No. 31 in the league, and he already has three interceptions this season."
+ }
+}

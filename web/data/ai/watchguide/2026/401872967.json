@@ -1,0 +1,106 @@
+{
+ "gameId": "401872967",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:36:42.609Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "bd26ef3d341e",
+ "candidateCount": 16,
+ "top": [
+  {
+   "id": "PHOU1",
+   "kind": "player",
+   "title": "Will Anderson Jr. (Texans DE, radar 87)",
+   "jev": 2.7,
+   "playerIds": [
+    "4685724"
+   ]
+  },
+  {
+   "id": "E3",
+   "kind": "edge",
+   "title": "Cowboys on passing downs vs Texans pressure (clear offense edge)",
+   "jev": 2.48,
+   "playerIds": []
+  },
+  {
+   "id": "E2",
+   "kind": "edge",
+   "title": "Cowboys deep passing vs Texans secondary (clear offense edge)",
+   "jev": 2.34,
+   "playerIds": []
+  },
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Texans deep passing vs Cowboys secondary (dominant defense edge)",
+   "jev": 2.28,
+   "playerIds": []
+  },
+  {
+   "id": "PHOU2",
+   "kind": "player",
+   "title": "Reed Blankenship (Texans SAF, radar 86)",
+   "jev": 2,
+   "playerIds": [
+    "4243956"
+   ]
+  }
+ ],
+ "attempts": 2,
+ "attemptLog": [
+  [
+   "names or proper nouns not in the candidate facts: Texan"
+  ],
+  []
+ ],
+ "usage": {
+  "inputTokens": 7571,
+  "outputTokens": 1482,
+  "cacheReadTokens": 0,
+  "costUsd": 0.029962
+ },
+ "guide": {
+  "headline": "Cowboys pass game vs Houston pressure decides this one",
+  "hook": "Dallas has two different ways to break Houston through the air, and Will Anderson Jr. is the one defender who can wreck the plan by himself.",
+  "items": [
+   {
+    "title": "Cowboys own third-and-long",
+    "what": "The Cowboys are No. 2 of 32 on passing downs at 55 percent success, and the defense ranks No. 15 at 36 percent, a 42 percentile point gap. That is a clear edge for Dallas. Two conversions in the first half break the defense's plan.",
+    "when": "Third-and-long situations, especially in the first half.",
+    "who": "Cowboys on passing downs vs Texans pressure",
+    "factIds": [
+     "E3",
+     "E3e",
+     "E3w"
+    ]
+   },
+   {
+    "title": "Will Anderson Jr. chases four sacks",
+    "what": "Anderson has 10 tackles, 6 TFL, 4 sacks and 6 QB hits this season, top 1 percent of NFL edge rushers, while playing 82 percent of defensive snaps as the top left end. Watch his get-off at the snap and whether he bends the arc or also sets the edge against the run.",
+    "when": "Early downs and obvious passing downs when he lines up wide.",
+    "who": "Will Anderson Jr.",
+    "whoPlayerId": "4685724",
+    "factIds": [
+     "PHOU1e1",
+     "PHOU1e4",
+     "PHOU1w"
+    ]
+   },
+   {
+    "title": "Dallas tests the deep shell",
+    "what": "The Cowboys rank No. 18 of 32 in pass explosiveness at 1.30, but the defense they face is dead last, No. 32, at limiting explosive passes at 1.67, a 45 percentile point gap. Watch the first deep shot: if it connects, the coverage has to change shells and the run game opens up underneath.",
+    "when": "First or second drive, first deep shot attempt.",
+    "who": "Cowboys deep passing vs Texans secondary",
+    "factIds": [
+     "E2",
+     "E2e",
+     "E2w"
+    ]
+   }
+  ],
+  "cardLine": "Watch whether the Cowboys convert third-and-long and hit an early deep shot, while Will Anderson Jr. tries to blow it up himself."
+ }
+}

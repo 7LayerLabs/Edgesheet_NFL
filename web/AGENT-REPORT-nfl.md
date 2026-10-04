@@ -86,3 +86,31 @@ Deleted: `cfbd.ts`, `data.ts` (sample slate), `forecast.ts`, `declarations.ts`, 
 - Standings stakes could use ESPN FPI's playoff probability (already fetched in `fpiRatings`) for "playoff odds swing" on the game card.
 - The Odds API's `player_anytime_td` props next to the Matchup players would tie the lens to the market in one line.
 - The depth chart snapshot is daily; a "who moved up the chart this week" list is one diff away.
+
+## Session 2026-10-04 (game-day morning)
+
+Ops: Telegram bot @EdgeSheet_NFLbot live (token and chat id in `.env.local`), PM2 `nfl-telegram` and `nfl-odds` (cron every 6 hours Thu to Mon) started, `pm2 save` done. First full odds snapshot: 27 games, 467 credits left. All 14 watch guides written (about $0.31; two needed a retry after the proper-noun validator rejected ordinary capitalized words like "Staying" and "Could"). `npm run guides` now runs under `tsx` (it imports TypeScript libs; plain `node` failed).
+
+Fix: tackles. The ingest dropped nflverse `def_tackle_assists`, so every tackle total was solo plus with-assist only (Roquan Smith showed 10, real combined 28). Now `tk = solo + ast + tast`, the way books grade "tackles + assists". Radar production for defenders moves with it.
+
+New: DraftKings and props lens (`src/lib/dfs.ts`, `src/components/DfsPanel.tsx`).
+- Salaries from DraftKings' public lobby JSON (`getcontests`, then `lineup/getavailableplayers?draftGroupId=`; the `api.draftkings.com` draftables endpoint returns Access Denied). Classic group with the most games on the date, Showdown FLEX for games outside it. Cached 20 minutes in memory and in `data/dk/<date>.json`.
+- DK points scored from nflverse game lines with Classic rules (no two-point conversions). Defense vs position = DK points allowed per game by position, ranked 1 (softest) to 32.
+- Proj = average (blended with last season under 2 games) times half the matchup factor (capped 0.7 to 1.35), plus half an Out or Doubtful teammate's average for the next man up, only when that absence is new (he played the team's last game). QBs never add points; a backup QB shows only when the starter is out. Value = proj per $1,000.
+- Defensive props: tackles (5+ a game, half the snaps) against opponent plays per game; pass rush (1+ QB hit a game or 2+ sacks) against opponent pressure allowed. Posted lines show when props are pulled.
+- Props pull now includes `player_tackles_assists` and `player_sacks`: 6 credits a game, still on demand only.
+- Game page: new "DraftKings and props" section (`#dfs`). Sheet: 04 DraftKings plays (Classic, by value, plus a "Showdown only" line per Showdown game with the next man up), 05 Defensive names for props; windows and weather are now 06 and 07.
+- Sheet PNG: the old 816 x 1056 capture cut off everything after section 04. Now two pages (`/sheet?print=1&part=1|2`), each trimmed to content with sharp, sent as one Telegram album (`sendPhotoAlbum`). The single `/api/sheet.png` render is full height.
+
+Open: the side leans ignore QB injuries (Colts at Commanders reads WSH by 5.3 "high confidence" with Jayden Daniels Out). Leans label 12 of 14 games STRONG against a backtest of 49.6% ATS; tighten after week 4 grades. Not committed.
+
+## Session 2026-10-04, part 2: the model knows who is playing (`src/lib/availability.ts`)
+
+- Status, freshest first: ESPN league injury feed (live through game-day inactives; athlete ids are our player ids), then the nflverse official report. Roster moves: a player whose last 2026 line was for another team arrived; one whose last line was here and is now elsewhere left; ESPN transactions (last 200) listed per team for context.
+- QB: (expected starter EPA a play - play-weighted EPA a play of the QBs who took this season's snaps) x team QB plays a game. EPA a play = this season + half of last, shrunk toward replacement (25th percentile of QBs with 150+ plays) with a 200-play prior. Capped at 12. Covers injuries, benchings, and signed or traded QBs the same way.
+- RB WR TE: EPA a touch or target above the 25th percentile at the position x plays a game x 0.5, capped at 3. OL DL LB DB: fixed starter values (OL 0.4, DL 0.4, LB 0.25, CB 0.4, S 0.25) x snap share, pass rushers with 1.5+ QB hits a game 1.5x; labeled "assumed value" on the page.
+- Every non-QB charge is weighted by the share of team games he played (out since week 1 is already in the numbers) and the chance he sits (Out, IR, inactive 1; Doubtful 0.85; Questionable 0.25, 0.5 with no final-day practice). Offense and defense each capped at 4 before the QB term.
+- `projectGame` takes `homeAvail`/`awayAvail`: margin moves by home total minus away total; the model total moves by both offenses minus both defenses; a questionable starting QB drops high confidence to medium. Basis lines say what moved.
+- Archive: the pregame lock now follows the news until kickoff (projection, spread, total, consensus refreshed together so the grade uses the line the call was made against); the first lock is kept in `pregame.first`. Nothing moves after kickoff.
+- Game page: "Who is playing" section (`#playing`). DraftKings lens uses ESPN status too (DK tag, then ESPN, then the report).
+- Known limit: QB value only sees this season and last. Jayden Daniels prices near Marcus Mariota on that window, so the model moves Colts at Commanders far less than the market did.

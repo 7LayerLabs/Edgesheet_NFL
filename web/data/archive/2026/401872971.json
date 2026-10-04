@@ -174,21 +174,41 @@
   "total": 49.5,
   "projection": {
    "winner": "BUF",
-   "winProb": 0.6692262775607531,
-   "margin": 5.91,
+   "winProb": 0.6878019929326002,
+   "margin": 6.61,
    "home": 28,
    "away": 22,
    "modelSide": "NE",
    "confidence": "high",
-   "modelTotal": 47.5,
+   "modelTotal": 48,
    "totalLean": "none"
   },
   "consensus": {
-   "median": 6.2,
+   "median": 6.5,
    "favorite": "BUF",
    "side": "NE",
-   "sideCount": 3,
+   "sideCount": 2,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-04T02:06:10.291Z",
+   "spread": {
+    "team": "BUF",
+    "line": -7
+   },
+   "total": 49.5,
+   "projection": {
+    "winner": "BUF",
+    "winProb": 0.6692262775607531,
+    "margin": 5.91,
+    "home": 28,
+    "away": 22,
+    "modelSide": "NE",
+    "confidence": "high",
+    "modelTotal": 47.5,
+    "totalLean": "none"
+   }
+  },
+  "updatedAt": "2026-10-04T15:00:11.413Z"
  }
 }

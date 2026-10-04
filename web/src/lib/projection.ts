@@ -6,6 +6,7 @@
 import type { Market, Matchup, Team, WeatherInput } from "./types";
 import type { GenTeam } from "./generated";
 import { evaluateWeather } from "./weather";
+import type { TeamAvailability } from "./availability";
 
 export interface Projection {
   winner: string; // abbr
@@ -23,6 +24,8 @@ export interface Projection {
   totalGap?: number;
   totalNote?: string;
   weatherTilt?: string;
+  /** Points the availability model moved the margin (home minus away) and the total, with one line per team. */
+  availability?: { home: number; away: number; net: number; total: number; lines: string[] };
   basis: string[];
   confidence: "high" | "medium" | "low";
 }
@@ -85,6 +88,9 @@ interface Input {
   awayAdv?: GenTeam;
   means?: { offPpa: number; defPpa: number; plays: number };
   weather?: WeatherInput;
+  /** Who is playing (src/lib/availability.ts). Each total is points: negative means that team is weaker than its numbers. */
+  homeAvail?: TeamAvailability;
+  awayAvail?: TeamAvailability;
 }
 
 // NFL average points per team per game, 2024 and 2025 regular seasons (22.9 and 22.6). Re-fit after scripts/backtest.mjs.
@@ -146,6 +152,30 @@ export function projectGame(i: Input): Projection | undefined {
     return undefined;
   }
 
+  // Who is playing. The ratings above were built by the players who took this season's snaps; this
+  // prices the difference today: a new QB, starters out or doubtful, players traded or signed.
+  let availability: Projection["availability"];
+  if (i.homeAvail && i.awayAvail) {
+    const h = i.homeAvail;
+    const a = i.awayAvail;
+    const net = Math.round((h.total - a.total) * 10) / 10;
+    // Home scores its offense change minus the away defense change, and the reverse, so the total moves by both.
+    const totalAdj = Math.round((h.offense + a.offense - h.defense - a.defense) * 10) / 10;
+    const lineFor = (t: TeamAvailability, abbr: string) => {
+      const bits = [
+        t.qb && Math.abs(t.qb.pts) >= 0.5 ? `QB ${t.qb.expected} ${t.qb.pts > 0 ? "+" : ""}${t.qb.pts}` : "",
+        ...t.items.filter((x) => x.kind !== "qb" && x.pts !== 0).slice(0, 3).map((x) => `${x.name} ${x.pts > 0 ? "+" : ""}${x.pts}`),
+      ].filter(Boolean);
+      return `${abbr} ${t.total > 0 ? "+" : ""}${t.total}${bits.length ? ` (${bits.join(", ")})` : ""}`;
+    };
+    availability = { home: h.total, away: a.total, net, total: totalAdj, lines: [lineFor(a, i.away.abbr), lineFor(h, i.home.abbr)] };
+    if (net !== 0) {
+      margin += net;
+      basis.push(`Who is playing: ${availability.lines.join("; ")} → ${net >= 0 ? i.home.abbr : i.away.abbr} +${Math.abs(net).toFixed(1)} on the margin`);
+    } else basis.push(`Who is playing: no change that moves the margin (${availability.lines.join("; ")})`);
+    if ((h.qb?.uncertain || a.qb?.uncertain) && confidence === "high") confidence = "medium";
+  }
+
   // Model total from efficiency and pace, when both teams are charted.
   let modelTotal: number | undefined;
   let modelHomePts: number | undefined;
@@ -156,6 +186,10 @@ export function projectGame(i: Input): Projection | undefined {
     modelAwayPts = expectedPoints(i.awayAdv, i.homeAdv, i.means, pace);
     modelTotal = Math.round((modelHomePts + modelAwayPts) * 2) / 2;
     basis.push(`Efficiency and pace: ${i.home.abbr} ${modelHomePts.toFixed(1)} + ${i.away.abbr} ${modelAwayPts.toFixed(1)} at ${pace.toFixed(0)} plays each → model total ${modelTotal}`);
+    if (availability && availability.total !== 0) {
+      modelTotal = Math.round((modelTotal + availability.total) * 2) / 2;
+      basis.push(`Who is playing moves the total ${availability.total > 0 ? "up" : "down"} ${Math.abs(availability.total).toFixed(1)} → ${modelTotal}`);
+    }
   }
 
   // Weather tilt: only a flagged forecast moves the total, and only toward the under.
@@ -225,5 +259,5 @@ export function projectGame(i: Input): Projection | undefined {
             : `Model has ${modelSide} winning outright; the market has ${favAbbr} by ${mktFavMargin.toFixed(1)}. The model leans ${modelSide} against the number by ${gap.toFixed(1)}.`;
   }
 
-  return { winner, winProb, margin: Math.abs(margin), total, home: homePts, away: awayPts, shape, vsMarket, modelSide, sideGap, modelTotal, totalLean, totalGap, totalNote, weatherTilt, basis, confidence };
+  return { winner, winProb, margin: Math.abs(margin), total, home: homePts, away: awayPts, shape, vsMarket, modelSide, sideGap, modelTotal, totalLean, totalGap, totalNote, weatherTilt, availability, basis, confidence };
 }

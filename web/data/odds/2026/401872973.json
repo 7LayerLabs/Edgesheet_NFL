@@ -1,0 +1,272 @@
+{
+ "gameId": "401872973",
+ "season": 2026,
+ "home": "Ravens",
+ "away": "Titans",
+ "kickoff": "2026-10-04T17:00:00.000Z",
+ "snapshots": [
+  {
+   "at": "2026-10-04T12:34:27.055Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T12:34:26Z",
+     "mlHome": -700,
+     "mlAway": 500,
+     "spread": -11.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 42.5,
+     "overPrice": -105,
+     "underPrice": -115
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T12:34:12Z",
+     "mlHome": -760,
+     "mlAway": 530,
+     "spread": -11.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 42.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": -750,
+     "mlAway": 530,
+     "spread": -11.5,
+     "spreadPrice": -114,
+     "awaySpreadPrice": -106,
+     "total": 42.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T12:33:40Z",
+     "mlHome": -760,
+     "mlAway": 538,
+     "spread": -11.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 42.5,
+     "overPrice": -108,
+     "underPrice": -112
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T12:33:59Z",
+     "mlHome": -760,
+     "mlAway": 538,
+     "spread": -11.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -105,
+     "total": 42.5,
+     "overPrice": -105,
+     "underPrice": -109
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": -715,
+     "mlAway": 500,
+     "spread": -11.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 42.5,
+     "overPrice": -112,
+     "underPrice": -109
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T12:34:01Z",
+     "mlHome": -800,
+     "mlAway": 560,
+     "spread": -11.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 42.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T12:34:14Z",
+     "mlHome": -700,
+     "mlAway": 525,
+     "spread": -12,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -110,
+     "total": 42.5,
+     "overPrice": -108,
+     "underPrice": -110
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T12:33:44Z",
+     "mlHome": -750,
+     "mlAway": 500,
+     "spread": -11.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 42,
+     "overPrice": -115,
+     "underPrice": -105
+    }
+   ],
+   "consensus": {
+    "spread": -11.5,
+    "total": 42.5,
+    "mlHome": -750,
+    "mlAway": 530,
+    "books": 9
+   }
+  },
+  {
+   "at": "2026-10-04T15:00:12.555Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T14:59:58Z",
+     "mlHome": -750,
+     "mlAway": 525,
+     "spread": -11.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 42.5,
+     "overPrice": -105,
+     "underPrice": -115
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T14:59:45Z",
+     "mlHome": -760,
+     "mlAway": 530,
+     "spread": -11.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 42.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T14:59:47Z",
+     "mlHome": -770,
+     "mlAway": 540,
+     "spread": -11.5,
+     "spreadPrice": -114,
+     "awaySpreadPrice": -106,
+     "total": 42.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T14:59:29Z",
+     "mlHome": -760,
+     "mlAway": 538,
+     "spread": -11.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 42.5,
+     "overPrice": -108,
+     "underPrice": -112
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T14:59:44Z",
+     "mlHome": -760,
+     "mlAway": 538,
+     "spread": -11.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -105,
+     "total": 42.5,
+     "overPrice": -105,
+     "underPrice": -109
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T14:59:31Z",
+     "mlHome": -770,
+     "mlAway": 525,
+     "spread": -11,
+     "spreadPrice": -109,
+     "awaySpreadPrice": -112,
+     "total": 42,
+     "overPrice": -109,
+     "underPrice": -112
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T14:58:00Z",
+     "mlHome": -800,
+     "mlAway": 560,
+     "spread": -11.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 42.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T14:59:46Z",
+     "mlHome": -750,
+     "mlAway": 550,
+     "spread": -12,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -105,
+     "total": 42.5,
+     "overPrice": -108,
+     "underPrice": -110
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T14:57:59Z",
+     "mlHome": -800,
+     "mlAway": 525,
+     "spread": -11.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 42,
+     "overPrice": -115,
+     "underPrice": -105
+    }
+   ],
+   "consensus": {
+    "spread": -11.5,
+    "total": 42.5,
+    "mlHome": -760,
+    "mlAway": 538,
+    "books": 9
+   }
+  }
+ ],
+ "eventId": "f01589b0e7e6dd4f4ac1220a1db81f53",
+ "eventHome": "Baltimore Ravens",
+ "eventAway": "Tennessee Titans",
+ "swapped": false,
+ "lastChecked": "2026-10-04T15:00:12.555Z"
+}

@@ -1,0 +1,272 @@
+{
+ "gameId": "401872965",
+ "season": 2026,
+ "home": "Commanders",
+ "away": "Colts",
+ "kickoff": "2026-10-04T13:30:00.000Z",
+ "snapshots": [
+  {
+   "at": "2026-10-04T11:22:44.111Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T11:22:02Z",
+     "mlHome": 170,
+     "mlAway": -205,
+     "spread": 4.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 46.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T11:22:31Z",
+     "mlHome": 188,
+     "mlAway": -225,
+     "spread": 4.5,
+     "spreadPrice": -114,
+     "awaySpreadPrice": -106,
+     "total": 46.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T11:21:46Z",
+     "mlHome": 175,
+     "mlAway": -220,
+     "spread": 4.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -108,
+     "total": 46.5,
+     "overPrice": -108,
+     "underPrice": -110
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T11:21:20Z",
+     "mlHome": 175,
+     "mlAway": -210,
+     "spread": 4.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 46.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T11:21:47Z",
+     "mlHome": 185,
+     "mlAway": -220,
+     "spread": 4.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 46.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T11:21:32Z",
+     "mlHome": 179,
+     "mlAway": -214,
+     "spread": 4.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 46.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T11:22:15Z",
+     "mlHome": 186,
+     "mlAway": -220,
+     "spread": 4.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -105,
+     "total": 46.5,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T11:21:59Z",
+     "mlHome": 186,
+     "mlAway": -220,
+     "spread": 4.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 46.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T11:22:03Z",
+     "mlHome": 175,
+     "mlAway": -215,
+     "spread": 4.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 46.5,
+     "overPrice": -112,
+     "underPrice": -109
+    }
+   ],
+   "consensus": {
+    "spread": 4.5,
+    "total": 46.5,
+    "mlHome": 179,
+    "mlAway": -220,
+    "books": 9
+   }
+  },
+  {
+   "at": "2026-10-04T12:34:27.055Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T12:34:26Z",
+     "mlHome": 180,
+     "mlAway": -218,
+     "spread": 4.5,
+     "spreadPrice": -102,
+     "awaySpreadPrice": -118,
+     "total": 46.5,
+     "overPrice": -105,
+     "underPrice": -115
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": 190,
+     "mlAway": -230,
+     "spread": 4.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 46.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T12:34:14Z",
+     "mlHome": 185,
+     "mlAway": -225,
+     "spread": 4.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -105,
+     "total": 46.5,
+     "overPrice": -108,
+     "underPrice": -110
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T12:33:44Z",
+     "mlHome": 180,
+     "mlAway": -220,
+     "spread": 5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 46.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T12:34:12Z",
+     "mlHome": 185,
+     "mlAway": -220,
+     "spread": 4.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 46.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T12:34:01Z",
+     "mlHome": 183,
+     "mlAway": -220,
+     "spread": 4.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 46.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T12:33:59Z",
+     "mlHome": 190,
+     "mlAway": -226,
+     "spread": 4.5,
+     "spreadPrice": -101,
+     "awaySpreadPrice": -109,
+     "total": 46.5,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T12:33:40Z",
+     "mlHome": 190,
+     "mlAway": -226,
+     "spread": 4.5,
+     "spreadPrice": -106,
+     "awaySpreadPrice": -114,
+     "total": 46.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": 175,
+     "mlAway": -215,
+     "spread": 4.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 46.5,
+     "overPrice": -112,
+     "underPrice": -109
+    }
+   ],
+   "consensus": {
+    "spread": 4.5,
+    "total": 46.5,
+    "mlHome": 185,
+    "mlAway": -220,
+    "books": 9
+   }
+  }
+ ],
+ "eventId": "c9d8ed8aa4889486eaf10a630138ede0",
+ "eventHome": "Washington Commanders",
+ "eventAway": "Indianapolis Colts",
+ "swapped": false,
+ "lastChecked": "2026-10-04T12:34:27.055Z"
+}

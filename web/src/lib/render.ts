@@ -7,7 +7,7 @@
  * Chrome is open, so every render gets a throwaway profile in the OS temp dir.
  */
 import { execFile } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, rmSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -78,9 +78,54 @@ export async function renderPng(url: string, opts: RenderOptions = {}): Promise<
   return out;
 }
 
-/** The sheet PNG for a date: data/sheets/<date>.png. `base` is the site origin Chrome should load. */
+/**
+ * Crop the empty band under the content. Chrome captures the whole window, so pages render into a
+ * tall window and this scans up from the bottom for the first row that differs from the bottom row.
+ */
+export async function trimBottom(file: string, padPx = 2): Promise<void> {
+  const sharp = (await import("sharp")).default;
+  const src = readFileSync(file);
+  const { data, info } = await sharp(src).raw().toBuffer({ resolveWithObject: true });
+  const { width, height, channels } = info;
+  // Background from the bottom-right pixel; the left 8% is skipped so a floating corner badge
+  // (the Next dev indicator) does not read as content. Sheet rows always run further right.
+  const base = (height * width - 1) * channels;
+  const bg = [data[base], data[base + 1], data[base + 2]];
+  const x0 = Math.floor(width * 0.08);
+  let last = height - 1;
+  scan: for (let y = height - 1; y >= 0; y--) {
+    const row = y * width * channels;
+    for (let x = x0; x < width; x += 2) {
+      const i = row + x * channels;
+      if (Math.abs(data[i] - bg[0]) > 8 || Math.abs(data[i + 1] - bg[1]) > 8 || Math.abs(data[i + 2] - bg[2]) > 8) {
+        last = y;
+        break scan;
+      }
+    }
+  }
+  const h = Math.min(height, last + padPx);
+  if (h >= height - 2) return;
+  writeFileSync(file, await sharp(src).extract({ left: 0, top: 0, width, height: h }).png().toBuffer());
+}
+
+/** The whole sheet as one PNG: data/sheets/<date>.png, trimmed to its content. `base` is the site origin Chrome should load. */
 export async function renderSheetPng(date: string, base: string, opts: RenderOptions = {}): Promise<string> {
   const out = path.join(process.cwd(), "data", "sheets", `${date}.png`);
   const url = `${base.replace(/\/+$/, "")}/sheet?date=${date}&print=1`;
-  return renderPng(url, { out, ...opts });
+  await renderPng(url, { out, height: 3000, ...opts });
+  await trimBottom(out);
+  return out;
+}
+
+/** The sheet as two Letter-width pages for Telegram: data/sheets/<date>-p1.png and -p2.png. */
+export async function renderSheetPages(date: string, base: string, opts: RenderOptions = {}): Promise<string[]> {
+  const files: string[] = [];
+  for (const part of [1, 2]) {
+    const out = path.join(process.cwd(), "data", "sheets", `${date}-p${part}.png`);
+    const url = `${base.replace(/\/+$/, "")}/sheet?date=${date}&print=1&part=${part}`;
+    await renderPng(url, { out, height: 1800, ...opts });
+    await trimBottom(out);
+    files.push(out);
+  }
+  return files;
 }

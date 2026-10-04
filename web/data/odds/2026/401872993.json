@@ -1,0 +1,193 @@
+{
+ "gameId": "401872993",
+ "season": 2026,
+ "home": "Falcons",
+ "away": "Ravens",
+ "kickoff": "2026-10-12T00:20:00.000Z",
+ "snapshots": [
+  {
+   "at": "2026-10-04T12:34:27.055Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T12:34:26Z",
+     "mlHome": 220,
+     "mlAway": -270,
+     "spread": 6,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 49.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": 245,
+     "mlAway": -300,
+     "spread": 6.5,
+     "spreadPrice": -114,
+     "awaySpreadPrice": -106,
+     "total": 49.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T12:34:01Z",
+     "spread": 6,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 49.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T12:33:40Z",
+     "spread": 6,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 49.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T12:33:59Z",
+     "spread": 6,
+     "spreadPrice": -110,
+     "awaySpreadPrice": 100,
+     "total": 49.5,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": 225,
+     "mlAway": -295,
+     "spread": 6.5,
+     "spreadPrice": -114,
+     "awaySpreadPrice": -107,
+     "total": 49.5,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": 6,
+    "total": 49.5,
+    "mlHome": 225,
+    "mlAway": -295,
+    "books": 6
+   }
+  },
+  {
+   "at": "2026-10-04T15:00:12.555Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T14:59:58Z",
+     "mlHome": 220,
+     "mlAway": -270,
+     "spread": 6,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 49.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T14:59:45Z",
+     "spread": 6,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 49.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T14:59:47Z",
+     "mlHome": 205,
+     "mlAway": -250,
+     "spread": 5.5,
+     "spreadPrice": -114,
+     "awaySpreadPrice": -106,
+     "total": 49.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T14:58:00Z",
+     "spread": 6,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 49.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T14:59:29Z",
+     "spread": 6,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 49.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T14:59:44Z",
+     "spread": 6,
+     "spreadPrice": -110,
+     "awaySpreadPrice": 100,
+     "total": 49.5,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T14:59:31Z",
+     "mlHome": 225,
+     "mlAway": -295,
+     "spread": 6.5,
+     "spreadPrice": -114,
+     "awaySpreadPrice": -107,
+     "total": 49.5,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": 6,
+    "total": 49.5,
+    "mlHome": 220,
+    "mlAway": -270,
+    "books": 7
+   }
+  }
+ ],
+ "eventId": "86457f91112732f21ad4bb7d37bd291c",
+ "eventHome": "Atlanta Falcons",
+ "eventAway": "Baltimore Ravens",
+ "swapped": false,
+ "lastChecked": "2026-10-04T15:00:12.555Z"
+}

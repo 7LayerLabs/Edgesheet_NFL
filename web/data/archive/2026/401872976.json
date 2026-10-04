@@ -180,11 +180,11 @@
    "team": "KC",
    "line": -4.5
   },
-  "total": 47.5,
+  "total": 48,
   "projection": {
    "winner": "KC",
-   "winProb": 0.6243921814589133,
-   "margin": 4.279999999999999,
+   "winProb": 0.6271991433158162,
+   "margin": 4.379999999999999,
    "home": 22,
    "away": 26,
    "modelSide": "LV",
@@ -198,6 +198,26 @@
    "side": "LV",
    "sideCount": 2,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-04T02:06:10.319Z",
+   "spread": {
+    "team": "KC",
+    "line": -4.5
+   },
+   "total": 47.5,
+   "projection": {
+    "winner": "KC",
+    "winProb": 0.6243921814589133,
+    "margin": 4.279999999999999,
+    "home": 22,
+    "away": 26,
+    "modelSide": "LV",
+    "confidence": "high",
+    "modelTotal": 42,
+    "totalLean": "under"
+   }
+  },
+  "updatedAt": "2026-10-04T14:58:40.550Z"
  }
 }

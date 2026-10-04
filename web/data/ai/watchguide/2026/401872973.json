@@ -1,0 +1,102 @@
+{
+ "gameId": "401872973",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:38:48.739Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "e974662ceb05",
+ "candidateCount": 15,
+ "top": [
+  {
+   "id": "PBAL1",
+   "kind": "player",
+   "title": "Lamar Jackson (Ravens QB, radar 89)",
+   "jev": 2.86,
+   "playerIds": [
+    "3916387"
+   ]
+  },
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Titans ground game vs Ravens run front (dominant offense edge)",
+   "jev": 2.7,
+   "playerIds": []
+  },
+  {
+   "id": "E3",
+   "kind": "edge",
+   "title": "Ravens run game vs Titans run defense (clear offense edge)",
+   "jev": 2.32,
+   "playerIds": []
+  },
+  {
+   "id": "E2",
+   "kind": "edge",
+   "title": "Titans deep passing vs Ravens secondary (dominant defense edge)",
+   "jev": 2.24,
+   "playerIds": []
+  },
+  {
+   "id": "E4",
+   "kind": "edge",
+   "title": "Ravens deep passing vs Titans secondary (clear offense edge)",
+   "jev": 2.15,
+   "playerIds": []
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 3231,
+  "outputTokens": 960,
+  "cacheReadTokens": 0,
+  "costUsd": 0.016062
+ },
+ "guide": {
+  "headline": "Ravens run wild while Titans deep balls die in the air",
+  "hook": "Lamar Jackson and a dominant Baltimore ground game face a Titans defense that can't stop the run, while Tennessee's offense has almost no answer for the deep ball.",
+  "items": [
+   {
+    "title": "Lamar Jackson resetting under pressure",
+    "what": "Lamar Jackson is completing at a rate 7.2 points above expected with 9.8 yards per attempt and four touchdowns against one interception this season. Watch his feet when the first read is covered, because he's in the top 6 percent of NFL quarterbacks right now and his legs have already added 124 rush yards. He's on the field for 100 percent of Baltimore's offensive snaps, so every possession runs through him.",
+    "when": "Every dropback, especially when the first read is covered",
+    "who": "Lamar Jackson",
+    "whoPlayerId": "3916387",
+    "factIds": [
+     "PBAL1s",
+     "PBAL1l",
+     "PBAL1e1",
+     "PBAL1e4"
+    ]
+   },
+   {
+    "title": "Ravens run game vs Titans front",
+    "what": "The Ravens rank No. 3 of 32 in rush success rate at 51 percent, and the Titans rank No. 19 against the run at 43 percent, a 52 percentile point gap. That's a clear edge for Baltimore to stay on schedule, shorten third downs, and bleed clock. Watch the Ravens rushing attempts by halftime, north of 20 means the plan is working.",
+    "when": "First drive and every early-down snap",
+    "who": "Ravens offensive line",
+    "factIds": [
+     "E3",
+     "E3e",
+     "E3w"
+    ]
+   },
+   {
+    "title": "Titans deep shots go nowhere",
+    "what": "Tennessee ranks dead last in the league in pass explosiveness at 0.93, while Baltimore ranks No. 11 of 32 at limiting explosive passes at 1.26, a 68 percentile point gap. This is a prominent mismatch, the deep ball is the lowest-percentage play on the field for the Titans. Watch the longest Titans completion of the day, if it's under 25 yards at the half, the Ravens have already won this matchup.",
+    "when": "Any Titans play-action shot downfield, check again at halftime",
+    "who": "Titans offense",
+    "factIds": [
+     "E2",
+     "E2e",
+     "E2w"
+    ]
+   }
+  ],
+  "cardLine": "Lamar Jackson and a run game that's No. 3 in the league face a Titans defense that can't stop anyone on the ground or deep."
+ }
+}

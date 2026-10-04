@@ -8,7 +8,7 @@
  *
  * Request budget (free tier = 500 credits a month, cost = markets x regions):
  *   slate call   h2h,spreads,totals x us          = 3 credits
- *   props call   4 player markets x us (one event) = 4 credits
+ *   props call   6 player markets x us (one event) = 6 credits (yards, anytime TD, tackles + assists, sacks)
  * Every call records x-requests-remaining to data/odds/usage.json so both the
  * page path and the cron can refuse to spend below a reserve.
  */
@@ -18,7 +18,7 @@ import path from "node:path";
 export const SPORT = "americanfootball_nfl";
 export const BASE = "https://api.the-odds-api.com/v4";
 export const SLATE_MARKETS = "h2h,spreads,totals";
-export const PROP_MARKETS = "player_pass_yds,player_rush_yds,player_reception_yds,player_anytime_td";
+export const PROP_MARKETS = "player_pass_yds,player_rush_yds,player_reception_yds,player_anytime_td,player_tackles_assists,player_sacks";
 export const REGIONS = "us";
 
 export const PROP_LABELS = {
@@ -26,6 +26,8 @@ export const PROP_LABELS = {
   player_rush_yds: "rush yds",
   player_reception_yds: "rec yds",
   player_anytime_td: "anytime TD",
+  player_tackles_assists: "tackles + ast",
+  player_sacks: "sacks",
 };
 
 export const BOOK_SHORT = {

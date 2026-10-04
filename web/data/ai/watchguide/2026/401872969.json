@@ -1,0 +1,102 @@
+{
+ "gameId": "401872969",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:36:27.483Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "ab18f7e29da8",
+ "candidateCount": 17,
+ "top": [
+  {
+   "id": "S1",
+   "kind": "situation",
+   "title": "pd situation, Jaguars offense vs Bengals defense",
+   "jev": 2.34,
+   "playerIds": []
+  },
+  {
+   "id": "PCIN1",
+   "kind": "player",
+   "title": "Barrett Carter (Bengals LB, radar 91)",
+   "jev": 2.22,
+   "playerIds": [
+    "4431519"
+   ]
+  },
+  {
+   "id": "E4",
+   "kind": "edge",
+   "title": "Jaguars ground game vs Bengals run front (real offense edge)",
+   "jev": 2.21,
+   "playerIds": []
+  },
+  {
+   "id": "S3",
+   "kind": "situation",
+   "title": "pd situation, Bengals offense vs Jaguars defense",
+   "jev": 2.18,
+   "playerIds": []
+  },
+  {
+   "id": "S2",
+   "kind": "situation",
+   "title": "xPass situation, Bengals offense vs Jaguars defense",
+   "jev": 2.14,
+   "playerIds": []
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 2635,
+  "outputTokens": 821,
+  "cacheReadTokens": 0,
+  "costUsd": 0.01348
+ },
+ "guide": {
+  "headline": "Jaguars ground game and Bengals explosives decide this one",
+  "hook": "Jacksonville's run game and Cincinnati's deep ball both have real edges here, so whichever shows up first probably wins the day.",
+  "items": [
+   {
+    "title": "Jaguars run game vs Bengals front",
+    "what": "The Jaguars are No. 2 of 32 in rush EPA per carry at 0.10, and the Bengals run defense ranks just No. 9 by EPA at negative 0.16. That is a 23 percentile point gap, which means Jacksonville should win first contact more often than not. If three or more of their first ten carries gain five yards, the front is cracking and every down gets shorter for Jacksonville.",
+    "when": "Watch the first ten Jaguars rushing attempts of the game.",
+    "who": "Jaguars offensive line",
+    "factIds": [
+     "E4",
+     "E4e",
+     "E4w"
+    ]
+   },
+   {
+    "title": "Bengals hunting the deep shot",
+    "what": "The Bengals hit a 20-plus yard pass on 10 percent of dropbacks, 11 of 113, No. 6 in the league. The Jaguars defense allows one on 13 percent of dropbacks, worst in football at No. 32 of 32. When Cincinnati takes a shot downfield, the numbers say it probably connects.",
+    "when": "Watch for Cincinnati's first play-action shot off a run look.",
+    "who": "Bengals offense",
+    "factIds": [
+     "S2"
+    ]
+   },
+   {
+    "title": "Barrett Carter all over the field",
+    "what": "Barrett Carter is a Year 2 linebacker who was picked No. 119 but is producing like a No. 17 pick, and his production per game is up 357 percent from last season. He has nine tackles, two tackles for loss, half a sack and two quarterback hits, playing 100 percent of defensive snaps as the No. 1 middle linebacker on the depth chart. Watch how fast he diagnoses run fits and how he handles tight ends and backs in coverage.",
+    "when": "Watch him on early-down run plays and any time a tight end releases into a route.",
+    "who": "Barrett Carter",
+    "whoPlayerId": "4431519",
+    "factIds": [
+     "PCIN1",
+     "PCIN1s",
+     "PCIN1e2",
+     "PCIN1e3",
+     "PCIN1e5",
+     "PCIN1w"
+    ]
+   }
+  ],
+  "cardLine": "Jacksonville's No. 2 run game against a shaky Bengals pass defense, with a breakout linebacker flying around on every snap."
+ }
+}

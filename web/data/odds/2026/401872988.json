@@ -1,0 +1,98 @@
+{
+ "gameId": "401872988",
+ "season": 2026,
+ "home": "Commanders",
+ "away": "Giants",
+ "kickoff": "2026-10-11T17:00:00.000Z",
+ "snapshots": [
+  {
+   "at": "2026-10-04T12:34:27.055Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T12:34:26Z",
+     "mlHome": -142,
+     "mlAway": 120,
+     "spread": -2.5,
+     "spreadPrice": -118,
+     "awaySpreadPrice": -102,
+     "total": 43.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": -158,
+     "mlAway": 134,
+     "spread": -2.5,
+     "spreadPrice": -122,
+     "awaySpreadPrice": 100,
+     "total": 43.5,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T12:34:01Z",
+     "spread": -3,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 43.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T12:33:59Z",
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": 100,
+     "total": 43,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T12:33:40Z",
+     "spread": -2.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 43,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": -141,
+     "mlAway": 117,
+     "spread": -2.5,
+     "spreadPrice": -117,
+     "awaySpreadPrice": -105,
+     "total": 42.5,
+     "overPrice": -109,
+     "underPrice": -112
+    }
+   ],
+   "consensus": {
+    "spread": -2.5,
+    "total": 43.5,
+    "mlHome": -142,
+    "mlAway": 120,
+    "books": 6
+   }
+  }
+ ],
+ "eventId": "fbffd0b7722fd81d68d5d62472dc80e8",
+ "eventHome": "Washington Commanders",
+ "eventAway": "New York Giants",
+ "swapped": false,
+ "lastChecked": "2026-10-04T12:34:27.055Z"
+}

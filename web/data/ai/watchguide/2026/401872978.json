@@ -1,0 +1,104 @@
+{
+ "gameId": "401872978",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:38:16.963Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "ac24b818a612",
+ "candidateCount": 15,
+ "top": [
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Lions on passing downs vs Panthers pressure (dominant offense edge)",
+   "jev": 2.59,
+   "playerIds": []
+  },
+  {
+   "id": "PDET2",
+   "kind": "player",
+   "title": "Aidan Hutchinson (Lions DE, radar 88)",
+   "jev": 2.51,
+   "playerIds": [
+    "4372099"
+   ]
+  },
+  {
+   "id": "E3",
+   "kind": "edge",
+   "title": "Panthers deep passing vs Lions secondary (clear offense edge)",
+   "jev": 2.3,
+   "playerIds": []
+  },
+  {
+   "id": "E2",
+   "kind": "edge",
+   "title": "Panthers on passing downs vs Lions pressure (clear offense edge)",
+   "jev": 2.12,
+   "playerIds": []
+  },
+  {
+   "id": "PCAR2",
+   "kind": "player",
+   "title": "Jalen Coker (Panthers WR, radar 85)",
+   "jev": 2.06,
+   "playerIds": [
+    "4695883"
+   ]
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 3426,
+  "outputTokens": 730,
+  "cacheReadTokens": 0,
+  "costUsd": 0.014152
+ },
+ "guide": {
+  "headline": "Lions passing downs crush Panthers everywhere on the field",
+  "hook": "Detroit's offense breaks Carolina on third-and-long while Aidan Hutchinson tries to wreck the pocket from the other side.",
+  "items": [
+   {
+    "title": "Lions own third-and-long",
+    "what": "The Lions rank No. 4 of 32 on passing downs, converting 49% of the time, and the Panthers rank No. 26 on defense at just 44%. That is a 71 percentile point gap, not a lean. Two conversions in the first half and the Panthers' whole defensive plan falls apart.",
+    "when": "Any third-and-8 or longer situation for Detroit.",
+    "who": "Lions offense",
+    "factIds": [
+     "E1",
+     "E1e",
+     "E1w"
+    ]
+   },
+   {
+    "title": "Hutchinson hunting the quarterback",
+    "what": "Aidan Hutchinson has 3.5 sacks, 7 QB hits, and 3 TFL already this season, playing 88% of defensive snaps as the No. 1 left end on the depth chart. Watch his get-off at the snap and whether he sets the edge against the run instead of just chasing the quarterback.",
+    "when": "Every passing down, especially early in the game before Carolina adjusts protection.",
+    "who": "Aidan Hutchinson",
+    "whoPlayerId": "4372099",
+    "factIds": [
+     "PDET2s",
+     "PDET2e1",
+     "PDET2e4",
+     "PDET2w"
+    ]
+   },
+   {
+    "title": "Panthers answer with the deep ball",
+    "what": "Carolina ranks No. 5 of 32 in pass explosiveness at 1.56, and the Lions rank just No. 19 at limiting it at 1.35, a 45 percentile point gap. Watch the first deep shot Carolina takes. If it connects, the Lions have to roll a safety over and that opens up everything underneath.",
+    "when": "First deep shot of the game, usually on an early drive before the defense adjusts.",
+    "who": "Panthers offense",
+    "factIds": [
+     "E3",
+     "E3e",
+     "E3w"
+    ]
+   }
+  ],
+  "cardLine": "Detroit's third-and-long offense and Aidan Hutchinson's pass rush put Carolina in a hole it cannot easily climb out of."
+ }
+}

@@ -1,0 +1,272 @@
+{
+ "gameId": "401872969",
+ "season": 2026,
+ "home": "Bengals",
+ "away": "Jaguars",
+ "kickoff": "2026-10-04T17:00:00.000Z",
+ "snapshots": [
+  {
+   "at": "2026-10-04T12:34:27.055Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T12:34:26Z",
+     "mlHome": -142,
+     "mlAway": 120,
+     "spread": -2.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 51.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T12:34:12Z",
+     "mlHome": -150,
+     "mlAway": 129,
+     "spread": -3,
+     "spreadPrice": 100,
+     "awaySpreadPrice": -120,
+     "total": 52,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": -136,
+     "mlAway": 116,
+     "spread": -2.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 51.5,
+     "overPrice": -105,
+     "underPrice": -115
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T12:33:40Z",
+     "mlHome": -149,
+     "mlAway": 129,
+     "spread": -2.5,
+     "spreadPrice": -120,
+     "awaySpreadPrice": 100,
+     "total": 52,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T12:33:59Z",
+     "mlHome": -149,
+     "mlAway": 129,
+     "spread": -2.5,
+     "spreadPrice": -116,
+     "awaySpreadPrice": 105,
+     "total": 52,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": -141,
+     "mlAway": 116,
+     "spread": -2.5,
+     "spreadPrice": -117,
+     "awaySpreadPrice": -105,
+     "total": 51.5,
+     "overPrice": -107,
+     "underPrice": -114
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T12:34:01Z",
+     "mlHome": -143,
+     "mlAway": 122,
+     "spread": -2.5,
+     "spreadPrice": -120,
+     "awaySpreadPrice": 100,
+     "total": 51.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T12:34:14Z",
+     "mlHome": -145,
+     "mlAway": 120,
+     "spread": -2.5,
+     "spreadPrice": -118,
+     "awaySpreadPrice": -102,
+     "total": 51.5,
+     "overPrice": -110,
+     "underPrice": -108
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T12:33:44Z",
+     "mlHome": -140,
+     "mlAway": 120,
+     "spread": -2.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 52,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": -2.5,
+    "total": 51.5,
+    "mlHome": -143,
+    "mlAway": 120,
+    "books": 9
+   }
+  },
+  {
+   "at": "2026-10-04T15:00:12.555Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T14:59:58Z",
+     "mlHome": -142,
+     "mlAway": 120,
+     "spread": -2.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 51.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T14:59:45Z",
+     "mlHome": -150,
+     "mlAway": 129,
+     "spread": -2,
+     "spreadPrice": -120,
+     "awaySpreadPrice": 100,
+     "total": 52,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T14:59:47Z",
+     "mlHome": -136,
+     "mlAway": 116,
+     "spread": -2.5,
+     "spreadPrice": -112,
+     "awaySpreadPrice": -108,
+     "total": 51.5,
+     "overPrice": -105,
+     "underPrice": -115
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T14:59:29Z",
+     "mlHome": -149,
+     "mlAway": 129,
+     "spread": -2.5,
+     "spreadPrice": -120,
+     "awaySpreadPrice": 100,
+     "total": 52,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T14:59:44Z",
+     "mlHome": -149,
+     "mlAway": 129,
+     "spread": -2.5,
+     "spreadPrice": -116,
+     "awaySpreadPrice": 105,
+     "total": 52,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T14:59:31Z",
+     "mlHome": -141,
+     "mlAway": 116,
+     "spread": -2.5,
+     "spreadPrice": -117,
+     "awaySpreadPrice": -105,
+     "total": 51.5,
+     "overPrice": -107,
+     "underPrice": -114
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T14:58:00Z",
+     "mlHome": -143,
+     "mlAway": 122,
+     "spread": -2.5,
+     "spreadPrice": -120,
+     "awaySpreadPrice": 100,
+     "total": 52,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T14:59:46Z",
+     "mlHome": -145,
+     "mlAway": 120,
+     "spread": -2.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 51.5,
+     "overPrice": -110,
+     "underPrice": -108
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T14:57:59Z",
+     "mlHome": -140,
+     "mlAway": 120,
+     "spread": -2.5,
+     "spreadPrice": -120,
+     "awaySpreadPrice": 100,
+     "total": 52,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": -2.5,
+    "total": 52,
+    "mlHome": -143,
+    "mlAway": 120,
+    "books": 9
+   }
+  }
+ ],
+ "eventId": "2ea94ddf20f66432b9024fe2e2eaba5f",
+ "eventHome": "Cincinnati Bengals",
+ "eventAway": "Jacksonville Jaguars",
+ "swapped": false,
+ "lastChecked": "2026-10-04T15:00:12.555Z"
+}

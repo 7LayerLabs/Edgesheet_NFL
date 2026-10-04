@@ -1,0 +1,272 @@
+{
+ "gameId": "401872978",
+ "season": 2026,
+ "home": "Panthers",
+ "away": "Lions",
+ "kickoff": "2026-10-05T00:20:00.000Z",
+ "snapshots": [
+  {
+   "at": "2026-10-04T12:34:27.055Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T12:34:26Z",
+     "mlHome": 160,
+     "mlAway": -192,
+     "spread": 3.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 51.5,
+     "overPrice": -105,
+     "underPrice": -115
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": 172,
+     "mlAway": -205,
+     "spread": 3.5,
+     "spreadPrice": -104,
+     "awaySpreadPrice": -118,
+     "total": 50.5,
+     "overPrice": -118,
+     "underPrice": -104
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T12:34:12Z",
+     "mlHome": 175,
+     "mlAway": -205,
+     "spread": 3.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 51,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T12:33:59Z",
+     "mlHome": 177,
+     "mlAway": -205,
+     "spread": 4,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -102,
+     "total": 51,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T12:33:40Z",
+     "mlHome": 177,
+     "mlAway": -205,
+     "spread": 3.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 51,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T12:34:13Z",
+     "mlHome": 165,
+     "mlAway": -205,
+     "spread": 4,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 51,
+     "overPrice": -113,
+     "underPrice": -108
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T12:33:44Z",
+     "mlHome": 170,
+     "mlAway": -200,
+     "spread": 4,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 51,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T12:34:01Z",
+     "mlHome": 165,
+     "mlAway": -206,
+     "spread": 3.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 51.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T12:34:14Z",
+     "mlHome": 165,
+     "mlAway": -200,
+     "spread": 3.5,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -110,
+     "total": 51,
+     "overPrice": -108,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": 3.5,
+    "total": 51,
+    "mlHome": 170,
+    "mlAway": -205,
+    "books": 9
+   }
+  },
+  {
+   "at": "2026-10-04T15:00:12.555Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T14:59:58Z",
+     "mlHome": 164,
+     "mlAway": -198,
+     "spread": 3.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 51.5,
+     "overPrice": -108,
+     "underPrice": -112
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T14:59:47Z",
+     "mlHome": 172,
+     "mlAway": -205,
+     "spread": 3.5,
+     "spreadPrice": -104,
+     "awaySpreadPrice": -118,
+     "total": 50.5,
+     "overPrice": -118,
+     "underPrice": -104
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-04T14:59:45Z",
+     "mlHome": 175,
+     "mlAway": -205,
+     "spread": 3.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 51.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-04T14:59:44Z",
+     "mlHome": 177,
+     "mlAway": -205,
+     "spread": 4,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -102,
+     "total": 51,
+     "overPrice": -113,
+     "underPrice": -102
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-04T14:59:29Z",
+     "mlHome": 177,
+     "mlAway": -205,
+     "spread": 3.5,
+     "spreadPrice": -105,
+     "awaySpreadPrice": -115,
+     "total": 51,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T14:59:31Z",
+     "mlHome": 165,
+     "mlAway": -205,
+     "spread": 4,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 51,
+     "overPrice": -113,
+     "underPrice": -108
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T14:57:59Z",
+     "mlHome": 170,
+     "mlAway": -200,
+     "spread": 4,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 51.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T14:58:00Z",
+     "mlHome": 168,
+     "mlAway": -200,
+     "spread": 3.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 51.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T14:59:46Z",
+     "mlHome": 170,
+     "mlAway": -210,
+     "spread": 3.5,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -110,
+     "total": 51.5,
+     "overPrice": -110,
+     "underPrice": -120
+    }
+   ],
+   "consensus": {
+    "spread": 3.5,
+    "total": 51.5,
+    "mlHome": 170,
+    "mlAway": -205,
+    "books": 9
+   }
+  }
+ ],
+ "eventId": "a73a76599a4f3422803e57bd8f61b626",
+ "eventHome": "Carolina Panthers",
+ "eventAway": "Detroit Lions",
+ "swapped": false,
+ "lastChecked": "2026-10-04T15:00:12.555Z"
+}

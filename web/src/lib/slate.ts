@@ -15,6 +15,7 @@ import { leagueMeans, pressurePoint, styleContrast, styleFor, unitEdges, type Un
 import { gameCues, situationsFor } from "./situational";
 import { projectGame } from "./projection";
 import { buildConsensus } from "./consensus";
+import { gameAvailability } from "./availability";
 import { boxScore } from "./boxscore";
 import { memo } from "./memo";
 import { slateTtlSeconds } from "./cache-policy";
@@ -498,7 +499,11 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
   const elo = eloPregame(raw.id);
   const homeElo = elo?.home ?? eloCurrent(raw.home) ?? null;
   const awayElo = elo?.away ?? eloCurrent(raw.away) ?? null;
+  // Who is playing: ESPN injuries through game-day inactives, the official report, roster moves.
+  const availability = await gameAvailability(raw.home, raw.away).catch(() => undefined);
   const projection = projectGame({
+    homeAvail: availability?.home,
+    awayAvail: availability?.away,
     home,
     away,
     homeElo,
@@ -645,6 +650,7 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
     divGame: raw.divGame,
     rest: { home: raw.homeRest, away: raw.awayRest },
     injuryReport,
+    availability,
     stakes,
   };
 }

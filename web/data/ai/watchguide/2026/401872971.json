@@ -1,0 +1,104 @@
+{
+ "gameId": "401872971",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:36:07.554Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "666e1bf0f588",
+ "candidateCount": 15,
+ "top": [
+  {
+   "id": "PBUF2",
+   "kind": "player",
+   "title": "Josh Allen (Bills QB, radar 87)",
+   "jev": 2.81,
+   "playerIds": [
+    "3918298"
+   ]
+  },
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Bills ground game vs Patriots run front (dominant offense edge)",
+   "jev": 2.8,
+   "playerIds": []
+  },
+  {
+   "id": "E2",
+   "kind": "edge",
+   "title": "Bills run game vs Patriots run defense (real offense edge)",
+   "jev": 2.1,
+   "playerIds": []
+  },
+  {
+   "id": "E4",
+   "kind": "edge",
+   "title": "Bills on passing downs vs Patriots pressure (real offense edge)",
+   "jev": 2.08,
+   "playerIds": []
+  },
+  {
+   "id": "PBUF1",
+   "kind": "player",
+   "title": "Deone Walker (Bills DT, radar 87)",
+   "jev": 2.06,
+   "playerIds": [
+    "4831989"
+   ]
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 3379,
+  "outputTokens": 775,
+  "cacheReadTokens": 0,
+  "costUsd": 0.014508
+ },
+ "guide": {
+  "headline": "Bills run the Patriots front into the ground",
+  "hook": "Buffalo's ground game and Josh Allen's efficient arm meet a Patriots defense that can't stop the run, and this one could get out of hand early.",
+  "items": [
+   {
+    "title": "Bills ground game owns the line",
+    "what": "The Bills rank No. 3 of 32 in rush EPA per carry at 0.08, and the Patriots rank No. 27 against the run by that same measure at 0.03. That's a 78 percentile point gap, not a lean. If Buffalo's backs are hitting the second level untouched in the first quarter, the line of scrimmage belongs to them all afternoon.",
+    "when": "Watch the first ten Bills carries of the game.",
+    "who": "Bills ground game vs Patriots run front",
+    "factIds": [
+     "E1",
+     "E1e",
+     "E1w"
+    ]
+   },
+   {
+    "title": "Allen stays efficient outside the numbers",
+    "what": "Josh Allen is completing passes at a CPOE of plus 4.5 with a 9.1 yards per attempt average, good for the top 11 percent of NFL quarterbacks this season. He's thrown 5 touchdowns to 2 interceptions on 786 yards, and his game is about ball placement outside the numbers and resetting his feet when the first read is covered.",
+    "when": "Watch him on first and second down throws outside the hashes.",
+    "who": "Josh Allen",
+    "whoPlayerId": "3918298",
+    "factIds": [
+     "PBUF2s",
+     "PBUF2l",
+     "PBUF2e1",
+     "PBUF2w"
+    ]
+   },
+   {
+    "title": "Bills convert the long downs",
+    "what": "Buffalo ranks No. 5 of 32 on passing downs at a 49 percent success rate, while New England ranks just No. 12 defending those downs at 35 percent. That's a 22 percentile point edge, meaning a third-and-8 is not an automatic stop for the Patriots. Two conversions like that in the first half can break the defensive plan entirely.",
+    "when": "Watch the Bills on third-and-long in the first half.",
+    "who": "Bills on passing downs vs Patriots pressure",
+    "factIds": [
+     "E4",
+     "E4e",
+     "E4w"
+    ]
+   }
+  ],
+  "cardLine": "Buffalo's No. 3 rush offense meets New England's No. 27 run defense, a 78 percentile point gap that could decide this early."
+ }
+}

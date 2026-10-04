@@ -20,6 +20,8 @@ export default async function SheetPage({ searchParams }: PageProps<"/sheet">) {
   const sp = await searchParams;
   const date = typeof sp.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(sp.date) ? sp.date : undefined;
   const chromeless = sp.print === "1";
+  // The PNG goes out as two Letter pages: part 1 is games, edges, leans; part 2 is DraftKings, props, windows, weather.
+  const part = sp.part === "1" ? 1 : sp.part === "2" ? 2 : 0;
   const sheet = await buildSheet(date);
 
   return (
@@ -32,19 +34,29 @@ export default async function SheetPage({ searchParams }: PageProps<"/sheet">) {
         </div>
       )}
       <article className="sheet">
-        <Header s={sheet} />
-        <GamesThatMatter s={sheet} />
-        <div className="sheet-cols">
-          <Edges s={sheet} />
-          <Leans s={sheet} />
-        </div>
-        <Radar s={sheet} />
-        <div className="sheet-cols">
-          <Windows s={sheet} />
-          <Weather s={sheet} />
-        </div>
+        <Header s={sheet} part={part} />
+        {part !== 2 && (
+          <>
+            <GamesThatMatter s={sheet} />
+            <div className="sheet-cols">
+              <Edges s={sheet} />
+              <Leans s={sheet} />
+            </div>
+          </>
+        )}
+        {part !== 1 && (
+          <>
+            <DkPlays s={sheet} />
+            <DefenseProps s={sheet} />
+            <div className="sheet-cols">
+              <Windows s={sheet} />
+              <Weather s={sheet} />
+            </div>
+          </>
+        )}
         <footer className="sheet-foot">
           <span>{sheet.notAPick} Elo plus unit edges against the posted number, graded on the Record page after every final.</span>
+          {part !== 1 && sheet.dfs.source && <span>{sheet.dfs.source}. DK pts scored from nflverse game lines with Classic rules (no two-point conversions). Proj = our average times half the matchup factor, plus half of a new Out teammate's average. Value = proj per $1,000.</span>}
           <span>
             Schedule and lines from nflverse and The Odds API. Forecasts from the National Weather Service. Stats as of {sheet.statsAsOf ? sheet.statsAsOf.slice(0, 10) : "not available"}. Built {new Date(sheet.builtAt).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} ET.
           </span>
@@ -56,7 +68,7 @@ export default async function SheetPage({ searchParams }: PageProps<"/sheet">) {
 
 /* ----------------------------------------------------------- sections */
 
-function Header({ s }: { s: Sheet }) {
+function Header({ s, part }: { s: Sheet; part: number }) {
   return (
     <header className="sheet-head">
       <div>
@@ -69,7 +81,7 @@ function Header({ s }: { s: Sheet }) {
       <div className="sheet-brand">
         <div className="display sheet-logo">EdgeSheet</div>
         <div className="mono sheet-counts">
-          {s.counts.d1} games · {s.counts.divGames} division games
+          {s.counts.d1} games · {s.counts.divGames} division games{part ? ` · page ${part} of 2` : ""}
         </div>
       </div>
     </header>
@@ -184,39 +196,44 @@ function Leans({ s }: { s: Sheet }) {
   );
 }
 
-function Radar({ s }: { s: Sheet }) {
+function DkPlays({ s }: { s: Sheet }) {
+  const plays = s.dfs.plays;
   return (
     <section>
-      <SectionTitle n="04" note="top 10 radar scores playing today">Radar names to watch</SectionTitle>
-      {!s.radar.length ? (
-        <Empty>No radar names on this slate. The roster ingest has not run for these teams.</Empty>
+      <SectionTitle n="04" note="best value by projected DK points per $1,000">DraftKings plays</SectionTitle>
+      {!plays.length ? (
+        <Empty>{s.dfs.note ?? "No DraftKings salaries for the games still to play."}</Empty>
       ) : (
-        <table className="sheet-table sheet-radar">
+        <table className="sheet-table">
           <thead>
             <tr>
-              <th className="w-8">Radar</th>
+              <th className="w-8">Pos</th>
               <th>Player</th>
               <th className="w-12">Team</th>
-              <th className="w-8">Pos</th>
-              <th className="w-8">Class</th>
-              <th className="w-28">Forecast</th>
-              <th>Production</th>
+              <th className="w-14">Salary</th>
+              <th className="w-10">Proj</th>
+              <th className="w-10">Value</th>
+              <th>Why</th>
               <th className="w-24">Game</th>
               <th className="w-16">Kick</th>
             </tr>
           </thead>
           <tbody>
-            {s.radar.map((p) => (
-              <tr key={p.id}>
-                <td className="mono sheet-score">{p.score}</td>
-                <td>
-                  <Link href={`/player/${p.id}`}>{p.name}</Link>
+            {plays.map((p) => (
+              <tr key={`${p.gameId}-${p.name}`}>
+                <td className="mono">{p.pos}</td>
+                <td className="sheet-game">
+                  {p.id ? <Link href={`/player/${p.id}`}>{p.name}</Link> : p.name}
+                  {p.status ? <span className="sheet-status sheet-elevated">{p.status}</span> : null}
                 </td>
-                <td>{p.team}</td>
-                <td>{p.pos}</td>
-                <td>{p.cls}</td>
-                <td>{p.band ?? p.tier}</td>
-                <td className="sheet-why">{p.stat}</td>
+                <td>{p.teamAbbr}</td>
+                <td className="mono">
+                  ${p.salary.toLocaleString("en-US")}
+                  {p.slate === "showdown" ? " SD" : ""}
+                </td>
+                <td className="mono sheet-score">{p.proj}</td>
+                <td className={`mono ${p.slate === "classic" && p.value >= 4 ? "sheet-good" : ""}`}>{p.value}x</td>
+                <td className="sheet-why">{p.why}</td>
                 <td className="mono">{p.matchup}</td>
                 <td className="mono">{p.kickoff}</td>
               </tr>
@@ -224,6 +241,59 @@ function Radar({ s }: { s: Sheet }) {
           </tbody>
         </table>
       )}
+      {s.dfs.showdown.map((g) => (
+        <p key={g.matchup} className="sheet-showdown">
+          <strong>Showdown only, {g.matchup} {g.kickoff}:</strong>{" "}
+          {g.plays.map((p, i) => (
+            <span key={p.name}>
+              {i ? "; " : ""}
+              {p.name} {p.pos} ${p.salary.toLocaleString("en-US")}, proj {p.proj}
+              {p.bump && p.pos !== "QB" && p.bump.pts ? ` (+${p.bump.pts}, ${p.bump.from} ${p.bump.status})` : p.bump && p.pos === "QB" ? ` (starts for ${p.bump.from})` : ""}
+            </span>
+          ))}
+        </p>
+      ))}
+    </section>
+  );
+}
+
+function DefenseProps({ s }: { s: Sheet }) {
+  const col = (title: string, note: string, rows: Sheet["dfs"]["tackles"], market: string) => (
+    <div>
+      <p className="sheet-sub-h">
+        {title} <span className="sheet-sub">{note}</span>
+      </p>
+      {!rows.length ? (
+        <Empty>No defender clears the bar on this slate.</Empty>
+      ) : (
+        <ul className="sheet-list">
+          {rows.map((d) => (
+            <li key={`${d.kind}-${d.id}`}>
+              <span className="sheet-gap">{d.kind === "tackles" ? d.tkpg : d.hits}</span>
+              <span>
+                <strong>{d.name}</strong> <span className="sheet-sub">{d.pos} · {d.teamAbbr} vs {d.oppAbbr} · {d.kickoff}</span>
+                {d.line?.point !== undefined && (
+                  <span className="sheet-line">
+                    {" "}
+                    {market} {d.line.point}
+                  </span>
+                )}
+                <br />
+                <span className="sheet-sub">{d.why}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+  return (
+    <section>
+      <SectionTitle n="05" note="tackle volume against play volume, pass rush against pressure allowed">Defensive names for props</SectionTitle>
+      <div className="sheet-cols">
+        {col("Tackles", "a game with assists, ranked vs opponent play volume", s.dfs.tackles, "tkl+ast")}
+        {col("Pass rush", "QB hits, ranked vs pressure the opponent allows", s.dfs.rush, "sacks")}
+      </div>
     </section>
   );
 }
@@ -231,7 +301,7 @@ function Radar({ s }: { s: Sheet }) {
 function Windows({ s }: { s: Sheet }) {
   return (
     <section>
-      <SectionTitle n="05" note={s.counts.ranked ? "ranked games by hour, ET" : "top games by hour, ET"}>Kickoff windows</SectionTitle>
+      <SectionTitle n="06" note={s.counts.ranked ? "ranked games by hour, ET" : "top games by hour, ET"}>Kickoff windows</SectionTitle>
       {!s.windows.length ? (
         <Empty>No games to place on the timeline.</Empty>
       ) : (
@@ -259,7 +329,7 @@ function Windows({ s }: { s: Sheet }) {
 function Weather({ s }: { s: Sheet }) {
   return (
     <section>
-      <SectionTitle n="06" note="NWS forecast through the rules engine">Weather flags</SectionTitle>
+      <SectionTitle n="07" note="NWS forecast through the rules engine">Weather flags</SectionTitle>
       {!s.weather.length ? (
         <Empty>No flags. Every forecast is inside normal ranges or the game is indoors.</Empty>
       ) : (
@@ -312,6 +382,10 @@ const SHEET_CSS = `
 .sheet-sub { color: var(--chalk-3); }
 .sheet-strength { min-width: 46px; font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; color: var(--chalk-3); padding-top: 1px; }
 .sheet-strong { color: var(--navy); }
+.sheet-good { color: var(--turf); font-weight: 700; }
+.sheet-showdown { margin-top: 4px; padding-top: 3px; border-top: 1px solid var(--ink-2); color: var(--chalk-2); }
+.sheet-line { color: var(--sky); font-weight: 600; }
+.sheet-sub-h { font-weight: 700; color: var(--navy); font-size: 10px; margin: 2px 0 1px; }
 .sheet-elevated { color: var(--brick); }
 .sheet-empty { color: var(--chalk-3); padding: 2px 0; }
 .sheet-timeline { display: flex; flex-direction: column; gap: 3px; }

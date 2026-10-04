@@ -183,21 +183,41 @@
   "total": 42.5,
   "projection": {
    "winner": "LAR",
-   "winProb": 0.508273806741355,
-   "margin": 0.28000000000000014,
+   "winProb": 0.5171345349280764,
+   "margin": 0.5800000000000001,
    "home": 21,
    "away": 22,
    "modelSide": "PHI",
    "confidence": "high",
-   "modelTotal": 43,
+   "modelTotal": 44,
    "totalLean": "none"
   },
   "consensus": {
-   "median": -1.6,
+   "median": -1.7,
    "favorite": "LAR",
    "side": "PHI",
    "sideCount": 3,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-04T02:06:10.306Z",
+   "spread": {
+    "team": "LAR",
+    "line": -3.5
+   },
+   "total": 42.5,
+   "projection": {
+    "winner": "LAR",
+    "winProb": 0.508273806741355,
+    "margin": 0.28000000000000014,
+    "home": 21,
+    "away": 22,
+    "modelSide": "PHI",
+    "confidence": "high",
+    "modelTotal": 43,
+    "totalLean": "none"
+   }
+  },
+  "updatedAt": "2026-10-04T14:58:40.538Z"
  }
 }

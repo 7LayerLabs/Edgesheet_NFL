@@ -180,24 +180,44 @@
    "team": "BAL",
    "line": -11.5
   },
-  "total": 41.5,
+  "total": 42.5,
   "projection": {
    "winner": "BAL",
-   "winProb": 0.8196610617025268,
-   "margin": 12.34,
+   "winProb": 0.8036732073585305,
+   "margin": 11.54,
    "home": 27,
-   "away": 15,
+   "away": 16,
    "modelSide": "BAL",
    "confidence": "high",
-   "modelTotal": 49.5,
+   "modelTotal": 48,
    "totalLean": "over"
   },
   "consensus": {
    "median": 11.4,
    "favorite": "BAL",
-   "side": "BAL",
+   "side": "TEN",
    "sideCount": 1,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-04T02:06:10.288Z",
+   "spread": {
+    "team": "BAL",
+    "line": -11.5
+   },
+   "total": 41.5,
+   "projection": {
+    "winner": "BAL",
+    "winProb": 0.8196610617025268,
+    "margin": 12.34,
+    "home": 27,
+    "away": 15,
+    "modelSide": "BAL",
+    "confidence": "high",
+    "modelTotal": 49.5,
+    "totalLean": "over"
+   }
+  },
+  "updatedAt": "2026-10-04T15:00:11.412Z"
  }
 }

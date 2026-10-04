@@ -180,24 +180,44 @@
    "team": "CHI",
    "line": -3.5
   },
-  "total": 43.5,
+  "total": 43,
   "projection": {
    "winner": "CHI",
-   "winProb": 0.7644655487802312,
-   "margin": 9.73,
-   "home": 27,
+   "winProb": 0.7505737948693161,
+   "margin": 9.13,
+   "home": 26,
    "away": 17,
    "modelSide": "CHI",
    "confidence": "high",
-   "modelTotal": 48.5,
-   "totalLean": "over"
+   "modelTotal": 42.5,
+   "totalLean": "none"
   },
   "consensus": {
-   "median": 7.7,
+   "median": 7.4,
    "favorite": "CHI",
    "side": "CHI",
    "sideCount": 3,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-04T02:06:10.294Z",
+   "spread": {
+    "team": "CHI",
+    "line": -3.5
+   },
+   "total": 43.5,
+   "projection": {
+    "winner": "CHI",
+    "winProb": 0.7644655487802312,
+    "margin": 9.73,
+    "home": 27,
+    "away": 17,
+    "modelSide": "CHI",
+    "confidence": "high",
+    "modelTotal": 48.5,
+    "totalLean": "over"
+   }
+  },
+  "updatedAt": "2026-10-04T14:58:40.530Z"
  }
 }

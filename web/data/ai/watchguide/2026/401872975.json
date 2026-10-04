@@ -1,0 +1,104 @@
+{
+ "gameId": "401872975",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:38:07.400Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "19d07dbd45bf",
+ "candidateCount": 16,
+ "top": [
+  {
+   "id": "E2",
+   "kind": "edge",
+   "title": "49ers deep passing vs Broncos secondary (dominant offense edge)",
+   "jev": 2.72,
+   "playerIds": []
+  },
+  {
+   "id": "PSF2",
+   "kind": "player",
+   "title": "Brock Purdy (49ers QB, radar 85)",
+   "jev": 2.64,
+   "playerIds": [
+    "4361741"
+   ]
+  },
+  {
+   "id": "E3",
+   "kind": "edge",
+   "title": "49ers ground game vs Broncos run front (dominant offense edge)",
+   "jev": 2.63,
+   "playerIds": []
+  },
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Broncos deep passing vs 49ers secondary (dominant defense edge)",
+   "jev": 2.4,
+   "playerIds": []
+  },
+  {
+   "id": "PDEN2",
+   "kind": "player",
+   "title": "Talanoa Hufanga (Broncos SAF, radar 91)",
+   "jev": 2.12,
+   "playerIds": [
+    "4360853"
+   ]
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 3460,
+  "outputTokens": 961,
+  "cacheReadTokens": 0,
+  "costUsd": 0.01653
+ },
+ "guide": {
+  "headline": "49ers hunt the deep ball all afternoon",
+  "hook": "San Francisco's offense has three ways to hurt Denver and the Broncos defense has no obvious answer for any of them.",
+  "items": [
+   {
+    "title": "49ers take the first deep shot",
+    "what": "The 49ers rank No. 6 of 32 in pass explosiveness at 1.50, and the Broncos rank No. 24 at limiting explosive passes at 1.40, a 58 percentile point gap. If San Francisco connects on an early shot downfield, Denver has to change its coverage shells and that opens everything underneath.",
+    "when": "Watch the first deep shot of the game.",
+    "who": "49ers deep passing vs Broncos secondary",
+    "factIds": [
+     "E2",
+     "E2e",
+     "E2w"
+    ]
+   },
+   {
+    "title": "Brock Purdy picking apart the coverage",
+    "what": "Purdy is completing passes at 9.5 yards per attempt with nine touchdowns against one interception and a plus 6.4 CPOE, which puts him in the top 11 percent of NFL quarterbacks this season. He is on the field for 95 percent of offensive snaps, so this is not a rotation, it is the whole game plan running through him.",
+    "when": "Watch how he resets his feet when his first read is covered.",
+    "who": "Brock Purdy",
+    "whoPlayerId": "4361741",
+    "factIds": [
+     "PSF2s",
+     "PSF2e1",
+     "PSF2e4",
+     "PSF2w"
+    ]
+   },
+   {
+    "title": "49ers run the ball right at them",
+    "what": "San Francisco ranks No. 14 of 32 in rush EPA per carry at -0.03, while Denver ranks dead last against the run at 0.15, a 58 percentile point gap. That line of scrimmage mismatch means second-level runs and play-action should be live all afternoon.",
+    "when": "Watch the first ten 49ers carries of the game.",
+    "who": "49ers ground game vs Broncos run front",
+    "factIds": [
+     "E3",
+     "E3e",
+     "E3w"
+    ]
+   }
+  ],
+  "cardLine": "The 49ers have the deep ball, the ground game, and Brock Purdy running it all against a Broncos defense that can't stop any of it."
+ }
+}

@@ -14,6 +14,7 @@ import { getSlate } from "./slate";
 import { unitEdges } from "./tendencies";
 import type { Game } from "./types";
 import { evaluateWeather } from "./weather";
+import { slateDfs, type DefProp, type DfsPlay, type ShowdownGame } from "./dfs";
 
 const isD1 = (g: Game) => g.division === "NFL";
 const label = (t: Game["home"]) => `${t.rank ? `No. ${t.rank} ` : ""}${t.short}`;
@@ -96,6 +97,8 @@ export interface Sheet {
   edges: SheetEdge[];
   leans: SheetLean[];
   radar: SheetRadarName[];
+  /** DraftKings values and defensive prop names (src/lib/dfs.ts). */
+  dfs: { plays: DfsPlay[]; showdown: ShowdownGame[]; tackles: DefProp[]; rush: DefProp[]; note?: string; source?: string };
   windows: SheetWindow[];
   weather: SheetWeather[];
   notes: string[];
@@ -221,6 +224,9 @@ export async function buildSheet(dateParam?: string): Promise<Sheet> {
   }
   radar.sort((a, b) => b.score - a.score).splice(10);
 
+  // DraftKings plays and defensive prop names. Never throws; a DraftKings outage leaves a note.
+  const dfs = await slateDfs(slate.date, d1.filter((g) => g.status === "upcoming")).catch((err: Error) => ({ plays: [], showdown: [], tackles: [], rush: [], note: `DraftKings lens unavailable: ${err.message}`, source: undefined }));
+
   // Kickoff windows: ranked games by hour. Falls back to the top 12 by score when no ranked team plays.
   const rankedGames = d1.filter((g) => g.home.rank || g.away.rank);
   const pool = rankedGames.length ? rankedGames : byScore.slice(0, 12);
@@ -261,6 +267,7 @@ export async function buildSheet(dateParam?: string): Promise<Sheet> {
     edges,
     leans,
     radar,
+    dfs,
     windows,
     weather,
     notes,

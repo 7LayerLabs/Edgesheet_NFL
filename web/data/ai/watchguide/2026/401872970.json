@@ -1,0 +1,102 @@
+{
+ "gameId": "401872970",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:37:05.475Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "41c06948c48b",
+ "candidateCount": 15,
+ "top": [
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Rams run game vs Eagles run defense (dominant offense edge)",
+   "jev": 2.75,
+   "playerIds": []
+  },
+  {
+   "id": "E3",
+   "kind": "edge",
+   "title": "Rams deep passing vs Eagles secondary (clear offense edge)",
+   "jev": 2.26,
+   "playerIds": []
+  },
+  {
+   "id": "S2",
+   "kind": "situation",
+   "title": "xRush situation, Rams offense vs Eagles defense",
+   "jev": 2.14,
+   "playerIds": []
+  },
+  {
+   "id": "E2",
+   "kind": "edge",
+   "title": "Rams on passing downs vs Eagles pressure (clear defense edge)",
+   "jev": 2.14,
+   "playerIds": []
+  },
+  {
+   "id": "PPHI1",
+   "kind": "player",
+   "title": "Jihaad Campbell (Eagles LB, radar 93)",
+   "jev": 2.05,
+   "playerIds": [
+    "4685287"
+   ]
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 3018,
+  "outputTokens": 788,
+  "cacheReadTokens": 0,
+  "costUsd": 0.013916
+ },
+ "guide": {
+  "headline": "Rams run game meets an Eagles defense that can't stop it",
+  "hook": "The Rams have the No. 7 rush attack in the league against an Eagles run defense ranked No. 27, and that gap alone can decide this game before the Eagles secondary ever gets tested deep.",
+  "items": [
+   {
+    "title": "Rams lean on the run",
+    "what": "The Rams rank No. 7 of 32 in rush success rate at 47 percent, and the Eagles rank No. 27 against the run at the same 47 percent allowed. That is a 65 percentile point gap, a real mismatch and not a small lean. Expect the Rams to run early and often, then hit play-action once the Eagles load the box.",
+    "when": "First drive and any time the Rams face second or third and short.",
+    "who": "Rams run game vs Eagles run defense",
+    "factIds": [
+     "E1",
+     "E1e",
+     "E1w"
+    ]
+   },
+   {
+    "title": "The deep shot is live",
+    "what": "The Rams rank No. 8 of 32 in pass explosiveness at 1.46, and the Eagles rank No. 21 at limiting explosive passes at 1.38, a 42 percentile point edge for the offense. If the first deep ball connects, watch for the Eagles to roll a safety over the top, which then opens the run game even more.",
+    "when": "The first deep shot attempt, typically off play-action.",
+    "who": "Rams deep passing vs Eagles secondary",
+    "factIds": [
+     "E3",
+     "E3e",
+     "E3w"
+    ]
+   },
+   {
+    "title": "Breakout rookie flying to the ball",
+    "what": "Jihaad Campbell plays 94 percent of Eagles defensive snaps as the No. 1 linebacker on the depth chart, and he already has 15 tackles, one TFL, one sack and one forced fumble this season. Drafted No. 31 overall, he is producing like a top ten pick, so he is the one defender capable of slowing down that Rams rushing attack by himself.",
+    "when": "On run plays between the tackles and anytime a tight end or running back releases into coverage.",
+    "who": "Jihaad Campbell",
+    "whoPlayerId": "4685287",
+    "factIds": [
+     "PPHI1",
+     "PPHI1s",
+     "PPHI1e2",
+     "PPHI1e5"
+    ]
+   }
+  ],
+  "cardLine": "The Rams have the league's No. 7 run game against an Eagles run defense ranked No. 27, a mismatch that should define the whole game."
+ }
+}

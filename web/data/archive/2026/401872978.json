@@ -171,13 +171,13 @@
    "team": "DET",
    "line": -3.5
   },
-  "total": 51.5,
+  "total": 51,
   "projection": {
    "winner": "DET",
-   "winProb": 0.5752002995465633,
-   "margin": 2.56,
+   "winProb": 0.5896584828022036,
+   "margin": 3.06,
    "home": 24,
-   "away": 28,
+   "away": 27,
    "modelSide": "CAR",
    "confidence": "high",
    "modelTotal": 55,
@@ -187,8 +187,28 @@
    "median": -2.5,
    "favorite": "DET",
    "side": "CAR",
-   "sideCount": 4,
+   "sideCount": 3,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-04T02:06:10.331Z",
+   "spread": {
+    "team": "DET",
+    "line": -3.5
+   },
+   "total": 51.5,
+   "projection": {
+    "winner": "DET",
+    "winProb": 0.5752002995465633,
+    "margin": 2.56,
+    "home": 24,
+    "away": 28,
+    "modelSide": "CAR",
+    "confidence": "high",
+    "modelTotal": 55,
+    "totalLean": "over"
+   }
+  },
+  "updatedAt": "2026-10-04T14:58:40.558Z"
  }
 }

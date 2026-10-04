@@ -51,6 +51,10 @@ export interface Pregame {
   projection?: { winner: string; winProb: number; margin: number; home: number; away: number; modelSide?: string; confidence: string; modelTotal?: number; totalLean?: "over" | "under" | "none" };
   /** Consensus of outside systems (FPI, Elo, EPA model, market) plus ours: median home margin and the side most lean to against the number. */
   consensus?: { median: number; favorite: string; side?: string; sideCount?: number; of: number };
+  /** When the call last moved before kickoff (injury news, a new starter, a line move). Grading uses the latest pregame call. */
+  updatedAt?: string;
+  /** The very first lock, kept so the record can show how far the news moved the call. */
+  first?: { capturedAt: string; spread?: { team: string; line: number }; total?: number; projection?: Pregame["projection"] };
 }
 
 export interface EdgeResult extends EdgeCall {
@@ -116,19 +120,35 @@ function axisOf(m: Matchup): string {
   return "other";
 }
 
-/** Lock the pregame call. Only runs once per game and only before kickoff. */
+const projLock = (p: NonNullable<Game["projection"]>): NonNullable<Pregame["projection"]> => ({ winner: p.winner, winProb: p.winProb, margin: p.margin, home: p.home, away: p.away, modelSide: p.modelSide, confidence: p.confidence, modelTotal: p.modelTotal, totalLean: p.totalLean });
+
+/**
+ * Lock the pregame call before kickoff. The call follows the news until the game starts: when the
+ * projection or the posted number moves (an injury, a new starter, a line move), the lock is refreshed
+ * with the line it was made against, and the first lock is kept under `first`. Nothing moves after kickoff.
+ */
 export function lockPregame(game: Game, season: number): ArchiveEntry | undefined {
   if (game.source !== "live" || game.status !== "upcoming") return undefined;
   const existing = readEntry(season, game.id);
   if (existing) {
-    // A lock taken before the projection existed can take one on, as long as the game has not kicked off.
-    if (!existing.postgame && !existing.pregame.projection && game.projection) {
-      existing.pregame.projection = { winner: game.projection.winner, winProb: game.projection.winProb, margin: game.projection.margin, home: game.projection.home, away: game.projection.away, modelSide: game.projection.modelSide, confidence: game.projection.confidence, modelTotal: game.projection.modelTotal, totalLean: game.projection.totalLean };
-      writeEntry(existing);
-    } else if (!existing.postgame && existing.pregame.projection && existing.pregame.projection.totalLean === undefined && game.projection?.totalLean) {
-      existing.pregame.projection.modelTotal = game.projection.modelTotal;
-      existing.pregame.projection.totalLean = game.projection.totalLean;
-      writeEntry(existing);
+    if (!existing.postgame && game.projection) {
+      const next = projLock(game.projection);
+      const cur = existing.pregame.projection;
+      const spread = game.market.spread ? { team: game.market.spread.team, line: game.market.spread.line } : undefined;
+      const total = game.market.total?.line;
+      const moved =
+        !cur ||
+        cur.winner !== next.winner || cur.margin !== next.margin || cur.modelSide !== next.modelSide || cur.modelTotal !== next.modelTotal || cur.totalLean !== next.totalLean ||
+        existing.pregame.spread?.team !== spread?.team || existing.pregame.spread?.line !== spread?.line || existing.pregame.total !== total;
+      if (moved) {
+        if (cur) existing.pregame.first ??= { capturedAt: existing.pregame.capturedAt, spread: existing.pregame.spread, total: existing.pregame.total, projection: cur };
+        existing.pregame.projection = next;
+        existing.pregame.spread = spread;
+        existing.pregame.total = total;
+        existing.pregame.consensus = consensusLock(game) ?? existing.pregame.consensus;
+        existing.pregame.updatedAt = new Date().toISOString();
+        writeEntry(existing);
+      }
     }
     if (!existing.postgame && !existing.pregame.consensus && game.consensus?.median !== undefined) {
       existing.pregame.consensus = consensusLock(game);

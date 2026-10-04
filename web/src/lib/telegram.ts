@@ -158,6 +158,44 @@ export interface PhotoOptions {
   silent?: boolean;
 }
 
+/** Several local images as one Telegram album (sendMediaGroup); the caption rides on the first. Retried once. */
+export async function sendPhotoAlbum(filePaths: string[], caption?: string, opts: PhotoOptions = {}): Promise<SentMessage[]> {
+  if (filePaths.length === 1) return [await sendPhoto(filePaths[0], caption, opts)];
+  const token = telegramToken();
+  if (!token) throw new Error("TELEGRAM_BOT_TOKEN is not set");
+  const chatId = opts.chatId ?? telegramChatId();
+  if (!chatId) throw new Error("TELEGRAM_CHAT_ID is not set");
+  const { readFileSync } = await import("node:fs");
+  const { basename } = await import("node:path");
+  const files = filePaths.map((f) => ({ name: basename(f), bytes: readFileSync(f) }));
+  const send = async (): Promise<SentMessage[]> => {
+    const form = new FormData();
+    form.append("chat_id", String(chatId));
+    const media = files.map((f, i) => ({
+      type: "photo",
+      media: `attach://p${i}`,
+      ...(i === 0 && caption ? { caption: caption.length > 1024 ? `${caption.slice(0, 1021)}...` : caption, ...(opts.parseMode ? { parse_mode: opts.parseMode } : {}) } : {}),
+    }));
+    form.append("media", JSON.stringify(media));
+    files.forEach((f, i) => form.append(`p${i}`, new Blob([new Uint8Array(f.bytes)], { type: "image/png" }), f.name));
+    if (opts.silent) form.append("disable_notification", "true");
+    const res = await fetch(`${API}/bot${token}/sendMediaGroup`, { method: "POST", body: form });
+    const json = (await res.json().catch(() => undefined)) as TgResponse<SentMessage[]> | undefined;
+    if (json?.ok && json.result) return json.result;
+    throw new Error(`Telegram sendMediaGroup failed: ${json?.description ?? `HTTP ${res.status}`}`);
+  };
+  try {
+    return await send();
+  } catch (first) {
+    await new Promise((r) => setTimeout(r, 1500));
+    try {
+      return await send();
+    } catch {
+      throw first;
+    }
+  }
+}
+
 /**
  * Send a local image file as a Telegram photo with an optional caption
  * (1024 characters max; longer captions are cut). Multipart upload with

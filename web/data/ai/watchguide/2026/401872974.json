@@ -1,0 +1,102 @@
+{
+ "gameId": "401872974",
+ "season": 2026,
+ "generatedAt": "2026-10-04T12:38:59.751Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "403d38896596",
+ "candidateCount": 15,
+ "top": [
+  {
+   "id": "E2",
+   "kind": "edge",
+   "title": "Vikings deep passing vs Dolphins secondary (dominant offense edge)",
+   "jev": 2.75,
+   "playerIds": []
+  },
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Dolphins run game vs Vikings run defense (dominant defense edge)",
+   "jev": 2.66,
+   "playerIds": []
+  },
+  {
+   "id": "PMIN1",
+   "kind": "player",
+   "title": "Dallas Turner (Vikings LB, radar 93)",
+   "jev": 2.32,
+   "playerIds": [
+    "4565190"
+   ]
+  },
+  {
+   "id": "E3",
+   "kind": "edge",
+   "title": "Dolphins ground game vs Vikings run front (dominant defense edge)",
+   "jev": 2.5,
+   "playerIds": []
+  },
+  {
+   "id": "E4",
+   "kind": "edge",
+   "title": "Dolphins deep passing vs Vikings secondary (dominant offense edge)",
+   "jev": 2.35,
+   "playerIds": []
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 3275,
+  "outputTokens": 909,
+  "cacheReadTokens": 0,
+  "costUsd": 0.01564
+ },
+ "guide": {
+  "headline": "Both offenses want to throw deep over leaky secondaries",
+  "hook": "Minnesota's deep ball against Miami's leaky secondary and a breakout pass rusher chasing the quarterback make this one worth the remote.",
+  "items": [
+   {
+    "title": "Vikings go over the top early",
+    "what": "The Vikings rank No. 1 of 32 in pass explosiveness at 1.69, and the Dolphins rank No. 29 at limiting explosive passes at 1.46, a gap of 90 percentile points. This is not a lean, it is a mismatch. If Minnesota connects on a shot play, Miami has to change its coverage shell and the run game opens up behind it.",
+    "when": "Watch the first deep shot of the game",
+    "who": "Vikings deep passing vs Dolphins secondary",
+    "factIds": [
+     "E2",
+     "E2e",
+     "E2w"
+    ]
+   },
+   {
+    "title": "Dallas Turner hunting the quarterback",
+    "what": "Dallas Turner already has 3.5 sacks, 12 QB hits, and two TFL this season, production that puts him in the top 4 percent of NFL linebackers. He is playing 84 percent of defensive snaps as the SLB on Minnesota's depth chart, and his per game production is up 138 percent from last season.",
+    "when": "Watch third-and-medium when Miami's line has to pass block",
+    "who": "Dallas Turner",
+    "whoPlayerId": "4565190",
+    "factIds": [
+     "PMIN1",
+     "PMIN1e1",
+     "PMIN1e3",
+     "PMIN1e5"
+    ]
+   },
+   {
+    "title": "Dolphins run game gets strangled",
+    "what": "The Vikings rank No. 2 of 32 against the run at 27 percent allowed rush success rate, and the Dolphins rank No. 30 in rush success rate at 31 percent, a gap of 91 percentile points. Miami gets pushed into obvious passing downs, which is exactly where this Vikings defense makes its money.",
+    "when": "Watch Dolphins yards per carry through the first quarter",
+    "who": "Dolphins run game vs Vikings run defense",
+    "factIds": [
+     "E1",
+     "E1e",
+     "E1w"
+    ]
+   }
+  ],
+  "cardLine": "Two secondaries that cannot keep a lid on it meet a Vikings run defense that erases Miami's ground game."
+ }
+}

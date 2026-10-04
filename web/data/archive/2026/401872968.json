@@ -171,24 +171,44 @@
    "team": "GB",
    "line": -3
   },
-  "total": 38.5,
+  "total": 39,
   "projection": {
    "winner": "TB",
-   "winProb": 0.5656008910388801,
-   "margin": 2.2300000000000004,
+   "winProb": 0.5421794913234725,
+   "margin": 1.4300000000000004,
    "home": 20,
    "away": 19,
    "modelSide": "TB",
    "confidence": "high",
-   "modelTotal": 34.5,
+   "modelTotal": 34,
    "totalLean": "under"
   },
   "consensus": {
-   "median": 1.3,
+   "median": 0.9,
    "favorite": "TB",
    "side": "TB",
    "sideCount": 3,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-04T02:06:10.310Z",
+   "spread": {
+    "team": "GB",
+    "line": -3
+   },
+   "total": 38.5,
+   "projection": {
+    "winner": "TB",
+    "winProb": 0.5656008910388801,
+    "margin": 2.2300000000000004,
+    "home": 20,
+    "away": 19,
+    "modelSide": "TB",
+    "confidence": "high",
+    "modelTotal": 34.5,
+    "totalLean": "under"
+   }
+  },
+  "updatedAt": "2026-10-04T14:58:40.540Z"
  }
 }
