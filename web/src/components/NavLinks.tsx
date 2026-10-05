@@ -15,7 +15,7 @@ export function NavLinks({ items, variant }: { items: NavItem[]; variant: "top" 
 
   if (variant === "top") {
     return (
-      <nav className="hidden items-center gap-1 text-sm sm:flex">
+      <nav className="hidden items-center gap-1 text-sm md:flex">
         {items.map((n) => (
           <Link
             key={n.href}
@@ -30,7 +30,7 @@ export function NavLinks({ items, variant }: { items: NavItem[]; variant: "top" 
     );
   }
   return (
-    <nav className="tabbar sm:hidden" aria-label="Primary">
+    <nav className="tabbar md:hidden" aria-label="Primary">
       {items.map((n) => (
         <Link key={n.href} href={n.href} className="tab" aria-current={active(n.href) ? "page" : undefined}>
           <span className="tab-icon" dangerouslySetInnerHTML={{ __html: n.icon }} />

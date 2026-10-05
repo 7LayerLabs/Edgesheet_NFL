@@ -287,5 +287,28 @@ body {
   white-space: nowrap;
 }
 .jumpbar a:hover { border-color: var(--navy); }
+.jumpbar button {
+  flex: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--navy);
+  background: var(--navy);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* Collapsible report sections on the game page: closed, each costs one line and still says something. */
+.fold { border-top: 1px solid var(--line); scroll-margin-top: 7rem; }
+.fold:last-of-type { border-bottom: 1px solid var(--line); }
+.fold > summary { list-style: none; cursor: pointer; }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary:hover .fold-chev { color: var(--chalk); }
+.fold > summary:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+.fold-chev { display: inline-block; transition: transform 120ms; }
+.fold[open] > summary .fold-chev { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) { .fold-chev { transition: none; } }
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

@@ -1,4 +1,42 @@
-# Project: DraftKings Monte Carlo slate simulator (with Jev news judgments)
+# Project: Game page, a simple read first, everything else on demand
+
+Status: BUILT 2026-10-05, waiting on Derek's look (not committed). Upcoming game page on a phone: about 2,300 px
+(2.7 screens, was about 17); the read starts at 631 px, folds at 1,148 px. Final: about 4,000 px with the box score open.
+Checked: no horizontal scroll at 390 and 700 px (the 7-item top nav overflowed 640 to 760 px, so the nav now switches at
+768 px), #market opens on arrival, Open all / Close all toggles all 13 sections. tsc and lint clean.
+
+## Problem Statement
+Derek: "for each game we should make the initial read simple, not too much just basic info but can collapse sections or
+another link to much more data and writeups." The page is about 17 phone screens for an upcoming game. The first look
+should answer "is this worth my time, who wins, what's the number, who to watch" in about two screens, and every deeper
+section should sit one tap away, saying something useful even while closed.
+
+## Plan
+- [x] R1 "The read" (always open, about two phone screens): header (teams, kickoff, TV, records), the answer strip (model
+      call, the number, the gap or the grade, the notes that move it), why watch (headline plus two lines), and the top
+      three to watch as one-line rows (name, position, the one reason). Live and final games add the score line and a
+      three-line box summary up top.
+- [x] R2 Everything else in collapsible sections, closed by default, each with a one-line summary that carries information
+      while closed, for example:
+      - Matchups: "Falcons run game is a mismatch; Saints win on passing downs"
+      - Who's playing: "Saints -1.2: Kamara questionable"
+      - DraftKings: "Best value: Bijan Robinson, median 23"
+      - Market: "NO -2.5, total 45.5, no move"
+      - Team style, Storylines, Conditions, Beat feed, Watch Score breakdown, More names on the radar,
+        Written report ("No report yet" or its headline)
+      Live and final: the box score and "Did it play out?" open by default.
+- [x] R3 "Open all / close all" control, and the jump bar becomes the section list: tapping a section opens it and scrolls
+      there (a small client script, so #market links open the right section too).
+- [x] R4 Slate cards link to the read; nothing else changes on the slate.
+- [x] R5 Check at 390 px and desktop: the read fits in about two screens, closed sections cost one line each, no horizontal
+      scroll, deep links open the right section. tsc, lint, build.
+
+Not in scope: a separate "full report" page. One URL keeps deep links and sharing simple, and closed sections cost one
+line each. If the page still feels heavy, closed sections can stop rendering until opened (lazy) as a follow-up.
+
+---
+
+# Previous project: DraftKings Monte Carlo slate simulator (with Jev news judgments)
 
 Status: v1 BUILT 2026-10-05 (Phases A to E; E3 stretch and F props not started). Derek approved scope, Jev use, and the NFL-only TypeSafe key.
 

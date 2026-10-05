@@ -23,6 +23,7 @@ import { BeatFeed, BeatFeedFallback } from "@/components/BeatFeed";
 import { SituationalCues, SituationsTable } from "@/components/Situations";
 import { DfsPanel } from "@/components/DfsPanel";
 import { AvailabilityPanel } from "@/components/AvailabilityPanel";
+import { FoldControls } from "@/components/FoldControls";
 import { inputsLabel, LEAN_BACKTEST_NOTE, sideTier, tierLabel, totalTier } from "@/lib/leans";
 import { readReport, seasonOf } from "@/lib/report";
 
@@ -30,8 +31,6 @@ export const dynamic = "force-dynamic";
 
 const TIERS: Prospect["tier"][] = ["Matchup", "Rookie", "Breakout", "Watch"];
 const TIER_TITLE: Record<Prospect["tier"], [string, string]> = { Matchup: ["On the spot", "the unit edges put these players in the game plan"], Rookie: ["Rookie class", "ranked against the draft slot"], Breakout: ["Breakout watch", "year 2 and 3 jumps against last season"], Watch: ["Watch", "starters worth knowing"] };
-/** Radar cards shown before "show all": enough for the names that matter, short enough to scroll past. */
-const RADAR_VISIBLE = 4;
 
 export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const { id } = await params;
@@ -43,18 +42,36 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const flags = game.weather ? evaluateWeather(game.weather) : [];
   const { likely, future } = prospectCounts(game);
   const started = game.status !== "upcoming";
-  const hasReport = Boolean(readReport(seasonOf(game.kickoff), game.id)?.report);
-  // The headline is reason one; the list shows the rest.
+  const report = readReport(seasonOf(game.kickoff), game.id);
+  // The headline is reason one; the read shows two more.
   const reasons = game.whyWatchReasons.filter((r) => r !== game.whyWatch);
+  const top = game.prospects.slice(0, 3);
 
-  const jump: [string, string][] = [
-    ...(started ? [["showed", game.status === "live" ? "Live" : "Box score"] as [string, string]] : []),
-    ["why", "Why watch"],
-    ["radar", "Who to watch"],
-    ["decided", "Matchups"],
-    ["playing", "Who plays"],
-    ["market", "Market"],
-    ["feed", "Feed"],
+  // One-line summaries: each closed section still says something.
+  const tiers = (["Matchup", "Rookie", "Breakout", "Watch"] as const).map((t) => [t, game.prospects.filter((p) => p.tier === t).length] as const).filter(([, n]) => n);
+  const radarSummary = game.prospects.length ? `${game.prospects.length} names: ${tiers.map(([t, n]) => `${n} ${t === "Matchup" ? "on the spot" : t.toLowerCase()}`).join(", ")}` : "Nobody clears the radar yet";
+  const m0 = game.matchups.find((m) => m.edge !== "even") ?? game.matchups[0];
+  const edgeWord = (m: Game["matchups"][number]) => (m.strength === "dominant" ? "mismatch" : m.strength === "clear" ? "clear edge" : m.strength === "real" ? "edge" : "even");
+  const matchupSummary = m0 ? `${m0.a} vs ${m0.b}: ${edgeWord(m0)}${game.matchups.length > 1 ? ` · ${game.matchups.length - 1} more` : ""}` : game.projection ? "Not charted; the projection is inside" : "Not charted yet";
+  const av = game.availability;
+  const avNet = av ? Math.round((av.home.total - av.away.total) * 10) / 10 : 0;
+  const worst = av ? [...av.away.items, ...av.home.items].filter((i) => i.kind !== "qb" && i.pts < 0).sort((a, b) => a.pts - b.pts)[0] : undefined;
+  const playingSummary = !av ? "" : avNet === 0 && !worst ? "Lineups as expected" : `${avNet === 0 ? "No net change" : `${(avNet > 0 ? game.home : game.away).short} +${Math.abs(avNet)} on the margin`}${worst ? ` · ${worst.name} ${worst.status.split(" (")[0].toLowerCase()}` : ""}`;
+  const ms = game.market.spread;
+  const marketSummary = ms ? `${spreadText(ms.team, ms.line)}${ms.open !== ms.line ? ` (opened ${spreadText(ms.team, ms.open)})` : ""} · total ${game.market.total?.line ?? "none"}` : "No widely available line";
+  const styleSummary = `${game.away.short}: ${game.offense[game.away.abbr]?.label ?? "not charted"} · ${game.home.short}: ${game.offense[game.home.abbr]?.label ?? "not charted"}`;
+  const inj = game.injuryReport ?? [];
+  const injCount = (st: string) => inj.filter((i) => i.status === st).length;
+  const injurySummary = inj.length ? `${[["out", injCount("Out")], ["doubtful", injCount("Doubtful")], ["questionable", injCount("Questionable")]].filter(([, n]) => n).map(([w, n]) => `${n} ${w}`).join(", ")} (week ${inj[0].week})` : "";
+  const boxSummary = game.score && Number.isFinite(game.score.home) ? `${game.away.abbr} ${game.score.away}, ${game.home.abbr} ${game.score.home} · ${game.score.clock}` : game.status === "live" ? "In progress" : "Final";
+  const jump: { id: string; label: string }[] = [
+    ...(started ? [{ id: "showed", label: game.status === "live" ? "Live" : "Box score" }] : []),
+    { id: "decided", label: "Matchups" },
+    { id: "playing", label: "Who plays" },
+    { id: "dfs", label: "DraftKings" },
+    { id: "market", label: "Market" },
+    { id: "feed", label: "Feed" },
+    { id: "writeup", label: "Write-up" },
   ];
 
   return (
@@ -96,82 +113,91 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
 
       <AnswerStrip game={game} />
 
-      <nav className="jumpbar" aria-label="Sections">
-        {jump.map(([id, label]) => (
-          <a key={id} href={`#${id}`}>{label}</a>
-        ))}
-      </nav>
-
-      {/* Once the game starts, the box score is the first thing to read. */}
-      {started && <PostgameSection game={game} />}
-
-      <Section n="Why watch" id="why" title={game.whyWatch}>
+      {/* The read: why it is worth the time and who to watch. Everything else is one tap away below. */}
+      <section aria-label="The read" className="mt-6">
+        <h2 className="display text-2xl font-bold leading-tight text-chalk sm:text-3xl">{game.whyWatch}</h2>
         {reasons.length > 0 && (
-          <ul className="mt-3 grid max-w-3xl gap-2">
-            {reasons.map((r) => (
+          <ul className="mt-2 grid max-w-3xl gap-1">
+            {reasons.slice(0, 2).map((r) => (
               <li key={r} className="border-l-2 border-line-2 pl-3 text-base leading-snug text-chalk-2">{r}</li>
             ))}
           </ul>
         )}
-      </Section>
+        {top.length > 0 && (
+          <div className="mt-5">
+            <p className="text-sm font-semibold text-chalk">Who to watch</p>
+            <ul className="mt-1 divide-y divide-line">
+              {top.map((p) => (
+                <li key={p.id} className="grid grid-cols-[minmax(0,auto)_minmax(0,1fr)] items-baseline gap-x-3 py-2 sm:grid-cols-[14rem_minmax(0,1fr)]">
+                  <span className="min-w-0 truncate">
+                    <Link href={`/player/${p.id}`} className="font-semibold text-chalk hover:text-sky">{p.name}</Link>
+                    <span className="mono ml-2 text-xs text-chalk-3">{p.pos} · {p.team}</span>
+                  </span>
+                  <span className="min-w-0 text-sm text-chalk-2">
+                    {p.injury?.status && <span className="mono mr-2 text-xs font-semibold text-warn">{p.injury.status.split(" (")[0]}</span>}
+                    {readLine(p)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
 
-      {hasReport && <WrittenReport game={game} />}
+      <FoldControls items={jump} />
 
-      <Section n="Must watch" id="radar" title={game.prospects.length ? "Who to watch" : "Nobody clears the radar yet"}>
+      {started && (
+        <Fold id="showed" title={game.status === "live" ? "Live" : "Box score"} summary={boxSummary} open>
+          <PostgameBody game={game} />
+        </Fold>
+      )}
+
+      <Fold id="radar" title="Full radar" summary={radarSummary}>
         {game.prospects.some((p) => p.radar) && (
-          <p className="mt-1 max-w-3xl text-sm text-chalk-3">
+          <p className="max-w-3xl text-sm text-chalk-3">
             Ranked on production against the league at the position, snap share, draft slot, and last season. Players listed out are left off and named under Storylines.
             {game.statsAsOf ? ` Stats as of ${asOf(game.statsAsOf)}.` : ""}
           </p>
         )}
-        <RadarTiers list={game.prospects.slice(0, RADAR_VISIBLE)} game={game} />
-        {game.prospects.length > RADAR_VISIBLE && (
-          <details className="mt-4">
-            <summary className="cursor-pointer select-none text-sm font-semibold text-sky">Show {game.prospects.length - RADAR_VISIBLE} more on the radar</summary>
-            <RadarTiers list={game.prospects.slice(RADAR_VISIBLE)} game={game} />
-          </details>
-        )}
+        <RadarTiers list={game.prospects} game={game} />
         {game.odds && game.prospects.length > 0 && <PropsForRadar gameId={game.id} odds={game.odds} prospects={game.prospects} upcoming={game.status === "upcoming"} />}
-        {game.prospects.length === 0 && (
-          <p className="mt-2 text-sm text-chalk-3">No player on either roster clears the production or snap-share thresholds. See More names below.</p>
-        )}
-      </Section>
+        {game.prospects.length === 0 && <p className="mt-2 text-sm text-chalk-3">No player on either roster clears the production or snap-share thresholds. See More names.</p>}
+      </Fold>
 
-      {game.matchups.length > 0 ? (
-        <Section n="Matchups" id="decided" title="Where the game gets decided">
-          <p className="mt-1 max-w-3xl text-sm text-chalk-3">
-            Each offense against the opposing defense: the run, the pass, and passing downs. Run and pass show how often the play works (that decides the edge) and how much it is worth. Ranks are among all 32 teams. The gap is in percentile points; 40 or more is a clear edge, 55 or more is a mismatch.
-          </p>
-          <div className="mt-3 grid gap-3">
-            {game.matchups.map((m, i) => (
-              <MatchupCard key={i} m={m} game={game} />
-            ))}
-          </div>
-          {game.situations && <SituationalCues cues={game.situations.cues} />}
-          {game.projection && <ProjectionBox game={game} />}
-        </Section>
-      ) : (
-        <Section n="Matchups" id="decided" title="Not charted yet">
-          <p className="mt-2 text-base text-chalk-3">{game.pressurePoint}</p>
-          {game.projection && <ProjectionBox game={game} />}
-        </Section>
-      )}
+      <Fold id="decided" title="Matchups" summary={matchupSummary}>
+        {game.matchups.length > 0 ? (
+          <>
+            <p className="max-w-3xl text-sm text-chalk-3">
+              Each offense against the opposing defense: the run, the pass, and passing downs. Run and pass show how often the play works (that decides the edge) and how much it is worth. Ranks are among all 32 teams. The gap is in percentile points; 40 or more is a clear edge, 55 or more is a mismatch.
+            </p>
+            <div className="mt-3 grid gap-3">
+              {game.matchups.map((m, i) => (
+                <MatchupCard key={i} m={m} game={game} />
+              ))}
+            </div>
+            {game.situations && <SituationalCues cues={game.situations.cues} />}
+          </>
+        ) : (
+          <p className="text-base text-chalk-3">{game.pressurePoint}</p>
+        )}
+        {game.projection && <ProjectionBox game={game} />}
+      </Fold>
 
       {game.availability && (
-        <Section n="Who is playing" id="playing" title={game.availability.home.total === game.availability.away.total ? "Lineups as expected" : "What the lineups cost"}>
+        <Fold id="playing" title="Who's playing" summary={playingSummary}>
           <AvailabilityPanel game={game} a={game.availability} />
-        </Section>
+        </Fold>
       )}
 
-      <Section n="DraftKings and props" id="dfs" title="Who to play, and the defenders to bet">
+      <Fold id="dfs" title="DraftKings and props" summary="Salaries, simulated floor to ceiling, defensive props">
         <Suspense fallback={<p className="mt-3 text-sm text-chalk-3">Loading DraftKings salaries.</p>}>
           <DfsPanel game={game} />
         </Suspense>
-      </Section>
+      </Fold>
 
-      <Section n="Market" id="market" title={game.market.spread ? `${spreadText(game.market.spread.team, game.market.spread.line)}, total ${game.market.total?.line}` : "No widely available line"}>
+      <Fold id="market" title="Market" summary={marketSummary}>
         {game.market.spread ? (
-          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <div className="grid gap-2 sm:grid-cols-3">
             <Stat label="Consensus spread" value={spreadText(game.market.spread.team, game.market.spread.line)} sub={moveText(game.market.spread.open, game.market.spread.line)} />
             {game.market.total && <Stat label="Total" value={String(game.market.total.line)} sub={moveText(game.market.total.open, game.market.total.line)} />}
             {game.market.moneyline ? (
@@ -184,23 +210,23 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
             </p>
           </div>
         ) : (
-          <p className="mt-2 text-sm text-chalk-3">No book we track lists this game. The report does not estimate a line.</p>
+          <p className="text-sm text-chalk-3">No book we track lists this game. The report does not estimate a line.</p>
         )}
         {game.odds && <LineMovement odds={game.odds} home={game.home} away={game.away} />}
-      </Section>
+      </Fold>
 
-      <Section n="Storylines" id="storylines" title="Context that changes how you watch">
-        {game.storylines.length === 0 && <p className="mt-2 text-sm text-chalk-3">Nothing on file beyond the schedule.</p>}
-        <ul className="mt-3 grid gap-1.5">
+      <Fold id="storylines" title="Storylines" summary={game.storylines[0] ?? "Nothing beyond the schedule"}>
+        {game.storylines.length === 0 && <p className="text-sm text-chalk-3">Nothing on file beyond the schedule.</p>}
+        <ul className="grid gap-1.5">
           {game.storylines.map((s) => (
             <li key={s} className="border-l-2 border-line-2 pl-3 text-sm text-chalk-2">{s}</li>
           ))}
         </ul>
-      </Section>
+      </Fold>
 
-      {game.injuryReport && game.injuryReport.length > 0 && (
-        <Section n="Injury report" id="injuries" title={`Official report, week ${game.injuryReport[0].week}`}>
-          <p className="mt-1 text-sm text-chalk-3">From the nflverse injuries file (the league&apos;s official practice and game status reports). Out, Doubtful, and Questionable only.</p>
+      {inj.length > 0 && (
+        <Fold id="injuries" title="Injury report" summary={injurySummary}>
+          <p className="text-sm text-chalk-3">From the nflverse injuries file (the league&apos;s official practice and game status reports). Out, Doubtful, and Questionable only.</p>
           <div className="mt-3 grid gap-2.5 md:grid-cols-2">
             {[game.away, game.home].map((t) => (
               <div key={t.id} className="card p-4">
@@ -209,23 +235,23 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
                   <span className="display text-2xl font-bold">{t.short}</span>
                 </div>
                 <ul className="mt-2 grid gap-1 text-sm">
-                  {game.injuryReport!.filter((i) => i.team === t.abbr).map((i) => (
+                  {inj.filter((i) => i.team === t.abbr).map((i) => (
                     <li key={i.id + i.name} className="flex flex-wrap items-baseline gap-x-2">
                       <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${i.status === "Out" ? "bg-brick text-white" : i.status === "Doubtful" ? "bg-warn text-chalk" : "bg-ink-2 text-chalk-2"}`}>{i.status}</span>
                       <span className="font-medium text-chalk">{i.name}</span>
                       <span className="mono text-xs text-chalk-3">{i.pos}{i.injury ? ` · ${i.injury}` : ""}{i.practice ? ` · ${i.practice}` : ""}</span>
                     </li>
                   ))}
-                  {game.injuryReport!.filter((i) => i.team === t.abbr).length === 0 && <li className="text-chalk-3">Nobody listed.</li>}
+                  {inj.filter((i) => i.team === t.abbr).length === 0 && <li className="text-chalk-3">Nobody listed.</li>}
                 </ul>
               </div>
             ))}
           </div>
-        </Section>
+        </Fold>
       )}
 
-      <Section n="Team style" id="style" title={game.offense[game.home.abbr]?.sample === "unavailable" ? "Tendencies not charted yet" : "How each side wants to play"}>
-        <dl className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+      <Fold id="style" title="Team style" summary={styleSummary}>
+        <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
           {[game.away, game.home].map((t) => (
             <div key={t.id} className="border-l-4 pl-3" style={{ borderColor: t.color }}>
               <dt className="display text-xl font-bold text-chalk">{t.short}</dt>
@@ -235,9 +261,8 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
           ))}
         </dl>
         {game.offense[game.home.abbr]?.sample !== "unavailable" && (
-          <details className="mt-3">
-            <summary className="cursor-pointer select-none text-sm font-semibold text-sky">Show the numbers</summary>
-            {game.statsAsOf && <p className="mono mt-2 text-xs text-chalk-3">Play-by-play through {asOf(game.statsAsOf)}. Ranks are among all 32 teams.</p>}
+          <>
+            {game.statsAsOf && <p className="mono mt-4 text-xs text-chalk-3">Play-by-play through {asOf(game.statsAsOf)}. Ranks are among all 32 teams.</p>}
             <div className="mt-3 grid gap-2.5 md:grid-cols-2">
               {[game.away, game.home].map((t) => (
                 <div key={t.id} className="card p-4">
@@ -251,15 +276,15 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
               ))}
             </div>
             {game.situations && <SituationsTable away={game.away} home={game.home} s={game.situations} />}
-          </details>
+          </>
         )}
-      </Section>
+      </Fold>
 
       {(game.weather || game.climate) && (
-        <Section n="Conditions" id="conditions" title={game.weather ? weatherHeadline(game) : "No forecast yet"}>
+        <Fold id="conditions" title="Conditions" summary={game.weather ? weatherHeadline(game) : "No forecast yet"}>
           {game.weather && (
             <>
-              <div className="mono mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-chalk-2">
+              <div className="mono flex flex-wrap gap-x-5 gap-y-1 text-xs text-chalk-2">
                 <span>{game.weather.tempF}° / feels {game.weather.feelsLikeF}°</span>
                 <span>Wind {game.weather.windDir} {game.weather.windMph} mph, gusts {game.weather.gustMph}</span>
                 <span>Rain {game.weather.precipChance}%{game.weather.precipWindow ? ` ${game.weather.precipWindow}` : ""}</span>
@@ -293,13 +318,13 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
               </div>
             </>
           )}
-          {!game.weather && game.climate && <p className="mt-2 text-sm text-chalk-2">{baselineLine(game.climate)}</p>}
-        </Section>
+          {!game.weather && game.climate && <p className="text-sm text-chalk-2">{baselineLine(game.climate)}</p>}
+        </Fold>
       )}
 
       {game.keepAnEyeOn.length > 0 && (
-        <Section n="Keep an eye on" id="eye" title="More names on the radar">
-          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+        <Fold id="eye" title="More names" summary={game.keepAnEyeOn.map((k) => k.name).join(", ")}>
+          <ul className="grid gap-2 sm:grid-cols-2">
             {game.keepAnEyeOn.map((k) => (
               <li key={k.name} className="card p-4">
                 <span className="display text-2xl font-semibold text-chalk">{k.name}</span>
@@ -308,11 +333,11 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
               </li>
             ))}
           </ul>
-        </Section>
+        </Fold>
       )}
 
       {/* Beat feed: posts and headlines about both teams, tagged to radar players. Context only, never a source for the report. */}
-      <Section n="Beat feed" id="feed" title={`What people are saying about ${game.away.short} and ${game.home.short}`}>
+      <Fold id="feed" title="Beat feed" summary={`Posts and headlines on the ${game.away.short} and ${game.home.short}, last 3 days`}>
         <Suspense fallback={<BeatFeedFallback />}>
           <BeatFeed
             limit={10}
@@ -320,12 +345,14 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
             players={game.prospects.map((p) => ({ id: p.id, name: p.name, team: p.team === game.home.abbr ? game.home.short : game.away.short }))}
           />
         </Suspense>
-      </Section>
+      </Fold>
 
-      {!hasReport && <WrittenReport game={game} />}
+      <Fold id="writeup" title="Written report" summary={report?.report?.headline ?? "No report written yet"}>
+        <WrittenReport game={game} bare />
+      </Fold>
 
-      <Section n="Watch Score" id="score" title={`${score} out of 100${game.source === "live" ? ` · ${likely} to watch, ${future} more on the radar` : ""}`}>
-        <div className="mt-3 grid gap-2">
+      <Fold id="score" title="Watch Score" summary={`${score} of 100 · ${tag}`}>
+        <div className="grid gap-2">
           {COMPONENT_KEYS.map((k) => {
             const v = game.scoreComponents[k];
             return (
@@ -340,20 +367,20 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
           })}
           <p className="mt-1 text-xs text-chalk-3">
             Ranks viewing value, not team quality. Competitive expectation, unit mismatches, rookie and breakout density, stakes from the standings, and the broadcast window.
+            {game.source === "live" ? ` ${likely} to watch, ${future} more on the radar.` : ""}
             {availableWeight(game.scoreComponents) < 0.999 && ` Scored on ${Math.round(availableWeight(game.scoreComponents) * 100)}% of the weights; excluded inputs are not ingested yet.`}
           </p>
         </div>
-      </Section>
+      </Fold>
 
-      <details className="mt-10 text-sm text-chalk-3">
-        <summary className="cursor-pointer select-none hover:text-chalk-2">What this report cannot say{game.gaps?.length ? ` (${game.gaps.length})` : ""}</summary>
-        <ul className="mt-2 grid gap-1 sm:grid-cols-2">
+      <Fold id="gaps" title="What this report cannot say" summary={`${(game.gaps ?? []).length ? `${(game.gaps ?? []).length} ${(game.gaps ?? []).length === 1 ? "note" : "notes"}` : "Nothing missing"} · report as of ${asOf(game.reportAsOf)}`}>
+        <ul className="grid gap-1 text-sm text-chalk-3 sm:grid-cols-2">
           {(game.gaps ?? []).map((g) => (
             <li key={g} className="flex gap-2"><span>–</span>{g}</li>
           ))}
           <li className="flex gap-2"><span>–</span>Report as of {asOf(game.reportAsOf)}.</li>
         </ul>
-      </details>
+      </Fold>
     </article>
   );
 }
@@ -511,13 +538,9 @@ function MatchupCard({ m, game }: { m: Game["matchups"][number]; game: Game }) {
 
 const BOX_LABEL: Record<string, string> = { passing: "Pass", rushing: "Rush", receiving: "Rec", defensive: "Def", interceptions: "INT", kicking: "Kick", punting: "Punt", fumbles: "Fum", kickReturns: "KR", puntReturns: "PR" };
 
-function PostgameSection({ game }: { game: Game }) {
+function PostgameBody({ game }: { game: Game }) {
   return (
-    <Section
-      id="showed"
-      n={game.status === "final" ? "Postgame" : "Live"}
-      title={game.box ? (game.box.source === "espn" && game.status === "live" ? "Who is showing up" : "Who showed up") : game.status === "final" ? "Box score not published yet" : game.live ? "Live from the feed" : "Box score arrives when the game settles"}
-    >
+    <>
       <LivePanel game={game} />
       {game.box ? (
         <>
@@ -549,7 +572,7 @@ function PostgameSection({ game }: { game: Game }) {
       ) : (
         <p className="mt-2 text-base text-chalk-3">The data feed posts player stats after the game settles. Check back in a few minutes.</p>
       )}
-    </Section>
+    </>
   );
 }
 
@@ -738,14 +761,23 @@ function TeamName({ t, score }: { t: Team; score?: number }) {
   );
 }
 
-function Section({ n, id, title, children }: { n: string; id?: string; title: string; children: React.ReactNode }) {
+/** A collapsible report section: closed, it costs one line and its summary still says something. */
+function Fold({ id, title, summary, open, children }: { id: string; title: string; summary: string; open?: boolean; children: React.ReactNode }) {
   return (
-    <section id={id} className="mt-10 scroll-mt-28">
-      <p className="eyebrow">{n}</p>
-      <h2 className="display mt-1 text-3xl font-bold leading-tight text-chalk sm:text-4xl">{title}</h2>
-      {children}
-    </section>
+    <details id={id} className="fold" open={open}>
+      <summary className="grid grid-cols-[1rem_minmax(0,1fr)] items-baseline gap-x-2 py-3 sm:grid-cols-[1rem_12rem_minmax(0,1fr)]">
+        <span className="fold-chev text-chalk-3" aria-hidden>▸</span>
+        <span className="display text-xl font-bold text-chalk">{title}</span>
+        <span className="col-start-2 truncate text-sm text-chalk-2 sm:col-start-3">{summary}</span>
+      </summary>
+      <div className="pb-6 pt-1">{children}</div>
+    </details>
   );
+}
+
+/** The one reason a name is on the read: the matchup note, his top piece of radar evidence, or his stat line. */
+function readLine(p: Prospect): string {
+  return p.lensNote ?? p.radar?.evidence?.[0]?.label ?? p.stat ?? p.projected;
 }
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
