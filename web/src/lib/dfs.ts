@@ -17,6 +17,9 @@
  * weight 3 / (games + 3), times a quarter of the matchup factor (DK points the
  * opponent allows to the position against the league average, capped 0.7 to 1.35),
  * plus half of an Out or Doubtful teammate's average handed to the next man up.
+ *
+ * Defenses (DST): src/lib/dst.ts, from the defense's and the opponent's sack and turnover rates and the market's implied
+ * opponent total (backtested in scripts/build-dfs-sim.mjs).
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -26,15 +29,20 @@ import { memo, memoSync } from "./memo";
 import { nflTeams, etDateOf, type NflTeam } from "./nfl";
 import { findOddsFile, type PropRow } from "./odds";
 import { absenceOf, espnInjuries, playerStatus, statusClock, type EspnInjury, type StatusClock } from "./availability";
+import { dstProjection, impliedTotals } from "./dst";
 
 export type DkPos = "QB" | "RB" | "WR" | "TE";
 const DK_POS: DkPos[] = ["QB", "RB", "WR", "TE"];
+/** Positions a DraftKings Classic lineup is built from: the skill positions plus the team defense. */
+export type DfsPos = DkPos | "DST";
 
 interface GameLike {
   id: string;
   kickoff: string;
   home: { short: string; abbr: string };
   away: { short: string; abbr: string };
+  /** The posted line, for the defenses' implied opponent totals. */
+  market?: { spread?: { team: string; line: number }; total?: { line: number } };
 }
 
 /* ------------------------------------------------------------ scoring */
@@ -282,7 +290,7 @@ export interface DfsPlay {
   teamAbbr: string;
   opp: string;
   oppAbbr: string;
-  pos: DkPos;
+  pos: DfsPos;
   salary: number;
   slate: "classic" | "showdown";
   dkPpg?: number;
@@ -499,6 +507,31 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
       });
     }
 
+    // The team defense: sacks, takeaways, TDs, and points allowed against the opponent's implied total.
+    const dstRow = dkRows.find((r) => r.pos === "DST");
+    const implied = impliedTotals(game.home.short, game.market?.spread, game.market?.total?.line);
+    const d = dstRow ? dstProjection(team.short, opp.short, implied ? (opp.short === game.home.short ? implied.home : implied.away) : undefined) : undefined;
+    if (dstRow && d) {
+      plays.push({
+        name: `${team.short} DST`,
+        team: team.short,
+        teamAbbr: team.abbr,
+        opp: opp.short,
+        oppAbbr: opp.abbr,
+        pos: "DST",
+        salary: dstRow.salary,
+        slate: dstRow.slate,
+        dkPpg: dstRow.dkPpg,
+        games: genTeams().find((x) => x.team === team.short)?.dst?.now?.g ?? 0,
+        proj: d.proj,
+        value: round1(d.proj / (dstRow.salary / 1000)),
+        why: `${d.sacks} sacks and ${d.takeaways} takeaways expected; the ${opp.short} are implied for ${d.oppImplied} points${d.lined ? "" : " (league average: no posted line)"}, worth ${d.paPoints} on the points-allowed scale`,
+        gameId: game.id,
+        kickoff: kick,
+        matchup,
+      });
+    }
+
     // Defensive names for props: tackle volume against play volume, pass rush against pressure allowed.
     const oc = ctx.byTeam.get(opp.short);
     for (const p of roster) {
@@ -565,6 +598,16 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
     source: slate ? `DraftKings ${slate === "classic" ? "Classic" : "Showdown FLEX"} salaries${group ? `, draft group ${group.id}` : ""}, pulled ${new Date(dk.fetchedAt).toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" })} ET` : undefined,
     note: !gameRows.length ? (dk.error ?? "DraftKings has no salaries for this game yet.") : undefined,
   };
+}
+
+/** Every play on a date's main Classic slate (skill players and defenses), for the simulator. Empty with a note when there is no Classic slate. */
+export async function classicPool(date: string, games: GameLike[]): Promise<{ plays: DfsPlay[]; fetchedAt: string; source?: string; note?: string }> {
+  const [dk, inj] = await Promise.all([dkSlate(date), espnInjuries()]);
+  const classic = dk.groups.find((g) => g.slate === "classic");
+  if (!classic) return { plays: [], fetchedAt: dk.fetchedAt, note: dk.error ?? "DraftKings has no Classic slate posted for this date yet." };
+  const espn = new Map(inj.rows.map((r) => [r.id, r]));
+  const plays = games.flatMap((g) => buildGame(g, dk, espn).plays).filter((p) => p.slate === "classic");
+  return { plays, fetchedAt: dk.fetchedAt, source: `DraftKings ${classic.label}, ${classic.games} games, salaries pulled ${new Date(dk.fetchedAt).toLocaleString("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit" })} ET` };
 }
 
 /** The slate view: best DraftKings values and the strongest defensive prop names across a date's games. */

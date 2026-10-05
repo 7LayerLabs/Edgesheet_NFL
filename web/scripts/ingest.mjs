@@ -23,7 +23,8 @@
  *
  * Writes (data/generated/):
  *   schedule.json    every game 2019 to now, mapped to our shape (id = ESPN game id)
- *   teams.json       per team offense and defense tendencies computed from play-by-play (GenTeam shape)
+ *   teams.json       per team offense and defense tendencies computed from play-by-play (GenTeam shape), plus DST
+ *                    counts this season and last (sacks, takeaways, TDs, giveaways, sacks taken, DK DST points)
  *   players.json     every player we track with season stats, last season's stats, usage, draft slot, injury status
  *   gamelogs.json    per player per game lines (opponent adjustment, box scores, grading)
  *   situational.json per team situational splits from play-by-play (same shape the college app used)
@@ -38,6 +39,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { readCsv, num, int, bool } from "./lib/csv.mjs";
 import { computeElo } from "./lib/elo.mjs";
+import { seasonRates, teamWeeks } from "../src/lib/dst-core.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
@@ -760,6 +762,29 @@ for (const t of TEAMS.teams) {
   teamsOut.push({ team: t.short, code: t.code, conf: t.conf, dv: t.div, c: "nfl", games, off: genUnit(u.off, games), def: genUnit(u.def, games) });
 }
 log("teams charted", teamsOut.length);
+
+// DST counts per team, this season and last, from the weekly player file with the scoring in src/lib/dst-core.mjs:
+// the same source and code scripts/build-dfs-sim.mjs backtests, so the live projection is the tested one.
+const oppScores = new Map();
+for (const r of scheduleRows) {
+  if (r.game_type !== "REG" || r.home_score === "") continue;
+  oppScores.set(`${r.season}|${r.week}|${r.home_team}`, Number(r.away_score));
+  oppScores.set(`${r.season}|${r.week}|${r.away_team}`, Number(r.home_score));
+}
+async function dstSeason(file, year) {
+  if (!file) return new Map();
+  const rows = [];
+  await readCsv(file, (r) => {
+    if (r.season_type !== "REG") return;
+    const n = (k) => num(r[k]) ?? 0;
+    rows.push({ week: Number(r.week), team: r.team, opp: r.opponent_team, sk: n("def_sacks"), int: n("def_interceptions"), fr: n("fumble_recovery_opp"), dtd: n("def_tds"), sttd: n("special_teams_tds"), saf: n("def_safeties"), give: n("passing_interceptions") + n("fumbles_lost_total"), sks: n("sacks_suffered") });
+  });
+  return seasonRates(teamWeeks(rows).values(), (w) => oppScores.get(`${year}|${w.week}|${w.team}`));
+}
+const dstNow = await dstSeason(local[`stats_player_week_${season}.csv`], season);
+const dstPrev = await dstSeason(local[`stats_player_week_${prev}.csv`], prev);
+for (const t of teamsOut) t.dst = { now: dstNow.get(t.code), prev: dstPrev.get(t.code) };
+log("DST counts", dstNow.size, "teams this season,", dstPrev.size, "last season");
 
 /* --------------------------------------------------------- situational */
 const median = (xs) => {

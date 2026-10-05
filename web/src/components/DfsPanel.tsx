@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { gameDfs, type DefProp, type DfsPlay, type GameDfs } from "@/lib/dfs";
+import { slateSim } from "@/lib/dfs-slate";
+import type { PlayerSim } from "@/lib/dfs-sim";
+import { etDateOf } from "@/lib/format";
 import { NOT_A_PICK } from "@/lib/digests";
 import type { Game, Team } from "@/lib/types";
 import { PropsButton } from "./PropsButton";
@@ -19,6 +22,10 @@ export async function DfsPanel({ game }: { game: Game }) {
   } catch (err) {
     return <p className="mt-3 text-sm text-chalk-3">DraftKings lens unavailable: {(err as Error).message}</p>;
   }
+  // Simulated ranges when this game is on the date's main Classic slate (the /dfs simulator, memoized per salary pull).
+  const sim = game.status === "upcoming" ? await slateSim(etDateOf(game.kickoff)).catch(() => undefined) : undefined;
+  const ranges = new Map<string, PlayerSim>(sim && !("note" in sim) ? sim.players.map((p) => [p.key, p]) : []);
+  const rangeOf = (p: DfsPlay) => ranges.get(p.pos === "DST" ? `DST-${p.team}` : (p.id ?? `${p.team}-${p.name}`));
   const sides: Team[] = [game.away, game.home];
   const hasProps = Boolean(game.odds?.props);
   const showdown = data.plays.some((p) => p.slate === "showdown");
@@ -57,7 +64,7 @@ export async function DfsPanel({ game }: { game: Game }) {
               ) : (
                 <ul className="mt-1 divide-y divide-line">
                   {plays.map((p) => (
-                    <PlayRow key={p.name} p={p} />
+                    <PlayRow key={p.name} p={p} range={rangeOf(p)} />
                   ))}
                 </ul>
               )}
@@ -85,13 +92,14 @@ export async function DfsPanel({ game }: { game: Game }) {
         {data.source ? `${data.source}. ` : ""}
         DK pts are scored from the nflverse game lines with DraftKings Classic rules (two-point conversions are not in the file).
         Proj is our average blended with last season (worth 3 games), times a quarter of the matchup factor (DK points the opponent allows to the position against the league; backtests showed more weight hurt), plus half of a new Out or Doubtful teammate&apos;s average for the next man up.
-        {showdown ? " Showdown salaries run higher than Classic, so value here reads lower than on a Classic slate." : ""} Value is projected points per $1,000. {NOT_A_PICK}
+        {showdown ? " Showdown salaries run higher than Classic, so value here reads lower than on a Classic slate." : ""} Value is projected points per $1,000.
+        {ranges.size > 0 ? " Floor, median, and ceiling are the 10th, 50th, and 90th percentiles of 10,000 simulations of the slate; lineups and the full board are on the DFS page." : ""} {NOT_A_PICK}
       </p>
     </div>
   );
 }
 
-function PlayRow({ p }: { p: DfsPlay }) {
+function PlayRow({ p, range }: { p: DfsPlay; range?: PlayerSim }) {
   const strong = p.slate === "classic" && p.value >= 4;
   return (
     <li className="py-2">
@@ -114,6 +122,11 @@ function PlayRow({ p }: { p: DfsPlay }) {
         <span>
           value <span className={`font-semibold ${strong ? "text-turf" : "text-chalk"}`}>{p.value}x</span>
         </span>
+        {range && (
+          <span title="10th / 50th / 90th percentile of 10,000 slate simulations">
+            sim <span className="text-chalk">{range.floor}</span> / <span className="font-semibold text-chalk">{range.median}</span> / <span className="text-chalk">{range.ceiling}</span>
+          </span>
+        )}
         {p.avg !== undefined && <span>avg {p.avg}</span>}
         {p.high !== undefined && <span>high {p.high}</span>}
         {p.oppRank !== undefined && (

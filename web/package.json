@@ -21,7 +21,9 @@
     "backtest:dfs": "node scripts/backtest-dfs.mjs",
     "guides": "tsx scripts/write-watchguides.mjs",
     "reports": "node scripts/write-reports.mjs",
-    "odds:dry": "node scripts/odds-snapshot.mjs --dry"
+    "odds:dry": "node scripts/odds-snapshot.mjs --dry",
+    "dfs:build": "node scripts/build-dfs-sim.mjs",
+    "jev:score": "node scripts/score-jev-dfs.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",

@@ -15,6 +15,7 @@ import { unitEdges } from "./tendencies";
 import type { Game } from "./types";
 import { evaluateWeather } from "./weather";
 import { slateDfs, type DefProp, type DfsPlay, type ShowdownGame } from "./dfs";
+import { slateSim } from "./dfs-slate";
 
 const isD1 = (g: Game) => g.division === "NFL";
 const label = (t: Game["home"]) => `${t.rank ? `No. ${t.rank} ` : ""}${t.short}`;
@@ -98,7 +99,7 @@ export interface Sheet {
   leans: SheetLean[];
   radar: SheetRadarName[];
   /** DraftKings values and defensive prop names (src/lib/dfs.ts). */
-  dfs: { plays: DfsPlay[]; showdown: ShowdownGame[]; tackles: DefProp[]; rush: DefProp[]; note?: string; source?: string };
+  dfs: { plays: DfsPlay[]; showdown: ShowdownGame[]; tackles: DefProp[]; rush: DefProp[]; note?: string; source?: string; ranges?: Record<string, { median: number; ceiling: number }> };
   windows: SheetWindow[];
   weather: SheetWeather[];
   notes: string[];
@@ -225,7 +226,10 @@ export async function buildSheet(dateParam?: string): Promise<Sheet> {
   radar.sort((a, b) => b.score - a.score).splice(10);
 
   // DraftKings plays and defensive prop names. Never throws; a DraftKings outage leaves a note.
-  const dfs = await slateDfs(slate.date, d1.filter((g) => g.status === "upcoming")).catch((err: Error) => ({ plays: [], showdown: [], tackles: [], rush: [], note: `DraftKings lens unavailable: ${err.message}`, source: undefined }));
+  const dfs: Sheet["dfs"] = await slateDfs(slate.date, d1.filter((g) => g.status === "upcoming")).catch((err: Error) => ({ plays: [], showdown: [], tackles: [], rush: [], note: `DraftKings lens unavailable: ${err.message}`, source: undefined }));
+  // Simulated median and 90th percentile for the Classic plays (the /dfs simulator), keyed like dfs-slate.ts.
+  const sim = dfs.plays.length ? await slateSim(slate.date).catch(() => undefined) : undefined;
+  if (sim && !("note" in sim)) dfs.ranges = Object.fromEntries(sim.players.map((p) => [p.key, { median: p.median, ceiling: p.ceiling }]));
 
   // Kickoff windows: ranked games by hour. Falls back to the top 12 by score when no ranked team plays.
   const rankedGames = d1.filter((g) => g.home.rank || g.away.rank);

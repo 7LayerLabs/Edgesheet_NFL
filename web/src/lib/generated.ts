@@ -64,6 +64,8 @@ export interface GenTeam {
   games: number | null;
   off: GenUnit;
   def: GenUnit;
+  /** DST counts this season and last (src/lib/dst-core.mjs seasonRates): games, sacks, takeaways, TDs, safeties, giveaways, sacks taken, DK DST points. */
+  dst?: { now?: import("./dst-core.mjs").DstSeason; prev?: import("./dst-core.mjs").DstSeason };
 }
 
 export interface GenDraftPick {

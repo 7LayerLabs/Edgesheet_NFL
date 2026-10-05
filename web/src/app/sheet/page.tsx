@@ -201,7 +201,7 @@ function DkPlays({ s }: { s: Sheet }) {
   const plays = s.dfs.plays;
   return (
     <section>
-      <SectionTitle n="04" note="best value by projected DK points per $1,000">DraftKings plays</SectionTitle>
+      <SectionTitle n="04" note="best value by projected DK points per $1,000; small: simulated median to 90th percentile">DraftKings plays</SectionTitle>
       {!plays.length ? (
         <Empty>{s.dfs.note ?? "No DraftKings salaries for the games still to play."}</Empty>
       ) : (
@@ -212,7 +212,7 @@ function DkPlays({ s }: { s: Sheet }) {
               <th>Player</th>
               <th className="w-12">Team</th>
               <th className="w-14">Salary</th>
-              <th className="w-10">Proj</th>
+              <th className="w-10" title="Projection; under it, the simulated median and 90th percentile">Proj</th>
               <th className="w-10">Value</th>
               <th>Why</th>
               <th className="w-24 sheet-hide-sm">Game</th>
@@ -220,7 +220,9 @@ function DkPlays({ s }: { s: Sheet }) {
             </tr>
           </thead>
           <tbody>
-            {plays.map((p) => (
+            {plays.map((p) => {
+              const range = s.dfs.ranges?.[p.pos === "DST" ? `DST-${p.team}` : (p.id ?? `${p.team}-${p.name}`)];
+              return (
               <tr key={`${p.gameId}-${p.name}`}>
                 <td className="mono">{p.pos}</td>
                 <td className="sheet-game">
@@ -232,13 +234,17 @@ function DkPlays({ s }: { s: Sheet }) {
                   ${p.salary.toLocaleString("en-US")}
                   {p.slate === "showdown" ? " SD" : ""}
                 </td>
-                <td className="mono sheet-score" data-label="Proj">{p.proj}</td>
+                <td className="mono sheet-score" data-label="Proj">
+                  {p.proj}
+                  {range && <span className="sheet-sub block font-normal">{range.median}–{range.ceiling}</span>}
+                </td>
                 <td className={`mono ${p.slate === "classic" && p.value >= 4 ? "sheet-good" : ""}`} data-label="Value">{p.value}x</td>
                 <td className="sheet-why">{p.why}</td>
                 <td className="mono sheet-hide-sm">{p.matchup}</td>
                 <td className="mono sheet-hide-sm">{p.kickoff}</td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       )}

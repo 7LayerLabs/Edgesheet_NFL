@@ -62,28 +62,34 @@ const USAGE_FILE = path.join(process.cwd(), "data", "ai", "usage.jsonl");
 /* ------------------------------------------------------------------ key */
 
 let envLoaded = false;
+/** TYPESAFE_* lines from an env file, empty values dropped. */
+function typesafeKeys(f: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!existsSync(f)) return out;
+  let text = "";
+  try {
+    text = readFileSync(f, "utf8");
+  } catch {
+    return out;
+  }
+  for (const line of text.split(/\r?\n/)) {
+    const m = line.match(/^\s*(?:export\s+)?(TYPESAFE_[A-Z0-9_]+)\s*=\s*(.*)\s*$/);
+    const v = m?.[2].replace(/^["']|["']$/g, "").trim();
+    if (m && v) out[m[1]] = v;
+  }
+  return out;
+}
+/**
+ * The project's own key (web/.env.local) wins over a machine-wide TYPESAFE_API_KEY, which belongs to other projects
+ * (Next only fills .env.local values that the environment has not set, so this is applied here). With no project key,
+ * the environment, then ~/scripts/.env.
+ */
 function loadFallbackEnv() {
   if (envLoaded) return;
   envLoaded = true;
+  Object.assign(process.env, typesafeKeys(path.join(process.cwd(), ".env.local")));
   if (process.env.TYPESAFE_API_KEY?.trim()) return;
-  const candidates = [path.join(process.cwd(), ".env.local"), path.join(os.homedir(), "scripts", ".env")];
-  for (const f of candidates) {
-    if (!existsSync(f)) continue;
-    let text = "";
-    try {
-      text = readFileSync(f, "utf8");
-    } catch {
-      continue;
-    }
-    for (const line of text.split(/\r?\n/)) {
-      const m = line.match(/^\s*(?:export\s+)?(TYPESAFE_[A-Z0-9_]+)\s*=\s*(.*)\s*$/);
-      if (!m) continue;
-      const [, k, raw] = m;
-      if (process.env[k]) continue;
-      process.env[k] = raw.replace(/^["']|["']$/g, "").trim();
-    }
-    if (process.env.TYPESAFE_API_KEY?.trim()) return;
-  }
+  for (const [k, v] of Object.entries(typesafeKeys(path.join(os.homedir(), "scripts", ".env")))) if (!process.env[k]) process.env[k] = v;
 }
 
 function apiKey(): string | undefined {
