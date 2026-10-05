@@ -77,6 +77,8 @@ const FILES = [
   [`injuries/injuries_${season}.csv`, `injuries_${season}.csv`],
   [`depth_charts/depth_charts_${season}.csv`, `depth_charts_${season}.csv`],
   [`snap_counts/snap_counts_${season}.csv`, `snap_counts_${season}.csv`],
+  // Last season's snaps only feed last season's games played (ps.gp).
+  [`snap_counts/snap_counts_${prev}.csv`, `snap_counts_${prev}.csv`, { optional: true }],
   ["draft_picks/draft_picks.csv", "draft_picks.csv"],
   [`ftn_charting/ftn_charting_${season}.csv`, `ftn_charting_${season}.csv`, { optional: true }],
   [`pbp/play_by_play_${season}.csv`, `play_by_play_${season}.csv`],
@@ -128,6 +130,9 @@ function etToIso(dateStr, timeStr) {
 }
 
 const scheduleRows = await readCsv(local["games.csv"]);
+// nflverse sometimes tags an international game "Home" (2026 PHI@JAX at Tottenham); a known neutral venue settles it.
+// Same match rule as venueFor in src/lib/nfl.ts.
+const neutralVenue = (stadium) => !!stadium && TEAMS.neutralVenues.some((v) => stadium.toLowerCase().includes(v.match.toLowerCase()));
 const schedule = [];
 const espnByGid = new Map();
 for (const r of scheduleRows) {
@@ -158,7 +163,7 @@ for (const r of scheduleRows) {
     total: int(r.total),
     ot: r.overtime === "1",
     location: r.location,
-    neutral: r.location === "Neutral",
+    neutral: r.location === "Neutral" || neutralVenue(r.stadium),
     spread: num(r.spread_line),
     totalLine: num(r.total_line),
     aml: int(r.away_moneyline),
@@ -183,13 +188,6 @@ schedule.sort((a, b) => a.kickoff.localeCompare(b.kickoff));
 const thisSeason = schedule.filter((g) => g.season === season);
 const gamesById = new Map(schedule.map((g) => [g.id, g]));
 log("schedule rows", schedule.length, "this season", thisSeason.length);
-
-const gamesPlayedBy = new Map();
-for (const g of thisSeason) {
-  if (!g.played) continue;
-  gamesPlayedBy.set(g.home, (gamesPlayedBy.get(g.home) ?? 0) + 1);
-  gamesPlayedBy.set(g.away, (gamesPlayedBy.get(g.away) ?? 0) + 1);
-}
 
 /* ------------------------------------------------------------------ elo */
 const elo = computeElo(schedule);
@@ -245,6 +243,8 @@ const depth = new Map(); // gsis -> { pos, rank, grp }
   for (const r of rows) {
     if (r.dt !== latestDt.get(code(r.team))) continue;
     if (!r.gsis_id) continue;
+    // Return slots (KR 1, PR 1) are not a base-chart rank; special teams only count for the specialists.
+    if (r.pos_grp === "Special Teams" && !["K", "P", "LS"].includes(roster.get(r.gsis_id)?.position)) continue;
     const rank = int(r.pos_rank) ?? 99;
     const cur = depth.get(r.gsis_id);
     // A player can sit on several slots; keep his best rank on the base chart.
@@ -283,11 +283,27 @@ const injuries = [];
 const injuryByGsis = new Map(injuries.map((i) => [i.gsis, i]));
 
 /* ----------------------------------------------------------- snap counts */
-const snapsByKey = new Map(); // `${team}|${normName}` -> { games, off, def, st }
+// Joined to the roster on the PFR id (snap pfr_player_id = roster pfr_id); names differ too often (Pat / Patrick Surtain II).
+// Keys: `${team}|${pfr id}`, plus `${team}|${normName}` for roster rows with no PFR id.
+const snapsByKey = new Map(); // key -> { games, off, def, st, offSnaps, defSnaps }
+const snapKey = (r) => `${code(r.team)}|${r.pfr_id || normName(r.full_name)}`;
+/** Games with an offense or defense snap (special teams alone don't count), any team: pfr id or `${team}|${normName}` -> Map(game_id -> snap row). */
+function snapGames(rows, { regOnly = false } = {}) {
+  const out = new Map();
+  for (const r of rows) {
+    if (regOnly && r.game_type !== "REG") continue;
+    if ((int(r.offense_snaps) ?? 0) + (int(r.defense_snaps) ?? 0) === 0) continue;
+    for (const k of [r.pfr_player_id, `${code(r.team)}|${normName(r.player)}`]) if (k) (out.get(k) ?? out.set(k, new Map()).get(k)).set(r.game_id, r);
+  }
+  return out;
+}
+/** Snap games for a roster row: by PFR id, by team and name only when the row has none. */
+const snapGamesOf = (games, rr) => (rr ? games.get(rr.pfr_id || `${code(rr.team)}|${normName(rr.full_name)}`) : undefined);
+let snapGamesNow;
 {
   const rows = await readCsv(local[`snap_counts_${season}.csv`]);
-  for (const r of rows) {
-    const k = `${code(r.team)}|${normName(r.player)}`;
+  snapGamesNow = snapGames(rows);
+  const add = (k, r) => {
     const e = snapsByKey.get(k) ?? snapsByKey.set(k, { games: 0, off: 0, def: 0, st: 0, offSnaps: 0, defSnaps: 0 }).get(k);
     e.games++;
     e.off += num(r.offense_pct) ?? 0;
@@ -295,9 +311,14 @@ const snapsByKey = new Map(); // `${team}|${normName}` -> { games, off, def, st 
     e.st += num(r.st_pct) ?? 0;
     e.offSnaps += int(r.offense_snaps) ?? 0;
     e.defSnaps += int(r.defense_snaps) ?? 0;
+  };
+  for (const r of rows) {
+    if (r.pfr_player_id) add(`${code(r.team)}|${r.pfr_player_id}`, r);
+    add(`${code(r.team)}|${normName(r.player)}`, r);
   }
   log("snap count rows", rows.length);
 }
+const snapGamesPrev = local[`snap_counts_${prev}.csv`] ? snapGames(await readCsv(local[`snap_counts_${prev}.csv`]), { regOnly: true }) : new Map();
 
 /* ------------------------------------------------------- player stats */
 /** nflverse weekly columns to the compact keys the site reads (college keys kept where the stat is the same). */
@@ -330,15 +351,31 @@ function finish(s) {
   return s;
 }
 
-/** Aggregate one season's weekly file into season totals per player, plus per-game lines. */
-async function loadStats(file, seasonYear, { lines = false } = {}) {
+/** One per-game line: g = ESPN game id, t = his team, ha from the schedule. */
+function gameLine(gid, week, seasonType, team, opp, s) {
+  const espn = espnByGid.get(gid) ?? `nv-${gid}`;
+  const sched = gamesById.get(espn);
+  const t = nick(team);
+  return { g: espn, wk: Number(week), st: seasonType === "REG" ? "regular" : "postseason", t, opp: nick(opp), ha: sched ? (sched.home === t ? "home" : "away") : "away", s };
+}
+
+/**
+ * Aggregate one season's weekly file into season totals per player, plus per-game lines.
+ * regOnly drops playoff rows. snapsOf(gsis) gives his snap games (snapGamesOf): nflverse writes no stat row for a
+ * zero-stat game, so gp counts games with a stat row or an offense/defense snap, and with lines such a game gets an
+ * empty line. Snaps from a game the stats file has not posted yet are left out.
+ */
+async function loadStats(file, seasonYear, { lines = false, regOnly = false, snapsOf } = {}) {
   const totals = new Map(); // gsis -> stats
   const means = new Map(); // gsis -> { key -> [sum, n] }
   const posOf = new Map(); // gsis -> latest position
   const teamOf = new Map();
   const gameLines = lines ? new Map() : undefined; // gsis -> [{...}]
   const games = new Map(); // gsis -> Set(game_id)
+  const posted = new Set(); // every game id in the file
   await readCsv(file, (r) => {
+    if (regOnly && r.season_type !== "REG") return;
+    posted.add(r.game_id);
     const g = r.player_id;
     if (!g) return;
     const s = totals.get(g) ?? totals.set(g, {}).get(g);
@@ -370,32 +407,28 @@ async function loadStats(file, seasonYear, { lines = false } = {}) {
     if (r.position) posOf.set(g, r.position);
     if (r.team) teamOf.set(g, { team: code(r.team), week: Number(r.week), st: r.season_type });
     (games.get(g) ?? games.set(g, new Set()).get(g)).add(r.game_id);
-    if (gameLines) {
-      const espn = espnByGid.get(r.game_id) ?? `nv-${r.game_id}`;
-      const sched = gamesById.get(espn);
-      const t = nick(r.team);
-      (gameLines.get(g) ?? gameLines.set(g, []).get(g)).push({
-        g: espn,
-        wk: Number(r.week),
-        st: r.season_type === "REG" ? "regular" : "postseason",
-        t,
-        opp: nick(r.opponent_team),
-        ha: sched ? (sched.home === t ? "home" : "away") : "away",
-        s: finish({ ...line, _cpoe: 0 }),
-      });
-    }
+    if (gameLines) (gameLines.get(g) ?? gameLines.set(g, []).get(g)).push(gameLine(r.game_id, r.week, r.season_type, r.team, r.opponent_team, finish({ ...line, _cpoe: 0 })));
   });
   for (const [g, s] of totals) {
     const m = means.get(g) ?? {};
     for (const [key, [sum, n]] of Object.entries(m)) if (n) s[key] = sum / n;
-    s.gp = games.get(g)?.size ?? 0;
+    const played = games.get(g);
+    const statGames = played.size;
+    for (const [gid, sr] of snapsOf?.(g) ?? []) {
+      if (played.has(gid) || !posted.has(gid)) continue;
+      played.add(gid);
+      gameLines?.get(g).push(gameLine(gid, sr.week, sr.game_type, sr.team, sr.opponent, {}));
+    }
+    if (gameLines && played.size > statGames) gameLines.get(g).sort((a, b) => a.wk - b.wk);
+    s.gp = played.size;
     finish(s);
   }
   return { totals, posOf, teamOf, gameLines, seasonYear };
 }
 
-const statsNow = await loadStats(local[`stats_player_week_${season}.csv`], season, { lines: true });
-const statsPrev = await loadStats(local[`stats_player_week_${prev}.csv`], prev);
+const statsNow = await loadStats(local[`stats_player_week_${season}.csv`], season, { lines: true, snapsOf: (g) => snapGamesOf(snapGamesNow, roster.get(g)) });
+// Last season is regular season only, like the backtests and teamQb.
+const statsPrev = await loadStats(local[`stats_player_week_${prev}.csv`], prev, { regOnly: true, snapsOf: (g) => snapGamesOf(snapGamesPrev, rosterPrev.get(g) ?? roster.get(g)) });
 log("stat players this season", statsNow.totals.size, "last season", statsPrev.totals.size);
 
 /* ----------------------------------------------------------- draft picks */
@@ -433,10 +466,15 @@ log("draft picks kept", draftOut.length);
 
 /* --------------------------------------------------------------- players */
 const KEEP_STATUS = new Set(["ACT", "RES", "INA", "DEV", "PUP", "SUS", "NON", "EXE"]);
+// The roster file is a full snapshot only for its latest week; an older row means he left that team since
+// (Ray-Ray McCloud still on the Bears from week 1), unless his latest stat row is for that team from that week on.
+const rosterWeek = Math.max(0, ...[...roster.values()].map((r) => r._wk));
 const players = [];
 for (const [gsis, r] of roster) {
   if (!KEEP_STATUS.has(r.status) || !r.team) continue;
   const team = code(r.team);
+  const lastStat = statsNow.teamOf.get(gsis);
+  if (r._wk < rosterWeek && !(lastStat?.team === team && lastStat.week >= r._wk)) continue;
   const s = statsNow.totals.get(gsis) ?? null;
   const ps = statsPrev.totals.get(gsis) ?? null;
   const dc = depth.get(gsis);
@@ -445,7 +483,7 @@ for (const [gsis, r] of roster) {
   // Keep anyone with a stat line this season or last, a depth chart spot in the top two, or this year's rookies. Practice squad only with stats.
   if (!s && !ps && !(dc && dc.rank <= 2) && !(rookie && r.status !== "DEV")) continue;
   if (r.status === "DEV" && !s) continue;
-  const snaps = snapsByKey.get(`${team}|${normName(r.full_name)}`);
+  const snaps = snapsByKey.get(snapKey(r));
   const exp = int(r.years_exp) ?? 0;
   const pick = draftByGsis.get(gsis) ?? (r.draft_number ? { pick: Number(r.draft_number), round: null, year: Number(r.rookie_year), nfl: nick(r.draft_club), nflCode: code(r.draft_club) } : null);
   const pos = statsNow.posOf.get(gsis) ?? statsPrev.posOf.get(gsis) ?? r.depth_chart_position ?? r.position;
@@ -464,7 +502,7 @@ for (const [gsis, r] of roster) {
     h: int(r.height),
     w: int(r.weight),
     j: int(r.jersey_number),
-    g: gamesPlayedBy.get(nick(team)) ?? null,
+    g: null, // team games played, filled from play-by-play below
     s,
     ps,
     u: snaps
@@ -555,6 +593,7 @@ await readCsv(local[`play_by_play_${season}.csv`], (r) => {
   const pt = r.play_type;
   if (pt !== "pass" && pt !== "run") return;
   if (r.aborted_play === "1" || !r.posteam || !r.defteam) return;
+  if (r.two_point_attempt === "1") return; // a try is not a down: it would add plays (down 0) and red-zone trips
   const epa = num(r.epa);
   if (epa === null) return;
   plays++;
@@ -666,6 +705,12 @@ await readCsv(local[`play_by_play_${season}.csv`], (r) => {
 });
 log("plays", plays, "weeks", [...pbpWeeks].sort((a, b) => a - b).join(","));
 
+// Team games = games in the play-by-play actually tallied, not scored schedule rows: the pbp and stats files
+// post a day or so after the final, and plays / games (pace) needs the same games on both sides.
+const gamesPlayedBy = new Map();
+for (const g of gameSit.values()) for (const t of Object.keys(g.teams)) gamesPlayedBy.set(t, (gamesPlayedBy.get(t) ?? 0) + 1);
+for (const p of players) p.g = gamesPlayedBy.get(p.t) ?? null;
+
 const r3 = (n) => Math.round(n * 1000) / 1000;
 const rate = (a, b) => (b ? r3(a / b) : null);
 function genUnit(u, games) {
@@ -769,8 +814,10 @@ const situational = {
 
 /* ------------------------------------------------------------ gamelogs */
 const logGames = {};
+// Only games the stats file has posted: a scored game with no player lines yet would count as played with nothing in it.
+const linedGames = new Set([...statsNow.gameLines.values()].flat().map((l) => l.g));
 for (const g of thisSeason) {
-  if (!g.played && !gameLong.has(g.id)) continue;
+  if (!linedGames.has(g.id)) continue;
   const lg = gameLong.get(g.id) ?? {};
   logGames[g.id] = { wk: g.week, st: g.type === "REG" ? "regular" : "postseason", home: g.home, away: g.away, hp: g.hs, ap: g.as, hc: null, ac: null, long: { home: lg[g.home] ?? null, away: lg[g.away] ?? null } };
 }
@@ -788,6 +835,9 @@ const gamelogs = {
 
 /* ----------------------------------------------------------------- meta */
 const statsThroughWeek = Math.max(0, ...[...statsNow.gameLines.values()].flat().map((l) => l.wk));
+// That week's games: posted = in the player stats, final = scored in the schedule ("10 of 11 finals posted").
+const latestGames = thisSeason.filter((g) => g.week === statsThroughWeek);
+const latestWeek = { week: statsThroughWeek, posted: latestGames.filter((g) => linedGames.has(g.id)).length, final: latestGames.filter((g) => g.played).length };
 const unplayed = thisSeason.filter((g) => !g.played);
 const currentWeek = unplayed.length ? Math.min(...unplayed.map((g) => g.week)) : Math.max(...thisSeason.map((g) => g.week));
 const meta = {
@@ -795,6 +845,7 @@ const meta = {
   season,
   week: currentWeek,
   statsThroughWeek,
+  latestWeek,
   pbpThroughWeek: Math.max(0, ...pbpWeeks),
   players: players.length,
   teams: teamsOut.length,
@@ -807,7 +858,7 @@ const meta = {
 };
 
 /* ------------------------------------------------------------- history */
-// For src/lib/availability.ts. players: seasons before last, compact QB and skill totals per current player
+// For src/lib/availability.ts. players: seasons before last, compact regular-season QB and skill totals per current player
 // (this season and last are already on players.json as s and ps). teamQb: last season's regular-season QB
 // plays and EPA by team, so the QB baseline can follow the Elo, which still carries most of last season.
 const HIST_KEYS = ["gp", "pa", "sks", "ra", "pepa", "repa", "tgt", "rcepa"];
@@ -816,7 +867,7 @@ const pidByGsis = new Map(players.map((p) => [p.gsis, p.id]));
 for (const y of [season - 2, season - 3, season - 4]) {
   const f = local[`stats_player_week_${y}.csv`];
   if (!f) continue;
-  const st = await loadStats(f, y);
+  const st = await loadStats(f, y, { regOnly: true });
   history.seasons.push(y);
   for (const [gsis, s] of st.totals) {
     const pid = pidByGsis.get(gsis);

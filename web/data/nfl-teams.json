@@ -41,11 +41,15 @@
     { "match": "Croke", "name": "Croke Park", "city": "Dublin", "state": "Ireland", "lat": 53.3607, "lon": -6.2511, "roof": "outdoors", "surface": "grass", "elevationFt": 50, "tz": "Europe/Dublin" },
     { "match": "Olympiastadion", "name": "Olympiastadion Berlin", "city": "Berlin", "state": "Germany", "lat": 52.5147, "lon": 13.2395, "roof": "outdoors", "surface": "grass", "elevationFt": 160, "tz": "Europe/Berlin" },
     { "match": "Allianz", "name": "Allianz Arena", "city": "Munich", "state": "Germany", "lat": 48.2188, "lon": 11.6247, "roof": "outdoors", "surface": "grass", "elevationFt": 1650, "tz": "Europe/Berlin" },
+    { "match": "Bayern", "name": "Allianz Arena", "city": "Munich", "state": "Germany", "lat": 48.2188, "lon": 11.6247, "roof": "outdoors", "surface": "grass", "elevationFt": 1650, "tz": "Europe/Berlin" },
     { "match": "Deutsche Bank Park", "name": "Deutsche Bank Park", "city": "Frankfurt", "state": "Germany", "lat": 50.0686, "lon": 8.6455, "roof": "outdoors", "surface": "grass", "elevationFt": 350, "tz": "Europe/Berlin" },
     { "match": "Bernab", "name": "Estadio Santiago Bernabeu", "city": "Madrid", "state": "Spain", "lat": 40.4531, "lon": -3.6883, "roof": "retractable", "surface": "grass", "elevationFt": 2200, "tz": "Europe/Madrid" },
     { "match": "Corinthians", "name": "Arena Corinthians", "city": "Sao Paulo", "state": "Brazil", "lat": -23.5453, "lon": -46.4742, "roof": "outdoors", "surface": "grass", "elevationFt": 2500, "tz": "America/Sao_Paulo" },
+    { "match": "Maracan", "name": "Maracana Stadium", "city": "Rio de Janeiro", "state": "Brazil", "lat": -22.9122, "lon": -43.2302, "roof": "outdoors", "surface": "grass", "elevationFt": 30, "tz": "America/Sao_Paulo" },
     { "match": "Azteca", "name": "Estadio Azteca", "city": "Mexico City", "state": "Mexico", "lat": 19.3029, "lon": -99.1505, "roof": "outdoors", "surface": "grass", "elevationFt": 7200, "tz": "America/Mexico_City" },
+    { "match": "Banorte", "name": "Estadio Banorte", "city": "Mexico City", "state": "Mexico", "lat": 19.3029, "lon": -99.1505, "roof": "outdoors", "surface": "grass", "elevationFt": 7200, "tz": "America/Mexico_City" },
     { "match": "Stade de France", "name": "Stade de France", "city": "Paris", "state": "France", "lat": 48.9244, "lon": 2.3601, "roof": "outdoors", "surface": "grass", "elevationFt": 130, "tz": "Europe/Paris" },
-    { "match": "Accor", "name": "Accor Stadium", "city": "Sydney", "state": "Australia", "lat": -33.8474, "lon": 151.0633, "roof": "outdoors", "surface": "grass", "elevationFt": 60, "tz": "Australia/Sydney" }
+    { "match": "Accor", "name": "Accor Stadium", "city": "Sydney", "state": "Australia", "lat": -33.8474, "lon": 151.0633, "roof": "outdoors", "surface": "grass", "elevationFt": 60, "tz": "Australia/Sydney" },
+    { "match": "Melbourne", "name": "Melbourne Cricket Ground", "city": "Melbourne", "state": "Australia", "lat": -37.82, "lon": 144.9833, "roof": "outdoors", "surface": "grass", "elevationFt": 100, "tz": "Australia/Melbourne" }
   ]
 }

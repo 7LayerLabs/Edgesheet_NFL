@@ -4,8 +4,8 @@
  *   Start: every team at 1500 the first season we see. Each later season starts at
  *          1500 + (2/3) * (last rating - 1500): one third regression to the mean.
  *   K = 20. Home field = 48 Elo points added to the home side before the expectation.
- *   Margin multiplier (the FiveThirtyEight form): ln(|margin| + 1) * 2.2 / (0.001 * eloDiffOfWinner + 2.2),
- *          so blowouts move ratings more and a favorite winning big moves them less.
+ *   Margin multiplier (the FiveThirtyEight form): ln(max(|margin|, 1) + 1) * 2.2 / (0.001 * eloDiffOfWinner + 2.2),
+ *          so blowouts move ratings more and a favorite winning big moves them less. A tie uses margin 1 (ln 1 = 0 would freeze it).
  *   Expected home win probability: 1 / (1 + 10^((away - home - 48) / 400)). Ties count as half a win.
  *   Postseason games count the same as regular season games.
  *
@@ -46,7 +46,7 @@ export function computeElo(games) {
     const actual = g.hs > g.as ? 1 : g.hs < g.as ? 0 : 0.5;
     const margin = Math.abs(g.hs - g.as);
     const winnerDiff = g.hs > g.as ? h + (g.neutral ? 0 : ELO_HOME) - a : g.hs < g.as ? a - h - (g.neutral ? 0 : ELO_HOME) : 0;
-    const mult = Math.log(margin + 1) * (2.2 / (0.001 * winnerDiff + 2.2));
+    const mult = Math.log(Math.max(margin, 1) + 1) * (2.2 / (0.001 * winnerDiff + 2.2));
     const delta = ELO_K * mult * (actual - exp);
     ratings.set(g.home, h + delta);
     ratings.set(g.away, a - delta);

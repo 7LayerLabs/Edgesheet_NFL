@@ -1,5 +1,5 @@
 {
-  "ranAt": "2026-10-04T02:05:53.944Z",
+  "ranAt": "2026-10-05T00:30:35.056Z",
   "seasons": [
     2022,
     2023,
@@ -25,13 +25,13 @@
     "marketWinnerRate": 0.675,
     "marketMae": 9.54,
     "marketRmse": 12.42,
-    "coverRate": 0.496,
-    "coverRight": 551,
+    "coverRate": 0.497,
+    "coverRight": 552,
     "coverGraded": 1110,
-    "lean2CoverRate": 0.495,
-    "lean2Graded": 566,
-    "lean4CoverRate": 0.528,
-    "lean4Graded": 199,
+    "lean2CoverRate": 0.496,
+    "lean2Graded": 565,
+    "lean4CoverRate": 0.53,
+    "lean4Graded": 200,
     "favoriteCoverRate": 0.496,
     "favoriteGraded": 1110,
     "pushes": 29,
@@ -39,23 +39,23 @@
     "calibration": [
       {
         "bucket": "50-59",
-        "games": 528,
-        "winRate": 0.564
+        "games": 529,
+        "winRate": 0.563
       },
       {
         "bucket": "60-69",
-        "games": 358,
-        "winRate": 0.684
+        "games": 356,
+        "winRate": 0.685
       },
       {
         "bucket": "70-79",
-        "games": 202,
-        "winRate": 0.723
+        "games": 204,
+        "winRate": 0.721
       },
       {
         "bucket": "80-89",
-        "games": 47,
-        "winRate": 0.83
+        "games": 46,
+        "winRate": 0.848
       },
       {
         "bucket": "90-99",
@@ -76,13 +76,13 @@
     "marketWinnerRate": 0.677,
     "marketMae": 9.49,
     "marketRmse": 12.36,
-    "coverRate": 0.492,
-    "coverRight": 521,
+    "coverRate": 0.493,
+    "coverRight": 522,
     "coverGraded": 1058,
-    "lean2CoverRate": 0.487,
-    "lean2Graded": 546,
-    "lean4CoverRate": 0.523,
-    "lean4Graded": 195,
+    "lean2CoverRate": 0.488,
+    "lean2Graded": 545,
+    "lean4CoverRate": 0.526,
+    "lean4Graded": 196,
     "favoriteCoverRate": 0.5,
     "favoriteGraded": 1058,
     "pushes": 29,
@@ -90,23 +90,23 @@
     "calibration": [
       {
         "bucket": "50-59",
-        "games": 505,
-        "winRate": 0.562
+        "games": 506,
+        "winRate": 0.561
       },
       {
         "bucket": "60-69",
-        "games": 338,
-        "winRate": 0.68
+        "games": 336,
+        "winRate": 0.682
       },
       {
         "bucket": "70-79",
-        "games": 193,
-        "winRate": 0.715
+        "games": 195,
+        "winRate": 0.713
       },
       {
         "bucket": "80-89",
-        "games": 47,
-        "winRate": 0.83
+        "games": 46,
+        "winRate": 0.848
       },
       {
         "bucket": "90-99",
@@ -130,13 +130,13 @@
         "marketWinnerRate": 0.662,
         "marketMae": 8.74,
         "marketRmse": 11.43,
-        "coverRate": 0.513,
-        "coverRight": 134,
+        "coverRate": 0.517,
+        "coverRight": 135,
         "coverGraded": 261,
-        "lean2CoverRate": 0.524,
-        "lean2Graded": 147,
-        "lean4CoverRate": 0.607,
-        "lean4Graded": 56,
+        "lean2CoverRate": 0.527,
+        "lean2Graded": 146,
+        "lean4CoverRate": 0.614,
+        "lean4Graded": 57,
         "favoriteCoverRate": 0.452,
         "favoriteGraded": 261,
         "pushes": 10,
@@ -144,13 +144,13 @@
         "calibration": [
           {
             "bucket": "50-59",
-            "games": 122,
-            "winRate": 0.557
+            "games": 123,
+            "winRate": 0.553
           },
           {
             "bucket": "60-69",
-            "games": 95,
-            "winRate": 0.674
+            "games": 94,
+            "winRate": 0.681
           },
           {
             "bucket": "70-79",
@@ -176,18 +176,18 @@
         "winnerRight": 181,
         "winnerGraded": 282,
         "mae": 9.06,
-        "rmse": 11.85,
+        "rmse": 11.84,
         "bias": -0.08,
         "marketWinnerRate": 0.663,
         "marketMae": 8.78,
         "marketRmse": 11.49,
-        "coverRate": 0.515,
-        "coverRight": 141,
+        "coverRate": 0.518,
+        "coverRight": 142,
         "coverGraded": 274,
-        "lean2CoverRate": 0.529,
-        "lean2Graded": 153,
-        "lean4CoverRate": 0.603,
-        "lean4Graded": 58,
+        "lean2CoverRate": 0.533,
+        "lean2Graded": 152,
+        "lean4CoverRate": 0.61,
+        "lean4Graded": 59,
         "favoriteCoverRate": 0.453,
         "favoriteGraded": 274,
         "pushes": 10,
@@ -195,13 +195,13 @@
         "calibration": [
           {
             "bucket": "50-59",
-            "games": 127,
-            "winRate": 0.567
+            "games": 128,
+            "winRate": 0.563
           },
           {
             "bucket": "60-69",
-            "games": 99,
-            "winRate": 0.667
+            "games": 98,
+            "winRate": 0.673
           },
           {
             "bucket": "70-79",
@@ -254,13 +254,13 @@
           },
           {
             "bucket": "60-69",
-            "games": 82,
-            "winRate": 0.683
+            "games": 81,
+            "winRate": 0.679
           },
           {
             "bucket": "70-79",
-            "games": 46,
-            "winRate": 0.652
+            "games": 47,
+            "winRate": 0.66
           },
           {
             "bucket": "80-89",
@@ -305,13 +305,13 @@
           },
           {
             "bucket": "60-69",
-            "games": 91,
-            "winRate": 0.681
+            "games": 90,
+            "winRate": 0.678
           },
           {
             "bucket": "70-79",
-            "games": 47,
-            "winRate": 0.66
+            "games": 48,
+            "winRate": 0.667
           },
           {
             "bucket": "80-89",
@@ -469,13 +469,13 @@
           },
           {
             "bucket": "70-79",
-            "games": 53,
-            "winRate": 0.679
+            "games": 54,
+            "winRate": 0.667
           },
           {
             "bucket": "80-89",
-            "games": 20,
-            "winRate": 0.8
+            "games": 19,
+            "winRate": 0.842
           },
           {
             "bucket": "90-99",
@@ -520,13 +520,13 @@
           },
           {
             "bucket": "70-79",
-            "games": 54,
-            "winRate": 0.685
+            "games": 55,
+            "winRate": 0.673
           },
           {
             "bucket": "80-89",
-            "games": 20,
-            "winRate": 0.8
+            "games": 19,
+            "winRate": 0.842
           },
           {
             "bucket": "90-99",
@@ -542,40 +542,40 @@
       "home": 30,
       "perPoint": 27,
       "mae": 9.93,
-      "winnerRate": 0.643,
+      "winnerRate": 0.642,
       "coverRate": 0.48,
-      "lean4CoverRate": 0.534
+      "lean4CoverRate": 0.532
     },
     "top": [
       {
         "home": 30,
         "perPoint": 27,
         "mae": 9.93,
-        "winnerRate": 0.643,
+        "winnerRate": 0.642,
         "coverRate": 0.48,
-        "lean4CoverRate": 0.534
+        "lean4CoverRate": 0.532
       },
       {
         "home": 35,
         "perPoint": 26,
         "mae": 9.93,
-        "winnerRate": 0.642,
-        "coverRate": 0.48,
-        "lean4CoverRate": 0.518
+        "winnerRate": 0.641,
+        "coverRate": 0.481,
+        "lean4CoverRate": 0.521
       },
       {
         "home": 35,
         "perPoint": 27,
         "mae": 9.93,
-        "winnerRate": 0.642,
-        "coverRate": 0.477,
-        "lean4CoverRate": 0.516
+        "winnerRate": 0.641,
+        "coverRate": 0.478,
+        "lean4CoverRate": 0.519
       },
       {
         "home": 35,
         "perPoint": 28,
         "mae": 9.93,
-        "winnerRate": 0.642,
+        "winnerRate": 0.641,
         "coverRate": 0.48,
         "lean4CoverRate": 0.534
       },
@@ -583,7 +583,7 @@
         "home": 35,
         "perPoint": 29,
         "mae": 9.93,
-        "winnerRate": 0.642,
+        "winnerRate": 0.641,
         "coverRate": 0.489,
         "lean4CoverRate": 0.531
       },
@@ -609,7 +609,7 @@
         "mae": 9.93,
         "winnerRate": 0.637,
         "coverRate": 0.482,
-        "lean4CoverRate": 0.516
+        "lean4CoverRate": 0.522
       }
     ]
   },
