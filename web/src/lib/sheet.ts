@@ -190,7 +190,7 @@ export async function buildSheet(dateParam?: string): Promise<Sheet> {
       edge: top.edge as "offense" | "defense",
       strength: top.strength,
       gap: Math.abs(top.gap),
-      winner: top.edge === "offense" ? offSide.replace(/ (run game|deep passing|offensive line|on passing downs)$/, "") : defSide.replace(/ (run defense|secondary|front|pressure)$/, ""),
+      winner: top.edge === "offense" ? offSide.replace(/ (run game|pass game|passing-down offense|deep passing|offensive line|on passing downs)$/, "") : defSide.replace(/ (run defense|pass defense|passing-down defense|secondary|front|pressure)$/, ""),
       evidence: top.evidence,
     });
   }

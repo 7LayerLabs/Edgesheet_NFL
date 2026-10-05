@@ -36,7 +36,8 @@ type Dir = "high" | "low";
 interface Def { key: keyof GenUnit; label: string; off: Dir; def: Dir; fmt: (n: number) => string; }
 
 const pctF = (n: number) => `${Math.round(n * 100)}%`;
-const f2 = (n: number) => n.toFixed(2);
+// Rounded first so a tiny negative prints 0.00, not -0.00.
+const f2 = (n: number) => (Math.round(n * 100) / 100 || 0).toFixed(2);
 const f1 = (n: number) => n.toFixed(1);
 
 /** Offense wants high, defense wants low, unless noted. */
@@ -138,7 +139,7 @@ export function styleFor(school: string): TeamStyle | undefined {
 
 /* ------------------------------------------------- matchup derivations */
 
-type Axis = "rush" | "pass" | "line" | "pd";
+type Axis = "rush" | "pass" | "pd";
 
 function meaning(axis: Axis, edge: UnitEdge["edge"], mag: number, offTeam: string, defTeam: string): { verdict: string; meaning: string; watch: string } {
   const tier = mag >= 55 ? "dominant" : mag >= 40 ? "clear" : mag >= 20 ? "real" : "slight";
@@ -156,7 +157,6 @@ function meaning(axis: Axis, edge: UnitEdge["edge"], mag: number, offTeam: strin
     const m: Record<Axis, string> = {
       rush: `Neither side has shown it can impose the run on a unit this good. The first stuffed series tells you who blinks.`,
       pass: `The ${o} take shots and the ${d} give up few. Whoever wins the first deep ball changes the other side's call sheet.`,
-      line: `The ground game is a coin flip by the numbers. Watch first contact on the first two drives.`,
       pd: `Both sides are average on long downs. Early-down efficiency decides who sees more of them.`,
     };
     return { verdict: lead, meaning: m[axis], watch: `First quarter: who wins ${axis === "pass" ? "the first deep shot" : "first contact"}.` };
@@ -169,15 +169,11 @@ function meaning(axis: Axis, edge: UnitEdge["edge"], mag: number, offTeam: strin
       pass: tier === "dominant"
         ? `The ${d} do not keep the lid on. The ${o} will take shots, and the market total may be underpriced if they land.`
         : `The ${o} have the deep ball available. Watch whether the ${d} roll a safety over after the first one.`,
-      line: tier === "dominant"
-        ? `The line of scrimmage belongs to the ${o}. Second-level runs and play-action are live all afternoon.`
-        : `The ${o} should win first contact more often than not, which makes every down shorter.`,
       pd: `The ${o} convert the long downs the ${d} need to win. A third-and-8 is not a stop here.`,
     };
     const w: Record<Axis, string> = {
       rush: `Watch the ${o} rushing attempts by halftime. North of 20 means the plan is working.`,
       pass: `Watch the first deep shot. If it connects, the ${d} change shells and the run game opens.`,
-      line: `Watch the first ten ${o} carries. Three or more that gain five means the front is winning.`,
       pd: `Watch the ${o} on third-and-long. Two conversions in the first half break the ${d} plan.`,
     };
     return { verdict: lead, meaning: m[axis], watch: w[axis] };
@@ -189,22 +185,18 @@ function meaning(axis: Axis, edge: UnitEdge["edge"], mag: number, offTeam: strin
     pass: tier === "dominant"
       ? `Deep balls are the lowest-percentage play in this game. The ${o} need the underneath game and yards after catch.`
       : `The ${d} keep the lid on. The ${o} should expect to drive the long way.`,
-    line: tier === "dominant"
-      ? `The ${d} win first contact. Backs get met in the backfield; screens and the quick game are the counter.`
-      : `The ${d} should hold the line of scrimmage. ${o} runs will need the second level to break.`,
     pd: `The ${d} get off the field on long downs. Early-down efficiency is everything for the ${o}.`,
   };
   const w: Record<Axis, string> = {
     rush: `Watch ${o} yards per carry through the first quarter. Under 3 and the game plan has to change.`,
     pass: `Watch the longest ${o} completion. If it is under 25 yards at the half, the ${d} have won the matchup.`,
-    line: `Watch tackles for loss. The ${d} living in the backfield early is the tell.`,
     pd: `Watch the ${o} on third-and-7 or longer. Punts there mean the defense is winning.`,
   };
   return { verdict: lead, meaning: m[axis], watch: w[axis] };
 }
 
 export interface UnitEdge {
-  title: string; // "Georgia run game vs Alabama front"
+  title: string; // "Falcons run game vs Saints run defense"
   text: string;
   edge: "offense" | "defense" | "even";
   gap: number; // percentile gap
@@ -214,18 +206,20 @@ export interface UnitEdge {
   strength: "dominant" | "clear" | "real" | "slight" | "even";
 }
 
-/** Compare one offense against one defense on the four axes that decide games. */
+/**
+ * Compare one offense against one defense on the three axes that decide games: the run, the pass, and passing
+ * downs. Run and pass carry two numbers: how often the play works (decides the edge) and how much it is worth.
+ */
 export function unitEdges(offTeam: string, defTeam: string): UnitEdge[] {
   const o = styleFor(offTeam);
   const d = styleFor(defTeam);
   if (!o || !d) return [];
   const om = (k: string) => o.offense.metrics.find((m) => m.key === k);
   const dm = (k: string) => d.defense.metrics.find((m) => m.key === k);
-  const axes: { key: string; axis: Axis; title: string; what: string; against: string }[] = [
-    { key: "rushSr", axis: "rush", title: `${offTeam} run game vs ${defTeam} run defense`, what: "rush success rate", against: "against the run" },
-    { key: "passEx", axis: "pass", title: `${offTeam} deep passing vs ${defTeam} secondary`, what: "pass explosiveness", against: "at limiting explosive passes" },
-    { key: "ly", axis: "line", title: `${offTeam} ground game vs ${defTeam} run front`, what: "rush EPA per carry", against: "against the run by EPA" },
-    { key: "pdSr", axis: "pd", title: `${offTeam} on passing downs vs ${defTeam} pressure`, what: "passing-downs success", against: "on passing downs" },
+  const axes: { key: string; axis: Axis; title: string; what: string; against: string; second?: { key: string; what: string; against: string } }[] = [
+    { key: "rushSr", axis: "rush", title: `${offTeam} run game vs ${defTeam} run defense`, what: "rush success rate", against: "against the run", second: { key: "ly", what: "EPA a carry", against: "by EPA a carry" } },
+    { key: "passEx", axis: "pass", title: `${offTeam} pass game vs ${defTeam} pass defense`, what: "pass explosiveness", against: "at limiting explosive passes", second: { key: "passSr", what: "pass success rate", against: "in pass success allowed" } },
+    { key: "pdSr", axis: "pd", title: `${offTeam} passing-down offense vs ${defTeam} passing-down defense`, what: "passing-downs success", against: "on passing downs" },
   ];
   const out: UnitEdge[] = [];
   for (const a of axes) {
@@ -237,18 +231,24 @@ export function unitEdges(offTeam: string, defTeam: string): UnitEdge[] {
     const edge: UnitEdge["edge"] = gap >= 20 ? "offense" : gap <= -20 ? "defense" : "even";
     const strength: UnitEdge["strength"] = edge === "even" ? "even" : mag >= 55 ? "dominant" : mag >= 40 ? "clear" : mag >= 20 ? "real" : "slight";
     const mn = meaning(a.axis, edge, mag, offTeam, defTeam);
+    // The second number (how much the play is worth) rides along in the text and evidence; the edge is the first.
+    const x2 = a.second ? om(a.second.key) : undefined;
+    const y2 = a.second ? dm(a.second.key) : undefined;
+    const offAlso = a.second && x2?.rank ? ` and No. ${x2.rank} in ${a.second.what} (${x2.value})` : "";
+    const defAlso = a.second && y2?.rank ? ` and No. ${y2.rank} ${a.second.against} (${y2.value})` : "";
     const text =
       edge === "offense"
-        ? `The ${offTeam} are No. ${x.rank} of ${x.of} in ${a.what} (${x.value}). The ${defTeam} rank No. ${y.rank} ${a.against} (${y.value}). ${mn.verdict} ${mn.meaning}`
+        ? `The ${offTeam} are No. ${x.rank} of ${x.of} in ${a.what} (${x.value})${offAlso}. The ${defTeam} rank No. ${y.rank} ${a.against} (${y.value})${defAlso}. ${mn.verdict} ${mn.meaning}`
         : edge === "defense"
-          ? `The ${defTeam} are No. ${y.rank} of ${y.of} ${a.against} (${y.value}). The ${offTeam} rank No. ${x.rank} in ${a.what} (${x.value}). ${mn.verdict} ${mn.meaning}`
-          : `The ${offTeam} are No. ${x.rank} in ${a.what} (${x.value}) and the ${defTeam} are No. ${y.rank} ${a.against} (${y.value}). ${mn.verdict} ${mn.meaning}`;
+          ? `The ${defTeam} are No. ${y.rank} of ${y.of} ${a.against} (${y.value})${defAlso}. The ${offTeam} rank No. ${x.rank} in ${a.what} (${x.value})${offAlso}. ${mn.verdict} ${mn.meaning}`
+          : `The ${offTeam} are No. ${x.rank} in ${a.what} (${x.value})${offAlso}, and the ${defTeam} are No. ${y.rank} ${a.against} (${y.value})${defAlso}. ${mn.verdict} ${mn.meaning}`;
+    const second = a.second && x2?.rank && y2?.rank ? `; ${a.second.what}: offense ${x2.value} (No. ${x2.rank}), defense ${y2.value} (No. ${y2.rank})` : "";
     out.push({
       title: a.title,
       text,
       edge,
       gap,
-      evidence: `${a.what}: offense ${x.value} (No. ${x.rank}/${x.of}), defense ${y.value} (No. ${y.rank}/${y.of}), gap ${mag} percentile points`,
+      evidence: `${a.what}: offense ${x.value} (No. ${x.rank}/${x.of}), defense ${y.value} (No. ${y.rank}/${y.of}), gap ${mag} percentile points${second}`,
       meaning: mn.meaning,
       watch: mn.watch,
       strength,

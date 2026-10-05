@@ -234,7 +234,7 @@ function axisOf(e: UnitEdge): EdgeAxis {
   const t = e.title.toLowerCase();
   if (t.includes("ground game")) return "line";
   if (t.includes("run game")) return "rush";
-  if (t.includes("deep passing")) return "pass";
+  if (t.includes("pass game") || t.includes("deep passing")) return "pass";
   return "pd";
 }
 
@@ -247,8 +247,8 @@ function ranksOf(e: UnitEdge): { off?: number; def?: number; of?: number } {
 const ROLE: Record<EdgeAxis, { off: string; def: string; unitOff: string; unitDef: string }> = {
   rush: { off: "lead back", def: "run stopper", unitOff: "run game", unitDef: "run defense" },
   line: { off: "lead back", def: "run stopper", unitOff: "ground game", unitDef: "run front" },
-  pass: { off: "top target", def: "coverage leader", unitOff: "deep passing game", unitDef: "secondary" },
-  pd: { off: "quarterback", def: "pass rusher", unitOff: "passing-downs offense", unitDef: "pass rush" },
+  pass: { off: "top target", def: "coverage leader", unitOff: "pass game", unitDef: "pass defense" },
+  pd: { off: "quarterback", def: "pass rusher", unitOff: "passing-down offense", unitDef: "passing-down defense" },
 };
 
 /* ------------------------------------------------------- derived fields */

@@ -189,6 +189,13 @@ Ground rules for the fixes:
   game-day designations fall back to questionable (0.25) until a fresh report; Hidden Gem 78 and density / 4.5 were
   calibrated on two slates (27 games) and should be checked after a few more weeks.
 
+### Follow-up 2026-10-05 (Derek)
+- [x] Merged the duplicate run matchups ("run game vs run defense" on rush success, "ground game vs run front" on rush EPA a
+      carry, a college "line yards" stand-in). One run card now carries both numbers; success decides the edge.
+- [x] Renamed the units: run game vs run defense, pass game vs pass defense (explosiveness decides, pass success rides
+      along), passing-down offense vs passing-down defense. Archive, slate, and sheet parsers read old and new titles.
+- [x] Removed the "live all afternoon" line (it ran on night games); EPA prints 0.00, not -0.00.
+
 ### Notes
 - Page GETs write data/archive locks in any copy. Never commit data/archive or data/ai from this Desktop copy.
 - The dev server's in-process memo outlives code edits (HMR keeps memo.ts); restart it after changing cached shapes.

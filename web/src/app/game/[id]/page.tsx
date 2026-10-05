@@ -140,7 +140,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
       {game.matchups.length > 0 ? (
         <Section n="Matchups" id="decided" title="Where the game gets decided">
           <p className="mt-1 max-w-3xl text-sm text-chalk-3">
-            Each offense against the opposing defense on the four axes that decide games. Ranks are among all 32 teams. The gap is in percentile points; 40 or more is a clear edge, 55 or more is a mismatch.
+            Each offense against the opposing defense: the run, the pass, and passing downs. Run and pass show how often the play works (that decides the edge) and how much it is worth. Ranks are among all 32 teams. The gap is in percentile points; 40 or more is a clear edge, 55 or more is a mismatch.
           </p>
           <div className="mt-3 grid gap-3">
             {game.matchups.map((m, i) => (

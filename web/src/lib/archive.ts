@@ -112,11 +112,12 @@ function writeEntry(e: ArchiveEntry) {
 
 function axisOf(m: Matchup): string {
   const t = `${m.a} ${m.b}`.toLowerCase();
+  // Current titles (run game, pass game, passing-down offense) and earlier ones, so older locks keep grading.
   if (t.includes("ground game")) return "line";
   if (t.includes("run game")) return "rush";
-  if (t.includes("deep passing")) return "pass";
+  if (t.includes("pass game") || t.includes("deep passing")) return "pass";
   if (t.includes("offensive line")) return "line";
-  if (t.includes("passing downs")) return "passing-downs";
+  if (t.includes("passing-down") || t.includes("passing downs")) return "passing-downs";
   return "other";
 }
 
@@ -175,7 +176,7 @@ export function lockPregame(game: Game, season: number): ArchiveEntry | undefine
         b: m.b,
         edge: m.edge ?? "even",
         axis: axisOf(m),
-        offTeam: m.a.replace(/ (run game|deep passing|offensive line|ground game|on passing downs)$/i, ""),
+        offTeam: m.a.replace(/ (run game|pass game|passing-down offense|deep passing|offensive line|ground game|on passing downs)$/i, ""),
         why: m.why,
       })),
       prospects: game.prospects
@@ -220,7 +221,7 @@ function teamBox(box: BoxScore, school: string): TeamBox | undefined {
 function gradeEdge(e: EdgeCall, off: TeamBox | undefined, gameId?: string): { verdict: Verdict; actual: string } {
   // Passing downs are graded from play-by-play (situational digest), not the box score.
   if (e.axis === "passing-downs" && gameId) {
-    const g = gradePassingDowns(gameId, e.offTeam, e.b.replace(/ pressure$/i, ""), e.edge);
+    const g = gradePassingDowns(gameId, e.offTeam, e.b.replace(/ (pressure|passing-down defense)$/i, ""), e.edge);
     if (g) return g;
   }
   if (!off) return { verdict: "unmeasured", actual: "No box score for the offense." };
@@ -267,7 +268,7 @@ export function gradePostgame(game: Game, season: number, box: BoxScore, excitem
     let changed = false;
     for (const x of entry.postgame.edges) {
       if (x.axis !== "passing-downs" || x.verdict !== "unmeasured" || x.edge === "even") continue;
-      const g = gradePassingDowns(game.id, x.offTeam, x.b.replace(/ pressure$/i, ""), x.edge);
+      const g = gradePassingDowns(game.id, x.offTeam, x.b.replace(/ (pressure|passing-down defense)$/i, ""), x.edge);
       if (g && g.verdict !== "unmeasured") {
         x.verdict = g.verdict;
         x.actual = g.actual;
