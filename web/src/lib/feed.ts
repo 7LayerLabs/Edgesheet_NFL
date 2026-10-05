@@ -275,43 +275,42 @@ const BSKY_HOSTS = ["https://api.bsky.app", "https://public.api.bsky.app"];
 async function bluesky(query: string, team: string): Promise<FeedItem[]> {
   return memo(`feed:bsky:${query}`, MEMO_SECONDS, async () => {
     const qs = `q=${encodeURIComponent(query)}&limit=50&sort=latest&since=${encodeURIComponent(since().toISOString())}`;
-    let lastErr = "";
-    for (const host of BSKY_HOSTS) {
-      try {
-        const r = await get(`${host}/xrpc/app.bsky.feed.searchPosts?${qs}`, "application/json");
-        if (r.status !== 200) {
-          lastErr = `HTTP ${r.status}`;
-          continue;
-        }
-        const data = JSON.parse(r.body) as { posts?: BskyPost[] };
-        const out: FeedItem[] = [];
-        for (const p of data.posts ?? []) {
-          const ext = p.record.embed?.external ?? p.embed?.external;
-          const text = [p.record.text, p.record.bridgyOriginalText, ext?.title, ext?.description].filter(Boolean).join(" ").trim();
-          if (!text) continue;
-          const at = p.record.createdAt ?? "";
-          if (!fresh(at)) continue;
-          const handle = p.author.handle;
-          out.push({
-            id: `bsky:${p.uri}`,
-            source: "bluesky",
-            kind: bskyKind(handle, p.author.displayName),
-            author: p.author.displayName?.trim() || handle,
-            outlet: handle.endsWith(".bsky.social") ? undefined : handle.replace(/\.web\.brid\.gy$/, ""),
-            url: bskyUrl(p),
-            text: text.replace(/\s+/g, " ").slice(0, 600),
-            publishedAt: new Date(at).toISOString(),
-            tags: [],
-            team,
-            where: "Bluesky",
-          });
-        }
-        return out;
-      } catch (e) {
-        lastErr = e instanceof Error ? e.message : String(e);
+    // Both hosts at once, first good answer wins: one after the other cost up to 12 s when the first hung.
+    const ask = async (host: string) => {
+      const r = await get(`${host}/xrpc/app.bsky.feed.searchPosts?${qs}`, "application/json");
+      if (r.status !== 200) throw new Error(`HTTP ${r.status}`);
+      return r.body;
+    };
+    try {
+      const body = await Promise.any(BSKY_HOSTS.map(ask));
+      const data = JSON.parse(body) as { posts?: BskyPost[] };
+      const out: FeedItem[] = [];
+      for (const p of data.posts ?? []) {
+        const ext = p.record.embed?.external ?? p.embed?.external;
+        const text = [p.record.text, p.record.bridgyOriginalText, ext?.title, ext?.description].filter(Boolean).join(" ").trim();
+        if (!text) continue;
+        const at = p.record.createdAt ?? "";
+        if (!fresh(at)) continue;
+        const handle = p.author.handle;
+        out.push({
+          id: `bsky:${p.uri}`,
+          source: "bluesky",
+          kind: bskyKind(handle, p.author.displayName),
+          author: p.author.displayName?.trim() || handle,
+          outlet: handle.endsWith(".bsky.social") ? undefined : handle.replace(/\.web\.brid\.gy$/, ""),
+          url: bskyUrl(p),
+          text: text.replace(/\s+/g, " ").slice(0, 600),
+          publishedAt: new Date(at).toISOString(),
+          tags: [],
+          team,
+          where: "Bluesky",
+        });
       }
+      return out;
+    } catch (e) {
+      const why = e instanceof AggregateError ? e.errors.map((x) => (x instanceof Error ? x.message : String(x))).join("; ") : e instanceof Error ? e.message : String(e);
+      throw new Error(why || "Bluesky unavailable");
     }
-    throw new Error(lastErr || "Bluesky unavailable");
   });
 }
 

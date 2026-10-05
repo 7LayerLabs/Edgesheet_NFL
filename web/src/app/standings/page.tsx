@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getSlate } from "@/lib/slate";
-import { standings, CONFERENCES, DIVISIONS, type Standing } from "@/lib/nfl";
+import { logoUrl, standings, CONFERENCES, DIVISIONS, type Standing } from "@/lib/nfl";
 import { kickoffTime } from "@/lib/format";
 import { FollowButton } from "@/components/FollowButton";
 import type { Game } from "@/lib/types";
@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function StandingsPage() {
   const slate = await getSlate();
-  const rows = standings(slate.season);
+  const rows = standings(slate.season, slate.finals);
   const byTeam = new Map<string, Game>();
   for (const g of slate.weekGames) {
     byTeam.set(g.home.short, g);
@@ -83,7 +83,7 @@ function DivisionTable({ title, rows, byTeam }: { title: string; rows: Standing[
               <tr key={r.team.short} className="border-t border-line">
                 <td className="py-1.5 pr-2">
                   <span className="flex items-center gap-2">
-                    <Image src={`https://a.espncdn.com/i/teamlogos/nfl/500/${r.team.abbr.toLowerCase()}.png`} alt="" width={22} height={22} className="h-[22px] w-[22px] object-contain" unoptimized />
+                    <Image src={logoUrl(r.team.abbr)} alt="" width={22} height={22} className="h-[22px] w-[22px] object-contain" unoptimized />
                     <span className="min-w-0">
                       <span className="display block text-lg font-semibold leading-tight text-chalk">{r.team.short}</span>
                       {g && opp ? (

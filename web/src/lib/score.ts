@@ -52,12 +52,13 @@ export function availableWeight(c: ScoreComponents): number {
 
 export type ScoreTag = "Marquee" | "Hidden Gem" | "Rookie Heavy" | "Solid" | "Thin";
 
-const NATIONAL = /^(NBC|ESPN|ABC|ESPN\/ABC|Prime Video|Amazon|Netflix|NFL Network|Peacock|YouTube|YouTube TV|ESPN2)$/i;
+const NATIONAL = /^(NBC|ESPN|ABC|ESPN\/ABC|Prime Video|Amazon|Netflix|NFL Network|NFL Net|NFLN|Peacock|YouTube|YouTube TV|ESPN2)$/i;
 
 export function scoreTag(g: Game): ScoreTag {
   const s = scoutScore(g.scoreComponents);
   const marquee = NATIONAL.test(g.network.trim());
-  if (s >= 75 && !marquee) return "Hidden Gem";
+  // 78, not 75: on a Sunday most games are regional CBS/FOX windows, and at 75 ten of thirteen week-5 games were "gems".
+  if (s >= 78 && !marquee) return "Hidden Gem";
   if (s >= 80) return "Marquee";
   if ((g.scoreComponents.watchDensity ?? 0) >= 70) return "Rookie Heavy";
   if (s >= 55) return "Solid";

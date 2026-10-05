@@ -8,7 +8,7 @@ import { axisLabel, componentPhrase } from "@/lib/stadiums";
 import { baselineLine } from "@/lib/climate";
 import { asOf, etDateOf, kickoffTime, mlText, moveText, spreadText } from "@/lib/format";
 import type { DefenseProfile, Game, OffenseProfile, Prospect, Team } from "@/lib/types";
-import { CoverageBadge, DivisionTag, StatusPill } from "@/components/badges";
+import { CoverageBadge, StatusPill } from "@/components/badges";
 import { ScoutScore } from "@/components/ScoutScore";
 import { FollowButton } from "@/components/FollowButton";
 import { ProspectCard } from "@/components/ProspectCard";
@@ -17,14 +17,21 @@ import { PropsForRadar } from "@/components/PropsForRadar";
 import { LivePanel } from "@/components/LivePanel";
 import { LivePoller } from "@/components/LivePoller";
 import { WrittenReport } from "@/components/WrittenReport";
-import { ConsensusLine, ConsensusTable } from "@/components/ConsensusTable";
+import { ConsensusTable } from "@/components/ConsensusTable";
 import { Suspense } from "react";
 import { BeatFeed, BeatFeedFallback } from "@/components/BeatFeed";
 import { SituationalCues, SituationsTable } from "@/components/Situations";
 import { DfsPanel } from "@/components/DfsPanel";
 import { AvailabilityPanel } from "@/components/AvailabilityPanel";
+import { inputsLabel, LEAN_BACKTEST_NOTE, sideTier, tierLabel, totalTier } from "@/lib/leans";
+import { readReport, seasonOf } from "@/lib/report";
 
 export const dynamic = "force-dynamic";
+
+const TIERS: Prospect["tier"][] = ["Matchup", "Rookie", "Breakout", "Watch"];
+const TIER_TITLE: Record<Prospect["tier"], [string, string]> = { Matchup: ["On the spot", "the unit edges put these players in the game plan"], Rookie: ["Rookie class", "ranked against the draft slot"], Breakout: ["Breakout watch", "year 2 and 3 jumps against last season"], Watch: ["Watch", "starters worth knowing"] };
+/** Radar cards shown before "show all": enough for the names that matter, short enough to scroll past. */
+const RADAR_VISIBLE = 4;
 
 export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const { id } = await params;
@@ -35,154 +42,110 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const tag = scoreTag(game);
   const flags = game.weather ? evaluateWeather(game.weather) : [];
   const { likely, future } = prospectCounts(game);
+  const started = game.status !== "upcoming";
+  const hasReport = Boolean(readReport(seasonOf(game.kickoff), game.id)?.report);
+  // The headline is reason one; the list shows the rest.
+  const reasons = game.whyWatchReasons.filter((r) => r !== game.whyWatch);
 
-  const TIERS: Prospect["tier"][] = ["Matchup", "Rookie", "Breakout", "Watch"];
-  const byTier = new Map<Prospect["tier"], Prospect[]>();
-  for (const p of game.prospects) byTier.set(p.tier, [...(byTier.get(p.tier) ?? []), p]);
-  const tiers = TIERS.filter((t) => byTier.has(t));
-  const TIER_TITLE: Record<Prospect["tier"], [string, string]> = { Matchup: ["On the spot", "the unit edges put these players in the game plan"], Rookie: ["Rookie class", "ranked against the draft slot"], Breakout: ["Breakout watch", "year 2 and 3 jumps against last season"], Watch: ["Watch", "starters worth knowing"] };
+  const jump: [string, string][] = [
+    ...(started ? [["showed", game.status === "live" ? "Live" : "Box score"] as [string, string]] : []),
+    ["why", "Why watch"],
+    ["radar", "Who to watch"],
+    ["decided", "Matchups"],
+    ["playing", "Who plays"],
+    ["market", "Market"],
+    ["feed", "Feed"],
+  ];
 
   return (
     <article className="rise">
       <Link href={game.source === "live" ? `/?date=${etDateOf(game.kickoff)}` : "/"} className="mono text-xs text-chalk-3 hover:text-chalk">← Slate</Link>
 
-      {/* 1. Header */}
-      <header className={`mt-3 grid gap-5 sm:grid-cols-[1fr_auto] sm:items-start ${game.status === "final" ? "rounded border-l-4 border-brick pl-4" : ""}`}>
-        <div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <DivisionTag d={game.division} />
-            <span className="mono text-xs text-chalk-2">{kickoffTime(game.kickoff)} ET</span>
-            <span className="text-xs text-chalk-3">{game.network}</span>
-            <StatusPill status={game.status} clock={game.score?.clock} />
-            <LivePoller active={game.status === "live"} />
-            <CoverageBadge level={game.coverage} />
-          </div>
-          <h1 className="display mt-2 text-5xl font-extrabold leading-none text-chalk sm:text-6xl">
-            <TeamName t={game.away} score={game.score?.away} />
-            <span className="mx-2 text-chalk-3 sm:mx-3">@</span>
-            <TeamName t={game.home} score={game.score?.home} />
-          </h1>
-          <p className="mt-2 text-sm text-chalk-3">
-            {game.venue} · {game.city}
+      {/* Header: who, when, where. The answer strip under it carries the call. */}
+      <header className={`mt-3 ${game.status === "final" ? "rounded border-l-4 border-brick pl-4" : ""}`}>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="mono text-xs text-chalk-2">{kickoffTime(game.kickoff)} ET</span>
+          <span className="text-xs text-chalk-3">{game.network}</span>
+          <StatusPill status={game.status} clock={game.score?.clock} />
+          <LivePoller active={game.status === "live"} />
+          {game.coverage !== "Full" && <CoverageBadge level={game.coverage} />}
+        </div>
+        <h1 className="display mt-2 text-4xl font-extrabold leading-none text-chalk sm:text-6xl">
+          <TeamName t={game.away} score={game.score?.away} />
+          <span className="mx-2 text-chalk-3 sm:mx-3">@</span>
+          <TeamName t={game.home} score={game.score?.home} />
+        </h1>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <p className="text-sm text-chalk-3">
+            {game.venue}{game.city ? ` · ${game.city}` : ""}
           </p>
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <FollowButton kind="games" id={game.id} />
-            {game.source === "live" && (
-              <>
-                <FollowButton kind="teams" id={game.away.short} label={`Follow ${game.away.short}`} size="sm" />
-                <FollowButton kind="teams" id={game.home.short} label={`Follow ${game.home.short}`} size="sm" />
-              </>
-            )}
-            <span className="mono text-xs text-chalk-3">Report as of {asOf(game.reportAsOf)}</span>
+          <div className="w-36">
+            <ScoutScore score={score} tag={tag} size="sm" />
           </div>
         </div>
-        <div className="sm:w-48">
-          <ScoutScore score={score} tag={tag} size="lg" />
-          <p className="mt-2 text-xs text-chalk-3">
-            {game.source === "live"
-              ? likely + future === 0
-                ? "Nobody clears the radar yet"
-                : `${likely} to watch · ${future} more on the radar`
-              : `${likely} likely ${likely === 1 ? "pick" : "picks"} · ${future} future ${future === 1 ? "name" : "names"}`}
-          </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <FollowButton kind="games" id={game.id} size="sm" />
+          {game.source === "live" && (
+            <>
+              <FollowButton kind="teams" id={game.away.short} label={`Follow ${game.away.short}`} size="sm" />
+              <FollowButton kind="teams" id={game.home.short} label={`Follow ${game.home.short}`} size="sm" />
+            </>
+          )}
         </div>
       </header>
 
-      {game.gaps && game.gaps.length > 0 && (
-        <aside className="card mt-6 border-chalk-3/40 p-4">
-          <p className="eyebrow">Coverage {game.coverage} · what this report cannot say</p>
-          <ul className="mt-2 grid gap-1 text-sm text-chalk-2 sm:grid-cols-2">
-            {game.gaps.map((g) => (
-              <li key={g} className="flex gap-2"><span className="text-chalk-3">–</span>{g}</li>
-            ))}
-          </ul>
-        </aside>
-      )}
-      {/* Jump bar */}
+      <AnswerStrip game={game} />
+
       <nav className="jumpbar" aria-label="Sections">
-        {[
-          ["why", "Why watch"],
-          ["report", "Report"],
-          ["decided", "Decided by"],
-          ["radar", "Watch radar"],
-          ["dfs", "DraftKings"],
-          ["eye", "Eye on"],
-          ["showed", game.status === "upcoming" ? "Live" : "Who showed up"],
-          ["style", "Team style"],
-          ["conditions", "Conditions"],
-          ["market", "Market"],
-          ["storylines", "Storylines"],
-          ["playing", "Who plays"],
-          ["injuries", "Injuries"],
-          ["feed", "Feed"],
-          ["score", "Score"],
-        ].map(([id, label]) => (
+        {jump.map(([id, label]) => (
           <a key={id} href={`#${id}`}>{label}</a>
         ))}
       </nav>
 
-      {/* 2. Why watch */}
+      {/* Once the game starts, the box score is the first thing to read. */}
+      {started && <PostgameSection game={game} />}
+
       <Section n="Why watch" id="why" title={game.whyWatch}>
-        <ol className="mt-3 grid gap-2 sm:grid-cols-3">
-          {game.whyWatchReasons.map((r, i) => (
-            <li key={i} className="card p-4 text-base leading-snug text-chalk-2">
-              <span className="display block text-3xl font-bold text-flag">{i + 1}</span>
-              <span className="mt-1 block">{r}</span>
-            </li>
-          ))}
-        </ol>
+        {reasons.length > 0 && (
+          <ul className="mt-3 grid max-w-3xl gap-2">
+            {reasons.map((r) => (
+              <li key={r} className="border-l-2 border-line-2 pl-3 text-base leading-snug text-chalk-2">{r}</li>
+            ))}
+          </ul>
+        )}
       </Section>
 
-      {/* Written report (AI layer, cached on disk, never generated on page load) */}
-      <WrittenReport game={game} />
+      {hasReport && <WrittenReport game={game} />}
 
-      {/* 7. Matchups */}
+      <Section n="Must watch" id="radar" title={game.prospects.length ? "Who to watch" : "Nobody clears the radar yet"}>
+        {game.prospects.some((p) => p.radar) && (
+          <p className="mt-1 max-w-3xl text-sm text-chalk-3">
+            Ranked on production against the league at the position, snap share, draft slot, and last season. Players listed out are left off and named under Storylines.
+            {game.statsAsOf ? ` Stats as of ${asOf(game.statsAsOf)}.` : ""}
+          </p>
+        )}
+        <RadarTiers list={game.prospects.slice(0, RADAR_VISIBLE)} game={game} />
+        {game.prospects.length > RADAR_VISIBLE && (
+          <details className="mt-4">
+            <summary className="cursor-pointer select-none text-sm font-semibold text-sky">Show {game.prospects.length - RADAR_VISIBLE} more on the radar</summary>
+            <RadarTiers list={game.prospects.slice(RADAR_VISIBLE)} game={game} />
+          </details>
+        )}
+        {game.odds && game.prospects.length > 0 && <PropsForRadar gameId={game.id} odds={game.odds} prospects={game.prospects} upcoming={game.status === "upcoming"} />}
+        {game.prospects.length === 0 && (
+          <p className="mt-2 text-sm text-chalk-3">No player on either roster clears the production or snap-share thresholds. See More names below.</p>
+        )}
+      </Section>
+
       {game.matchups.length > 0 ? (
         <Section n="Matchups" id="decided" title="Where the game gets decided">
-          <div className="card mt-3 border-l-4 border-l-navy p-5">
-            <div className="flex items-center gap-3">
-              <TeamMark team={game.away} state={game.matchups[0]?.edge === "even" ? "even" : (game.matchups[0]?.a.startsWith(game.away.short) ? game.matchups[0]?.edge === "offense" : game.matchups[0]?.edge === "defense") ? "win" : "lose"} />
-              <TeamMark team={game.home} state={game.matchups[0]?.edge === "even" ? "even" : (game.matchups[0]?.a.startsWith(game.home.short) ? game.matchups[0]?.edge === "offense" : game.matchups[0]?.edge === "defense") ? "win" : "lose"} />
-              <p className="eyebrow">Pressure point</p>
-            </div>
-            <p className="mt-2 text-lg leading-relaxed text-chalk">{game.pressurePoint}</p>
-          </div>
-          <p className="mt-4 max-w-3xl text-base text-chalk-3">
-            Each offense against the opposing defense on the four axes that decide games. Ranks are inside the 32. The gap is in percentile points; 40 or more is a clear edge, 55 or more is a mismatch.
+          <p className="mt-1 max-w-3xl text-sm text-chalk-3">
+            Each offense against the opposing defense on the four axes that decide games. Ranks are among all 32 teams. The gap is in percentile points; 40 or more is a clear edge, 55 or more is a mismatch.
           </p>
           <div className="mt-3 grid gap-3">
-            {game.matchups.map((m, i) => {
-              const tone = m.edge === "offense" ? "border-l-4 border-l-turf" : m.edge === "defense" ? "border-l-4 border-l-sky" : "border-l-4 border-l-line-2";
-              const label = m.strength === "dominant" ? "Mismatch" : m.strength === "clear" ? "Clear edge" : m.strength === "real" ? "Edge" : "Even";
-              const labelTone = m.strength === "dominant" ? "bg-brick text-white" : m.strength === "clear" ? "bg-navy text-white" : m.strength === "real" ? "bg-ink-2 text-chalk" : "bg-ink-2 text-chalk-3";
-              return (
-                <div key={i} className={`card p-5 ${tone}`}>
-                  {(() => {
-                    const offTeam = m.a.startsWith(game.home.short) ? game.home : game.away;
-                    const defTeam = offTeam === game.home ? game.away : game.home;
-                    const winner = m.edge === "offense" ? offTeam : m.edge === "defense" ? defTeam : undefined;
-                    return (
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                        <span className={`rounded px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${labelTone}`}>{label}</span>
-                        <TeamMark team={offTeam} state={winner ? (winner === offTeam ? "win" : "lose") : "even"} />
-                        <span className="display text-2xl font-bold text-chalk">{m.a}</span>
-                        <span className="text-chalk-3">vs</span>
-                        <TeamMark team={defTeam} state={winner ? (winner === defTeam ? "win" : "lose") : "even"} />
-                        <span className="display text-2xl font-bold text-chalk">{m.b}</span>
-                        {winner && (
-                          <span className={`ml-auto flex items-center gap-2 text-sm font-semibold ${m.edge === "offense" ? "text-turf" : "text-sky"}`}>
-                            Advantage {winner.short}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })()}
-                  <p className="mt-3 text-lg leading-relaxed text-chalk">{m.why}</p>
-                  {m.watch && <p className="mt-2 text-base text-chalk-2"><span className="eyebrow mr-1">Watch for</span>{m.watch}</p>}
-                  <p className="mono mt-2 text-xs text-chalk-3">Evidence: {m.evidence}</p>
-                </div>
-              );
-            })}
+            {game.matchups.map((m, i) => (
+              <MatchupCard key={i} m={m} game={game} />
+            ))}
           </div>
           {game.situations && <SituationalCues cues={game.situations.cues} />}
           {game.projection && <ProjectionBox game={game} />}
@@ -194,175 +157,18 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
         </Section>
       )}
 
-      {/* 6. Prospects */}
-      <Section n="Must watch" id="radar" title={game.prospects.length ? "Who to watch, by lens" : "Nobody clears the radar yet"}>
-        {game.prospects.some((p) => p.radar) && (
-          <p className="mt-1 max-w-3xl text-sm text-chalk-3">
-            Radar entries rank evidence: production percentile against the league at the position, snap share, draft slot, and last season's line. Injury status is the official report. They are not grades.
-            {game.statsAsOf ? ` Stats as of ${asOf(game.statsAsOf)}.` : ""}
-          </p>
-        )}
-        {tiers.map((y) => (
-          <div key={y} className="mt-5">
-            <div className="flex items-baseline gap-3">
-              <span className="display text-3xl font-bold text-chalk">{TIER_TITLE[y][0]}</span>
-              <span className="mono text-xs text-chalk-3">{TIER_TITLE[y][1]}</span>
-              <span className="h-px flex-1 bg-line" />
-            </div>
-            <div className="mt-2 grid gap-2.5 md:grid-cols-2">
-              {byTier.get(y)!.map((p) => (
-                <ProspectCard key={p.id} p={p} team={p.team === game.home.abbr ? game.home : game.away} />
-              ))}
-            </div>
-          </div>
-        ))}
-        {game.odds && game.prospects.length > 0 && <PropsForRadar gameId={game.id} odds={game.odds} prospects={game.prospects} upcoming={game.status === "upcoming"} />}
-        {game.prospects.length === 0 && (
-          <p className="mt-2 text-sm text-chalk-3">No player on either roster clears the production or snap-share thresholds. See Keep an eye on below.</p>
-        )}
-      </Section>
+      {game.availability && (
+        <Section n="Who is playing" id="playing" title={game.availability.home.total === game.availability.away.total ? "Lineups as expected" : "What the lineups cost"}>
+          <AvailabilityPanel game={game} a={game.availability} />
+        </Section>
+      )}
 
-      {/* DraftKings and props */}
       <Section n="DraftKings and props" id="dfs" title="Who to play, and the defenders to bet">
         <Suspense fallback={<p className="mt-3 text-sm text-chalk-3">Loading DraftKings salaries.</p>}>
           <DfsPanel game={game} />
         </Suspense>
       </Section>
 
-      {/* 8. Keep an eye on */}
-      {game.keepAnEyeOn.length > 0 && (
-        <Section n="Keep an eye on" id="eye" title="More names on the radar">
-          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-            {game.keepAnEyeOn.map((k) => (
-              <li key={k.name} className="card p-4">
-                <span className="display text-2xl font-semibold text-chalk">{k.name}</span>
-                <span className="mono ml-2 text-xs text-chalk-3">{k.team}</span>
-                <p className="mt-1 text-base text-chalk-2">{k.note}</p>
-              </li>
-            ))}
-          </ul>
-        </Section>
-      )}
-
-      {/* 10. Live / postgame */}
-      <Section
-        id="showed"
-        n={game.status === "final" ? "Postgame" : "Live"}
-        title={game.box ? (game.box.source === "espn" && game.status === "live" ? "Who is showing up" : "Who showed up") : game.status === "final" ? "Box score not published yet" : game.status === "live" ? (game.live ? "Live from the feed" : "Box score arrives when the game settles") : "Opens at kickoff"}
-      >
-        <LivePanel game={game} />
-        {game.box ? (
-          <>
-            <div className="mt-3 grid gap-2.5 md:grid-cols-2">
-              {game.box.teams.map((t) => (
-                <div key={t.team} className="card p-4">
-                  <div className="flex items-baseline justify-between">
-                    <span className="display text-2xl font-bold text-chalk">{t.team}</span>
-                    {t.points !== null && <span className="display text-3xl font-extrabold text-flag">{t.points}</span>}
-                  </div>
-                  <ul className="mt-2 grid gap-1.5">
-                    {t.leaders.map((l) => (
-                      <li key={l.id + l.category} className="flex items-baseline gap-2 text-sm">
-                        <span className="mono w-16 shrink-0 text-[10px] uppercase tracking-wider text-chalk-3">{l.category === "interceptions" ? "INT" : l.category.slice(0, 7)}</span>
-                        <Link href={`/player/${l.id}`} className="font-medium text-chalk hover:text-flag">{l.name}</Link>
-                        <span className="mono truncate text-xs text-chalk-2">{l.headline}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-chalk-3">
-              {game.box.source === "espn" ? "Box from the ESPN feed; the nflverse weekly stats replace it once posted. " : ""}
-              Radar players above show their line from this game. Stock does not move automatically; one game is one data point.
-            </p>
-            {game.archive?.postgame && <Accountability entry={game.archive} />}
-          </>
-        ) : (
-          <p className="mt-2 text-base text-chalk-3">
-            {game.status === "upcoming"
-              ? "Box score leaders and each radar player's line appear here once the game starts."
-              : "The data feed posts player stats after the game settles. Check back in a few minutes."}
-          </p>
-        )}
-        {game.status === "upcoming" && game.archive && (
-          <p className="mono mt-3 text-xs text-chalk-3">
-            Pregame call locked {asOf(game.archive.pregame.capturedAt)}: {game.archive.pregame.edges.length} matchup calls, {game.archive.pregame.prospects.length} radar names, Watch Score {game.archive.pregame.scoutScore}. It gets graded against the box score after the final. <Link href="/history" className="text-sky">See the record</Link>.
-          </p>
-        )}
-      </Section>
-
-      {/* 3. Team style */}
-      <Section n="Team style" id="style" title={game.offense[game.home.abbr]?.sample === "unavailable" ? "Tendencies not charted yet" : "How each side wants to play"}>
-        {game.statsAsOf && <p className="mono mt-1 text-xs text-chalk-3">Play-by-play through {asOf(game.statsAsOf)}. Ranks are inside the 32.</p>}
-        <div className="mt-3 grid gap-2.5 md:grid-cols-2">
-          {[game.away, game.home].map((t) => (
-            <div key={t.id} className="card p-4">
-              <div className="flex items-center gap-2">
-                <span className="inline-block h-4 w-1 rounded-sm" style={{ background: t.color }} />
-                <span className="display text-2xl font-bold">{t.short}</span>
-              </div>
-              <StyleCard side="Offense" o={game.offense[t.abbr]} />
-              <StyleCard side="Defense" d={game.defense[t.abbr]} />
-            </div>
-          ))}
-        </div>
-        {game.situations && <SituationsTable away={game.away} home={game.home} s={game.situations} />}
-      </Section>
-
-      {/* 4. Weather */}
-      <Section n="Conditions" id="conditions" title={game.weather ? weatherHeadline(game) : "No forecast available"}>
-        {game.weather && (
-          <>
-            <div className="mono mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-chalk-2">
-              <span>{game.weather.tempF}° / feels {game.weather.feelsLikeF}°</span>
-              <span>Wind {game.weather.windDir} {game.weather.windMph} mph, gusts {game.weather.gustMph}</span>
-              <span>Rain {game.weather.precipChance}%{game.weather.precipWindow ? ` ${game.weather.precipWindow}` : ""}</span>
-              <span>Humidity {game.weather.humidity}%</span>
-              <span>{game.weather.surface === "grass" ? "Grass" : "Turf"} · {roofLabel(game.weather.roof)}</span>
-              <span>{game.weather.elevationFt.toLocaleString()} ft</span>
-              <span className="text-chalk-3">as of {asOf(game.weather.asOf)}</span>
-            </div>
-            {game.weather.roof === "open" && (
-              <p className="mt-2 text-sm text-chalk-2">
-                {game.weather.windMph > 0
-                  ? `Wind ${game.weather.windDir} ${game.weather.windMph} mph`
-                  : "Calm"}
-                {game.weather.windComponent && game.weather.fieldBearing != null
-                  ? `, ${componentPhrase(game.weather.windComponent)} (field runs ${axisLabel(game.weather.fieldBearing)}${game.weather.fieldBearingConfidence !== "high" ? ", from the stadium outline" : ""}).`
-                  : game.weather.fieldBearing != null
-                    ? `. Field runs ${axisLabel(game.weather.fieldBearing)}.`
-                    : ". Field orientation is not on file for this venue, so the crosswind call is unmeasured."}
-              </p>
-            )}
-            {game.climate ? (
-              <p className="mt-1 text-sm text-chalk-2">{baselineLine(game.climate, game.weather)}</p>
-            ) : (
-              <p className="mt-1 text-sm text-chalk-3">No weather baseline on file for this venue.</p>
-            )}
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              {flags.length === 0 && (
-                <p className="card p-4 text-sm text-chalk-2">No weather flag. Conditions are not expected to change play calling.</p>
-              )}
-              {flags.map((f) => (
-                <div
-                  key={f.key}
-                  className={`card p-4 ${f.level === "elevated" ? "border-brick/60" : f.level === "flag" ? "border-warn/50" : ""}`}
-                >
-                  <p className={`text-sm font-semibold ${f.level === "elevated" ? "text-brick" : f.level === "flag" ? "text-warn" : "text-chalk-2"}`}>
-                    {f.level === "elevated" ? "▲ " : f.level === "flag" ? "△ " : ""}
-                    {f.title}
-                  </p>
-                  <p className="mt-1 text-sm leading-snug text-chalk-2">{f.effect}</p>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-        {!game.weather && game.climate && <p className="mt-2 text-sm text-chalk-2">{baselineLine(game.climate)}</p>}
-      </Section>
-
-      {/* 5. Market */}
       <Section n="Market" id="market" title={game.market.spread ? `${spreadText(game.market.spread.team, game.market.spread.line)}, total ${game.market.total?.line}` : "No widely available line"}>
         {game.market.spread ? (
           <div className="mt-3 grid gap-2 sm:grid-cols-3">
@@ -374,40 +180,27 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
               <Stat label="Books" value={String(game.market.books)} sub="consensus median" />
             )}
             <p className="mono text-xs text-chalk-3 sm:col-span-3">
-              As of {asOf(game.market.asOf)}. Shown as game context, not a pick.
+              As of {asOf(game.market.asOf)}{started ? ", the last pregame number" : ""}. The model against it is under Matchups.
             </p>
           </div>
         ) : (
           <p className="mt-2 text-sm text-chalk-3">No book we track lists this game. The report does not estimate a line.</p>
         )}
-        {game.projection && (game.projection.vsMarket || game.projection.totalNote) && <ModelVsMarket game={game} />}
         {game.odds && <LineMovement odds={game.odds} home={game.home} away={game.away} />}
       </Section>
 
-      {/* 9. Storylines */}
       <Section n="Storylines" id="storylines" title="Context that changes how you watch">
         {game.storylines.length === 0 && <p className="mt-2 text-sm text-chalk-3">Nothing on file beyond the schedule.</p>}
         <ul className="mt-3 grid gap-1.5">
           {game.storylines.map((s) => (
-            <li key={s} className="flex gap-3 text-sm text-chalk-2">
-              <span className="text-flag">—</span>
-              {s}
-            </li>
+            <li key={s} className="border-l-2 border-line-2 pl-3 text-sm text-chalk-2">{s}</li>
           ))}
         </ul>
       </Section>
 
-      {/* Who is playing: availability priced into the projection */}
-      {game.availability && (
-        <Section n="Who is playing" id="playing" title={game.availability.home.total === game.availability.away.total ? "Lineups as expected" : "What the lineups cost"}>
-          <AvailabilityPanel game={game} a={game.availability} />
-        </Section>
-      )}
-
-      {/* Official injury report */}
       {game.injuryReport && game.injuryReport.length > 0 && (
         <Section n="Injury report" id="injuries" title={`Official report, week ${game.injuryReport[0].week}`}>
-          <p className="mt-1 text-sm text-chalk-3">From the nflverse injuries file (the league's official practice and game status reports). Out, Doubtful, and Questionable only.</p>
+          <p className="mt-1 text-sm text-chalk-3">From the nflverse injuries file (the league&apos;s official practice and game status reports). Out, Doubtful, and Questionable only.</p>
           <div className="mt-3 grid gap-2.5 md:grid-cols-2">
             {[game.away, game.home].map((t) => (
               <div key={t.id} className="card p-4">
@@ -431,18 +224,107 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
         </Section>
       )}
 
+      <Section n="Team style" id="style" title={game.offense[game.home.abbr]?.sample === "unavailable" ? "Tendencies not charted yet" : "How each side wants to play"}>
+        <dl className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+          {[game.away, game.home].map((t) => (
+            <div key={t.id} className="border-l-4 pl-3" style={{ borderColor: t.color }}>
+              <dt className="display text-xl font-bold text-chalk">{t.short}</dt>
+              <dd className="text-sm text-chalk-2">Offense: {game.offense[t.abbr]?.label ?? "not charted"}</dd>
+              <dd className="text-sm text-chalk-2">Defense: {game.defense[t.abbr]?.label ?? "not charted"}</dd>
+            </div>
+          ))}
+        </dl>
+        {game.offense[game.home.abbr]?.sample !== "unavailable" && (
+          <details className="mt-3">
+            <summary className="cursor-pointer select-none text-sm font-semibold text-sky">Show the numbers</summary>
+            {game.statsAsOf && <p className="mono mt-2 text-xs text-chalk-3">Play-by-play through {asOf(game.statsAsOf)}. Ranks are among all 32 teams.</p>}
+            <div className="mt-3 grid gap-2.5 md:grid-cols-2">
+              {[game.away, game.home].map((t) => (
+                <div key={t.id} className="card p-4">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block h-4 w-1 rounded-sm" style={{ background: t.color }} />
+                    <span className="display text-2xl font-bold">{t.short}</span>
+                  </div>
+                  <StyleCard side="Offense" o={game.offense[t.abbr]} />
+                  <StyleCard side="Defense" d={game.defense[t.abbr]} />
+                </div>
+              ))}
+            </div>
+            {game.situations && <SituationsTable away={game.away} home={game.home} s={game.situations} />}
+          </details>
+        )}
+      </Section>
+
+      {(game.weather || game.climate) && (
+        <Section n="Conditions" id="conditions" title={game.weather ? weatherHeadline(game) : "No forecast yet"}>
+          {game.weather && (
+            <>
+              <div className="mono mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-chalk-2">
+                <span>{game.weather.tempF}° / feels {game.weather.feelsLikeF}°</span>
+                <span>Wind {game.weather.windDir} {game.weather.windMph} mph, gusts {game.weather.gustMph}</span>
+                <span>Rain {game.weather.precipChance}%{game.weather.precipWindow ? ` ${game.weather.precipWindow}` : ""}</span>
+                <span>Humidity {game.weather.humidity}%</span>
+                <span>{game.weather.surface === "grass" ? "Grass" : "Turf"} · {roofLabel(game.weather.roof)}</span>
+                <span>{game.weather.elevationFt.toLocaleString()} ft</span>
+                <span className="text-chalk-3">as of {asOf(game.weather.asOf)}</span>
+              </div>
+              {game.weather.roof === "open" && (
+                <p className="mt-2 text-sm text-chalk-2">
+                  {game.weather.windMph > 0 ? `Wind ${game.weather.windDir} ${game.weather.windMph} mph` : "Calm"}
+                  {game.weather.windComponent && game.weather.fieldBearing != null
+                    ? `, ${componentPhrase(game.weather.windComponent)} (field runs ${axisLabel(game.weather.fieldBearing)}${game.weather.fieldBearingConfidence !== "high" ? ", from the stadium outline" : ""}).`
+                    : game.weather.fieldBearing != null
+                      ? `. Field runs ${axisLabel(game.weather.fieldBearing)}.`
+                      : ". Field orientation is not on file for this venue, so the crosswind call is unmeasured."}
+                </p>
+              )}
+              {game.climate && <p className="mt-1 text-sm text-chalk-2">{baselineLine(game.climate, game.weather)}</p>}
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {flags.length === 0 && <p className="card p-4 text-sm text-chalk-2">No weather flag. Conditions are not expected to change play calling.</p>}
+                {flags.map((f) => (
+                  <div key={f.key} className={`card p-4 ${f.level === "elevated" ? "border-brick/60" : f.level === "flag" ? "border-warn/50" : ""}`}>
+                    <p className={`text-sm font-semibold ${f.level === "elevated" ? "text-brick" : f.level === "flag" ? "text-warn" : "text-chalk-2"}`}>
+                      {f.level === "elevated" ? "▲ " : f.level === "flag" ? "△ " : ""}
+                      {f.title}
+                    </p>
+                    <p className="mt-1 text-sm leading-snug text-chalk-2">{f.effect}</p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {!game.weather && game.climate && <p className="mt-2 text-sm text-chalk-2">{baselineLine(game.climate)}</p>}
+        </Section>
+      )}
+
+      {game.keepAnEyeOn.length > 0 && (
+        <Section n="Keep an eye on" id="eye" title="More names on the radar">
+          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+            {game.keepAnEyeOn.map((k) => (
+              <li key={k.name} className="card p-4">
+                <span className="display text-2xl font-semibold text-chalk">{k.name}</span>
+                <span className="mono ml-2 text-xs text-chalk-3">{k.team}</span>
+                <p className="mt-1 text-base text-chalk-2">{k.note}</p>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
       {/* Beat feed: posts and headlines about both teams, tagged to radar players. Context only, never a source for the report. */}
       <Section n="Beat feed" id="feed" title={`What people are saying about ${game.away.short} and ${game.home.short}`}>
         <Suspense fallback={<BeatFeedFallback />}>
           <BeatFeed
+            limit={10}
             schools={[game.away.short, game.home.short]}
             players={game.prospects.map((p) => ({ id: p.id, name: p.name, team: p.team === game.home.abbr ? game.home.short : game.away.short }))}
           />
         </Suspense>
       </Section>
 
-      {/* Score breakdown */}
-      <Section n="Watch Score" id="score" title={`${score} out of 100`}>
+      {!hasReport && <WrittenReport game={game} />}
+
+      <Section n="Watch Score" id="score" title={`${score} out of 100${game.source === "live" ? ` · ${likely} to watch, ${future} more on the radar` : ""}`}>
         <div className="mt-3 grid gap-2">
           {COMPONENT_KEYS.map((k) => {
             const v = game.scoreComponents[k];
@@ -451,11 +333,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
                 <span className={v === null ? "text-chalk-3" : "text-chalk-2"}>
                   {COMPONENT_LABELS[k]} <span className="text-chalk-3">{Math.round(WEIGHTS[k] * 100)}%</span>
                 </span>
-                {v === null ? (
-                  <span className="mono text-[10px] text-chalk-3">not available, excluded</span>
-                ) : (
-                  <div className="meter"><span style={{ width: `${v}%` }} /></div>
-                )}
+                {v === null ? <span className="mono text-[10px] text-chalk-3">not available, excluded</span> : <div className="meter"><span style={{ width: `${v}%` }} /></div>}
                 <span className="mono text-right text-chalk">{v === null ? "–" : v}</span>
               </div>
             );
@@ -467,72 +345,215 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
         </div>
       </Section>
 
+      <details className="mt-10 text-sm text-chalk-3">
+        <summary className="cursor-pointer select-none hover:text-chalk-2">What this report cannot say{game.gaps?.length ? ` (${game.gaps.length})` : ""}</summary>
+        <ul className="mt-2 grid gap-1 sm:grid-cols-2">
+          {(game.gaps ?? []).map((g) => (
+            <li key={g} className="flex gap-2"><span>–</span>{g}</li>
+          ))}
+          <li className="flex gap-2"><span>–</span>Report as of {asOf(game.reportAsOf)}.</li>
+        </ul>
+      </details>
     </article>
   );
 }
 
 /* ---------------------------------------------------------------- bits */
 
-function ModelVsMarket({ game }: { game: Game }) {
-  const p = game.projection!;
-  const sideTeam = p.modelSide ? (p.modelSide === game.home.abbr ? game.home : game.away) : undefined;
-  const sideStrength = (p.sideGap ?? 0) >= 6 ? "strong" : (p.sideGap ?? 0) >= 3 ? "moderate" : (p.sideGap ?? 0) >= 2 ? "slight" : "none";
-  const totalStrength = Math.abs(p.totalGap ?? 0) >= 6 ? "strong" : Math.abs(p.totalGap ?? 0) >= 4 ? "moderate" : Math.abs(p.totalGap ?? 0) >= 2.5 ? "slight" : "none";
-  const tone = (s: string) => (s === "strong" ? "bg-brick text-white" : s === "moderate" ? "bg-navy text-white" : s === "slight" ? "bg-ink-2 text-chalk" : "bg-ink-2 text-chalk-3");
+/**
+ * The call on one screen: who the model has and by how much, the posted number, and where the model sits
+ * against it (or how the call graded, once final), plus the one or two notes that move it.
+ */
+function AnswerStrip({ game }: { game: Game }) {
+  const p = game.projection;
+  const s = game.market.spread;
+  const t = game.market.total;
+  const winner = p ? (p.winner === game.home.abbr ? game.home : game.away) : undefined;
+  const side = p?.modelSide ? (p.modelSide === game.home.abbr ? game.home : game.away) : undefined;
+  const sTier = p ? sideTier(p.sideGap ?? 0) : undefined;
+  const tTier = p && p.totalLean && p.totalLean !== "none" ? totalTier(p.totalGap ?? 0) : undefined;
+  const sideLine = side && s ? (side.abbr === s.team ? s.line : -s.line) : undefined;
   const graded = game.archive?.postgame?.projectionResult;
+  const notes = keyNotes(game);
+  const lockedAt = game.archive?.pregame.updatedAt ?? game.archive?.pregame.capturedAt;
   return (
-    <div className="card mt-4 border-l-4 border-l-brick p-5">
-      <p className="eyebrow">What the stats say against the posted numbers · a model, not a pick</p>
-      <div className="mt-3 grid gap-3 md:grid-cols-2">
-        <div className="rounded border border-line bg-panel-2 p-4">
-          <div className="flex items-center justify-between gap-2">
-            <span className="eyebrow">Side</span>
-            <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${tone(sideStrength)}`}>{sideStrength === "none" ? "no lean" : `${sideStrength} lean`}</span>
-          </div>
-          {sideTeam && game.market.spread ? (
+    <section aria-label="The call" className="mt-5 overflow-hidden rounded border border-line bg-panel">
+      {/* Phone: the call across the top, the number and the gap side by side under it. Wider: three columns. */}
+      <div className="grid grid-cols-2 sm:grid-cols-[1.3fr_1fr_1.2fr]">
+        <div className="col-span-2 border-b border-line p-4 sm:col-span-1 sm:border-b-0 sm:border-r" style={{ boxShadow: winner ? `inset 4px 0 0 ${winner.color}` : undefined }}>
+          <p className="text-xs font-semibold text-chalk-3">{game.status === "upcoming" ? "The model" : "Pregame call"}</p>
+          {p && winner ? (
             <>
-              <p className="display mt-1 flex items-center gap-2 text-3xl font-bold text-chalk">
-                <TeamMark team={sideTeam} state={sideStrength === "none" ? "even" : "win"} />
-                {sideTeam.short}
-                <span className="mono text-base font-normal text-chalk-3">{spreadText(game.market.spread.team, game.market.spread.line)}</span>
-              </p>
-              <p className="mt-1 text-base text-chalk">{p.vsMarket}</p>
-              <ConsensusLine game={game} />
+              <p className="display mt-0.5 text-3xl font-bold text-chalk">{winner.short} by {p.margin.toFixed(1)}</p>
+              <p className="mono mt-0.5 text-xs text-chalk-2">{Math.round(p.winProb * 100)}% to win · {game.away.abbr} {p.away}, {game.home.abbr} {p.home}</p>
             </>
           ) : (
-            <p className="mt-1 text-base text-chalk-3">No posted spread to compare.</p>
+            <p className="mt-1 text-sm text-chalk-3">No projection: the inputs are not ingested.</p>
           )}
         </div>
-        <div className="rounded border border-line bg-panel-2 p-4">
-          <div className="flex items-center justify-between gap-2">
-            <span className="eyebrow">Total</span>
-            <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${tone(totalStrength)}`}>{p.totalLean && p.totalLean !== "none" ? `${totalStrength} ${p.totalLean}` : "no lean"}</span>
-          </div>
-          {p.modelTotal !== undefined && game.market.total ? (
+        <div className="border-r border-line p-4">
+          <p className="text-xs font-semibold text-chalk-3">{game.status === "upcoming" ? "The number" : "The number at kickoff"}</p>
+          <p className="mono mt-1 text-xl text-chalk">{s ? spreadText(s.team, s.line) : "No line"}</p>
+          <p className="mono mt-0.5 text-xs text-chalk-2">{t ? `total ${t.line}` : "no total"}</p>
+        </div>
+        <div className="p-4">
+          {graded ? (
             <>
-              <p className="display mt-1 text-3xl font-bold text-chalk">
-                {p.totalLean && p.totalLean !== "none" ? p.totalLean.toUpperCase() : "Even"} <span className="mono text-base font-normal text-chalk-3">model {p.modelTotal} · posted {game.market.total.line}</span>
+              <p className="text-xs font-semibold text-chalk-3">How the call did</p>
+              <p className={`display mt-0.5 text-xl font-bold sm:text-2xl ${graded.winnerRight ? "text-turf" : "text-brick"}`}>{graded.winnerRight ? "Winner right" : "Winner wrong"}</p>
+              <p className="mono mt-0.5 text-xs text-chalk-2">
+                margin off by {graded.marginError.toFixed(0)}
+                {graded.modelSideCovered !== undefined ? ` · side ${graded.modelSideCovered ? "covered" : "lost"}` : ""}
+                {graded.totalLeanRight !== undefined ? ` · total ${graded.totalLeanRight ? "right" : "wrong"}` : ""}
               </p>
-              <p className="mt-1 text-base text-chalk">{p.totalNote}</p>
-              {p.weatherTilt && <p className="mt-1 text-sm text-chalk-2"><span className="eyebrow mr-1">Weather</span>{p.weatherTilt}</p>}
             </>
-          ) : p.modelTotal !== undefined ? (
-            <p className="mt-1 text-base text-chalk">Model total {p.modelTotal}. No posted total to compare.</p>
           ) : (
-            <p className="mt-1 text-base text-chalk-3">Total needs tendency data for both teams.</p>
+            <>
+              <p className="text-xs font-semibold text-chalk-3">Model against the number</p>
+              {side && sTier && sideLine !== undefined ? (
+                <>
+                  <p className="display mt-0.5 text-xl font-bold text-chalk sm:text-2xl">{side.short} {sideLine > 0 ? "+" : ""}{sideLine}</p>
+                  <p className="mono mt-0.5 text-xs text-chalk-2">{tierLabel(sTier)} of {p!.sideGap!.toFixed(1)} pts</p>
+                </>
+              ) : (
+                <p className="display mt-0.5 text-xl font-bold text-chalk-2 sm:text-2xl">{s && p ? "Side: no lean" : "Nothing to compare"}</p>
+              )}
+              <p className="mono mt-0.5 text-xs text-chalk-2">
+                {p?.modelTotal !== undefined && t ? `total: model ${p.modelTotal}${tTier ? `, ${p.totalLean} (${tierLabel(tTier)} ${Math.abs(p.totalGap ?? 0).toFixed(1)})` : ", no lean"}` : "no model total"}
+              </p>
+            </>
           )}
         </div>
       </div>
-      <p className="mt-3 text-xs text-chalk-3">
-        Side comes from the projected margin (Elo and unit edges) against the spread. Total comes from each offense&apos;s EPA per play against the other defense, over both teams&apos; pace, plus a weather tilt when the forecast is flagged. A lean under 2 points is noise. Both are locked pregame and graded on the Record page.
-        {graded?.totalLeanRight !== undefined && ` Graded: total lean ${graded.totalLeanRight ? "right" : "wrong"}.`}
-        {graded?.modelSideCovered !== undefined && ` Side ${graded.modelSideCovered ? "covered" : "did not cover"}.`}
-      </p>
+      {(notes.length > 0 || lockedAt) && (
+        <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1 border-t border-line bg-panel-2 px-4 py-2 text-sm text-chalk-2">
+          {notes.map((n) => (
+            <span key={n}>{n}</span>
+          ))}
+          {lockedAt && (
+            <span className="text-xs text-chalk-3">
+              {game.status === "upcoming" ? `Locked ${asOf(lockedAt)}, follows the news until kickoff` : `Locked ${asOf(lockedAt)}`} · <Link href="/history" className="text-sky">the record</Link>
+            </span>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** The notes that move the call: an uncertain or changed quarterback, the biggest absence on each side, a weather flag, a neutral field. */
+function keyNotes(game: Game): string[] {
+  const out: string[] = [];
+  if (game.status === "final") {
+    const post = game.archive?.postgame;
+    if (post?.spreadResult) out.push(`Market: ${post.spreadResult}${post.totalResult ? `, total went ${post.totalResult}` : ""}`);
+    return out;
+  }
+  const a = game.availability;
+  for (const [team, av] of a ? ([[game.away, a.away], [game.home, a.home]] as const) : []) {
+    if (av.qb && (av.qb.uncertain || Math.abs(av.qb.pts) >= 1.5)) out.push(`${team.abbr} QB ${av.qb.expected}${av.qb.uncertain ? " (questionable)" : ""}, ${av.qb.pts > 0 ? "+" : ""}${av.qb.pts} on the margin`);
+    const worst = av.items.find((i) => i.kind !== "qb" && i.pts <= -0.5);
+    if (worst) out.push(`${team.abbr} without ${worst.name} (${worst.status.split(" (")[0]}), ${worst.pts}`);
+  }
+  const flag = game.weather ? evaluateWeather(game.weather).find((f) => f.level !== "note") : undefined;
+  if (flag) out.push(flag.title);
+  const neutral = game.storylines.find((s) => s.startsWith("Neutral site"));
+  if (neutral) out.push(neutral.replace(/\.$/, ""));
+  return out.slice(0, 4);
+}
+
+function RadarTiers({ list, game }: { list: Prospect[]; game: Game }) {
+  const byTier = new Map<Prospect["tier"], Prospect[]>();
+  for (const p of list) byTier.set(p.tier, [...(byTier.get(p.tier) ?? []), p]);
+  return (
+    <>
+      {TIERS.filter((t) => byTier.has(t)).map((y) => (
+        <div key={y} className="mt-5">
+          <div className="flex flex-wrap items-baseline gap-x-3">
+            <span className="display text-2xl font-bold text-chalk">{TIER_TITLE[y][0]}</span>
+            <span className="text-xs text-chalk-3">{TIER_TITLE[y][1]}</span>
+          </div>
+          <div className="mt-2 grid gap-2.5 md:grid-cols-2">
+            {byTier.get(y)!.map((p) => (
+              <ProspectCard key={p.id} p={p} team={p.team === game.home.abbr ? game.home : game.away} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function MatchupCard({ m, game }: { m: Game["matchups"][number]; game: Game }) {
+  const tone = m.edge === "offense" ? "border-l-4 border-l-turf" : m.edge === "defense" ? "border-l-4 border-l-sky" : "border-l-4 border-l-line-2";
+  const label = m.strength === "dominant" ? "Mismatch" : m.strength === "clear" ? "Clear edge" : m.strength === "real" ? "Edge" : "Even";
+  const labelTone = m.strength === "dominant" ? "bg-brick text-white" : m.strength === "clear" ? "bg-navy text-white" : m.strength === "real" ? "bg-ink-2 text-chalk" : "bg-ink-2 text-chalk-3";
+  const offTeam = m.a.startsWith(game.home.short) ? game.home : game.away;
+  const defTeam = offTeam === game.home ? game.away : game.home;
+  const winner = m.edge === "offense" ? offTeam : m.edge === "defense" ? defTeam : undefined;
+  return (
+    <div className={`card p-4 sm:p-5 ${tone}`}>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span className={`rounded px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${labelTone}`}>{label}</span>
+        <TeamMark team={offTeam} state={winner ? (winner === offTeam ? "win" : "lose") : "even"} />
+        <span className="display text-xl font-bold text-chalk sm:text-2xl">{m.a}</span>
+        <span className="text-chalk-3">vs</span>
+        <TeamMark team={defTeam} state={winner ? (winner === defTeam ? "win" : "lose") : "even"} />
+        <span className="display text-xl font-bold text-chalk sm:text-2xl">{m.b}</span>
+        {winner && <span className={`ml-auto text-sm font-semibold ${m.edge === "offense" ? "text-turf" : "text-sky"}`}>Advantage {winner.short}</span>}
+      </div>
+      <p className="mt-3 text-base leading-relaxed text-chalk">{m.why}</p>
+      {m.watch && <p className="mt-2 text-sm text-chalk-2"><span className="font-semibold text-chalk">Watch for:</span> {m.watch}</p>}
+      <p className="mono mt-2 text-xs text-chalk-3">Evidence: {m.evidence}</p>
     </div>
   );
 }
 
-/** Team logo chip. The side with the advantage is full color with a ring; the other side is shaded. */
+const BOX_LABEL: Record<string, string> = { passing: "Pass", rushing: "Rush", receiving: "Rec", defensive: "Def", interceptions: "INT", kicking: "Kick", punting: "Punt", fumbles: "Fum", kickReturns: "KR", puntReturns: "PR" };
+
+function PostgameSection({ game }: { game: Game }) {
+  return (
+    <Section
+      id="showed"
+      n={game.status === "final" ? "Postgame" : "Live"}
+      title={game.box ? (game.box.source === "espn" && game.status === "live" ? "Who is showing up" : "Who showed up") : game.status === "final" ? "Box score not published yet" : game.live ? "Live from the feed" : "Box score arrives when the game settles"}
+    >
+      <LivePanel game={game} />
+      {game.box ? (
+        <>
+          <div className="mt-3 grid gap-2.5 md:grid-cols-2">
+            {game.box.teams.map((t) => (
+              <div key={t.team} className="card p-4">
+                <div className="flex items-baseline justify-between">
+                  <span className="display text-2xl font-bold text-chalk">{t.team}</span>
+                  {t.points !== null && <span className="display text-3xl font-extrabold text-flag">{t.points}</span>}
+                </div>
+                <ul className="mt-2 grid gap-1.5">
+                  {t.leaders.map((l) => (
+                    <li key={l.id + l.category} className="flex items-baseline gap-2 text-sm">
+                      <span className="w-10 shrink-0 text-xs font-semibold text-chalk-3">{BOX_LABEL[l.category] ?? l.category.slice(0, 4)}</span>
+                      <Link href={`/player/${l.id}`} className="font-medium text-chalk hover:text-flag">{l.name}</Link>
+                      <span className="mono truncate text-xs text-chalk-2">{l.headline}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-chalk-3">
+            {game.box.source === "espn" ? "Box from the ESPN feed; the nflverse weekly stats replace it once posted. " : ""}
+            Radar players below show their line from this game. One game is one data point.
+          </p>
+          {game.archive?.postgame && <Accountability entry={game.archive} />}
+        </>
+      ) : (
+        <p className="mt-2 text-base text-chalk-3">The data feed posts player stats after the game settles. Check back in a few minutes.</p>
+      )}
+    </Section>
+  );
+}
+
+/** Logo chip. The side with the advantage is full color with a ring; the other side is shaded. */
 function TeamMark({ team, state, size = "md" }: { team: Team; state: "win" | "lose" | "even"; size?: "md" | "lg" }) {
   const dim = size === "lg" ? "h-12 w-12" : "h-9 w-9";
   const ring = state === "win" ? "ring-2 ring-turf ring-offset-2 ring-offset-white" : state === "lose" ? "opacity-30 grayscale" : "";
@@ -547,17 +568,25 @@ function TeamMark({ team, state, size = "md" }: { team: Team; state: "win" | "lo
   );
 }
 
+/**
+ * The projection in full: the score line, the side and the total against the posted numbers (one place for
+ * both), how the margin was built, and the outside systems. Live and final games show the locked call.
+ */
 function ProjectionBox({ game }: { game: Game }) {
   const p = game.projection!;
   const winnerTeam = p.winner === game.home.abbr ? game.home : game.away;
   const graded = game.archive?.postgame?.projectionResult;
   const locked = game.archive?.pregame.projection;
+  const sideTeam = p.modelSide ? (p.modelSide === game.home.abbr ? game.home : game.away) : undefined;
+  const sTier = sideTier(p.sideGap ?? 0);
+  const tTier = p.totalLean && p.totalLean !== "none" ? totalTier(p.totalGap ?? 0) : undefined;
+  const badge = (t: ReturnType<typeof sideTier>) => (t === "strong" ? "bg-navy text-white" : t === "moderate" ? "bg-ink-2 text-chalk" : "bg-ink-2 text-chalk-3");
   return (
-    <div className="card mt-4 border-l-4 border-l-brick p-5">
+    <div className="card mt-5 border-l-4 border-l-navy p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="eyebrow">Projected outcome · a model, not a pick</p>
-          <p className="display mt-1 flex flex-wrap items-center gap-x-3 text-4xl font-bold text-chalk sm:text-5xl">
+          <p className="text-xs font-semibold text-chalk-3">{game.status === "upcoming" ? "Projected outcome, a model, not a pick" : "The pregame call, a model, not a pick"}</p>
+          <p className="display mt-1 flex flex-wrap items-center gap-x-3 text-3xl font-bold text-chalk sm:text-5xl">
             <TeamMark team={game.away} state={p.winner === game.away.abbr ? "win" : "lose"} size="lg" />
             <span>{game.away.short} {p.away}</span>
             <span className="text-chalk-3">@</span>
@@ -569,28 +598,65 @@ function ProjectionBox({ game }: { game: Game }) {
           </p>
         </div>
         <div className="text-right">
-          <p className="eyebrow">Confidence</p>
-          <p className={`display text-3xl font-bold ${p.confidence === "high" ? "text-turf" : p.confidence === "medium" ? "text-chalk" : "text-chalk-3"}`}>{p.confidence}</p>
-          <p className="text-[11px] text-chalk-3">{p.confidence === "high" ? "Elo and tendencies agree on inputs" : p.confidence === "medium" ? "Elo only; no tendency data" : "thin inputs"}</p>
+          <p className="text-xs font-semibold text-chalk-3">Inputs</p>
+          <p className="text-base font-semibold text-chalk">{inputsLabel(p.confidence)}</p>
         </div>
       </div>
       <p className="mt-3 text-base leading-relaxed text-chalk">{p.shape}</p>
-      {p.vsMarket && (
-        <p className="mt-2 rounded border border-line bg-panel-2 px-3 py-2 text-base text-chalk">
-          <span className="eyebrow mr-1">vs the number</span>
-          {p.vsMarket}
-        </p>
-      )}
-      <ul className="mono mt-3 grid gap-0.5 text-xs text-chalk-3">
-        {p.basis.map((b) => (
-          <li key={b}>{b}</li>
-        ))}
-      </ul>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <div className="rounded border border-line bg-panel-2 p-4">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm font-semibold text-chalk">Side</span>
+            <span className={`rounded px-2 py-0.5 text-[11px] font-bold ${badge(sTier)}`}>{tierLabel(sTier)}</span>
+          </div>
+          {sideTeam && game.market.spread ? (
+            <>
+              <p className="display mt-1 flex items-center gap-2 text-2xl font-bold text-chalk">
+                <TeamMark team={sideTeam} state={sTier ? "win" : "even"} />
+                {sideTeam.short}
+                <span className="mono text-sm font-normal text-chalk-3">{spreadText(game.market.spread.team, game.market.spread.line)}</span>
+              </p>
+              <p className="mt-1 text-base text-chalk">{p.vsMarket}</p>
+            </>
+          ) : (
+            <p className="mt-1 text-base text-chalk-3">No posted spread to compare.</p>
+          )}
+        </div>
+        <div className="rounded border border-line bg-panel-2 p-4">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm font-semibold text-chalk">Total</span>
+            <span className={`rounded px-2 py-0.5 text-[11px] font-bold ${badge(tTier)}`}>{tTier ? `${tierLabel(tTier)}, ${p.totalLean}` : "no lean"}</span>
+          </div>
+          {p.modelTotal !== undefined && game.market.total ? (
+            <>
+              <p className="display mt-1 text-2xl font-bold text-chalk">
+                {p.totalLean && p.totalLean !== "none" ? p.totalLean.toUpperCase() : "Even"} <span className="mono text-sm font-normal text-chalk-3">model {p.modelTotal} · posted {game.market.total.line}</span>
+              </p>
+              <p className="mt-1 text-base text-chalk">{p.totalNote}</p>
+              {p.weatherTilt && <p className="mt-1 text-sm text-chalk-2"><span className="font-semibold text-chalk">Weather:</span> {p.weatherTilt}</p>}
+            </>
+          ) : p.modelTotal !== undefined ? (
+            <p className="mt-1 text-base text-chalk">Model total {p.modelTotal}. No posted total to compare.</p>
+          ) : (
+            <p className="mt-1 text-base text-chalk-3">Total needs tendency data for both teams.</p>
+          )}
+        </div>
+      </div>
+
+      <details className="mt-3">
+        <summary className="cursor-pointer select-none text-sm font-semibold text-sky">How the number was built</summary>
+        <ul className="mono mt-2 grid gap-0.5 text-xs text-chalk-3">
+          {p.basis.map((b) => (
+            <li key={b}>{b}</li>
+          ))}
+        </ul>
+      </details>
       <ConsensusTable game={game} />
       <p className="mt-2 text-xs text-chalk-3">
-        Margin is our pregame Elo (K 20, 48 points of home field, 25 Elo per point) plus 40% of the unit-edge adjustment, with the market total for the score line. Win probability assumes a 13.5-point standard deviation.
-        {locked && !graded && ` Locked ${asOf(game.archive!.pregame.capturedAt)}; graded after the final.`}
-        {graded && ` Graded: winner ${graded.winnerRight ? "right" : "wrong"}, margin off by ${graded.marginError.toFixed(0)}${graded.modelSideCovered !== undefined ? `, model side ${graded.modelSideCovered ? "covered" : "did not cover"}` : ""}.`}
+        Margin is our pregame Elo (K 20, 48 points of home field, 25 Elo per point) plus 40% of the unit-edge adjustment and who is playing. Total is each offense&apos;s EPA per play against the other defense over both teams&apos; pace, plus a weather tilt when the forecast is flagged. Win probability assumes a 13.5-point standard deviation. {LEAN_BACKTEST_NOTE}
+        {locked && !graded && ` Locked ${asOf(game.archive!.pregame.updatedAt ?? game.archive!.pregame.capturedAt)}; graded after the final.`}
+        {graded && ` Graded: winner ${graded.winnerRight ? "right" : "wrong"}, margin off by ${graded.marginError.toFixed(0)}${graded.modelSideCovered !== undefined ? `, model side ${graded.modelSideCovered ? "covered" : "did not cover"}` : ""}${graded.totalLeanRight !== undefined ? `, total lean ${graded.totalLeanRight ? "right" : "wrong"}` : ""}.`}
       </p>
     </div>
   );
@@ -624,27 +690,30 @@ function Accountability({ entry }: { entry: NonNullable<Game["archive"]> }) {
           />
         )}
       </div>
-      <ul className="mt-4 grid gap-2">
-        {post.edges.map((e, i) => (
-          <li key={i} className="grid gap-1 rounded border border-line bg-panel-2 p-3 sm:grid-cols-[auto_1fr] sm:items-start sm:gap-3">
-            <span className={`inline-block w-fit rounded px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${tone(e.verdict)}`}>{e.verdict}</span>
-            <span>
-              <span className="text-base font-semibold text-chalk">{e.a} vs {e.b}</span>
-              <span className="block text-sm text-chalk-2">Called: advantage {e.edge}. Actual: {e.actual}.</span>
-            </span>
-          </li>
-        ))}
-        {post.prospects.map((p) => (
-          <li key={p.id} className="grid gap-1 rounded border border-line bg-panel-2 p-3 sm:grid-cols-[auto_1fr] sm:items-start sm:gap-3">
-            <span className={`inline-block w-fit rounded px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${tone(p.verdict)}`}>{p.verdict}</span>
-            <span>
-              <Link href={`/player/${p.id}`} className="text-base font-semibold text-chalk hover:text-sky">{p.name}</Link>
-              <span className="text-sm text-chalk-3"> {p.pos} · radar {p.score}</span>
-              <span className="block text-sm text-chalk-2">{p.line}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
+      <details className="mt-4">
+        <summary className="cursor-pointer select-none text-sm font-semibold text-sky">Every call, graded ({post.edges.length + post.prospects.length})</summary>
+        <ul className="mt-3 grid gap-2">
+          {post.edges.map((e, i) => (
+            <li key={i} className="grid gap-1 rounded border border-line bg-panel-2 p-3 sm:grid-cols-[auto_1fr] sm:items-start sm:gap-3">
+              <span className={`inline-block w-fit rounded px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${tone(e.verdict)}`}>{e.verdict}</span>
+              <span>
+                <span className="text-base font-semibold text-chalk">{e.a} vs {e.b}</span>
+                <span className="block text-sm text-chalk-2">Called: advantage {e.edge}. Actual: {e.actual}.</span>
+              </span>
+            </li>
+          ))}
+          {post.prospects.map((p) => (
+            <li key={p.id} className="grid gap-1 rounded border border-line bg-panel-2 p-3 sm:grid-cols-[auto_1fr] sm:items-start sm:gap-3">
+              <span className={`inline-block w-fit rounded px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${tone(p.verdict)}`}>{p.verdict}</span>
+              <span>
+                <Link href={`/player/${p.id}`} className="text-base font-semibold text-chalk hover:text-sky">{p.name}</Link>
+                <span className="text-sm text-chalk-3"> {p.pos} · radar {p.score}</span>
+                <span className="block text-sm text-chalk-2">{p.line}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </details>
       <p className="mt-3 text-sm text-chalk-3">
         Watch Score was {pre.scoutScore}. Every graded game goes into <Link href="/history" className="text-sky">the record</Link>, so the thresholds can be tuned against real results instead of opinion.
       </p>

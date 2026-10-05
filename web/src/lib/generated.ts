@@ -10,7 +10,8 @@ const DIR = path.join(process.cwd(), "data", "generated");
 
 /** Season stat line, compact keys. Passing: pa pc py ptd pint sks pepa pfd pay ypa cmp cpoe. Rushing: ra ry rtd repa rfd ypc.
  *  Receiving: rec tgt rcy rctd rcepa rays ryac rcfd ypr tshare ayshare wopr racr. Defense: tk solo ast tfl sk hur pd int inty dtd ff fr.
- *  Fumbles: fum fl. Kicking: fgm fga fglg fgp xpm xpa. Punting: pno pty ptlg pin20 ypp. Returns: pry kry sttd. gp = games with a stat row. */
+ *  Fumbles: fum fl. Kicking: fgm fga fglg fgp xpm xpa. Punting: pno pty ptlg pin20 ypp. Returns: pry kry sttd.
+ *  gp = games with a stat row or an offensive/defensive snap. Last season (ps) is regular season only. */
 export type StatLine = Record<string, number>;
 
 export interface GenPlayer {
@@ -76,6 +77,8 @@ export interface GenMeta {
   season: number;
   week?: number;
   statsThroughWeek?: number;
+  /** The newest week in the stats: how many of its games are posted against how many have a final score. */
+  latestWeek?: { week: number; posted: number; final: number };
   pbpThroughWeek?: number;
   players: number;
   teams: number;
@@ -162,13 +165,23 @@ function readJson<T>(file: string, fallback: T): T {
   }
 }
 
-/** Cache key includes the file mtime so a fresh ingest is picked up without a restart. */
+/**
+ * Cache key includes the file mtime so a fresh ingest is picked up without a restart. The mtime is re-read
+ * at most every 5 seconds: one page build asks a few thousand times.
+ */
+const stamps = new Map<string, { at: number; value: string }>();
 function stamp(file: string) {
+  const hit = stamps.get(file);
+  const now = Date.now();
+  if (hit && now - hit.at < 5000) return hit.value;
+  let value: string;
   try {
-    return String(statSync(path.join(DIR, file)).mtimeMs);
+    value = String(statSync(path.join(DIR, file)).mtimeMs);
   } catch {
-    return "missing";
+    value = "missing";
   }
+  stamps.set(file, { at: now, value });
+  return value;
 }
 
 export const genMeta = (): GenMeta | undefined => memoSync(`gen:meta:${stamp("meta.json")}`, 300, () => readJson<GenMeta | undefined>("meta.json", undefined));
@@ -179,6 +192,7 @@ export const genInjuries = (): GenInjury[] => memoSync(`gen:inj:${stamp("injurie
 export const genElo = (): GenElo | undefined => memoSync(`gen:elo:${stamp("elo.json")}`, 3600, () => readJson<GenElo | undefined>("elo.json", undefined));
 export const genSchedule = (): GenGame[] => memoSync(`gen:sched:${stamp("schedule.json")}`, 3600, () => readJson<GenGame[]>("schedule.json", []));
 export const scheduleStamp = () => stamp("schedule.json");
+export const teamsStamp = () => stamp("teams.json");
 export const generatedLoaded = () => genMeta() !== undefined && genPlayers().length > 0;
 
 /* ---------------------------------------------------- game logs (scripts/ingest.mjs) */

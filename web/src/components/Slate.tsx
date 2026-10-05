@@ -13,7 +13,7 @@ type Quick = "All" | "Live" | "Flip to" | "Upcoming" | "Finished" | "Division ga
 const QUICK: Quick[] = ["All", "Live", "Flip to", "Upcoming", "Finished", "Division games", "Rookie Heavy", "Hidden Gems", "Prime time", "Watchlist"];
 
 type Group = "window" | "division" | "score";
-const WINDOWS: Window[] = ["Noon", "Afternoon", "Prime time", "Late night"];
+const WINDOWS: Window[] = ["Early", "Late afternoon", "Prime time", "Late night"];
 const confOf = (g: Game) => g.home.conference || g.away.conference || "Other";
 const DIV_ORDER = ["AFC East", "AFC North", "AFC South", "AFC West", "NFC East", "NFC North", "NFC South", "NFC West"];
 
@@ -84,59 +84,50 @@ export function Slate({ games }: { games: Game[] }) {
 
   return (
     <div>
-      {/* Search */}
-      <label className="block">
-        <span className="sr-only">Search teams, divisions, networks</span>
-        <input
-          type="search"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search a team, division, or network"
-          className="w-full rounded border border-line bg-white px-3 py-2 text-base text-chalk placeholder:text-chalk-3 focus:border-navy focus:outline-none"
-        />
-      </label>
-
-      {/* Quick filters */}
-      <div className="scroll-x -mx-4 mt-3 flex gap-2 px-4 pb-1">
+      {/* One row of filters; search and grouping fold away so the first card sits on the first screen. */}
+      <div className="scroll-x -mx-4 flex gap-2 px-4 pb-1">
         {QUICK.map((k) => (
           <button key={k} type="button" className="chip" aria-pressed={quick === k} onClick={() => setQuick(k)}>
             {k === "Live" && <span className="live-dot" />}
             {k}
           </button>
         ))}
-      </div>
-
-      {/* Extras */}
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          aria-pressed={weatherOnly}
-          onClick={() => setWeatherOnly((v) => !v)}
-          className="mono rounded border border-line px-2 py-1 text-[11px] tracking-wider text-chalk-3 aria-pressed:border-warn aria-pressed:text-warn"
-        >
-          Weather risk only
+        <button type="button" className="chip" aria-pressed={weatherOnly} onClick={() => setWeatherOnly((v) => !v)}>
+          Weather risk
         </button>
       </div>
 
-      {/* Group by + order */}
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-        <span className="flex items-center gap-2">
-          <span className="eyebrow">Group by</span>
-          <span className="seg">
-            <button type="button" aria-pressed={group === "window"} onClick={() => setGroup("window")}>Window</button>
-            <button type="button" aria-pressed={group === "division"} onClick={() => setGroup("division")}>Division</button>
-            <button type="button" aria-pressed={group === "score"} onClick={() => setGroup("score")}>Watch Score</button>
+      <details className="mt-2">
+        <summary className="cursor-pointer select-none text-sm font-semibold text-sky">Search, group, and order</summary>
+        <label className="mt-2 block">
+          <span className="sr-only">Search teams, divisions, networks</span>
+          <input
+            type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search a team, division, or network"
+            className="w-full rounded border border-line bg-white px-3 py-2 text-base text-chalk placeholder:text-chalk-3 focus:border-navy focus:outline-none"
+          />
+        </label>
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span className="flex items-center gap-2">
+            <span className="eyebrow">Group by</span>
+            <span className="seg">
+              <button type="button" aria-pressed={group === "window"} onClick={() => setGroup("window")}>Window</button>
+              <button type="button" aria-pressed={group === "division"} onClick={() => setGroup("division")}>Division</button>
+              <button type="button" aria-pressed={group === "score"} onClick={() => setGroup("score")}>Watch Score</button>
+            </span>
           </span>
-        </span>
-        <span className="flex items-center gap-2">
-          <span className="eyebrow">Order</span>
-          <span className="seg">
-            <button type="button" aria-pressed={sort !== "score"} onClick={() => setSort("kickoff")}>Kickoff</button>
-            <button type="button" aria-pressed={sort === "score"} onClick={() => setSort("score")}>Watch Score</button>
+          <span className="flex items-center gap-2">
+            <span className="eyebrow">Order</span>
+            <span className="seg">
+              <button type="button" aria-pressed={sort !== "score"} onClick={() => setSort("kickoff")}>Kickoff</button>
+              <button type="button" aria-pressed={sort === "score"} onClick={() => setSort("score")}>Watch Score</button>
+            </span>
           </span>
-        </span>
-        <span className="text-xs text-chalk-3">{filtered.length} games shown</span>
-      </div>
+        </div>
+      </details>
+      {filtered.length !== games.length && <p className="mt-2 text-xs text-chalk-3">{filtered.length} of {games.length} games shown</p>}
 
       {/* Groups */}
       {grouped.length === 0 && (

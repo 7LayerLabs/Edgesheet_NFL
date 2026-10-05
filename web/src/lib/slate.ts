@@ -7,13 +7,13 @@
  * as-of time, (b) a rule-based derivation from those facts, or (c) explicitly
  * labeled as unavailable. Nothing here invents a player, a scheme, or a line.
  */
-import { calendar, espnWeek, etDateOf, eloCurrent, eloPregame, gameById, gamesForWeek, logoUrl, NATIONAL_WINDOWS, roofState, scheduleLoaded, standingFor, teamByShort, venueFor, type EspnWeekRow, type NflWeek, type Standing } from "./nfl";
+import { calendar, espnWeek, etDateOf, eloCurrent, fpiRatings, eloPregame, gameById, gamesForWeek, logoUrl, NATIONAL_WINDOWS, roofState, scheduleLoaded, standingFor, teamByShort, venueFor, type EspnWeekRow, type Finals, type NflWeek, type Standing } from "./nfl";
 import { forecastAtKickoff, forecastMany } from "./nws";
 import { generatedLoaded, genInjuries, genMeta, type GenGame, type GenInjury } from "./generated";
 import { matchupPlayer, radarForGame, radarForTeam, radarPlayer, type EdgeAxis, type RadarPlayer } from "./radar";
 import { leagueMeans, pressurePoint, styleContrast, styleFor, unitEdges, type UnitEdge } from "./tendencies";
 import { gameCues, situationsFor } from "./situational";
-import { projectGame } from "./projection";
+import { lockedProjection, projectGame } from "./projection";
 import { buildConsensus } from "./consensus";
 import { gameAvailability } from "./availability";
 import { boxScore } from "./boxscore";
@@ -67,6 +67,8 @@ export interface Slate {
   /** Every game in the week, all days. Used by the watchlist. */
   weekGames: Game[];
   notes: string[];
+  /** ESPN finals for the week, so /standings counts games the ingest has not caught yet. */
+  finals?: Finals;
 }
 
 /* ------------------------------------------------------------------ week */
@@ -91,12 +93,20 @@ interface Bundle {
   week: NflWeek;
   games: GenGame[];
   espn: Map<string, EspnWeekRow>;
+  /** Finals ESPN has posted this week, for records that include games the ingest has not caught yet. */
+  finals: Finals;
 }
 
 async function loadWeek(season: number, week: NflWeek, gamesOverride?: GenGame[]): Promise<Bundle> {
   const games = gamesOverride ?? gamesForWeek(season, week.week, week.seasonType);
-  const espn = await espnWeek(season, week.week, week.seasonType).catch(() => new Map<string, EspnWeekRow>());
-  return { season, week, games, espn };
+  // Last week's scoreboard too: a game that went final after the ingest (Sunday night, Monday night) still counts in this week's records.
+  const none = () => new Map<string, EspnWeekRow>();
+  const [espn, prev] = await Promise.all([
+    espnWeek(season, week.week, week.seasonType).catch(none),
+    week.seasonType === "regular" && week.week > 1 ? espnWeek(season, week.week - 1, "regular").catch(none) : Promise.resolve(none()),
+  ]);
+  const finals: Finals = Object.fromEntries([...prev, ...espn].flatMap(([id, r]) => (r.final ? [[id, r.final]] : [])));
+  return { season, week, games, espn, finals };
 }
 
 /* --------------------------------------------------------------- helpers */
@@ -112,9 +122,9 @@ void median;
 const half = (n: number) => Math.round(n * 2) / 2;
 const ordinal = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : n % 10 === 1 ? "st" : n % 10 === 2 ? "nd" : n % 10 === 3 ? "rd" : "th"}`;
 
-function mkTeam(short: string, season: number): Team {
+function mkTeam(short: string, season: number, finals?: Finals): Team {
   const t = teamByShort(short);
-  const st: Standing | undefined = t ? standingFor(season, short) : undefined;
+  const st: Standing | undefined = t ? standingFor(season, short, finals) : undefined;
   return {
     id: t?.espnId ?? short,
     name: t?.name ?? short,
@@ -279,7 +289,9 @@ function deriveComponents(g: Ctx): ScoreComponents {
       if (p.tier === "Matchup") return s + 12;
       return s + 5;
     }, 0);
-    watchDensity = Math.round(Math.min(100, pts));
+    // NFL radars carry 10 to 14 names a game (college about 4), so raw points run about 90 to 450: scaled by 4.5,
+    // not capped at 100, or every game reads 100 and the component tells games apart in nothing.
+    watchDensity = Math.round(Math.min(100, pts / 4.5));
   }
 
   // Stakes: division game, both teams in the hunt, and how late it is.
@@ -313,15 +325,18 @@ function deriveWhyWatch(g: Ctx): { headline: string; reasons: string[] } {
   const s = g.market.spread;
   const rec = (t: Team) => (t.record ? `${t.short} (${t.record})` : t.short);
   if (g.stakes[0]) r.push(g.stakes[0]);
+  // The game before the players: how close the market thinks it is leads, then the top radar name.
+  if (s) {
+    const a = Math.abs(s.line);
+    if (a <= 2.5) r.push(`The market calls it a toss-up: ${s.team} ${s.line}.`);
+    else if (a <= 6.5) r.push(`One-score game by the market: ${s.team} ${s.line}.`);
+  }
   const star = g.prospects.find((p) => p.tier === "Rookie" || p.tier === "Breakout");
   if (star?.radar && star.radar.score >= 70) {
     const r0 = star.radar;
     r.push(`${star.name} (${star.team} ${star.pos}, ${star.cls}) is a top-of-the-radar name: ${r0.tier === "Rookie" && r0.eqPick ? `drafted ${r0.slot ? `No. ${r0.slot}` : "undrafted"}, producing like pick No. ${r0.eqPick}` : r0.breakout?.label ?? r0.stat}.`);
   }
   if (s) {
-    const a = Math.abs(s.line);
-    if (a <= 2.5) r.push(`The market calls it a toss-up: ${s.team} ${s.line}.`);
-    else if (a <= 6.5) r.push(`One-score game by the market: ${s.team} ${s.line}.`);
     const move = s.line - s.open;
     if (Math.abs(move) >= 1.5) r.push(`The line moved ${move > 0 ? "toward the underdog" : "toward the favorite"} this week, from ${s.open} to ${s.line}.`);
   }
@@ -381,11 +396,15 @@ function deriveStakes(raw: GenGame, home: Team, away: Team, homeSt?: Standing, a
 
 async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox = false): Promise<Game> {
   const division: Division = "NFL";
-  const home = mkTeam(raw.home, raw.season);
-  const away = mkTeam(raw.away, raw.season);
-  const homeSt = standingFor(raw.season, raw.home);
-  const awaySt = standingFor(raw.season, raw.away);
+  const home = mkTeam(raw.home, raw.season, b.finals);
+  const away = mkTeam(raw.away, raw.season, b.finals);
+  const homeSt = standingFor(raw.season, raw.home, b.finals);
+  const awaySt = standingFor(raw.season, raw.away, b.finals);
   const now = Date.now();
+  // Independent fetches start together: who is playing (ESPN injuries and transactions) and FPI (read later by
+  // buildConsensus through the same memo), while the live feed below decides the game's status.
+  const availabilityP = gameAvailability(raw.home, raw.away, raw.kickoff).catch(() => undefined);
+  void fpiRatings(raw.season).catch(() => undefined);
   const started = new Date(raw.kickoff).getTime() <= now;
   let status: Game["status"] = raw.played ? "final" : started ? "live" : "upcoming";
   let score = raw.played
@@ -414,7 +433,9 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
   const market = mkMarket(raw, home, away, builtAt);
   const espnRow = b.espn.get(raw.id);
   const network = espnRow?.network || "TV listing pending";
-  const venue = venueFor(raw);
+  // ESPN flags international games that nflverse lists as home games (PHI at JAX, Tottenham).
+  const neutral = raw.neutral || espnRow?.neutral === true;
+  const venue = venueFor({ ...raw, neutral });
 
   const roof = roofState(raw.roof);
   const weatherP: Promise<WeatherInput | undefined> =
@@ -427,7 +448,10 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
   const names = new Map<string, string>();
   const boxP = withBox && status === "final" ? boxScore(raw.id, names).catch(() => undefined) : Promise.resolve(undefined);
   const liveP = withBox && espnLive && espnLive.state !== "pre" ? liveSummary(raw.id).catch(() => undefined) : Promise.resolve(undefined);
-  const [weather, bs, espnDetail] = await Promise.all([weatherP, boxP, liveP]);
+  const [weather, bs, espnDetail, availability] = await Promise.all([weatherP, boxP, liveP, availabilityP]);
+  // One status for the whole page: the radar, the matchup pick, and the storylines read the same feed as "Who is playing".
+  const statusOf = (id: string) => availability?.home.statuses[id] ?? availability?.away.statuses[id];
+  const sits = (id: string) => (statusOf(id)?.absence ?? 0) > 0.5;
 
   // Team style and unit matchups from play-by-play.
   const profAway = toProfiles(raw.away);
@@ -461,8 +485,8 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
     }
     return pr;
   };
-  const radarAway = radarForGame(raw.away).map((r) => withUnit(r, away.abbr, raw.away));
-  const radarHome = radarForGame(raw.home).map((r) => withUnit(r, home.abbr, raw.home));
+  const radarAway = radarForGame(raw.away, 6, sits).map((r) => withUnit(r, away.abbr, raw.away));
+  const radarHome = radarForGame(raw.home, 6, sits).map((r) => withUnit(r, home.abbr, raw.home));
   const matchupPicks: Prospect[] = [];
   for (const e of topEdges.filter((x) => x.edge !== "even").slice(0, 2)) {
     const axis = axisOf(e);
@@ -476,7 +500,7 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
     const note = e.edge === "offense"
       ? `The ${offTeam} ${role.off} against a ${opp} ${role.unitDef} ranked No. ${oppRank ?? "?"} of ${ranks.of ?? 32} (${e.strength} edge).`
       : `The ${defTeam} ${role.def} against a ${opp} ${role.unitOff} ranked No. ${oppRank ?? "?"} of ${ranks.of ?? 32} (${e.strength} edge).`;
-    const mp = matchupPlayer(axis, e.edge as "offense" | "defense", team, note);
+    const mp = matchupPlayer(axis, e.edge as "offense" | "defense", team, note, sits);
     if (mp) matchupPicks.push(radarToProspect(mp, team === raw.home ? home.abbr : away.abbr));
   }
   const seenP = new Set<string>();
@@ -485,30 +509,29 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
     return order(x.tier) - order(y.tier) || (y.radar?.score ?? 0) - (x.radar?.score ?? 0);
   });
 
-  // Official injury report, both teams.
-  const injuryRows = genInjuries().filter((i: GenInjury) => (i.team === raw.home || i.team === raw.away) && i.status);
+  // Official injury report, both teams, this game's week only (another week's report is not this game's).
+  const injuryRows = genInjuries().filter((i: GenInjury) => (i.team === raw.home || i.team === raw.away) && i.status && i.week === raw.week);
   const sev = (s: string | null) => (s === "Out" ? 0 : s === "Doubtful" ? 1 : 2);
   const injuryReport = injuryRows
     .sort((x, y) => sev(x.status) - sev(y.status) || x.name.localeCompare(y.name))
     .map((i) => ({ team: i.team === raw.home ? home.abbr : away.abbr, id: i.id, name: i.name, pos: i.pos, status: i.status as string, practice: i.practice, injury: i.injury, week: i.week }));
   for (const p of prospects) {
+    const st = statusOf(p.id);
     const row = injuryRows.find((i) => i.id === p.id);
-    if (row && row.status) p.injury = { status: row.status, practice: row.practice, injury: row.injury, week: row.week };
+    if (st) p.injury = { status: st.status, practice: row?.practice ?? null, injury: row?.injury ?? null, week: raw.week };
   }
 
   const elo = eloPregame(raw.id);
   const homeElo = elo?.home ?? eloCurrent(raw.home) ?? null;
   const awayElo = elo?.away ?? eloCurrent(raw.away) ?? null;
-  // Who is playing: ESPN injuries through game-day inactives, the official report, roster moves.
-  const availability = await gameAvailability(raw.home, raw.away).catch(() => undefined);
-  const projection = projectGame({
+  const rebuilt = projectGame({
     homeAvail: availability?.home,
     awayAvail: availability?.away,
     home,
     away,
     homeElo,
     awayElo,
-    neutral: raw.neutral,
+    neutral,
     market,
     matchups,
     homeSchool: raw.home,
@@ -520,16 +543,19 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
     means: charted ? leagueMeans("nfl") : undefined,
     weather,
   });
+  // Once a game kicks off, the call on screen is the locked pregame call (the one the record grades), not a rebuild from today's data.
+  const lockedPre = status !== "upcoming" ? readEntry(raw.season, raw.id)?.pregame : undefined;
+  const projection = (lockedPre && lockedProjection(lockedPre)) || rebuilt;
   const consensus = await buildConsensus({
-    gameId: raw.id, season: raw.season, week: raw.week, seasonType: raw.type === "REG" ? "regular" : "postseason", home, away, homeSchool: raw.home, awaySchool: raw.away, neutral: raw.neutral,
+    gameId: raw.id, season: raw.season, week: raw.week, seasonType: raw.type === "REG" ? "regular" : "postseason", home, away, homeSchool: raw.home, awaySchool: raw.away, neutral,
     homeElo, awayElo, market, projection, homeAdv: styleFor(raw.home)?.raw, awayAdv: styleFor(raw.away)?.raw, means: charted ? leagueMeans("nfl") : undefined,
   }).catch(() => undefined);
 
   // Keep an eye on: watch names that did not make the main list.
   const inMain = new Set(prospects.map((p) => p.id));
   const eye = [
-    ...radarForTeam(raw.away).filter((r) => !inMain.has(r.id)).slice(0, 2).map((r) => ({ r, abbr: away.abbr })),
-    ...radarForTeam(raw.home).filter((r) => !inMain.has(r.id)).slice(0, 2).map((r) => ({ r, abbr: home.abbr })),
+    ...radarForTeam(raw.away).filter((r) => !inMain.has(r.id) && !sits(r.id)).slice(0, 2).map((r) => ({ r, abbr: away.abbr })),
+    ...radarForTeam(raw.home).filter((r) => !inMain.has(r.id) && !sits(r.id)).slice(0, 2).map((r) => ({ r, abbr: home.abbr })),
   ].map(({ r, abbr }) => ({
     name: r.name,
     team: abbr,
@@ -586,10 +612,13 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
   const restNote = (t: Team, rest: number | null) => (rest == null ? undefined : rest <= 5 ? `The ${t.short} are on a short week (${rest} days of rest).` : rest >= 13 ? `The ${t.short} are coming off the bye (${rest} days of rest).` : undefined);
   const storylines = [
     ...stakes,
-    ...(raw.neutral ? [`Neutral site: ${raw.stadium ?? "venue TBA"}${venue ? `, ${venue.city}` : ""}.`] : []),
+    ...(neutral ? [`Neutral site: ${raw.stadium ?? "venue TBA"}${venue ? `, ${venue.city}` : ""}.`] : []),
     ...[restNote(away, raw.awayRest), restNote(home, raw.homeRest)].filter((x): x is string => Boolean(x)),
-    ...(raw.awayQb && raw.homeQb ? [`Starting quarterbacks per nflverse: ${raw.awayQb} (${away.abbr}) and ${raw.homeQb} (${home.abbr}).`] : []),
-    ...injuryReport.filter((i) => i.status === "Out" && prospects.some((p) => p.id === i.id)).map((i) => `${i.name} (${i.team} ${i.pos}) is Out${i.injury ? ` (${i.injury.toLowerCase()})` : ""} on the week ${i.week} report.`),
+    ...(availability?.away.qb && availability.home.qb ? [`Expected quarterbacks: ${availability.away.qb.expected} (${away.abbr}) and ${availability.home.qb.expected} (${home.abbr}).`] : []),
+    // Radar names who will not play: left off the watch list, so say why here.
+    ...[...radarForGame(raw.away).map((r) => ({ r, abbr: away.abbr })), ...radarForGame(raw.home).map((r) => ({ r, abbr: home.abbr }))]
+      .filter(({ r }) => sits(r.id))
+      .map(({ r, abbr }) => `${r.name} (${abbr} ${r.pos}) is ${statusOf(r.id)!.status}${statusOf(r.id)!.source ? ` per ${statusOf(r.id)!.source === "ESPN" ? "ESPN" : "the official report"}` : ""} and off the watch list.`),
   ];
 
   return {
@@ -720,18 +749,19 @@ async function buildSlate(requested: string): Promise<Slate> {
   if (!generatedLoaded()) notes.push("Rosters, stats, and tendencies are not ingested yet. Run npm run ingest in web/ to light up the radar.");
   else {
     const m = genMeta()!;
-    notes.push(`Radar and tendencies use nflverse stats ingested ${new Date(m.ingestedAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", timeZone: ET })} ET${m.statsThroughWeek ? `, player stats through week ${m.statsThroughWeek}` : ""}${m.pbpThroughWeek ? `, play-by-play through week ${m.pbpThroughWeek}` : ""}.`);
+    notes.push(`Radar and tendencies use nflverse stats ingested ${new Date(m.ingestedAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", timeZone: ET })} ET${m.statsThroughWeek ? `, player stats through week ${m.statsThroughWeek}` : ""}${m.pbpThroughWeek ? `, play-by-play through week ${m.pbpThroughWeek}` : ""}${m.latestWeek && m.latestWeek.posted < m.latestWeek.final ? ` (${m.latestWeek.posted} of ${m.latestWeek.final} week ${m.latestWeek.week} finals posted so far; the rest land when nflverse posts them)` : ""}.`);
   }
   notes.push("Lines: the nflverse schedule number is the opening reference; The Odds API snapshots (every 6 hours Thu to Mon) are the current market.");
 
   const weekGames = [...built, ...rest];
-  return { source: "live", polls: [], season, week, date, days, games: built, weekGames, notes };
+  return { source: "live", polls: [], season, week, date, days, games: built, weekGames, notes, finals: b.finals };
 }
 
 export async function getGame(id: string): Promise<Game | undefined> {
   if (!scheduleLoaded()) return undefined;
   if (!/^[\w-]+$/.test(id)) return undefined;
-  return memo(`game:${id}`, 30, () => buildGameById(id));
+  // 30 s while a game can still change; 10 minutes once it is final (each rebuild re-fetches the ESPN summary).
+  return memo(`game:${id}`, (g) => (g?.status === "final" ? 600 : 30), () => buildGameById(id));
 }
 
 async function buildGameById(id: string): Promise<Game | undefined> {

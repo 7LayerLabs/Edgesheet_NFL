@@ -58,7 +58,7 @@ export default async function SheetPage({ searchParams }: PageProps<"/sheet">) {
         <footer className="sheet-foot">
           <span>{sheet.notAPick} Elo, unit edges, and who is playing against the posted number, graded on the Record page after every final.</span>
           {part !== 2 && <span>{LEAN_BACKTEST_NOTE}</span>}
-          {part !== 1 && sheet.dfs.source && <span>{sheet.dfs.source}. DK pts scored from nflverse game lines with Classic rules (no two-point conversions). Proj = our average blended with last season (worth 3 games), times a quarter of the matchup factor, plus half of a new Out teammate's average. Value = proj per $1,000.</span>}
+          {part !== 1 && sheet.dfs.source && <span>{sheet.dfs.source}. DK pts scored from nflverse game lines with Classic rules (no two-point conversions). Proj = our average blended with last season (worth 3 games), times a quarter of the matchup factor, plus half of a new Out teammate&apos;s average. Value = proj per $1,000.</span>}
           <span>
             Schedule and lines from nflverse and The Odds API. Forecasts from the National Weather Service. Stats as of {sheet.statsAsOf ? sheet.statsAsOf.slice(0, 10) : "not available"}. Built {new Date(sheet.builtAt).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} ET.
           </span>
@@ -116,8 +116,8 @@ function GamesThatMatter({ s }: { s: Sheet }) {
             <tr>
               <th className="w-8">Score</th>
               <th>Game</th>
-              <th className="w-16">Kick</th>
-              <th className="w-14">TV</th>
+              <th className="w-16 sheet-hide-sm">Kick</th>
+              <th className="w-14 sheet-hide-sm">TV</th>
               <th className="w-20">Line</th>
               <th className="w-8">O/U</th>
               <th className="w-24">Model lean</th>
@@ -134,11 +134,11 @@ function GamesThatMatter({ s }: { s: Sheet }) {
                   </Link>
                   {g.status !== "upcoming" && <span className={`sheet-status ${g.status === "live" ? "text-turf" : "text-brick"}`}>{g.status}</span>}
                 </td>
-                <td className="mono">{g.kickoff}</td>
-                <td>{g.network || "no TV listed"}</td>
+                <td className="mono sheet-hide-sm">{g.kickoff}</td>
+                <td className="sheet-hide-sm">{g.network || "no TV listed"}</td>
                 <td className="mono">{g.line ?? "no line"}</td>
-                <td className="mono">{g.total ?? "–"}</td>
-                <td className="mono">{g.lean ?? "no model"}</td>
+                <td className="mono" data-label="O/U">{g.total ?? "–"}</td>
+                <td className="mono" data-label="Model">{g.lean ?? "no model"}</td>
                 <td className="sheet-why">{g.why}</td>
               </tr>
             ))}
@@ -215,8 +215,8 @@ function DkPlays({ s }: { s: Sheet }) {
               <th className="w-10">Proj</th>
               <th className="w-10">Value</th>
               <th>Why</th>
-              <th className="w-24">Game</th>
-              <th className="w-16">Kick</th>
+              <th className="w-24 sheet-hide-sm">Game</th>
+              <th className="w-16 sheet-hide-sm">Kick</th>
             </tr>
           </thead>
           <tbody>
@@ -232,11 +232,11 @@ function DkPlays({ s }: { s: Sheet }) {
                   ${p.salary.toLocaleString("en-US")}
                   {p.slate === "showdown" ? " SD" : ""}
                 </td>
-                <td className="mono sheet-score">{p.proj}</td>
-                <td className={`mono ${p.slate === "classic" && p.value >= 4 ? "sheet-good" : ""}`}>{p.value}x</td>
+                <td className="mono sheet-score" data-label="Proj">{p.proj}</td>
+                <td className={`mono ${p.slate === "classic" && p.value >= 4 ? "sheet-good" : ""}`} data-label="Value">{p.value}x</td>
                 <td className="sheet-why">{p.why}</td>
-                <td className="mono">{p.matchup}</td>
-                <td className="mono">{p.kickoff}</td>
+                <td className="mono sheet-hide-sm">{p.matchup}</td>
+                <td className="mono sheet-hide-sm">{p.kickoff}</td>
               </tr>
             ))}
           </tbody>
@@ -401,6 +401,16 @@ const SHEET_CSS = `
 body:has(.sheet-chromeless) main { padding: 0 !important; max-width: none !important; }
 body:has(.sheet-chromeless) .sheet-root { max-width: none; }
 body:has(.sheet-chromeless) .sheet { border: 0; border-radius: 0; }
+/* Phones: the letter-size tables become one line of numbers per row with the "why" on its own line under it. */
+@media screen and (max-width: 639px) {
+  .sheet-table thead { display: none; }
+  .sheet-table tr { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; border-top: 1px solid var(--ink-2); padding: 4px 0; }
+  .sheet-table tr:first-child { border-top: 0; }
+  .sheet-table td { border-top: 0; padding: 0; }
+  .sheet-table td.sheet-why { flex-basis: 100%; }
+  .sheet-table td[data-label]::before { content: attr(data-label) " "; color: var(--chalk-3); }
+  .sheet-hide-sm { display: none; }
+}
 @media print {
   @page { size: letter; margin: 0.3in; }
   .topbar, .tabbar, .sheet-actions, body > footer { display: none !important; }

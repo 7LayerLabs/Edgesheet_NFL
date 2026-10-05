@@ -21,14 +21,14 @@ export function WatchlistClient({ games }: { games: Game[] }) {
   return (
     <div>
       <p className="eyebrow">Watchlist</p>
-      <h1 className="display mt-1 text-5xl font-extrabold text-chalk">Your Saturday</h1>
+      <h1 className="display mt-1 text-5xl font-extrabold text-chalk">Your week</h1>
 
       {ready && followedGames.length + followedPlayers.length + list.teams.length === 0 && (
         <div className="card mt-6 p-8 text-center">
           <p className="display text-2xl text-chalk">Nothing followed yet</p>
-          <p className="mt-1 text-sm text-chalk-3">Follow teams from the Top 25, watch a game from its report, or follow a prospect.</p>
+          <p className="mt-1 text-sm text-chalk-3">Follow teams from the standings, watch a game from its report, or follow a player.</p>
           <div className="mt-4 flex justify-center gap-2">
-            <Link href="/rankings" className="inline-block rounded bg-navy px-4 py-2 text-sm font-semibold text-white">Top 25</Link>
+            <Link href="/standings" className="inline-block rounded bg-navy px-4 py-2 text-sm font-semibold text-white">Standings</Link>
             <Link href="/" className="inline-block rounded border border-line-2 bg-white px-4 py-2 text-sm font-semibold text-chalk">Browse the slate</Link>
           </div>
         </div>

@@ -164,6 +164,8 @@ body {
   transition: background 120ms, border-color 120ms, color 120ms;
 }
 .chip:hover { border-color: var(--line-2); }
+/* A chip that carries a sentence (status, name, detail) wraps on a phone instead of pushing the page sideways. */
+.chip-wrap { white-space: normal; flex-wrap: wrap; row-gap: 2px; }
 .chip[aria-pressed="true"] {
   background: var(--navy);
   border-color: var(--navy);

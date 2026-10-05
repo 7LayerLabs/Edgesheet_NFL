@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getSlate, shiftDate, type Slate as SlateData } from "@/lib/slate";
 import { scoutScore, scoreTag } from "@/lib/score";
 import { Slate } from "@/components/Slate";
+import { cardGame } from "@/lib/card";
 import { LiveTicker } from "@/components/LiveTicker";
 import type { Game } from "@/lib/types";
 import { SendToTelegram } from "@/components/SendToTelegram";
@@ -54,8 +55,9 @@ export default async function Today({ searchParams }: PageProps<"/">) {
 
       <LiveTicker games={games} />
 
+      {/* The best two games, wide screens only: on a phone the first cards below are the same games, one screen sooner. */}
       {games.length > 0 && (
-        <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
+        <div className="mt-5 hidden gap-2.5 sm:grid sm:grid-cols-2">
           <Callout label="Highest Watch Score" game={top} tone="flag" />
           {gem ? <Callout label="Hidden Gem" game={gem} tone="turf" /> : <Callout label="Next best" game={sorted[1] ?? top} tone="flag" />}
         </div>
@@ -73,7 +75,7 @@ export default async function Today({ searchParams }: PageProps<"/">) {
       )}
 
       <div className="mt-6">
-        <Slate games={games} />
+        <Slate games={games.map(cardGame)} />
       </div>
     </div>
   );

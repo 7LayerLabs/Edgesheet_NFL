@@ -5,7 +5,7 @@
  * Team keys are nicknames. Stat keys match what archive.ts grades on (YDS, CAR, LONG, TOT, TFL, SACKS, PD, INT).
  */
 import { memo, memoSync } from "./memo";
-import { genGamelogs, gamelogsStamp, type GenGameLine } from "./generated";
+import { genGamelogs, genPlayers, gamelogsStamp, type GenGameLine } from "./generated";
 import { liveSummary } from "./espn";
 import { gameById, teamByShort } from "./nfl";
 
@@ -76,12 +76,14 @@ function fromNflverse(gameId: string, names: Map<string, string>): BoxScore | un
   const g = logs?.games[gameId];
   const rows = linesByGame().get(gameId);
   if (!logs || !g || !rows?.length) return undefined;
+  // Names from the players digest: the game logs carry ids only.
+  const nameOf = new Map(genPlayers().map((p) => [p.id, p.n]));
   const byPlayer = new Map<string, BoxLine[]>();
   const perTeam = new Map<string, BoxLine[]>();
   for (const r of rows) {
     for (const c of categoriesOf(r.line.s)) {
       const h = headline(c.category, c.stats);
-      const line: BoxLine = { id: r.id, name: names.get(r.id) ?? r.id, team: r.line.t, category: c.category, stats: c.stats, headline: h.text, yards: h.yards };
+      const line: BoxLine = { id: r.id, name: names.get(r.id) ?? nameOf.get(r.id) ?? r.id, team: r.line.t, category: c.category, stats: c.stats, headline: h.text, yards: h.yards };
       (byPlayer.get(r.id) ?? byPlayer.set(r.id, []).get(r.id)!).push(line);
       (perTeam.get(r.line.t) ?? perTeam.set(r.line.t, []).get(r.line.t)!).push(line);
     }

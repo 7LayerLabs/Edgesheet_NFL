@@ -28,7 +28,7 @@ export async function DfsPanel({ game }: { game: Game }) {
       {data.vacancies.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {data.vacancies.map((v) => (
-            <span key={`${v.team}-${v.name}`} className="chip text-xs">
+            <span key={`${v.team}-${v.name}`} className="chip chip-wrap text-xs">
               <span className="font-semibold text-brick">{v.status}</span>
               <span className="text-chalk">{v.name}</span>
               <span className="mono text-chalk-3">
@@ -84,7 +84,7 @@ export async function DfsPanel({ game }: { game: Game }) {
       <p className="mt-3 max-w-3xl text-xs leading-relaxed text-chalk-3">
         {data.source ? `${data.source}. ` : ""}
         DK pts are scored from the nflverse game lines with DraftKings Classic rules (two-point conversions are not in the file).
-        Proj is our average blended with last season (worth 3 games), times a quarter of the matchup factor (DK points the opponent allows to the position against the league; backtests showed more weight hurt), plus half of a new Out or Doubtful teammate's average for the next man up.
+        Proj is our average blended with last season (worth 3 games), times a quarter of the matchup factor (DK points the opponent allows to the position against the league; backtests showed more weight hurt), plus half of a new Out or Doubtful teammate&apos;s average for the next man up.
         {showdown ? " Showdown salaries run higher than Classic, so value here reads lower than on a Classic slate." : ""} Value is projected points per $1,000. {NOT_A_PICK}
       </p>
     </div>

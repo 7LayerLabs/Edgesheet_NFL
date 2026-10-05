@@ -14,13 +14,19 @@ export function LivePoller({ active, intervalMs = 60_000, label = "live, updatin
 
   useEffect(() => {
     if (!active) return;
+    let last = Date.now();
+    const refresh = () => {
+      last = Date.now();
+      router.refresh();
+    };
     const id = setInterval(() => {
       if (document.visibilityState !== "visible") return;
-      router.refresh();
+      refresh();
       setTick((t) => t + 1);
     }, intervalMs);
+    // Coming back to the tab refreshes once, unless the last refresh was under 30 seconds ago.
     const onVisible = () => {
-      if (document.visibilityState === "visible") router.refresh();
+      if (document.visibilityState === "visible" && Date.now() - last >= 30_000) refresh();
     };
     document.addEventListener("visibilitychange", onVisible);
     return () => {

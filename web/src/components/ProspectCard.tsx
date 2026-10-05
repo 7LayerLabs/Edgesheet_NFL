@@ -12,7 +12,7 @@ import { FollowButton } from "./FollowButton";
 export function ProspectCard({ p, team, gameLabel, gameHref, compact = false }: { p: Prospect; team: Team; gameLabel?: string; gameHref?: string; compact?: boolean }) {
   const r = p.radar;
   return (
-    <div className="card flex flex-col gap-3 p-4">
+    <div className="card flex min-w-0 flex-col gap-3 p-4">
       <div className="flex items-start gap-3">
         <Avatar jersey={p.jersey} color={team.color} logo={team.logo} size={compact ? "sm" : "md"} playerId={p.id} name={p.name} src={p.headshot} />
         <div className="min-w-0 flex-1">

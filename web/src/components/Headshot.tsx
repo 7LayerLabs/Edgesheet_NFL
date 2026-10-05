@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { smallHeadshot } from "@/lib/images";
 
 /**
  * ESPN headshot with a graceful fallback. Some ids return 404, so the
@@ -13,7 +14,7 @@ export function Headshot({ src, alt, className, fallback }: { src: string; alt: 
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src}
+      src={smallHeadshot(src)}
       alt={alt}
       loading="lazy"
       decoding="async"

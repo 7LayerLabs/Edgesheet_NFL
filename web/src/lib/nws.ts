@@ -22,7 +22,8 @@ interface Period {
 
 async function nws<T>(url: string, revalidate: number): Promise<T | undefined> {
   try {
-    const res = await fetch(url, { headers: { "User-Agent": UA, Accept: "application/geo+json" }, next: { revalidate } });
+    // 4 s: a normal answer takes 70 to 150 ms, and the game page waits on it.
+    const res = await fetch(url, { headers: { "User-Agent": UA, Accept: "application/geo+json" }, next: { revalidate }, signal: AbortSignal.timeout(4000) });
     if (!res.ok) return undefined;
     return (await res.json()) as T;
   } catch {

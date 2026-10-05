@@ -17,7 +17,7 @@ export function LivePanel({ game }: { game: Game }) {
   const periods = Math.max(d?.home.linescores?.length ?? 0, d?.away.linescores?.length ?? 0);
 
   return (
-    <div className="mt-3 grid gap-3">
+    <div className="mt-3 grid grid-cols-1 gap-3">
       {/* Situation */}
       <div className={`card p-4 ${isLive ? "border-l-4 border-l-turf" : "border-l-4 border-l-brick"}`}>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -88,26 +88,29 @@ export function LivePanel({ game }: { game: Game }) {
 
       {d && d.winProb.length > 1 && <WinProbChart game={game} />}
 
-      {d && d.scoringPlays.length > 0 && (
-        <div className="card p-4">
-          <p className="eyebrow">Scoring plays</p>
-          <ul className="mt-2 grid gap-1.5">
-            {d.scoringPlays.map((p, i) => (
-              <li key={i} className="grid grid-cols-[3.5rem_3rem_1fr_4rem] items-baseline gap-2 text-sm">
-                <span className="mono text-[11px] text-chalk-3">{periodLabel(p.period)} {p.clock}</span>
-                <span className="mono text-xs font-medium" style={{ color: p.team === game.home.abbr ? game.home.color : game.away.color }}>{p.team}</span>
-                <span className="text-chalk-2">
-                  <span className={`mr-1.5 rounded px-1 py-px text-[10px] font-bold uppercase tracking-wider ${p.type === "TD" ? "bg-turf text-white" : "bg-ink-2 text-chalk"}`}>{p.type}</span>
-                  {p.text}
-                </span>
-                <span className="mono text-right text-xs text-chalk">{p.away}-{p.home}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* Live, the scoring plays and drives are the feed; after the final they fold, so the box score sits close to the top. */}
+      <Fold open={isLive} label="Scoring plays and drive chart">
+        {d && d.scoringPlays.length > 0 && (
+          <div className="card p-4">
+            <p className="eyebrow">Scoring plays</p>
+            <ul className="mt-2 grid gap-1.5">
+              {d.scoringPlays.map((p, i) => (
+                <li key={i} className="grid grid-cols-[3.5rem_3rem_1fr_4rem] items-baseline gap-2 text-sm">
+                  <span className="mono text-[11px] text-chalk-3">{periodLabel(p.period)} {p.clock}</span>
+                  <span className="mono text-xs font-medium" style={{ color: p.team === game.home.abbr ? game.home.color : game.away.color }}>{p.team}</span>
+                  <span className="text-chalk-2">
+                    <span className={`mr-1.5 rounded px-1 py-px text-[10px] font-bold uppercase tracking-wider ${p.type === "TD" ? "bg-turf text-white" : "bg-ink-2 text-chalk"}`}>{p.type}</span>
+                    {p.text}
+                  </span>
+                  <span className="mono text-right text-xs text-chalk">{p.away}-{p.home}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-      {d && d.drives.length > 0 && <DriveChart game={game} />}
+        {d && d.drives.length > 0 && <DriveChart game={game} />}
+      </Fold>
     </div>
   );
 }
@@ -208,7 +211,7 @@ function DriveChart({ game }: { game: Game }) {
       </div>
       <ol className="mt-2 grid gap-1">
         {[...d.drives].reverse().map((dr, i) => (
-          <li key={i} className={`grid grid-cols-[3rem_2.5rem_5.5rem_1fr] items-center gap-2 rounded px-1 py-1 text-xs sm:grid-cols-[3.5rem_3rem_6rem_1fr_11rem] ${dr.current ? "bg-turf/5" : ""}`}>
+          <li key={i} className={`grid grid-cols-[3rem_2.5rem_5.5rem_minmax(0,1fr)] items-center gap-2 rounded px-1 py-1 text-xs sm:grid-cols-[3.5rem_3rem_6rem_minmax(0,1fr)_11rem] ${dr.current ? "bg-turf/5" : ""}`}>
             <span className="mono text-[11px] text-chalk-3">{dr.period ? periodLabel(dr.period) : ""} {dr.clock}</span>
             <span className="mono font-medium" style={{ color: colorOf(dr.team) }}>{dr.team}</span>
             <span className={`w-fit rounded px-1.5 py-px text-[10px] font-bold uppercase tracking-wider ${tone(dr.current ? "In progress" : dr.resultShort || dr.result)}`}>
@@ -218,7 +221,7 @@ function DriveChart({ game }: { game: Game }) {
               <span className="relative h-2 w-full max-w-40 overflow-hidden rounded-sm bg-ink-2" aria-hidden>
                 <span className="absolute inset-y-0 left-0" style={{ width: `${Math.min(100, Math.max(0, dr.yards))}%`, background: colorOf(dr.team), opacity: dr.score ? 1 : 0.5 }} />
               </span>
-              <span className="mono whitespace-nowrap text-chalk-2">{dr.plays} plays, {dr.yards} yds{dr.time ? `, ${dr.time}` : ""}</span>
+              <span className="mono text-chalk-2 sm:whitespace-nowrap">{dr.plays} plays, {dr.yards} yds{dr.time ? `, ${dr.time}` : ""}</span>
             </span>
             <span className="mono hidden truncate text-[11px] text-chalk-3 sm:block">{dr.start}{dr.end ? ` to ${dr.end}` : ""}</span>
           </li>
@@ -226,5 +229,16 @@ function DriveChart({ game }: { game: Game }) {
       </ol>
       <p className="mt-1 text-xs text-chalk-3">Most recent drive first. Bar length is yards gained out of 100.</p>
     </div>
+  );
+}
+
+/** Shows its children as they are when open; otherwise behind a disclosure with the given label. */
+function Fold({ open, label, children }: { open: boolean; label: string; children: React.ReactNode }) {
+  if (open) return <>{children}</>;
+  return (
+    <details>
+      <summary className="cursor-pointer select-none text-sm font-semibold text-sky">{label}</summary>
+      <div className="mt-3 grid grid-cols-1 gap-3">{children}</div>
+    </details>
   );
 }

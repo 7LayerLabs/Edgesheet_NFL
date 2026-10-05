@@ -26,7 +26,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { genGamelogs, genHistory, genMeta, genPlayers, gamelogsStamp, historyStamp, type GenPlayer, type StatLine } from "./generated";
+import { genGamelogs, genHistory, genMeta, genPlayers, genSchedule, gamelogsStamp, historyStamp, type GenPlayer, type StatLine } from "./generated";
 import { memo, memoSync } from "./memo";
 import { nflTeams } from "./nfl";
 
@@ -54,7 +54,8 @@ export interface Transaction {
 }
 
 async function getJson<T>(url: string): Promise<T> {
-  const res = await fetch(url, { headers: { "User-Agent": UA, Accept: "application/json" }, cache: "no-store", signal: AbortSignal.timeout(20_000) });
+  // 6 s, then the disk copy (cached() below): the game page waits on these.
+  const res = await fetch(url, { headers: { "User-Agent": UA, Accept: "application/json" }, cache: "no-store", signal: AbortSignal.timeout(6_000) });
   if (!res.ok) throw new Error(`ESPN answered ${res.status}`);
   return (await res.json()) as T;
 }
@@ -126,10 +127,59 @@ export function absenceOf(status: string | null | undefined, comment?: string | 
   if (!status) return 0;
   const s = status.toLowerCase();
   if (s === "active") return 0;
-  if (/^(out|inactive|injured reserve|ir|suspension|suspended|pup|nfi|physically unable|non-football)/.test(s) || /inactive/i.test(comment ?? "")) return 1;
+  if (/^(out|inactive|injured reserve|ir|suspension|suspended|pup|nfi|physically unable|non-football)/.test(s) || /\binactive\b/i.test(comment ?? "")) return 1;
   if (s.startsWith("doubtful")) return 0.85;
   if (s.startsWith("questionable")) return /did not participate/i.test(practice ?? "") ? 0.5 : 0.25;
   return 0;
+}
+
+/** ESPN comments that speak to one game only: game-day inactives, in-game exits, a ruling for that day. */
+const GAME_DAY = /\binactive\b|won't return|will not return|ruled out|out for (?:the rest of )?(?:sunday|monday|thursday|saturday|friday)/i;
+
+/**
+ * Where a game sits in its team's schedule: the cutoff for news about the previous game (its kickoff + 30 h:
+ * inactives, in-game exits and the write-ups on them post within a day, and no team plays again inside three)
+ * and this game's week.
+ */
+export interface StatusClock {
+  prevEnd?: number;
+  week?: number;
+}
+
+/** From the schedule's kickoff times, not its scores, so it is right before the next ingest catches up. */
+export function statusClock(team: string, kickoff: string): StatusClock {
+  const t = Date.parse(kickoff);
+  const season = genMeta()?.season;
+  let prev: number | undefined;
+  let week: number | undefined;
+  let weekKick = Infinity;
+  for (const g of genSchedule()) {
+    if (g.season !== season || (g.home !== team && g.away !== team)) continue;
+    const k = Date.parse(g.kickoff);
+    if (k < t - 60_000) prev = Math.max(prev ?? k, k);
+    else if (k < weekKick) {
+      weekKick = k;
+      week = g.week;
+    }
+  }
+  return { prevEnd: prev === undefined ? undefined : prev + 30 * 3600_000, week };
+}
+
+/**
+ * One player's status for one game, freshest source first. An ESPN game-day designation dated inside the
+ * previous game's news window was about that game: it falls back to this week's official report, or, with
+ * none yet, to questionable (he sat or left last time, nothing since). An official report from an earlier
+ * week is not this week's report and is ignored.
+ */
+export function playerStatus(p: GenPlayer, e: EspnInjury | undefined, clock: StatusClock): { status: string; source: string; absence: number } {
+  const report = p.inj?.st && (clock.week === undefined || p.inj.wk >= clock.week) ? p.inj : undefined;
+  if (e) {
+    const stale = GAME_DAY.test(e.comment ?? "") && clock.prevEnd !== undefined && e.date !== undefined && Date.parse(e.date) <= clock.prevEnd;
+    if (!stale) return { status: /\binactive\b/i.test(e.comment ?? "") ? "Inactive" : e.status, source: "ESPN", absence: absenceOf(e.status, e.comment, report?.pr) };
+    if (!report) return { status: "Questionable (out last game, no update since)", source: "ESPN", absence: 0.25 };
+  }
+  if (report) return { status: report.st!, source: "official report", absence: absenceOf(report.st, null, report.pr) };
+  return { status: "Active", source: "", absence: 0 };
 }
 
 /* ------------------------------------------------------------ values */
@@ -266,12 +316,16 @@ export interface AvailItem {
 
 export interface TeamAvailability {
   team: string;
-  qb?: { expected: string; expectedEpa: number; baseline: number; baselineQbs: string; playsPerGame: number; pts: number; note: string; uncertain: boolean };
+  /** pts moves the margin (baseline blends last season's QBs, as the Elo does); totalPts moves the model total (baseline is this season's QBs only, as the EPA total is). */
+  qb?: { expected: string; expectedEpa: number; baseline: number; baselineQbs: string; playsPerGame: number; pts: number; totalPts: number; note: string; uncertain: boolean };
   items: AvailItem[];
   offense: number; // points this offense loses (negative) or gains
+  offenseTotal: number; // the same for the model total: totalPts in place of the QB's pts
   defense: number; // points this defense loses (negative): the opponent scores that many more
   total: number; // offense + defense
   moves: Transaction[];
+  /** Every rostered player who is not plainly active, by id: the one status the whole game page uses. */
+  statuses: Record<string, { status: string; source: string; absence: number }>;
 }
 
 export interface GameAvailability {
@@ -308,7 +362,7 @@ const teamLines = () =>
     return { games, lastTeam, byTeam };
   });
 
-function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]): TeamAvailability {
+function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[], clock: StatusClock): TeamAvailability {
   const players = genPlayers();
   const byId = new Map(players.map((p) => [p.id, p]));
   const { games, lastTeam, byTeam } = teamLines();
@@ -318,12 +372,7 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
   const espnById = new Map(espn.filter((e) => e.team === team).map((e) => [e.id, e]));
   const roster = players.filter((p) => p.t === team);
 
-  const statusFor = (p: GenPlayer) => {
-    const e = espnById.get(p.id);
-    if (e) return { status: /inactive/i.test(e.comment ?? "") ? "Inactive" : e.status, source: "ESPN", absence: absenceOf(e.status, e.comment, p.inj?.pr) };
-    if (p.inj?.st) return { status: p.inj.st, source: "official report", absence: absenceOf(p.inj.st, null, p.inj.pr) };
-    return { status: "Active", source: "", absence: 0 };
-  };
+  const statusFor = (p: GenPlayer) => playerStatus(p, espnById.get(p.id), clock);
 
   const items: AvailItem[] = [];
 
@@ -353,15 +402,19 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
       .filter((p) => p.pg === "QB")
       .map((p) => ({ p, st: statusFor(p) }))
       .sort((a, b) => (a.p.dc?.rank ?? 99) - (b.p.dc?.rank ?? 99) || (used.get(b.p.id) ?? 0) - (used.get(a.p.id) ?? 0));
-    const healthy = candidates.filter((c) => c.st.absence < 0.5);
+    // Questionable counts as healthy even with no final-day practice (0.5): he is blended with the backup, not benched.
+    const healthy = candidates.filter((c) => c.st.absence <= 0.5);
     const first = healthy[0];
     if (first) {
       const firstEpa = qbEpaPerPlay(first.p).value;
       const next = healthy[1];
-      const q = first.st.absence; // 0, or 0.25 when questionable
+      const q = first.st.absence; // 0, or 0.25 to 0.5 when questionable
       const expectedEpa = next && q > 0 ? (1 - q) * firstEpa + q * qbEpaPerPlay(next.p).value : firstEpa;
-      const pts = Math.max(-12, Math.min(12, round1((expectedEpa - baseline) * playsPerGame * QB_SCALE)));
-      const sat = candidates.filter((c) => c.st.absence >= 0.5 && (used.get(c.p.id) ?? 0) > 0);
+      const clampQb = (x: number) => Math.max(-12, Math.min(12, round1(x * playsPerGame * QB_SCALE)));
+      const pts = clampQb(expectedEpa - baseline);
+      // The model total is built from this season's EPA only, which already carries this season's QBs.
+      const totalPts = clampQb(expectedEpa - nowMix);
+      const sat = candidates.filter((c) => c.st.absence > 0.5 && (used.get(c.p.id) ?? 0) > 0);
       const arrived = lastTeam.get(first.p.id) && lastTeam.get(first.p.id)!.team !== team;
       const why = [
         `${first.p.n} expected to start${q > 0 ? ` (${first.st.status}; ${Math.round(q * 100)}% chance ${next?.p.n ?? "the backup"} plays)` : ""}`,
@@ -370,7 +423,7 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
         `${round3(expectedEpa)} EPA a play over his track record against ${round3(baseline)} for the QBs who built the team's numbers (${baselineQbs})`,
         `at ${round1(playsPerGame)} QB plays a game, scaled ${QB_SCALE} (fit on 2022 to 2025)`,
       ].filter(Boolean);
-      qb = { expected: first.p.n, expectedEpa: round3(expectedEpa), baseline: round3(baseline), baselineQbs, playsPerGame: round1(playsPerGame), pts, note: why.join("; "), uncertain: q > 0 };
+      qb = { expected: first.p.n, expectedEpa: round3(expectedEpa), baseline: round3(baseline), baselineQbs, playsPerGame: round1(playsPerGame), pts, totalPts, note: why.join("; "), uncertain: q > 0 };
       if (Math.abs(pts) >= 0.5) items.push({ id: first.p.id, name: first.p.n, pos: "QB", side: "offense", kind: "qb", status: q > 0 ? first.st.status : "Starts", source: first.st.source || "depth chart", absence: 0, weight: 1, pts, note: why.join("; "), measured: true });
     }
   }
@@ -431,18 +484,25 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
   }
 
   const cap = (x: number) => Math.max(-4, Math.min(4, x));
-  const offense = round1((qb?.pts ?? 0) + cap(items.filter((i) => i.side === "offense" && i.kind !== "qb").reduce((a, b) => a + b.pts, 0)));
+  const skill = cap(items.filter((i) => i.side === "offense" && i.kind !== "qb").reduce((a, b) => a + b.pts, 0));
+  const offense = round1((qb?.pts ?? 0) + skill);
+  const offenseTotal = round1((qb?.totalPts ?? 0) + skill);
+  const statuses: TeamAvailability["statuses"] = {};
+  for (const p of roster) {
+    const st = statusFor(p);
+    if (st.status !== "Active") statuses[p.id] = st;
+  }
   const defense = round1(cap(items.filter((i) => i.side === "defense").reduce((a, b) => a + b.pts, 0)));
   items.sort((a, b) => a.pts - b.pts);
-  return { team, qb, items, offense, defense, total: round1(offense + defense), moves: moves.filter((m) => m.team === team).slice(0, 8) };
+  return { team, qb, items, offense, offenseTotal, defense, total: round1(offense + defense), moves: moves.filter((m) => m.team === team).slice(0, 8), statuses };
 }
 
 /** Both teams for one game. Never throws: missing feeds fall back to the official report and say so. */
-export async function gameAvailability(home: string, away: string): Promise<GameAvailability> {
+export async function gameAvailability(home: string, away: string, kickoff: string): Promise<GameAvailability> {
   const [inj, tx] = await Promise.all([espnInjuries(), espnTransactions()]);
   const notes: string[] = [];
   if (inj.error) notes.push(`${inj.error}. Using the official report only.`);
   if (tx.error) notes.push(tx.error);
   const sources = [inj.rows.length ? `ESPN injuries ${new Date(inj.at).toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" })} ET` : "", "nflverse official report", "nflverse rosters and depth charts", tx.rows.length ? "ESPN transactions" : ""].filter(Boolean);
-  return { home: teamAvailability(home, inj.rows, tx.rows), away: teamAvailability(away, inj.rows, tx.rows), asOf: inj.at, sources, notes };
+  return { home: teamAvailability(home, inj.rows, tx.rows, statusClock(home, kickoff)), away: teamAvailability(away, inj.rows, tx.rows, statusClock(away, kickoff)), asOf: inj.at, sources, notes };
 }

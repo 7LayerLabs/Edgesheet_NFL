@@ -320,7 +320,8 @@ export function gradePostgame(game: Game, season: number, box: BoxScore, excitem
     consensusResult = { winnerRight: actualWinner === pre.consensus.favorite, marginError: Math.abs(actualHomeMargin - pre.consensus.median), sideCovered };
   }
   const top = edges.find((e) => e.edge !== "even") ?? edges[0];
-  const clv = closingValue(season, game.id, pre.kickoff, pre);
+  // CLV against the first lock: the lock follows the line to kickoff, so against the final lock it is zero by construction.
+  const clv = closingValue(season, game.id, pre.kickoff, pre.first ? { ...pre.first, abbr: pre.abbr } : pre);
   entry.postgame = {
     projectionResult,
     clv,

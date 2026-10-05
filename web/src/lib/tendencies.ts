@@ -4,7 +4,7 @@
  * style-contrast input to the Watch Score. Every label is a threshold rule
  * over a published metric, with the team's rank inside its classification.
  */
-import { genTeams, type GenTeam, type GenUnit } from "./generated";
+import { genTeams, teamsStamp, type GenTeam, type GenUnit } from "./generated";
 import { memoSync } from "./memo";
 
 export interface Metric {
@@ -66,7 +66,7 @@ const STYLE_KEYS = new Set(["passRate", "blitz", "playAction", "earlyPass"]);
 interface Tables { off: Map<string, number[]>; def: Map<string, number[]> }
 
 function tables(): Map<string, Tables> {
-  return memoSync("tend:tables", 3600, () => {
+  return memoSync(`tend:tables:${teamsStamp()}`, 3600, () => {
     const byCls = new Map<string, Tables>();
     for (const t of genTeams()) {
       const c = t.c ?? "nfl";
@@ -133,7 +133,7 @@ function unit(t: GenTeam, side: "off" | "def"): UnitStyle {
 export function styleFor(school: string): TeamStyle | undefined {
   const t = genTeams().find((x) => x.team === school);
   if (!t) return undefined;
-  return memoSync(`tend:${school}`, 3600, () => ({ team: t.team, classification: t.c, games: t.games, offense: unit(t, "off"), defense: unit(t, "def"), raw: t }));
+  return memoSync(`tend:${school}:${teamsStamp()}`, 3600, () => ({ team: t.team, classification: t.c, games: t.games, offense: unit(t, "off"), defense: unit(t, "def"), raw: t }));
 }
 
 /* ------------------------------------------------- matchup derivations */
@@ -284,7 +284,7 @@ export function styleContrast(a: string, b: string): number | null {
 
 /** League averages inside a classification, used to anchor the model total. */
 export function leagueMeans(cls: string): { offPpa: number; defPpa: number; plays: number; teams: number } {
-  return memoSync(`tend:means:${cls}`, 3600, () => {
+  return memoSync(`tend:means:${cls}:${teamsStamp()}`, 3600, () => {
     const t = genTeams().filter((x) => (x.c ?? "fbs") === cls);
     if (!t.length) return { offPpa: 0.02, defPpa: 0.02, plays: 63, teams: 0 };
     const m = (f: (x: GenTeam) => number) => t.reduce((s, x) => s + f(x), 0) / t.length;

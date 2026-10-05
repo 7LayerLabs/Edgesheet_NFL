@@ -66,7 +66,7 @@ if (!unplayed.length) {
 }
 const week = Math.min(...unplayed.map((g) => g.week));
 const horizon = Date.now() + 8 * 86400 * 1000;
-const open = unplayed.filter((g) => (g.week === week || Date.parse(g.kickoff) <= horizon) && Date.parse(g.kickoff) > Date.now() - 4 * 3600 * 1000);
+const open = unplayed.filter((g) => (g.week === week || Date.parse(g.kickoff) <= horizon) && Date.parse(g.kickoff) > Date.now());
 log("season", season, "week", week, "games not yet kicked off", open.length);
 const refs = open.map((g) => ({ id: String(g.id), home: g.home, away: g.away, kickoff: g.kickoff }));
 

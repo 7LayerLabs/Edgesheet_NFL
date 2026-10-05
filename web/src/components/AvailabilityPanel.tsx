@@ -8,7 +8,7 @@ const KIND: Record<string, string> = { out: "", left: "Left", arrived: "New", qb
 /**
  * Who is playing, and what it is worth: the expected quarterback against the ones whose snaps built
  * the team's numbers, every starter out or doubtful, players traded away or signed, and the last
- * week of roster moves. The projection above already includes these points.
+ * week of roster moves. The model's call includes these points (live and final games show the locked call).
  */
 export function AvailabilityPanel({ game, a }: { game: Game; a: GameAvailability }) {
   const sides: [Team, TeamAvailability][] = [
@@ -21,7 +21,7 @@ export function AvailabilityPanel({ game, a }: { game: Game; a: GameAvailability
       <p className="max-w-3xl text-sm text-chalk-2">
         {net === 0
           ? "Nothing on either injury list moves the margin."
-          : `Net ${Math.abs(net)} points to the ${net > 0 ? game.home.short : game.away.short} once the lineups are priced in. The projection above already includes it.`}
+          : `Net ${Math.abs(net)} points to the ${net > 0 ? game.home.short : game.away.short} once the lineups are priced in. ${game.status === "upcoming" ? "The model's call already includes it." : "The locked call priced the lineups as they stood before kickoff."}`}
       </p>
       <div className="mt-3 grid gap-2.5 md:grid-cols-2">
         {sides.map(([t, av]) => (

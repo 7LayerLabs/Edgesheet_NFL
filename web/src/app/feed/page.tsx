@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const MAX_TEAMS = 6;
 
 /**
- * /feed?team=Georgia&team=Alabama
+ * /feed?team=Bears&team=Packers
  * The watchlist lives in localStorage, so the watchlist page links here with the followed teams in the query.
  */
 export default async function FeedPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -36,11 +36,11 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
         <div className="card mt-6 p-8 text-center">
           <p className="display text-2xl text-chalk">No teams in the link</p>
           <p className="mt-1 text-sm text-chalk-3">
-            Follow teams from the Top 25, then open the feed from your watchlist. Or add them to the address: /feed?team=Georgia&amp;team=Alabama
+            Follow teams from the standings, then open the feed from your watchlist. Or add them to the address: /feed?team=Bears&amp;team=Packers
           </p>
           <div className="mt-4 flex justify-center gap-2">
             <Link href="/watchlist" className="inline-block rounded bg-navy px-4 py-2 text-sm font-semibold text-white">Watchlist</Link>
-            <Link href="/rankings" className="inline-block rounded border border-line-2 bg-white px-4 py-2 text-sm font-semibold text-chalk">Top 25</Link>
+            <Link href="/standings" className="inline-block rounded border border-line-2 bg-white px-4 py-2 text-sm font-semibold text-chalk">Standings</Link>
           </div>
         </div>
       ) : (

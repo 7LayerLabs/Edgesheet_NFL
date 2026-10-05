@@ -26,14 +26,15 @@ export function moveText(open: number, cur: number) {
   return `${d > 0 ? "+" : ""}${d.toFixed(1)} from ${open}`;
 }
 
-export type Window = "Noon" | "Afternoon" | "Prime time" | "Late night";
+/** NFL kickoff windows in ET: early (London 9:30 AM and the 1 PM games), late afternoon (4:05 and 4:25), prime time. */
+export type Window = "Early" | "Late afternoon" | "Prime time" | "Late night";
 
 export function kickoffWindow(iso: string): Window {
   const h = Number(
     new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", hour12: false, timeZone: "America/New_York" }),
   );
-  if (h < 14) return "Noon";
-  if (h < 19) return "Afternoon";
+  if (h < 15) return "Early";
+  if (h < 19) return "Late afternoon";
   if (h < 21) return "Prime time";
   return "Late night";
 }

@@ -7,8 +7,10 @@
  */
 import type { ArchiveEntry } from "./archive";
 import { clvFrom, closingLine, type ClvRecord } from "./odds";
+import { sideTier, totalTier, type LeanTier } from "./leans";
 
-export type Strength = "strong" | "moderate";
+/** The shared lean tiers (leans.ts): "strong" is a big gap and is staked; "moderate" is a gap, tracked but not staked. */
+export type Strength = LeanTier;
 export type BetResult = "win" | "loss" | "push" | "ungraded";
 
 const WIN = 100 / 110; // units returned on a -110 winner
@@ -68,8 +70,8 @@ export interface LedgerStats {
   clvPositive: number;
 }
 
-const sideStrength = (gap: number): Strength | undefined => (gap >= 6 ? "strong" : gap >= 3 ? "moderate" : undefined);
-const totalStrength = (gap: number): Strength | undefined => (gap >= 6 ? "strong" : gap >= 4 ? "moderate" : undefined);
+const sideStrength = sideTier;
+const totalStrength = totalTier;
 
 function unitsFor(result: BetResult): number {
   return result === "win" ? WIN : result === "loss" ? -1 : 0;
@@ -92,13 +94,16 @@ export function gapsFor(e: ArchiveEntry): { sideGap?: number; totalGap?: number 
 }
 
 export function clvForEntry(e: ArchiveEntry): ClvRecord | undefined {
-  const stored = (e.postgame as { clv?: ClvRecord } | undefined)?.clv;
-  if (stored) return stored;
+  // Measured from the first lock (the lock follows the line to kickoff, so the final lock always equals the close).
+  // Recomputed while the snapshots are on disk, which also corrects grades stored before that rule.
+  const call = e.pregame.first ? { ...e.pregame.first, abbr: e.pregame.abbr } : e.pregame;
   try {
-    return clvFrom(e.pregame, closingLine(e.season, e.gameId, e.pregame.kickoff));
+    const fresh = clvFrom(call, closingLine(e.season, e.gameId, e.pregame.kickoff));
+    if (fresh) return fresh;
   } catch {
-    return undefined;
+    /* fall back to the stored record */
   }
+  return (e.postgame as { clv?: ClvRecord } | undefined)?.clv;
 }
 
 export function buildLedger(entries: ArchiveEntry[]): { rows: LedgerRow[]; stats: LedgerStats } {

@@ -434,6 +434,8 @@ export function appendSnapshot(root, { season, gameId, home, away, kickoff, even
   file.swapped = Boolean(swapped);
   file.kickoff = kickoff ?? file.kickoff;
   const snap = { at: at ?? new Date().toISOString(), perBook, consensus: consensusOf(perBook) };
+  // Nothing after kickoff: an in-game line prices the score, and the readers would take it for the market.
+  if (Date.parse(snap.at) > Date.parse(file.kickoff)) return { file, appended: false };
   const prev = file.snapshots[file.snapshots.length - 1];
   if (prev && sameBooks(prev.perBook, perBook) && Date.parse(snap.at) - Date.parse(prev.at) < 3600000) {
     file.lastChecked = snap.at;

@@ -7,6 +7,7 @@ import type { Market, Matchup, Team, WeatherInput } from "./types";
 import type { GenTeam } from "./generated";
 import { evaluateWeather } from "./weather";
 import type { TeamAvailability } from "./availability";
+import type { Pregame } from "./archive";
 
 export interface Projection {
   winner: string; // abbr
@@ -164,7 +165,8 @@ export function projectGame(i: Input): Projection | undefined {
     const a = i.awayAvail;
     const net = Math.round((h.total - a.total) * 10) / 10;
     // Home scores its offense change minus the away defense change, and the reverse, so the total moves by both.
-    const totalAdj = Math.round((h.offense + a.offense - h.defense - a.defense) * 10) / 10;
+    // offenseTotal measures the QB against this season's QBs: the EPA total already carries them, the Elo does not.
+    const totalAdj = Math.round(((h.offenseTotal ?? h.offense) + (a.offenseTotal ?? a.offense) - h.defense - a.defense) * 10) / 10;
     const lineFor = (t: TeamAvailability, abbr: string) => {
       const bits = [
         t.qb && Math.abs(t.qb.pts) >= 0.5 ? `QB ${t.qb.expected} ${t.qb.pts > 0 ? "+" : ""}${t.qb.pts}` : "",
@@ -213,19 +215,10 @@ export function projectGame(i: Input): Projection | undefined {
   const total = i.market.total?.line ?? modelTotal ?? 44;
   if (!i.market.total && modelTotal === undefined) basis.push("No market total and no tendency data; 44 assumed for the score line.");
 
-  let totalLean: Projection["totalLean"];
-  let totalGap: number | undefined;
-  let totalNote: string | undefined;
-  if (modelTotal !== undefined && i.market.total) {
-    totalGap = Math.round((modelTotal - i.market.total.line) * 10) / 10;
-    totalLean = totalGap >= 2.5 ? "over" : totalGap <= -2.5 ? "under" : "none";
-    totalNote =
-      totalLean === "none"
-        ? `Model total ${modelTotal} against a posted ${i.market.total.line}. No lean.`
-        : `Model total ${modelTotal} against a posted ${i.market.total.line}. The model leans ${totalLean} by ${Math.abs(totalGap)}.`;
-  }
+  const { totalLean, totalGap, totalNote } = modelTotal !== undefined && i.market.total ? totalVsMarket(modelTotal, i.market.total.line) : ({} as Partial<ReturnType<typeof totalVsMarket>>);
+  // Each side rounded from the same total and margin, so the score line shows the margin it came from.
   const homePts = Math.max(0, Math.round((total + margin) / 2));
-  const awayPts = Math.max(0, Math.round(total - homePts));
+  const awayPts = Math.max(0, Math.round((total - margin) / 2));
   const homeWins = margin >= 0;
   const winner = homeWins ? i.home.abbr : i.away.abbr;
   const winProb = probFromMargin(Math.abs(margin));
@@ -242,26 +235,66 @@ export function projectGame(i: Input): Projection | undefined {
   else shape = "Balanced styles. The unit edges above decide it more than tempo does.";
 
   // Where the model disagrees with the number.
-  let vsMarket: string | undefined;
-  let modelSide: string | undefined;
-  let sideGap: number | undefined;
-  if (marketMargin !== undefined) {
-    const diff = margin - marketMargin; // positive = model likes home more than the market does
-    modelSide = diff >= 0 ? i.home.abbr : i.away.abbr;
-    sideGap = Math.round(Math.abs(diff) * 10) / 10;
-    const favAbbr = marketMargin >= 0 ? i.home.abbr : i.away.abbr;
-    const modelFavMargin = marketMargin >= 0 ? margin : -margin;
-    const mktFavMargin = Math.abs(marketMargin);
-    const gap = Math.abs(diff);
-    vsMarket =
-      gap < 2
-        ? `Model and market agree: ${favAbbr} by about ${mktFavMargin.toFixed(1)}.`
-        : modelFavMargin > mktFavMargin
-          ? `Model has ${favAbbr} by ${modelFavMargin.toFixed(1)}; the market has ${mktFavMargin.toFixed(1)}. The model leans ${favAbbr} against the number by ${gap.toFixed(1)}.`
-          : modelFavMargin >= 0
-            ? `Model has ${favAbbr} by only ${modelFavMargin.toFixed(1)}; the market has ${mktFavMargin.toFixed(1)}. The model leans ${modelSide} against the number by ${gap.toFixed(1)}.`
-            : `Model has ${modelSide} winning outright; the market has ${favAbbr} by ${mktFavMargin.toFixed(1)}. The model leans ${modelSide} against the number by ${gap.toFixed(1)}.`;
-  }
+  const { vsMarket, modelSide, sideGap } = marketMargin !== undefined ? sideVsMarket(margin, marketMargin, i.home.abbr, i.away.abbr) : ({} as Partial<ReturnType<typeof sideVsMarket>>);
 
   return { winner, winProb, margin: Math.abs(margin), total, home: homePts, away: awayPts, shape, vsMarket, modelSide, sideGap, modelTotal, totalLean, totalGap, totalNote, weatherTilt, availability, basis, confidence };
+}
+
+/** A projected home margin against the posted home margin (both positive = home by that many), in words. */
+export function sideVsMarket(margin: number, marketMargin: number, homeAbbr: string, awayAbbr: string): { vsMarket: string; modelSide: string; sideGap: number } {
+  const diff = margin - marketMargin; // positive = model likes home more than the market does
+  const modelSide = diff >= 0 ? homeAbbr : awayAbbr;
+  const gap = Math.abs(diff);
+  const favAbbr = marketMargin >= 0 ? homeAbbr : awayAbbr;
+  const modelFavMargin = marketMargin >= 0 ? margin : -margin;
+  const mktFavMargin = Math.abs(marketMargin);
+  const vsMarket =
+    gap < 2
+      ? `Model and market agree: ${favAbbr} by about ${mktFavMargin.toFixed(1)}.`
+      : modelFavMargin > mktFavMargin
+        ? `Model has ${favAbbr} by ${modelFavMargin.toFixed(1)}; the market has ${mktFavMargin.toFixed(1)}. The model leans ${favAbbr} against the number by ${gap.toFixed(1)}.`
+        : modelFavMargin >= 0
+          ? `Model has ${favAbbr} by only ${modelFavMargin.toFixed(1)}; the market has ${mktFavMargin.toFixed(1)}. The model leans ${modelSide} against the number by ${gap.toFixed(1)}.`
+          : `Model has ${modelSide} winning outright; the market has ${favAbbr} by ${mktFavMargin.toFixed(1)}. The model leans ${modelSide} against the number by ${gap.toFixed(1)}.`;
+  return { vsMarket, modelSide, sideGap: Math.round(gap * 10) / 10 };
+}
+
+/** The model total against the posted total, in words. */
+export function totalVsMarket(modelTotal: number, posted: number): { totalLean: "over" | "under" | "none"; totalGap: number; totalNote: string } {
+  const totalGap = Math.round((modelTotal - posted) * 10) / 10;
+  const totalLean = totalGap >= 2.5 ? "over" : totalGap <= -2.5 ? "under" : "none";
+  const totalNote =
+    totalLean === "none"
+      ? `Model total ${modelTotal} against a posted ${posted}. No lean.`
+      : `Model total ${modelTotal} against a posted ${posted}. The model leans ${totalLean} by ${Math.abs(totalGap)}.`;
+  return { totalLean, totalGap, totalNote };
+}
+
+/**
+ * The pregame call as locked in the archive, in the shape the pages read. Live and final games show this,
+ * not a projection rebuilt from today's data, so the call on screen is the call the record grades.
+ */
+export function lockedProjection(pre: Pregame): Projection | undefined {
+  const p = pre.projection;
+  if (!p) return undefined;
+  const homeMargin = p.winner === pre.abbr.home ? p.margin : -p.margin;
+  const side = pre.spread ? sideVsMarket(homeMargin, pre.spread.team === pre.abbr.home ? -pre.spread.line : pre.spread.line, pre.abbr.home, pre.abbr.away) : undefined;
+  const tot = p.modelTotal !== undefined && pre.total !== undefined ? totalVsMarket(p.modelTotal, pre.total) : undefined;
+  const at = new Date(pre.updatedAt ?? pre.capturedAt).toLocaleString("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit" });
+  const line = pre.spread ? `${pre.spread.team} ${pre.spread.line}` : "no posted spread";
+  return {
+    winner: p.winner,
+    winProb: p.winProb,
+    margin: p.margin,
+    total: pre.total ?? p.home + p.away,
+    home: p.home,
+    away: p.away,
+    shape: `The pregame call, locked before kickoff. This is the call the record grades.`,
+    ...side,
+    ...tot,
+    modelSide: p.modelSide,
+    totalLean: p.totalLean,
+    basis: [`Locked ${at} ET against ${line}${pre.total !== undefined ? `, total ${pre.total}` : ""}.`],
+    confidence: (p.confidence as Projection["confidence"]) ?? "medium",
+  };
 }

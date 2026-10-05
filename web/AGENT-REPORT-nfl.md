@@ -166,3 +166,37 @@ Open: the side leans ignore QB injuries (Colts at Commanders reads WSH by 5.3 "h
 
 - The defense-vs-position factor barely matters and half strength was worse than none; a quarter is the best fit. Last season's per-game line is the real gain. Applied as `PRIOR_GAMES` 3 and `MATCHUP_WEIGHT` 0.25 in dfs.ts; the why line shows last season.
 - Not tested: the next-man-up bump (needs injury history joined to the weekly files) and the defensive prop scores (no historical prop lines).
+
+## Session 2026-10-04, part 7: audit round, accuracy and viewing (Desktop copy)
+
+Four read-only audits (data layer, displayed pages, model logic, speed and scanability), then every verified finding fixed. Plan and per-item notes: `tasks/todo.md` at the repo root.
+
+Accuracy, model inputs:
+- QB term no longer counted twice in the model total: `qb.totalPts` measures the starter against this season's QBs only (`offenseTotal`); the margin keeps the blended baseline.
+- `playerStatus` + `statusClock` (availability.ts): an ESPN game-day designation ("inactive", "won't return", "ruled out") dated inside 30 h of the team's previous kickoff was about that game; it falls back to this week's official report, or questionable (0.25) with none. Official reports from another week are ignored. DraftKings uses the same status.
+- Odds snapshots after kickoff: ignored on read (`beforeKick`), refused on write (`appendSnapshot`), the cron stops at kickoff, leans are pregame only. IND at WSH reads IND -4.5 again (it read -10.5 from a 16:00Z in-game snapshot).
+- Neutral sites: ingest marks a game neutral when its stadium matches `neutralVenues` (PHI at JAX, Tottenham, is now neutral: JAX by 3.6 on Elo, not 5.6); the app also takes ESPN's neutralSite; unmatched neutral venues get no forecast. Added Bayern, Maracana, Banorte, Melbourne.
+- Ingest: team games and pace from the play-by-play games actually tallied (MIA/MIN 3 games, pace 57.3/54.3); `meta.latestWeek` drives "10 of 11 week 4 finals posted"; depth chart ignores KR/PR slots; snap counts join on pfr id (18 players gained snaps); `gp` counts snap games, zero lines added (488); two-point tries out of team metrics (BUF red-zone TD 0.733); last season and history regular season only; stale roster rows dropped (17); Elo ties move ratings.
+- Breakout compares last season restated at this season's game count (102 to 64 breakouts; Tyler Warren's "+209%" is gone). Week windows start after the previous week's last game (a Wednesday opener no longer swallows Monday night). Questionable QB with no practice is blended, not benched. CLV measured from the first lock (ledger recomputes stored zeros). Tendency memos keyed on teams.json mtime.
+
+Accuracy, pages:
+- One status per game page (`TeamAvailability.statuses`): radar tags, players who sit dropped from the lenses and the matchup pick and named in storylines; expected QBs from the availability model.
+- Records and standings fold in ESPN finals for this week and last (`espnWeek` carries finals, 10 min memo).
+- Live and final games show the locked pregame call (`lockedProjection`), so the call on screen is the call the record grades.
+- One lean vocabulary (`src/lib/leans.ts`): side 4/2, total 5/2.5, "big gap"/"gap", `LEAN_BACKTEST_NOTE` on the game page and ledger, "inputs complete" instead of "confidence high". The ledger now stakes big gaps under these thresholds, so its simulated record changes.
+- Box leaders show names; score line rounds both sides from total and margin; Telegram `/game` date in ET; DraftKings slate fetched per date; label cleanup (Early / Late afternoon windows, NFL Net national, college leftovers, /history fixes).
+- Watch Score: rookie density was pinned at 100 on 28 of 29 games; scaled by 4.5 (scores drop about 6). Hidden Gem needs 78 (was 75; ten of thirteen week-5 games were gems). Radar snap share ranked inside the position group (top 20 had 0 offensive players, now 4; top 57 had 6, now 17). Why-watch headline leads with how close the market says the game is before the top radar name.
+
+Speed (prod build, port 3101):
+- Headshots and logos requested at 128 px / 96 px (`src/lib/images.ts`): about 7 KB and 9 KB instead of 1 to 4 MB and 40 to 94 KB.
+- Slate and watchlist pass card-sized games to the client (`src/lib/card.ts`): slate HTML 1,168 KB to 226 KB.
+- Availability and FPI start in parallel with the live feed; 4 s NWS and 6 s ESPN injury timeouts; LivePoller refocus throttled to 30 s; finals memoized 10 min; digest mtime checked at most every 5 s; game-page feed capped at 10 with a link; Bluesky hosts raced.
+- Warm loads 7 to 36 ms on every route; cold game pages stream in 0.35 to 1.5 s (the beat feed is the tail).
+
+Layout: the game page opens with an answer strip (the call, the number, the gap or the grade, the notes that move it), a 6-link jump bar, the box score first once a game starts, 4 radar cards before "show more", the projection and model-vs-market merged into one box, team-style numbers and finals' drive charts and graded calls behind disclosures, caveats at the bottom. Upcoming page about 17.5 phone screens (was about 37); no horizontal scroll at 390 px. Slate: filters in one row, callouts hidden on phones, model call on each card, the NFL / FULL / style-line clutter removed. Sheet tables reflow on phones.
+
+Backtests after the changes: Elo 2022 to 2025 winner 64.2%, MAE 9.95, cover 49.7% (49.6% before; the tie fix); QB term at 0.75 MAE 9.876, cover 48.2%. Total and DraftKings backtests unchanged (they read raw files). Not backtested: the QB-in-total change, the stale-status rule, the rescaled Watch Score density and tags.
+
+Open: five lint errors that predate this round (BoardClient setState in effect, two error.tsx `<a>` links, two apostrophes in AvailabilityPanel). Past 2025 international games still show the US stadium name nflverse lists (neutral flag and Elo are right; no forecast now).
+
+Live PC after pulling: `REFRESH=1 npm run ingest` (downloads one new optional file, last season's snap counts), `npm run build`, then `pm2 restart nfl nfl-odds nfl-telegram`.

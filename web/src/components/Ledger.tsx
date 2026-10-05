@@ -5,9 +5,10 @@ import { hasOddsKey } from "@/lib/odds";
 import { asOf, spreadText } from "@/lib/format";
 import { LEDGER_MIN, gated, type GatedValue } from "@/lib/gate";
 import { Gated } from "@/components/Gated";
+import { LEAN_BACKTEST_NOTE, LEAN_THRESHOLDS, tierLabel } from "@/lib/leans";
 
 /**
- * Ledger: every graded game with a strong or moderate model lean, the number at
+ * Ledger: every graded game with a gap or big gap to the market (leans.ts), the number at
  * lock, the closing number, the result, closing-line value, and a flat-bet
  * simulation. Clearly labeled as a simulation; it is not advice.
  */
@@ -26,16 +27,16 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
         <span className="h-px flex-1 bg-line" />
       </div>
       <p className="mt-1 max-w-3xl text-sm text-chalk-3">
-        Every graded game where the model leaned at least 3 points off the posted spread or 4 off the total. The simulation stakes one flat unit on each strong lean (6 or more points)
-        at standard -110 and does nothing else. Closing-line value is how many points the closing consensus moved toward the model&apos;s side after the lock; positive means the market
-        agreed with the model by kickoff. Both numbers are tuning signals for the model, not a betting record.
+        Every graded game where the model sat at least {LEAN_THRESHOLDS.side.moderate} points off the posted spread or {LEAN_THRESHOLDS.total.moderate} off the total. The simulation stakes one flat unit on each big gap
+        ({LEAN_THRESHOLDS.side.strong}+ points on the side, {LEAN_THRESHOLDS.total.strong}+ on the total) at standard -110 and does nothing else. Closing-line value is how many points the closing consensus moved toward the model&apos;s side after the lock; positive means the market
+        agreed with the model by kickoff. Both numbers are tuning signals for the model, not a betting record. {LEAN_BACKTEST_NOTE}
       </p>
 
       <div className="mt-3 grid gap-2 sm:grid-cols-4">
-        <Tile label="Simulated units" value={stats.bets ? gated(stats.bets, LEDGER_MIN, u(stats.units)) : "–"} sub={stats.bets ? `${stats.wins}-${stats.losses}${stats.pushes ? `-${stats.pushes}` : ""} on ${stats.bets} strong leans${stats.bets >= LEDGER_MIN ? ` · ROI ${stats.roi}%` : ""}` : "no strong leans graded yet"} tone={stats.bets >= LEDGER_MIN ? (stats.units > 0 ? "good" : stats.units < 0 ? "bad" : undefined) : undefined} />
-        <Tile label="With moderate leans" value={stats.betsAll ? gated(stats.betsAll, LEDGER_MIN, u(stats.unitsAll)) : "–"} sub={stats.betsAll ? `${stats.betsAll} bets at one unit${stats.betsAll >= LEDGER_MIN ? ` · ROI ${stats.roiAll}%` : ""}` : "none graded yet"} />
+        <Tile label="Simulated units" value={stats.bets ? gated(stats.bets, LEDGER_MIN, u(stats.units)) : "–"} sub={stats.bets ? `${stats.wins}-${stats.losses}${stats.pushes ? `-${stats.pushes}` : ""} on ${stats.bets} big gaps${stats.bets >= LEDGER_MIN ? ` · ROI ${stats.roi}%` : ""}` : "no big gaps graded yet"} tone={stats.bets >= LEDGER_MIN ? (stats.units > 0 ? "good" : stats.units < 0 ? "bad" : undefined) : undefined} />
+        <Tile label="Gaps too" value={stats.betsAll ? gated(stats.betsAll, LEDGER_MIN, u(stats.unitsAll)) : "–"} sub={stats.betsAll ? `${stats.betsAll} bets at one unit${stats.betsAll >= LEDGER_MIN ? ` · ROI ${stats.roiAll}%` : ""}` : "none graded yet"} />
         <Tile label="CLV average" value={stats.clvAvg != null ? gated(stats.clvCount, LEDGER_MIN, `${stats.clvAvg > 0 ? "+" : ""}${stats.clvAvg.toFixed(2)}`) : "–"} sub={stats.clvCount ? `${stats.clvPositive} of ${stats.clvCount} legs beat the close${stats.clvCount >= LEDGER_MIN ? ` · side ${clvText(stats.sideClvAvg ?? undefined)}, total ${clvText(stats.totalClvAvg ?? undefined)}` : ""}` : keyMissing ? "needs ODDS_API_KEY for closing lines" : "no closing snapshots before kickoff yet"} tone={stats.clvAvg != null && stats.clvCount >= LEDGER_MIN ? (stats.clvAvg > 0 ? "good" : stats.clvAvg < 0 ? "bad" : undefined) : undefined} />
-        <Tile label="Leans graded" value={String(stats.rows)} sub={`${stats.bets} strong, ${stats.betsAll - stats.bets} moderate legs`} />
+        <Tile label="Leans graded" value={String(stats.rows)} sub={`${stats.bets} big gaps, ${stats.betsAll - stats.bets} gaps`} />
       </div>
       {(stats.bets < LEDGER_MIN || stats.clvCount < LEDGER_MIN) && stats.rows > 0 && (
         <p className="mono mt-2 text-xs text-chalk-3">Units, ROI, and CLV averages show once {LEDGER_MIN} legs are staked or closed. The table below is the full record either way.</p>
@@ -71,7 +72,7 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
                         <Link href={`/game/${r.gameId}`} className="display text-lg font-bold text-chalk hover:text-sky">{r.label}</Link>
                         <p className="mono text-xs text-chalk-3">{asOf(r.kickoff)} · final {r.score}</p>
                       </td>
-                      <td className="mono px-3 py-2 text-chalk">{s.team} side <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${s.strength === "strong" ? "bg-brick text-white" : "bg-navy text-white"}`}>{s.strength}</span><br /><span className="text-xs text-chalk-3">model off by {s.gap}</span></td>
+                      <td className="mono px-3 py-2 text-chalk">{s.team} side <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${s.strength === "strong" ? "bg-navy text-white" : "bg-ink-2 text-chalk"}`}>{tierLabel(s.strength)}</span><br /><span className="text-xs text-chalk-3">model off by {s.gap}</span></td>
                       <td className="mono px-3 py-2 text-chalk">{spreadText(s.lockLine.team, s.lockLine.line)}</td>
                       <td className="mono px-3 py-2 text-chalk">{s.closing ? spreadText(s.closing.team, s.closing.line) : <span className="text-chalk-3">no snapshot</span>}</td>
                       <td className={`mono px-3 py-2 ${s.clv === undefined ? "text-chalk-3" : s.clv > 0 ? "text-turf" : s.clv < 0 ? "text-brick" : "text-chalk"}`}>{clvText(s.clv)}</td>
@@ -93,7 +94,7 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
                           </>
                         )}
                       </td>
-                      <td className="mono px-3 py-2 text-chalk">{t.lean} <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${t.strength === "strong" ? "bg-brick text-white" : "bg-navy text-white"}`}>{t.strength}</span><br /><span className="text-xs text-chalk-3">model off by {t.gap}</span></td>
+                      <td className="mono px-3 py-2 text-chalk">{t.lean} <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${t.strength === "strong" ? "bg-navy text-white" : "bg-ink-2 text-chalk"}`}>{tierLabel(t.strength)}</span><br /><span className="text-xs text-chalk-3">model off by {t.gap}</span></td>
                       <td className="mono px-3 py-2 text-chalk">{t.lockTotal}</td>
                       <td className="mono px-3 py-2 text-chalk">{t.closingTotal !== undefined ? t.closingTotal : <span className="text-chalk-3">no snapshot</span>}</td>
                       <td className={`mono px-3 py-2 ${t.clv === undefined ? "text-chalk-3" : t.clv > 0 ? "text-turf" : t.clv < 0 ? "text-brick" : "text-chalk"}`}>{clvText(t.clv)}</td>
@@ -107,10 +108,10 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
               })}
             </tbody>
           </table>
-          <p className="px-3 py-2 text-xs text-chalk-3">Running column is strong leans only, oldest to newest, one unit each at -110. The number at lock is the CollegeFootballData consensus the model saw; the closing number is the Odds API consensus from the last snapshot before kickoff.</p>
+          <p className="px-3 py-2 text-xs text-chalk-3">Running column is big gaps only, oldest to newest, one unit each at -110. The number at lock is the market line the model was locked against; the closing number is the Odds API consensus from the last snapshot before kickoff.</p>
         </div>
       ) : (
-        <p className="mt-3 text-sm text-chalk-3">No graded game has carried a moderate or strong lean yet.</p>
+        <p className="mt-3 text-sm text-chalk-3">No graded game has carried a gap to the market yet.</p>
       )}
     </section>
   );

@@ -71,7 +71,7 @@ export function SituationsTable({ away, home, s }: { away: Team; home: Team; s: 
       <p className="eyebrow">Situations</p>
       <h3 className="display mt-1 text-2xl font-bold text-chalk">What each side does on the downs that decide drives</h3>
       <p className="mono mt-1 text-xs text-chalk-3">
-        From play-by-play through {asOf(s.home.asOf)}. {away.abbr} {s.away.games} games, {s.away.plays.offense} offensive snaps. {home.abbr} {s.home.games} games, {s.home.plays.offense} offensive snaps. Rank is inside the division among teams with 15 or more plays in the split; n= marks a split under that sample. Pass rates and tempo rank 1 = most pass-heavy or fastest. Defense rows are what the unit allowed.
+        From play-by-play through {asOf(s.home.asOf)}. {away.abbr} {s.away.games} games, {s.away.plays.offense} offensive snaps. {home.abbr} {s.home.games} games, {s.home.plays.offense} offensive snaps. Ranks are league-wide, among teams with 15 or more plays in the split; n= marks a split under that sample. Pass rates and tempo rank 1 = most pass-heavy or fastest. Defense rows are what the unit allowed.
       </p>
       <div className="mt-3 grid gap-3 lg:grid-cols-2">
         <UnitTable side="Offense" away={away} home={home} awayRows={s.away.offense} homeRows={s.home.offense} />

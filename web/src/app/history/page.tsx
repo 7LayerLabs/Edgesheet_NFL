@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { historyStats, listEntries } from "@/lib/archive";
-import { asOf, kickoffTime } from "@/lib/format";
+import { asOf } from "@/lib/format";
 import { LedgerSection } from "@/components/Ledger";
 import { SendToTelegram } from "@/components/SendToTelegram";
 import { telegramReady } from "@/lib/telegram";
@@ -61,7 +61,11 @@ export default function HistoryPage() {
         <p className="mono mt-6 text-xs text-chalk-3">Watch Score vs excitement chart appears at {BUCKET_MIN} graded games ({stats.graded} so far).</p>
       )}
 
-      {stats.graded >= BUCKET_MIN && (
+      {stats.graded >= BUCKET_MIN && !stats.byBucket.some((b) => b.games > 0) && (
+        <p className="mono mt-6 text-xs text-chalk-3">ESPN posts no excitement index for NFL games, so the Watch Score vs excitement chart has nothing to plot. The calls below are the record.</p>
+      )}
+
+      {stats.graded >= BUCKET_MIN && stats.byBucket.some((b) => b.games > 0) && (
         <section className="mt-8">
           <h2 className="display text-3xl font-bold text-chalk">Watch Score vs how the game actually played</h2>
           <p className="mt-1 text-sm text-chalk-3">Average excitement index (from the data feed, 0 to 10) by pregame Watch Score bucket. If the score means anything, the top bucket should sit highest. Buckets with fewer than 3 games show the count only.</p>
@@ -99,7 +103,7 @@ export default function HistoryPage() {
                     <p className="mono mt-0.5 text-xs text-chalk-3">
                       {asOf(e.pregame.kickoff)} · Watch Score {e.pregame.scoutScore}{p.excitement != null ? ` · excitement ${p.excitement.toFixed(1)}` : ""}{p.spreadResult ? ` · ${p.spreadResult}` : ""}
                     </p>
-                    <p className="mt-1 text-sm text-chalk-2">{e.pregame.pressurePoint.split(". ").slice(0, 2).join(". ")}.</p>
+                    <p className="mt-1 text-sm text-chalk-2">{e.pregame.pressurePoint.split(/(?<!\bNo)\.\s+/).slice(0, 2).join(". ").replace(/\.$/, "")}.</p>
                   </div>
                   <div className="flex gap-2 text-center">
                     {edges.length > 0 && <Badge value={`${hits}/${edges.length}`} label="edges" tone={hits >= edges.length / 2 ? "good" : "bad"} />}
@@ -128,7 +132,7 @@ export default function HistoryPage() {
                 <Link href={`/game/${e.gameId}`} className="display text-xl font-bold text-chalk hover:text-sky">
                   {e.pregame.away} @ {e.pregame.home}
                 </Link>
-                <span className="mono shrink-0 text-xs text-chalk-3">{kickoffTime(e.pregame.kickoff)} ET · locked {asOf(e.pregame.capturedAt)}</span>
+                <span className="mono shrink-0 text-xs text-chalk-3">{asOf(e.pregame.kickoff)} kickoff · locked {asOf(e.pregame.capturedAt)}</span>
               </li>
             ))}
           </ul>

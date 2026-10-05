@@ -87,9 +87,15 @@ async function teamsBySchool(season: number): Promise<Map<string, TeamLike>> {
   return new Map(nflTeams().map((t) => [t.short, { school: t.location, mascot: t.short, abbreviation: t.abbr }]));
 }
 
-/** The newest snapshot's consensus for a game (home spread, negative = home favored), for the slate's current line. */
+/** Snapshots taken before kickoff only. A line posted during the game prices the score, not the matchup. */
+function beforeKick(file: OddsFile | undefined): OddsFile | undefined {
+  const kick = Date.parse(file?.kickoff ?? "");
+  return file && Number.isFinite(kick) ? { ...file, snapshots: file.snapshots.filter((s) => Date.parse(s.at) <= kick) } : file;
+}
+
+/** The newest pregame snapshot's consensus for a game (home spread, negative = home favored), for the slate's current line. */
 export function latestLine(season: number, gameId: string): { spread?: number; total?: number; mlHome?: number; mlAway?: number; books: number; at: string } | undefined {
-  const f = readOddsFile(ROOT, season, gameId);
+  const f = beforeKick(readOddsFile(ROOT, season, gameId));
   const s = f?.snapshots?.[f.snapshots.length - 1];
   if (!s) return undefined;
   return { spread: s.consensus.spread, total: s.consensus.total, mlHome: s.consensus.mlHome, mlAway: s.consensus.mlAway, books: s.consensus.books, at: s.at };
@@ -162,7 +168,7 @@ export async function fetchPropsForGame(season: number, gameId: string): Promise
 
 /* ------------------------------------------------------------ reads */
 
-export const lineHistory = (season: number, gameId: string): Snapshot[] => readOddsFile(ROOT, season, gameId)?.snapshots ?? [];
+export const lineHistory = (season: number, gameId: string): Snapshot[] => beforeKick(readOddsFile(ROOT, season, gameId))?.snapshots ?? [];
 
 export const closingLine = (season: number, gameId: string, kickoffIso?: string): LinePoint | undefined => closingOf(readOddsFile(ROOT, season, gameId), kickoffIso);
 
@@ -170,7 +176,8 @@ export const openingLine = (season: number, gameId: string): LinePoint | undefin
 
 export const movement = (season: number, gameId: string, homeAbbr: string, awayAbbr: string): string => movementText(lineHistory(season, gameId), homeAbbr, awayAbbr);
 
-export function summarize(file: OddsFile | undefined, game: Pick<Game, "kickoff" | "status"> & { home: { abbr: string }; away: { abbr: string } }, note?: string): GameOdds {
+export function summarize(raw: OddsFile | undefined, game: Pick<Game, "kickoff" | "status"> & { home: { abbr: string }; away: { abbr: string } }, note?: string): GameOdds {
+  const file = beforeKick(raw);
   const u = readUsage(ROOT);
   const usage = { remaining: u.remaining, used: u.used, calls: u.calls ?? 0 };
   const keyMissing = !hasOddsKey();

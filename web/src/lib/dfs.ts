@@ -21,11 +21,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { kickoffTime } from "./format";
-import { genGamelogs, genPlayers, genTeams, gamelogsStamp, type GenPlayer, type StatLine } from "./generated";
+import { genGamelogs, genPlayers, genSchedule, genTeams, gamelogsStamp, type GenPlayer, type StatLine } from "./generated";
 import { memo, memoSync } from "./memo";
 import { nflTeams, etDateOf, type NflTeam } from "./nfl";
 import { findOddsFile, type PropRow } from "./odds";
-import { absenceOf, espnInjuries, type EspnInjury } from "./availability";
+import { absenceOf, espnInjuries, playerStatus, statusClock, type EspnInjury, type StatusClock } from "./availability";
 
 export type DkPos = "QB" | "RB" | "WR" | "TE";
 const DK_POS: DkPos[] = ["QB", "RB", "WR", "TE"];
@@ -120,7 +120,7 @@ async function playersFor(groupId: number, slate: "classic" | "showdown"): Promi
   return out;
 }
 
-async function fetchDkSlate(date: string, games: GameLike[]): Promise<DkSlate> {
+async function fetchDkSlate(date: string): Promise<DkSlate> {
   const lobby = await getJson<{ DraftGroups?: LobbyGroup[] }>("https://www.draftkings.com/lobby/getcontests?sport=NFL");
   const onDate = (lobby.DraftGroups ?? []).filter((g) => String(g.StartDateEst).startsWith(date));
   const classic = onDate.filter((g) => g.GameTypeId === 1).sort((a, b) => b.GameCount - a.GameCount)[0];
@@ -132,9 +132,10 @@ async function fetchDkSlate(date: string, games: GameLike[]): Promise<DkSlate> {
   }
   const covered = new Set(rows.map((r) => r.team));
   const showdowns = onDate.filter((g) => g.GameTypeId === 96);
-  for (const g of games) {
-    if (covered.has(g.home.short) && covered.has(g.away.short)) continue;
-    const want = [teamOf(g.home.short), teamOf(g.away.short)].filter(Boolean) as NflTeam[];
+  // Every game on the date from the schedule, not the caller's list: the result is cached by date alone.
+  for (const g of genSchedule().filter((x) => etDateOf(x.kickoff) === date)) {
+    if (covered.has(g.home) && covered.has(g.away)) continue;
+    const want = [teamOf(g.home), teamOf(g.away)].filter(Boolean) as NflTeam[];
     const sd = showdowns.find((s) => want.every((t) => new RegExp(`\\b(${t.abbr}|${t.code})\\b`).test(s.ContestStartTimeSuffix ?? "")));
     if (!sd) continue;
     rows.push(...(await playersFor(sd.DraftGroupId, "showdown")));
@@ -154,13 +155,13 @@ function readDisk(date: string): DkSlate | undefined {
   }
 }
 
-/** Salaries for a date. Never throws: on failure returns the disk copy or an empty slate with the reason. */
-export function dkSlate(date: string, games: GameLike[]): Promise<DkSlate> {
+/** Salaries for a date: the main Classic group plus a Showdown for each game outside it. Never throws: on failure returns the disk copy or an empty slate with the reason. */
+export function dkSlate(date: string): Promise<DkSlate> {
   return memo(`dk:${date}`, TTL_MIN * 60, async () => {
     const disk = readDisk(date);
     if (disk && Date.now() - Date.parse(disk.fetchedAt) < TTL_MIN * 60_000 && disk.rows.length) return disk;
     try {
-      const fresh = await fetchDkSlate(date, games);
+      const fresh = await fetchDkSlate(date);
       if (fresh.rows.length) {
         mkdirSync(DK_DIR, { recursive: true });
         writeFileSync(path.join(DK_DIR, `${date}.json`), JSON.stringify(fresh));
@@ -186,10 +187,10 @@ export function nameKey(s: string): string {
     .trim();
 }
 
-/** Status, freshest first: the DraftKings tag, then ESPN's injury feed (game-day inactives), then the Friday official report. */
-const statusOf = (p: GenPlayer | undefined, dk: DkRow | undefined, espn?: EspnInjury): string | undefined => {
-  const fromEspn = espn && espn.status !== "Active" ? (/inactive/i.test(espn.comment ?? "") ? "Inactive" : espn.status) : undefined;
-  const raw = dk?.status || fromEspn || p?.inj?.st || undefined;
+/** Status, freshest first: the DraftKings tag, then ESPN and the official report as the availability model reads them (dated to this game). */
+const statusOf = (p: GenPlayer | undefined, dk: DkRow | undefined, espn: EspnInjury | undefined, clock: StatusClock | undefined): string | undefined => {
+  const st = p && clock ? playerStatus(p, espn, clock) : undefined;
+  const raw = dk?.status || (st && st.status !== "Active" ? st.status : undefined) || undefined;
   if (!raw) return undefined;
   const map: Record<string, string> = { O: "Out", D: "Doubtful", Q: "Questionable", IR: "IR", PUP: "PUP", NFI: "NFI", SUSP: "Suspended" };
   return map[raw.toUpperCase()] ?? raw;
@@ -369,14 +370,15 @@ function teamContext() {
 }
 
 /** Both teams' DraftKings plays and defensive prop names for one game. */
-export async function gameDfs(game: GameLike, slateGames?: GameLike[]): Promise<GameDfs> {
+export async function gameDfs(game: GameLike): Promise<GameDfs> {
   const date = etDateOf(game.kickoff);
-  const [dk, inj] = await Promise.all([dkSlate(date, slateGames ?? [game]), espnInjuries()]);
+  const [dk, inj] = await Promise.all([dkSlate(date), espnInjuries()]);
   return buildGame(game, dk, new Map(inj.rows.map((r) => [r.id, r])));
 }
 
 function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): GameDfs {
-  const statusAt = (p: GenPlayer | undefined, row: DkRow | undefined) => statusOf(p, row, p ? espn.get(p.id) : undefined);
+  const clocks = new Map([game.home.short, game.away.short].map((t) => [t, statusClock(t, game.kickoff)]));
+  const statusAt = (p: GenPlayer | undefined, row: DkRow | undefined) => statusOf(p, row, p ? espn.get(p.id) : undefined, p ? clocks.get(p.t) : undefined);
   const players = genPlayers();
   const season = seasonDk();
   const { table, league } = defenseVsPosition();
@@ -574,7 +576,7 @@ export interface ShowdownGame {
 
 export async function slateDfs(date: string, games: GameLike[]): Promise<{ plays: DfsPlay[]; showdown: ShowdownGame[]; tackles: DefProp[]; rush: DefProp[]; note?: string; source?: string }> {
   if (!games.length) return { plays: [], showdown: [], tackles: [], rush: [] };
-  const [dk, inj] = await Promise.all([dkSlate(date, games), espnInjuries()]);
+  const [dk, inj] = await Promise.all([dkSlate(date), espnInjuries()]);
   const espn = new Map(inj.rows.map((r) => [r.id, r]));
   const all = games.map((g) => buildGame(g, dk, espn));
   const usable = (p: DfsPlay) => p.proj >= 10 && (p.games >= 2 || Boolean(p.bump));

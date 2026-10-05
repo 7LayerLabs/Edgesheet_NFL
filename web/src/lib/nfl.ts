@@ -5,6 +5,7 @@
  * in data/nfl-teams.json. The only network calls are ESPN (FPI, broadcasts),
  * both optional and cached.
  */
+import { smallLogo } from "./images";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { memo, memoSync } from "./memo";
@@ -53,7 +54,7 @@ const byShort = () => memoSync("nfl:byShort", 86400, () => new Map(nflTeams().ma
 const byCode = () => memoSync("nfl:byCode", 86400, () => new Map(nflTeams().map((t) => [t.code, t])));
 export const teamByShort = (short: string): NflTeam | undefined => byShort().get(short);
 export const teamByCode = (code: string): NflTeam | undefined => byCode().get(code);
-export const logoUrl = (abbr: string) => `https://a.espncdn.com/i/teamlogos/nfl/500/${abbr.toLowerCase()}.png`;
+export const logoUrl = smallLogo;
 export const headshotUrl = (espnId: string | number) => `https://a.espncdn.com/i/headshots/nfl/players/full/${espnId}.png`;
 export const DIVISIONS = ["East", "North", "South", "West"] as const;
 export const CONFERENCES = ["AFC", "NFC"] as const;
@@ -116,6 +117,12 @@ export function calendar(season: number): NflWeek[] {
         };
       })
       .sort((a, b) => a.startDate.localeCompare(b.startDate));
+    // Never start before the day after the previous week's last game: a Wednesday opener (Christmas, Thanksgiving
+    // eve) would otherwise swallow the Monday night game two days earlier.
+    for (let i = 1; i < weeks.length; i++) {
+      const after = etMidnight(etDateOf(weeks[i - 1].lastGameStart), 1);
+      if (after > weeks[i].startDate) weeks[i].startDate = after;
+    }
     for (let i = 0; i < weeks.length; i++) {
       weeks[i].endDate = i + 1 < weeks.length ? weeks[i + 1].startDate : etMidnight(etDateOf(weeks[i].lastGameStart), 2);
     }
@@ -161,12 +168,19 @@ export interface Standing {
   record: string;
 }
 
-export function standings(season: number): Standing[] {
-  return memoSync(`nfl:standings:${season}:${scheduleStamp()}`, 300, () => {
+/** Finals ESPN has posted that the ingested schedule may not have yet, by game id. */
+export type Finals = Record<string, { home: number; away: number }>;
+
+/** `finals` folds in games that went final after the last ingest, so a record never lags the score beside it. */
+export function standings(season: number, finals: Finals = {}): Standing[] {
+  return memoSync(`nfl:standings:${season}:${scheduleStamp()}:${Object.keys(finals).sort().join(",")}`, 300, () => {
     const rows = new Map<string, Standing>();
     for (const t of nflTeams()) rows.set(t.short, { team: t, w: 0, l: 0, t: 0, pct: 0, pf: 0, pa: 0, divW: 0, divL: 0, divT: 0, confW: 0, confL: 0, confT: 0, streak: "", games: 0, divRank: 0, seed: 0, record: "0-0" });
     const last = new Map<string, ("W" | "L" | "T")[]>();
-    const games = genSchedule().filter((g) => g.season === season && g.type === "REG" && g.played).sort((a, b) => a.kickoff.localeCompare(b.kickoff));
+    const games = genSchedule()
+      .filter((g) => g.season === season && g.type === "REG" && (g.played || finals[g.id]))
+      .map((g) => (g.played ? g : { ...g, hs: finals[g.id].home, as: finals[g.id].away }))
+      .sort((a, b) => a.kickoff.localeCompare(b.kickoff));
     for (const g of games) {
       const h = rows.get(g.home);
       const a = rows.get(g.away);
@@ -222,20 +236,21 @@ export function standings(season: number): Standing[] {
   });
 }
 
-export const standingFor = (season: number, short: string): Standing | undefined => standings(season).find((s) => s.team.short === short);
+export const standingFor = (season: number, short: string, finals?: Finals): Standing | undefined => standings(season, finals).find((s) => s.team.short === short);
 
 /* ------------------------------------------------------------- venue */
 
 export function venueFor(g: GenGame): Venue | undefined {
   const f = teamFile();
-  if (g.neutral && g.stadium) {
-    const nv = f.neutralVenues.find((v) => g.stadium!.toLowerCase().includes(v.match.toLowerCase()));
-    if (nv) {
-      const { match: _m, ...rest } = nv;
-      void _m;
-      return { ...rest, nws: false };
-    }
+  // A listed neutral venue wins whatever the flag says: nflverse tags some international games "Home".
+  const nv = g.stadium ? f.neutralVenues.find((v) => g.stadium!.toLowerCase().includes(v.match.toLowerCase())) : undefined;
+  if (nv) {
+    const { match: _m, ...rest } = nv;
+    void _m;
+    return { ...rest, nws: false };
   }
+  // Neutral but not on the list: the home team's stadium would put the forecast in the wrong city.
+  if (g.neutral) return undefined;
   const home = teamByShort(g.home);
   if (!home) return undefined;
   const s = home.stadium;
@@ -329,16 +344,17 @@ export interface EspnWeekRow {
   city?: string;
   indoor?: boolean;
   neutral?: boolean;
+  final?: { home: number; away: number };
 }
 
 interface WeekScoreboard {
-  events?: { id: string; competitions?: { neutralSite?: boolean; venue?: { fullName?: string; address?: { city?: string; state?: string }; indoor?: boolean }; broadcasts?: { market?: string; names?: string[] }[]; broadcast?: string }[] }[];
+  events?: { id: string; competitions?: { status?: { type?: { completed?: boolean } }; competitors?: { homeAway?: string; score?: string }[]; neutralSite?: boolean; venue?: { fullName?: string; address?: { city?: string; state?: string }; indoor?: boolean }; broadcasts?: { market?: string; names?: string[] }[]; broadcast?: string }[] }[];
 }
 
-/** Broadcast network and venue for every game in an NFL week, from ESPN's scoreboard (nflverse carries no TV column). Memoized 6 hours; empty map when ESPN does not answer. */
+/** Broadcast network, venue, and posted finals for every game in an NFL week, from ESPN's scoreboard (nflverse carries no TV column). Memoized 10 minutes so finals land promptly; empty map when ESPN does not answer. */
 export function espnWeek(season: number, week: number, seasonType: "regular" | "postseason"): Promise<Map<string, EspnWeekRow>> {
   const st = seasonType === "regular" ? 2 : 3;
-  return memo(`nfl:espnweek:${season}:${st}:${week}`, 6 * 3600, async () => {
+  return memo(`nfl:espnweek:${season}:${st}:${week}`, 600, async () => {
     const out = new Map<string, EspnWeekRow>();
     try {
       const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${season}&seasontype=${st}&week=${week}&limit=100`, { headers: { Accept: "application/json" }, cache: "no-store", signal: AbortSignal.timeout(8000) });
@@ -348,6 +364,8 @@ export function espnWeek(season: number, week: number, seasonType: "regular" | "
         const c = e.competitions?.[0];
         if (!c) continue;
         const names = c.broadcasts?.flatMap((b) => b.names ?? []) ?? [];
+        const homeC = c.competitors?.find((x) => x.homeAway === "home");
+        const awayC = c.competitors?.find((x) => x.homeAway === "away");
         const network = names[0] ?? c.broadcast ?? "";
         out.set(e.id, {
           network,
@@ -355,6 +373,7 @@ export function espnWeek(season: number, week: number, seasonType: "regular" | "
           city: [c.venue?.address?.city, c.venue?.address?.state].filter(Boolean).join(", ") || undefined,
           indoor: c.venue?.indoor,
           neutral: c.neutralSite,
+          final: c.status?.type?.completed && homeC?.score != null && awayC?.score != null ? { home: Number(homeC.score), away: Number(awayC.score) } : undefined,
         });
       }
     } catch {}
@@ -363,4 +382,4 @@ export function espnWeek(season: number, week: number, seasonType: "regular" | "
 }
 
 /** Networks that count as nationally available. Everything else is a regional CBS/FOX window. */
-export const NATIONAL_WINDOWS = /^(NBC|ESPN|ABC|ESPN\/ABC|Prime Video|Netflix|NFL Network|Peacock|YouTube|YouTube TV|ESPN2|Amazon)$/i;
+export const NATIONAL_WINDOWS = /^(NBC|ESPN|ABC|ESPN\/ABC|Prime Video|Netflix|NFL Network|NFL Net|NFLN|Peacock|YouTube|YouTube TV|ESPN2|Amazon)$/i;

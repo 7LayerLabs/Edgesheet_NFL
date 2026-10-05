@@ -4,7 +4,8 @@ import type { Game } from "@/lib/types";
 import { prospectCounts, scoreTag, scoutScore } from "@/lib/score";
 import { weatherRisk, evaluateWeather } from "@/lib/weather";
 import { kickoffTime, spreadText } from "@/lib/format";
-import { CoverageBadge, DivisionTag, StatusPill } from "./badges";
+import { sideTier, tierLabel, totalTier } from "@/lib/leans";
+import { CoverageBadge, StatusPill } from "./badges";
 import { ScoutScore } from "./ScoutScore";
 import { LiveLine } from "./LiveLine";
 
@@ -35,7 +36,6 @@ export function GameCard({ game, index = 0 }: { game: Game; index?: number }) {
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="mono text-xs text-chalk-2">{kickoffTime(game.kickoff)} ET</span>
             <span className="text-xs text-chalk-3">{game.network}</span>
-            <DivisionTag d={game.division} />
             <StatusPill status={game.status} clock={game.score?.clock} />
           </div>
 
@@ -63,7 +63,7 @@ export function GameCard({ game, index = 0 }: { game: Game; index?: number }) {
             ) : (
               <span className="text-chalk-3">Nobody on radar yet</span>
             )}
-            {game.styleLine && <span className="text-chalk-3">{game.styleLine}</span>}
+            <ModelCall game={game} />
             {topFlag && (
               <span className={risk === "high" ? "text-brick" : "text-warn"}>
                 {risk === "high" ? "▲" : "△"} {topFlag.title}
@@ -77,7 +77,7 @@ export function GameCard({ game, index = 0 }: { game: Game; index?: number }) {
             ) : (
               <span className="mono text-chalk-3">No line</span>
             )}
-            <CoverageBadge level={game.coverage} />
+            {game.coverage !== "Full" && <CoverageBadge level={game.coverage} />}
           </div>
         </div>
       </div>
@@ -106,6 +106,23 @@ function TeamLine({ team, score }: { team: Game["home"]; score?: number }) {
       </span>
       {team.record && <span className="mono whitespace-nowrap text-[11px] text-chalk-3">{team.record}</span>}
       {hasScore && <span className="mono ml-1 text-base text-chalk">{score}</span>}
+    </span>
+  );
+}
+
+/** The model's call in one line: the winner and margin, then any gap to the posted side or total. Live and final games carry the locked call. */
+function ModelCall({ game }: { game: Game }) {
+  const p = game.projection;
+  if (!p) return null;
+  const s = game.market.spread;
+  const sTier = sideTier(p.sideGap ?? 0);
+  const tTier = p.totalLean && p.totalLean !== "none" ? totalTier(p.totalGap ?? 0) : undefined;
+  const sideLine = p.modelSide && s ? (p.modelSide === s.team ? s.line : -s.line) : undefined;
+  return (
+    <span className="text-chalk-2">
+      <span className="font-semibold text-chalk">{game.status === "upcoming" ? "Model" : "Call"} {p.winner} by {p.margin.toFixed(1)}</span>
+      {sTier && sideLine !== undefined && <span> · {tierLabel(sTier)} {p.modelSide} {sideLine > 0 ? "+" : ""}{sideLine}</span>}
+      {tTier && <span> · {tierLabel(tTier)} {p.totalLean} {p.modelTotal}</span>}
     </span>
   );
 }

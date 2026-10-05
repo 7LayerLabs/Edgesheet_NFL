@@ -95,6 +95,7 @@ export async function BeatFeed({
   for (const p of players) names[p.id] = p.name;
   let items = feed.items;
   if (onlyTagged && onlyTagged.length > 0) items = items.filter((it) => it.tags.some((t) => onlyTagged.includes(t)));
+  const more = limit && items.length > limit ? items.length - limit : 0;
   if (limit) items = items.slice(0, limit);
   // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
@@ -113,6 +114,11 @@ export async function BeatFeed({
             <FeedItemRow key={it.id} item={it} names={names} now={now} />
           ))}
         </ul>
+      )}
+      {more > 0 && (
+        <a href={`/feed?${schools.map((s) => `team=${encodeURIComponent(s)}`).join("&")}`} className="mt-2 inline-block text-sm font-semibold text-sky">
+          {more} more in the full feed →
+        </a>
       )}
       <FeedDisclaimer />
     </div>

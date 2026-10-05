@@ -248,6 +248,20 @@ function pct(sorted: number[], v: number): number {
 
 const ordinal = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : n % 10 === 1 ? "st" : n % 10 === 2 ? "nd" : n % 10 === 3 ? "rd" : "th"}`;
 
+/** Rate stats. Everything else in a StatLine is a count (gp aside). */
+const RATES = new Set(["ypa", "cmp", "cpoe", "ypc", "ypr", "tshare", "ayshare", "wopr", "racr", "fgp", "ypp", "fglg", "ptlg"]);
+
+/**
+ * A season line restated over `gp` games at the same per-game pace. production() mixes per-game rates with
+ * season totals, and the totals grow with games played, so two seasons only compare at the same game count.
+ */
+function atGames(s: StatLine, gp: number): StatLine {
+  const k = gp / Math.max(1, s.gp ?? 1);
+  const out: StatLine = { gp };
+  for (const [key, v] of Object.entries(s)) if (key !== "gp") out[key] = typeof v === "number" && !RATES.has(key) ? v * k : v;
+  return out;
+}
+
 /** Breakout test for year 2 and 3 players: target share up 7 points, or production per game up 40% on a real base. */
 function detectBreakout(p: GenPlayer, group: PosGroup): Breakout | null {
   if (!p.s || !p.ps) return null;
@@ -258,8 +272,9 @@ function detectBreakout(p: GenPlayer, group: PosGroup): Breakout | null {
     const d = p.s.tshare - p.ps.tshare;
     if (d >= 0.07 && p.s.tshare >= 0.15) return { metric: "target share", last: p.ps.tshare, now: p.s.tshare, delta: d, label: `Target share ${Math.round(p.ps.tshare * 100)}% to ${Math.round(p.s.tshare * 100)}%` };
   }
-  const now = production(p.s, group) / Math.max(1, gpNow);
-  const last = production(p.ps, group) / Math.max(1, gpLast);
+  // Last season restated at this season's game count, then both put on a per-game scale the same way.
+  const now = production(p.s, group) / gpNow;
+  const last = production(atGames(p.ps, gpNow), group) / gpNow;
   if (now > 0 && last > 0 && now >= last * 1.4 && now - last > 2) {
     return { metric: "production per game", last, now, delta: now - last, label: `Production per game up ${Math.round(((now - last) / last) * 100)}% on last season` };
   }
@@ -292,6 +307,15 @@ function buildIndex(): RadarIndex {
     if (v > 0) (tables.get(group) ?? tables.set(group, []).get(group)!).push(v);
   }
   for (const arr of tables.values()) arr.sort((a, b) => a - b);
+  // Snap share ranked inside the position group too: starting DBs and linebackers play nearly every snap while
+  // backs and receivers rotate, so raw share handed defenders up to 13 points of score for their position alone.
+  const shareTables = new Map<string, number[]>();
+  for (const p of players) {
+    const group = groupOf(p);
+    const share = group && p.u ? (OFFENSE.has(group) ? p.u.o : p.u.d) : 0;
+    if (group && share > 0) (shareTables.get(group) ?? shareTables.set(group, []).get(group)!).push(share);
+  }
+  for (const arr of shareTables.values()) arr.sort((a, b) => a - b);
 
   const all: RadarPlayer[] = [];
   const roster: RadarPlayer[] = [];
@@ -308,6 +332,7 @@ function buildIndex(): RadarIndex {
     const slot = slotScore(pick);
     const share = p.u ? (OFFENSE.has(group) ? p.u.o : p.u.d) : null;
     const usage = share === null ? 0 : Math.min(100, Math.round(share * 100));
+    const usagePct = share ? pct(shareTables.get(group) ?? [], share) : 0;
     const norm = SIZE[group];
     const size = norm && (p.h || p.w) ? (norm.h ? (p.h ?? 0) >= norm.h : true) && (norm.w ? (p.w ?? 0) >= norm.w : true) : null;
     const y = p.y ?? null;
@@ -318,11 +343,11 @@ function buildIndex(): RadarIndex {
     const vsSlot = (rookie || y === 2) && v > 0 ? prodPct - slot : null;
     const eqPick = vsSlot !== null ? pickForPercentile(prodPct) : null;
 
-    // Watch Score for the player: production 50%, snap share 30%, context 20% (slot beaten, breakout, or starter default).
+    // Watch Score for the player: production 50%, snap share 30% (both as percentiles inside the position group), context 20% (slot beaten, breakout, or starter default).
     const context = breakout ? 100 : vsSlot !== null ? Math.max(0, Math.min(100, 50 + vsSlot)) : p.dc?.rank === 1 ? 60 : 40;
     let score: number;
     if (group === "OL") score = Math.round((p.dc?.rank === 1 ? 45 : 25) + usage * 0.3 + (size ? 10 : 0));
-    else score = Math.round(Math.min(100, 0.5 * prodPct + 0.3 * usage + 0.2 * context));
+    else score = Math.round(Math.min(100, 0.5 * prodPct + 0.3 * usagePct + 0.2 * context));
 
     const eligibilityNote = rookie
       ? pick ? `Rookie, pick No. ${pick}${p.r.rd ? ` (round ${p.r.rd})` : ""} in ${draftClass} by the ${p.r.club ?? "team"}${p.home ? `, out of ${p.home}` : ""}.` : `Rookie, undrafted${p.home ? `, out of ${p.home}` : ""}.`
@@ -430,9 +455,9 @@ export function radarBoard(f: BoardFilter = {}): RadarPlayer[] {
   return list.slice(0, f.limit ?? 100);
 }
 
-/** Players a game report should surface for one team: top rookies, breakouts, then watch names, capped. */
-export function radarForGame(team: string, cap = 6): RadarPlayer[] {
-  const list = radarForTeam(team);
+/** Players a game report should surface for one team: top rookies, breakouts, then watch names, capped. `sits` drops players who will not play. */
+export function radarForGame(team: string, cap = 6, sits: (id: string) => boolean = () => false): RadarPlayer[] {
+  const list = radarForTeam(team).filter((p) => !sits(p.id));
   const rookies = list.filter((p) => p.tier === "Rookie" && p.production > 0).slice(0, 2);
   const breakouts = list.filter((p) => p.tier === "Breakout").slice(0, 2);
   const watch = list.filter((p) => p.tier === "Watch").slice(0, 3);
@@ -451,8 +476,8 @@ export type EdgeAxis = "rush" | "pass" | "line" | "pd";
  * player by tackles for loss plus sacks). Returns a copy tagged Matchup with a
  * one-line note. Undefined when nobody on the roster has the volume.
  */
-export function matchupPlayer(axis: EdgeAxis, side: "offense" | "defense", team: string, note: string): RadarPlayer | undefined {
-  const roster = rosterForTeam(team);
+export function matchupPlayer(axis: EdgeAxis, side: "offense" | "defense", team: string, note: string, sits: (id: string) => boolean = () => false): RadarPlayer | undefined {
+  const roster = rosterForTeam(team).filter((p) => !sits(p.id));
   const stat = (p: RadarPlayer, k: string) => Number(p.statLine.find((s) => s.label === k)?.value ?? 0);
   let pick: RadarPlayer | undefined;
   const byMax = (list: RadarPlayer[], f: (p: RadarPlayer) => number) => list.filter((p) => f(p) > 0).sort((a, b) => f(b) - f(a))[0];

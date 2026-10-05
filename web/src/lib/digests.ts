@@ -9,11 +9,14 @@
  */
 import type { ArchiveEntry } from "./archive";
 import { historyStats } from "./archive";
-import { kickoffTime } from "./format";
+import { etDateOf, kickoffTime } from "./format";
 import type { Follows } from "./follows";
 import type { RadarPlayer } from "./radar";
 import { scoreTag, scoutScore } from "./score";
 import { escapeHtml as h } from "./telegram";
+import { inputsLabel, LEAN_BACKTEST_NOTE, LEAN_THRESHOLDS, sideTier, totalTier, type LeanTier } from "./leans";
+
+export { LEAN_BACKTEST_NOTE, LEAN_THRESHOLDS };
 import type { Game } from "./types";
 
 /* ----------------------------------------------------------------- config */
@@ -43,7 +46,7 @@ const gameLink = (g: Game, base: string) => `<a href="${base}/game/${g.id}">${h(
 
 /* ------------------------------------------------------------------ leans */
 
-export type LeanStrength = "strong" | "moderate";
+export type LeanStrength = LeanTier;
 
 export interface SideLean {
   game: Game;
@@ -66,22 +69,21 @@ export interface TotalLean {
 
 export type Lean = SideLean | TotalLean;
 
-/** Thresholds in points. A side lean under 2 and a total lean under 2.5 are "no lean" in projection.ts already. */
-export const LEAN_THRESHOLDS = { side: { strong: 4, moderate: 2 }, total: { strong: 5, moderate: 2.5 } };
 
 /** Model leans for games that have both a projection and a posted market number. */
 export function modelLeans(games: Game[]): Lean[] {
   const out: Lean[] = [];
   for (const g of games) {
-    if (!isD1(g) || !g.projection || g.status === "final") continue;
+    // Pregame only: once a game kicks off the line prices the score.
+    if (!isD1(g) || !g.projection || g.status !== "upcoming") continue;
     const p = g.projection;
     if (p.modelSide && p.sideGap !== undefined && g.market.spread && p.vsMarket) {
-      const strength: LeanStrength | undefined = p.sideGap >= LEAN_THRESHOLDS.side.strong ? "strong" : p.sideGap >= LEAN_THRESHOLDS.side.moderate ? "moderate" : undefined;
+      const strength = sideTier(p.sideGap);
       if (strength) out.push({ game: g, kind: "side", strength, team: p.modelSide, gap: p.sideGap, text: p.vsMarket });
     }
     if (p.totalLean && p.totalLean !== "none" && p.totalGap !== undefined && p.modelTotal !== undefined && g.market.total) {
       const a = Math.abs(p.totalGap);
-      const strength: LeanStrength | undefined = a >= LEAN_THRESHOLDS.total.strong ? "strong" : a >= LEAN_THRESHOLDS.total.moderate ? "moderate" : undefined;
+      const strength = totalTier(a);
       if (strength) out.push({ game: g, kind: "total", strength, direction: p.totalLean, gap: a, modelTotal: p.modelTotal, marketTotal: g.market.total.line });
     }
   }
@@ -133,12 +135,6 @@ export function leansSection(games: Game[], base = baseUrl(), opts: LeanOptions 
   return lines.join("\n");
 }
 
-/**
- * What the leans have earned so far, from scripts/backtest-qb.mjs (data/backtest/qb.json). Said next to
- * every lean list so a gap reads as a disagreement with the market, not a pick. Update after re-running.
- */
-export const LEAN_BACKTEST_NOTE =
-  "Backtest 2022 to 2025: the model side (Elo plus the QB adjustment, 1,139 games) covered about 48% against the closing line, and the model total (959 games) hit 48% on the over/under; no gap size beat the 52.4% break-even. Read these as disagreements with the market, not picks.";
 
 /** Standalone /leans reply. */
 export function leansDigest(games: Game[], date: string, base = baseUrl()): string {
@@ -367,7 +363,7 @@ export function gameDigest(g: Game, base = baseUrl()): string {
   const s = scoutScore(g.scoreComponents);
   const lines: string[] = [];
   lines.push(`<b>${h(matchupLabel(g))}</b> · Watch Score ${s} · ${h(scoreTag(g))}`);
-  const status = g.status === "final" && g.score && Number.isFinite(g.score.home) ? `Final: ${h(g.away.abbr)} ${g.score.away}, ${h(g.home.abbr)} ${g.score.home}` : g.status === "live" ? "In progress (schedule-based; no live feed)" : `${h(kickoffTime(g.kickoff))} ET, ${h(longDate(g.kickoff.slice(0, 10)))}`;
+  const status = g.status === "final" && g.score && Number.isFinite(g.score.home) ? `Final: ${h(g.away.abbr)} ${g.score.away}, ${h(g.home.abbr)} ${g.score.home}` : g.status === "live" ? "In progress (schedule-based; no live feed)" : `${h(kickoffTime(g.kickoff))} ET, ${h(longDate(etDateOf(g.kickoff)))}`;
   lines.push(`${status} · ${h(g.network)}${g.venue ? ` · ${h(g.venue)}` : ""}`);
   if (g.away.record || g.home.record) lines.push(`${h(g.away.short)} ${h(g.away.record || "record n/a")}, ${h(g.home.short)} ${h(g.home.record || "record n/a")}`);
   lines.push("");
@@ -378,7 +374,7 @@ export function gameDigest(g: Game, base = baseUrl()): string {
   if (g.projection) {
     const p = g.projection;
     lines.push("");
-    lines.push(`<b>Projection</b> (${h(p.confidence)} confidence)`);
+    lines.push(`<b>Projection</b> (${h(inputsLabel(p.confidence))})`);
     lines.push(`${h(p.winner)} by ${p.margin.toFixed(1)}, win prob ${Math.round(p.winProb * 100)}%. Score line ${h(g.away.abbr)} ${p.away}, ${h(g.home.abbr)} ${p.home}.`);
     if (p.vsMarket) lines.push(h(p.vsMarket));
     if (p.totalNote) lines.push(h(p.totalNote));
