@@ -312,3 +312,14 @@
 {"at":"2026-10-06T14:52:41.402Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"3916387","input":1313,"output":33,"costUsd":0.000055146000000000004,"ms":294,"questions":2,"ok":true,"cacheRead":0}
 {"at":"2026-10-06T14:52:41.425Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"4242557","input":1019,"output":147,"costUsd":0.000042798,"ms":169,"questions":4,"ok":true,"cacheRead":0}
 {"at":"2026-10-06T14:52:41.532Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"4710855","input":1742,"output":210,"costUsd":0.000073164,"ms":227,"questions":4,"ok":true,"cacheRead":0}
+{"at":"2026-10-06T15:15:44.671Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"3929630","input":1445,"output":111,"costUsd":0.00006069,"ms":301,"questions":4,"ok":true,"cacheRead":0}
+{"at":"2026-10-06T15:15:44.689Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"4038815","input":1542,"output":191,"costUsd":0.000064764,"ms":304,"questions":4,"ok":true,"cacheRead":0}
+{"at":"2026-10-06T15:15:44.691Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"2991662","input":1801,"output":169,"costUsd":0.000075642,"ms":313,"questions":4,"ok":true,"cacheRead":0}
+{"at":"2026-10-06T15:15:44.692Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"4241478","input":1211,"output":193,"costUsd":0.000050862,"ms":326,"questions":4,"ok":true,"cacheRead":0}
+{"at":"2026-10-06T15:15:44.694Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"4382466","input":1351,"output":163,"costUsd":0.00005674200000000001,"ms":313,"questions":4,"ok":true,"cacheRead":0}
+{"at":"2026-10-06T15:15:44.709Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"4362628","input":1604,"output":135,"costUsd":0.00006736800000000001,"ms":336,"questions":4,"ok":true,"cacheRead":0}
+{"at":"2026-10-06T15:15:44.838Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"4426348","input":1282,"output":33,"costUsd":0.000053844,"ms":160,"questions":2,"ok":true,"cacheRead":0}
+{"at":"2026-10-06T15:15:44.840Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"3915416","input":1610,"output":171,"costUsd":0.00006762,"ms":145,"questions":4,"ok":true,"cacheRead":0}
+{"at":"2026-10-06T15:15:44.850Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"4697815","input":1367,"output":167,"costUsd":0.000057414,"ms":161,"questions":4,"ok":true,"cacheRead":0}
+{"at":"2026-10-06T15:15:44.853Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"3916387","input":1171,"output":33,"costUsd":0.000049182000000000004,"ms":160,"questions":2,"ok":true,"cacheRead":0}
+{"at":"2026-10-06T15:15:44.862Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"4608686","input":1643,"output":133,"costUsd":0.000069006,"ms":171,"questions":4,"ok":true,"cacheRead":0}

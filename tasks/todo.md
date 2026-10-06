@@ -1,5 +1,32 @@
 # WHERE WE LEFT OFF (kept current at every push)
 
+Latest, 2026-10-06 afternoon, LIVE PC (this PC runs the site and the PM2 jobs; pull before working on the other PC):
+- Game page (commit 2295ed9), Derek's rules: the page is for betting.
+  - Injuries is the first fold (src/lib/injuries.ts, InjuryReport.tsx): ESPN's live list merged with the latest official
+    report (labeled "week N" until this week's posts on Wednesday), starters first, injury, practice, ESPN's news line
+    (long line when the short one is just "out"), and the points the projection charges (a starting QB out shows the
+    QB swap). Opens by itself when a starter is out or doubtful. The old week-filtered report hid itself before Wednesday.
+  - Radar is "offense and kickers" (QB, RB, WR, TE plus a kicker line per team). When a defense holds a unit edge, the
+    offensive player who carries that unit is the one on the spot; Who to watch follows (Bucs at Cowboys: Egbuka, not
+    Caleb Downs). More names is offense only.
+  - Defense is its own announced fold: what to watch on defense, breakout defenders, defensive rookies, watch.
+  - Storyline slots (revenge, homecoming, college ties) only for QB, RB, WR; others in an "Also:" footnote.
+  - Derek asked what the numbers mean: the "Solid 62" is the game's Watch Score (competitive 30, unit mismatches 25,
+    stakes 20, rookie/breakout density 15, national TV 10; bands Thin <55, Solid 55+, Hidden Gem 78+ regional, Marquee
+    80+ national). Player numbers are radar scores (production 50, snap share 30, context 20). Neither is a bet signal;
+    the radar fold now says so.
+- Fourth downs, coverage, standings odds, PFR / Next Gen / expected points, backtests: see the block below.
+- Live PC housekeeping (not in git): PM2 college site, its bot, and DB Terminal stopped and saved; college
+  scout-health and scout-prewarm crons deleted (health would Telegram "site down" every hour with the site off;
+  restart commands are in each script header). scout-odds (college odds cron, Wed-Sat every 4 h) still scheduled and
+  spends shared Odds API credits: Derek to decide. nfl, nfl-telegram, nfl-odds running.
+- PC memory: 12 GB RAM (8 + 4 mismatched, 4 slots, max 64); a 2 x 16 GB DDR4-3200 kit is the real fix. Derek freed
+  disk (12 to 27 GB free) by uninstalling apps. Six Claude sessions were open (about 0.5 GB each with their PDF helper).
+  A read-only scan of his ~99 project folders (size, node_modules/.next, GitHub status, .env files) was running in
+  the scratchpad; nothing gets deleted without his yes.
+- Next up: Derek's section-by-section flow review of the game page (take notes in page order); the value-pick record
+  needs a few graded slates; week 5 watch guides before Sunday (npm run guides -- --date 2026-10-11).
+
 Update 2026-10-06 evening, LIVE PC, "go all in" on nflverse (Derek): new feeds and models, all backtested first.
 - Feeds (scripts/ingest-extras.mjs, chained into npm run ingest and prebuild; data/generated/extras.json, read by
   genExtras): PFR advanced stats (pressures, missed tackles, coverage allowed, yards before/after contact, drops,
