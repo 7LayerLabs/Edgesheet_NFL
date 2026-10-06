@@ -882,6 +882,35 @@ const meta = {
   source: "nflverse",
 };
 
+/* ------------------------------------------------------------- teams played for */
+// Every team each tracked player has a regular-season game for, 2018 on, from the weekly files in the cache (the older
+// seasons are there once scripts/backtest-qb.mjs has run; missing seasons are skipped). players[].past = { team: [seasons] },
+// for the game page's storyline: a player facing a team he played for.
+const pastByGsis = new Map();
+let pastSeasons = 0;
+for (let y = 2018; y <= season; y++) {
+  const f = local[`stats_player_week_${y}.csv`] ?? path.join(CACHE, `stats_player_week_${y}.csv`);
+  try {
+    await access(f);
+  } catch {
+    continue;
+  }
+  pastSeasons++;
+  await readCsv(f, (r) => {
+    if (r.season_type !== "REG" || !r.player_id) return;
+    const t = nick(r.team);
+    if (!t) return;
+    const m = pastByGsis.get(r.player_id) ?? pastByGsis.set(r.player_id, {}).get(r.player_id);
+    const ys = (m[t] ??= []);
+    if (!ys.includes(y)) ys.push(y);
+  });
+}
+for (const p of players) {
+  const m = pastByGsis.get(p.gsis);
+  if (m) p.past = m;
+}
+log("teams played for:", players.filter((p) => p.past).length, "players over", pastSeasons, "seasons");
+
 /* ------------------------------------------------------------- history */
 // For src/lib/availability.ts. players: seasons before last, compact regular-season QB and skill totals per current player
 // (this season and last are already on players.json as s and ps). teamQb: last season's regular-season QB

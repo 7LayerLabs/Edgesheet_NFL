@@ -1,4 +1,113 @@
-# Project: Game page, a simple read first, everything else on demand
+# Project: Trends, splits, and storyline backtests (ideas borrowed from the "Edge" YouTube walkthrough)
+
+Status: PLAN, waiting on Derek's OK. Derek picked each item yes or no on 2026-10-05 (WR vs CB skipped: no alignment or
+coverage data in any source we have, it would be guessed). One phase at a time; Derek looks at each before the next.
+
+## Problem Statement
+A walkthrough of another NFL app had ideas worth borrowing: weekly usage trends with the reason attached, position rooms,
+play calling by week, vacated targets, history against the opponent, home/division splits, a richer slate page, a
+sleepers list, a single-entry lineup. Derek's rule for the "edges" in it (hometown games, revenge games, "he loves
+playing Arizona", "Pittsburgh at home vs a division rival"): test them on 2018-2025 before the site calls anything an
+edge, and show how the player did each time.
+
+What we already have that is close (survey 2026-10-05): season snap share only (per-game snaps are averaged away in
+ingest); per-game targets, carries, and target share in gamelogs.json; season pass rate in Team style; DK points allowed by
+position, season only, inside the DFS projection (dfs.ts defenseVsPosition); a hidden "half to the next man up" rule in
+the DFS sim; the beat feed (Bluesky, Reddit, Google News) with Jev chips; Homecoming / College ties / Revenge tags in Who
+to watch; slate windows plus Prime time and Weather chips; DK values on /dfs and /sheet.
+
+Data on hand for all of it: nflverse weekly player lines 2018-2026 (game id, team, opponent), games.csv 1999-2026 (rest
+days, division flag, weekday and kickoff time, closing spread and total, stadium id, neutral site), snap counts 2025-2026
+per game, play-by-play 2026 with xpass and pass_oe, ESPN birthplace and college (storylines.ts cache).
+
+## Plan
+### Phase 1: data foundation (ingest only, no UI)
+- [ ] 1.1 Per-game snap share (offense, defense, special teams, and snap counts) on every gamelogs.json line, from
+      snap_counts per game, plus carry share per game (his carries over the team's). Check: Bijan's week lines match the
+      snap_counts CSV.
+- [ ] 1.2 History lines: data/generated/history-games.json, every QB/RB/WR/TE game 2018 to now: season, week, game id,
+      team, opponent, home/away/neutral, DK points, targets, carries, yards, TDs, plus the game's flags from games.csv
+      (division, primetime = not Sunday or kickoff 7 PM ET or later, short week = 4 or fewer days of rest, closing spread
+      and total, stadium id). Report the file size; keep it under about 5 MB.
+- [ ] 1.3 Team play calling by week from play-by-play: pass rate, neutral-situation pass rate, and pass rate over
+      expected (nflverse pass_oe) per team per week.
+
+### Phase 2: trends (game page section + player page)
+- [ ] 2.1 src/lib/trends.ts: each team's rooms (QB, RB, WR/TE) by week: snap %, carries and carry share, targets and
+      target share, air yards share, DK points. A week is a change when snap share moves 15 points or target or carry
+      share moves 8 points against his average before it.
+- [ ] 2.2 The reason for each change, from data only, first match wins: a teammate in his room who normally plays did not
+      play ("Michael Pittman did not play"); he came back from missing games; blowout (final margin 17+, starters sat
+      late); left early (snaps under half his norm and on the injury report the next week); rookie workload growing
+      (rookie, snaps up three straight weeks); new team this season. Else "no clear cause in the data".
+- [ ] 2.3 Game page: a "Trends" section (closed by default like the others) with metric toggles (snaps, targets,
+      carries, air yards, DK points; several at once), rooms per team, the reason under each change. Closed summary line,
+      for example "Saints backfield: Kamara 31% of snaps; Etienne out".
+- [ ] 2.4 Player page: his week-by-week log with the same metrics and reasons.
+- [ ] 2.5 Play calling by week on the game page: each team's pass rate and pass rate over expected per week, labeled
+      pass-heavy / balanced / run-heavy (over expected by +5 points or more / within 5 / -5 or less).
+
+### Phase 3: vacated opportunity and with/without
+- [ ] 3.1 For each player who is out: the share he leaves open ("Etienne out: 38% of Saints carries, 9% of targets").
+- [ ] 3.2 With/without: in games this season and last that he missed, each teammate's share and DK points against games
+      with him; top three risers, with the games count.
+- [ ] 3.3 Show it in "Who plays" and use it for the Role change pick in Who to watch (who actually absorbed the work, not
+      just the busiest teammate). The DFS sim's next-man-up rule stays until a model change passes its calibration gate.
+
+### Phase 4: history vs the opponent, and each storyline game
+- [ ] 4.1 Player page "Vs <opponent>": every game since 2018 against this week's opponent: date, his team, DK points,
+      his average that season, the difference; the average difference and the games count. No "loves playing them"
+      verdict unless Phase 5 finds such history predicts.
+- [ ] 4.2 Player page "Storyline games": every past revenge, hometown, home-state, and college-state game with DK points
+      against his season average (Derek: "how they performed each time should be noted").
+
+### Phase 5: backtests (rules written into the script before it is run; results in data/backtest/ and a short summary)
+- [ ] 5.1 Storylines (scripts/backtest-stories.mjs): hometown (birth city), home state, college state, revenge (a team he
+      played for within four seasons, or his drafting team), and first return. Measure: DK points minus his average in his
+      other games that season (four or more other games). Compare with his other road games so home field is not the
+      effect. Passes only with 50+ games, +1.5 DK or more, a 95% bootstrap interval above zero, and a 55%+ beat-his-average
+      rate. Also report that rate plainly, against the "80 to 90%" claim. Needs ESPN birthplace and college for about 2,500
+      players (one fetch each, cached) and a stadium table with city and state (non-US games left out).
+- [ ] 5.2 Splits (scripts/backtest-splits.mjs): home/away, division, primetime, short week. Players: DK points against
+      their season average. Teams: points against the closing implied team total. Defenses: DST DK points against their
+      season average. Two questions: does the split exist league-wide, and does a player's or team's own split carry
+      into the next season (year-to-year correlation). A split gets a flag only if it carries over (correlation 0.15+,
+      interval above zero).
+- [ ] 5.3 Wire the verdicts: what passes gets a flag on the player page, Who to watch, and DFS notes ("tested: +2.1 DK
+      a game, 140 games"); what fails stays a storyline with "no measured edge in 2018-2025".
+
+### Phase 6: splits on the page
+- [ ] 6.1 Player page: home/away, division, primetime, short week, each next to his overall average with the games count.
+- [ ] 6.2 Game page: each team's points against the implied total in this game's situation (home/away, division), and
+      the defense's DST history in it (the Pittsburgh-at-home-vs-division case), with the games count.
+
+### Phase 7: defense vs position, extended
+- [ ] 7.1 DK points allowed to QB/RB/WR/TE this season and over the last four weeks, with rank, as a small table in the
+      Matchups section for both defenses.
+
+### Phase 8: slate home page
+- [ ] 8.1 Implied team totals on each card (dst.ts impliedTotals) and a "Highest team totals" strip.
+- [ ] 8.2 Top DK values strip (the day's simulation if built, else value per $1,000).
+- [ ] 8.3 Weather watch list (games with a flag, worst first).
+- [ ] 8.4 Cards banded by game total (high, middle, low; thresholds from the league's totals this season).
+- [ ] 8.5 Main and Showdown filters (DK's main-slate games; single-game showdowns).
+
+### Phase 9: sleepers by beat buzz
+- [ ] 9.1 Tag feed items to any rostered player by name (today only radar players get tagged).
+- [ ] 9.2 Rank players with more beat mentions this week than their role suggests (mentions against snap share and DK
+      salary), boosted by Jev's "promoted" chip and by vacated work from Phase 3. Top ten on /feed and in each game's Beat
+      feed section, each with its source links.
+
+### Phase 10: DFS single-entry lineup
+- [ ] 10.1 A third lineup that maximizes each player's 75th-percentile outcome (between Cash at the median and GPP at the
+      90th), same DraftKings Classic rules and salary cap.
+
+Order: phases 1 to 3 first (the trends Derek asked for), then 4 and 5 together (the backtest decides what 4 may claim),
+then 6 to 10. Each phase: tsc, lint, a check on tonight's or next week's games, Derek's look, commit when he says.
+
+---
+
+# Previous project: Game page, a simple read first, everything else on demand
 
 Status: BUILT 2026-10-05, waiting on Derek's look (not committed). Upcoming game page on a phone: about 2,300 px
 (2.7 screens, was about 17); the read starts at 631 px, folds at 1,148 px. Final: about 4,000 px with the box score open.
@@ -33,6 +142,37 @@ section should sit one tap away, saying something useful even while closed.
 
 Not in scope: a separate "full report" page. One URL keeps deep links and sharing simple, and closed sections cost one
 line each. If the page still feels heavy, closed sections can stop rendering until opened (lazy) as a follow-up.
+
+## Section-by-section pass (Derek leads the opinions, reference game MNF ATL @ NO, 401872979)
+Section 1, the read. BUILT 2026-10-05, waiting on Derek's look (not committed):
+- [x] Header in plain words: "Monday, Oct 5 · 8:15 PM ET · ESPN", records beside the names, "NFC South game".
+- [x] Answer strip: "The model" (Even game under a 1-point margin), "The line" (team names), "The edge" (side, else the
+      total lean, else "No edge"). The notes keep only injury news (played last game, or status uncertain) and QB notes.
+- [x] "Update now" replaces the "Locked" line (the lock stays in the projection footnote): POST /api/refresh drops the
+      injury and transaction feeds, the game, the day's slates, and the DK sim; once per 30 s per game.
+- [x] Follow buttons moved to the bottom of the read.
+- [x] Who to watch, three slots: (1) the player the biggest matchup runs through, (2) the other team's top skill player,
+      (3) a storyline (src/lib/storylines.ts): revenge game (a team he played for in the last four seasons, from the
+      nflverse weekly files, or his drafting team), else for the visiting team a birthplace or college in the venue's
+      state (ESPN athlete and college records, cached in data/espn/), else a role change, else the next top player.
+Fixes found on the way:
+- memo.ts store moved to globalThis: Next bundles route handlers apart from pages, so the refresh route had its own empty
+  store and cleared nothing (dropped: 0). Now drops 7 entries for tonight's game.
+- Bio lookups skipped nflverse-only ids (linemen) after counting them against the cap; 16 lookups checked only 11.
+- ESPN gives a birthplace, not where he grew up, so the text says "was born in", never "hometown".
+- Kickers, punters, and long snappers are left out of storylines (a punter won Vikings @ Saints before).
+Round 2 (Derek: fuller descriptions, more than one name only in tier 3; the why-watch lines repeated the strip and used jargon):
+- [x] Every row has a label (Key matchup, Top player, Revenge game, Homecoming, College ties, Role change), a sentence,
+      and a season line (box score without zero counts, games, snap share only when the snap feed covers every game).
+- [x] Top player sentence: his load, his rank at the position (two or more games), the defense he faces (No. 1 = best).
+- [x] Tier 3 lists up to three: storylines mixed by kind (gameStories, round robin), then role changes. Only players on
+      30% or more of their side's snaps.
+- [x] Why watch on the game page shows only what the strip and Who to watch miss (stakes, records, a line move, weather),
+      else nothing (whyWatchRead). The slate cards, digests, and report keep the full reasons. "Producing like pick No. 97"
+      is gone everywhere (the 55-69 radar line was cut; the 70+ line says "playing above that slot" in words).
+- [x] Matchup notes in words ("a mismatch", not "(dominant edge)").
+- [x] Defensive matchup picks weighted by snap share (a 15%-snap special-teamer was Pittsburgh's "coverage leader").
+Open data issue (not fixed): the snap feed joins some players to only part of their games (Minkah Fitzpatrick: 1 of 2).
 
 ---
 

@@ -194,6 +194,8 @@ export interface Game {
   coverage: Coverage;
   whyWatch: string;
   whyWatchReasons: string[];
+  /** The game page's "why watch": only what its answer strip and Who to watch do not already say (stakes, a line move, weather). */
+  whyWatchRead?: string[];
   styleLine?: string;
   weather?: WeatherInput;
   market: Market;
@@ -233,6 +235,11 @@ export interface Game {
   rest?: { home: number | null; away: number | null };
   /** Official injury report for both teams, Out/Doubtful/Questionable only, latest week. */
   injuryReport?: { team: string; id: string; name: string; pos: string; status: string; practice: string | null; injury: string | null; week: number }[];
+  /**
+   * The read's three names (game page only): the player the biggest matchup runs through, the other team's top skill
+   * player, and the best storyline (revenge game, homecoming, college ties), else a role change, else the next top player.
+   */
+  whoToWatch?: { id: string; name: string; pos: string; team: string; label?: string; reason: string; detail?: string }[];
   /** Who is actually playing, priced in points (src/lib/availability.ts): ESPN injuries, the official report, roster moves. */
   availability?: import("./availability").GameAvailability;
   /** Standings context: "Winner takes first in the AFC North" and the like. */

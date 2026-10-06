@@ -39,6 +39,8 @@ export interface GenPlayer {
   inj: { st: string | null; pr: string | null; inj: string | null; wk: number } | null;
   /** Latest depth chart: slot label and rank (1 = starter). */
   dc: { pos: string; rank: number; grp: string } | null;
+  /** Every team he has a regular-season game for, 2018 on, with the seasons: { "Falcons": [2023, 2024, 2025] }. */
+  past?: Record<string, number[]>;
   home: string | null; // college
 }
 

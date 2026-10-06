@@ -181,7 +181,7 @@ export function production(s: StatLine | null, group: PosGroup): number {
   }
 }
 
-function statLine(s: StatLine | null, group: PosGroup): { line: string; table: { label: string; value: string }[] } {
+export function statLine(s: StatLine | null, group: PosGroup): { line: string; table: { label: string; value: string }[] } {
   const t: { label: string; value: string }[] = [];
   const x = s ?? {};
   const add = (label: string, v: number | undefined, fmt: (n: number) => string = (n) => String(n)) => {
@@ -481,14 +481,17 @@ export function matchupPlayer(axis: EdgeAxis, side: "offense" | "defense", team:
   const stat = (p: RadarPlayer, k: string) => Number(p.statLine.find((s) => s.label === k)?.value ?? 0);
   let pick: RadarPlayer | undefined;
   const byMax = (list: RadarPlayer[], f: (p: RadarPlayer) => number) => list.filter((p) => f(p) > 0).sort((a, b) => f(b) - f(a))[0];
+  // Defensive picks count box-score plays, so weight them by snap share: one interception by a special-teamer playing 15%
+  // of the defense's snaps should not outrank the starting corners.
+  const playing = (f: (p: RadarPlayer) => number) => (p: RadarPlayer) => f(p) * (0.25 + p.usage / 100);
   if (side === "offense") {
     if (axis === "rush" || axis === "line") pick = byMax(roster.filter((p) => p.group === "RB"), (p) => stat(p, "Carries"));
     else if (axis === "pass") pick = byMax(roster.filter((p) => p.group === "WR" || p.group === "TE"), (p) => parseFloat(p.statLine.find((s) => s.label === "Target share")?.value ?? "0"));
     else pick = byMax(roster.filter((p) => p.group === "QB"), (p) => Number((p.statLine.find((s) => s.label === "Comp / Att")?.value ?? "0 / 0").split("/")[1]));
   } else {
-    if (axis === "pass") pick = byMax(roster.filter((p) => p.group === "CB" || p.group === "S"), (p) => stat(p, "PD") * 2 + stat(p, "INT") * 4 + stat(p, "Tackles") * 0.1);
-    else if (axis === "pd") pick = byMax(roster.filter((p) => p.group === "EDGE" || p.group === "DL"), (p) => stat(p, "Sacks") * 3 + stat(p, "QB hits"));
-    else pick = byMax(roster.filter((p) => p.group === "EDGE" || p.group === "DL" || p.group === "LB"), (p) => stat(p, "TFL") * 2 + stat(p, "Sacks") + stat(p, "Tackles") * 0.1);
+    if (axis === "pass") pick = byMax(roster.filter((p) => p.group === "CB" || p.group === "S"), playing((p) => stat(p, "PD") * 2 + stat(p, "INT") * 4 + stat(p, "Tackles") * 0.1));
+    else if (axis === "pd") pick = byMax(roster.filter((p) => p.group === "EDGE" || p.group === "DL"), playing((p) => stat(p, "Sacks") * 3 + stat(p, "QB hits")));
+    else pick = byMax(roster.filter((p) => p.group === "EDGE" || p.group === "DL" || p.group === "LB"), playing((p) => stat(p, "TFL") * 2 + stat(p, "Sacks") + stat(p, "Tackles") * 0.1));
   }
   if (!pick) return undefined;
   return { ...pick, tier: "Matchup", lensNote: note, evidence: [{ kind: "matchup", label: note }, ...pick.evidence] };

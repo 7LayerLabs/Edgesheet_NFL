@@ -2,8 +2,11 @@
  * Tiny in-process TTL memo for data that is too large for the Next fetch cache
  * (which skips responses over 2MB) or that is computed rather than fetched.
  * Lives as long as the server process; on serverless it lives per instance.
+ * Kept on globalThis: Next bundles route handlers apart from pages, and a module-level Map would give each bundle its
+ * own store (the game page's "Update now" route could then never clear what the page cached).
  */
-const store = new Map<string, { at: number; ttl: number; value: Promise<unknown> }>();
+const holder = globalThis as typeof globalThis & { __edgesheetMemo?: Map<string, { at: number; ttl: number; value: Promise<unknown> }> };
+const store = (holder.__edgesheetMemo ??= new Map());
 
 /**
  * `ttlSeconds` may be a function of the resolved value, for data whose
@@ -37,4 +40,16 @@ export function memoSync<T>(key: string, ttlSeconds: number, fn: () => T): T {
   const value = fn();
   store.set(key, { at: now, ttl: ttlSeconds, value: value as unknown as Promise<unknown> });
   return value;
+}
+
+/** Drop every entry whose key starts with one of the prefixes (the game page's "Update now"). */
+export function forget(...prefixes: string[]): number {
+  let n = 0;
+  for (const key of [...store.keys()]) {
+    if (prefixes.some((p) => key.startsWith(p))) {
+      store.delete(key);
+      n++;
+    }
+  }
+  return n;
 }

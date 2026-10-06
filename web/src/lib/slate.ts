@@ -9,13 +9,16 @@
  */
 import { calendar, espnWeek, etDateOf, eloCurrent, fpiRatings, eloPregame, gameById, gamesForWeek, logoUrl, NATIONAL_WINDOWS, roofState, scheduleLoaded, standingFor, teamByShort, venueFor, type EspnWeekRow, type Finals, type NflWeek, type Standing } from "./nfl";
 import { forecastAtKickoff, forecastMany } from "./nws";
-import { generatedLoaded, genInjuries, genMeta, type GenGame, type GenInjury } from "./generated";
-import { matchupPlayer, radarForGame, radarForTeam, radarPlayer, type EdgeAxis, type RadarPlayer } from "./radar";
+import { generatedLoaded, genInjuries, genMeta, genPlayers, type GenGame, type GenInjury, type GenPlayer } from "./generated";
+import { groupOf, matchupPlayer, radarForGame, radarForTeam, radarPlayer, statLine, type EdgeAxis, type RadarPlayer } from "./radar";
 import { leagueMeans, pressurePoint, styleContrast, styleFor, unitEdges, type UnitEdge } from "./tendencies";
 import { gameCues, situationsFor } from "./situational";
 import { lockedProjection, projectGame } from "./projection";
 import { buildConsensus } from "./consensus";
-import { gameAvailability } from "./availability";
+import { absentWords, gameAvailability, type GameAvailability } from "./availability";
+import { dkPoints } from "./dfs";
+import { gameStories } from "./storylines";
+import type { Venue } from "./nfl";
 import { boxScore } from "./boxscore";
 import { memo } from "./memo";
 import { slateTtlSeconds } from "./cache-policy";
@@ -320,49 +323,55 @@ function deriveComponents(g: Ctx): ScoreComponents {
   return { competitive, directMatchups, watchDensity, stakes, availability };
 }
 
-function deriveWhyWatch(g: Ctx): { headline: string; reasons: string[] } {
-  const r: string[] = [];
+function deriveWhyWatch(g: Ctx): { headline: string; reasons: string[]; read: string[] } {
+  // Each reason says what it is about, so the game page can skip what its answer strip and Who to watch already cover.
+  type About = "stakes" | "market" | "move" | "player" | "matchup" | "weather" | "record" | "rating" | "none";
+  const r: { about: About; text: string }[] = [];
+  const push = (about: About, text: string) => r.push({ about, text });
   const s = g.market.spread;
   const rec = (t: Team) => (t.record ? `${t.short} (${t.record})` : t.short);
-  if (g.stakes[0]) r.push(g.stakes[0]);
+  if (g.stakes[0]) push("stakes", g.stakes[0]);
   // The game before the players: how close the market thinks it is leads, then the top radar name.
   if (s) {
     const a = Math.abs(s.line);
-    if (a <= 2.5) r.push(`The market calls it a toss-up: ${s.team} ${s.line}.`);
-    else if (a <= 6.5) r.push(`One-score game by the market: ${s.team} ${s.line}.`);
+    if (a <= 2.5) push("market", `The market calls it a toss-up: ${s.team} ${s.line}.`);
+    else if (a <= 6.5) push("market", `One-score game by the market: ${s.team} ${s.line}.`);
   }
   const star = g.prospects.find((p) => p.tier === "Rookie" || p.tier === "Breakout");
   if (star?.radar && star.radar.score >= 70) {
     const r0 = star.radar;
-    r.push(`${star.name} (${star.team} ${star.pos}, ${star.cls}) is a top-of-the-radar name: ${r0.tier === "Rookie" && r0.eqPick ? `drafted ${r0.slot ? `No. ${r0.slot}` : "undrafted"}, producing like pick No. ${r0.eqPick}` : r0.breakout?.label ?? r0.stat}.`);
+    const aboveSlot = r0.tier === "Rookie" && r0.eqPick !== null && (r0.slot === null || r0.eqPick < r0.slot);
+    const what = aboveSlot ? (r0.slot ? `a rookie drafted No. ${r0.slot} who is playing above that slot, ${r0.stat}` : `an undrafted rookie playing like a drafted one, ${r0.stat}`) : r0.breakout?.label ?? r0.stat;
+    push("player", `${star.name} (${star.team} ${star.pos}) is a top-of-the-radar name: ${what}.`);
   }
   if (s) {
     const move = s.line - s.open;
-    if (Math.abs(move) >= 1.5) r.push(`The line moved ${move > 0 ? "toward the underdog" : "toward the favorite"} this week, from ${s.open} to ${s.line}.`);
+    if (Math.abs(move) >= 1.5) push("move", `The line moved ${move > 0 ? "toward the underdog" : "toward the favorite"} this week, from ${s.open} to ${s.line}.`);
   }
   const t = g.market.total;
   if (t) {
-    if (t.line >= 50) r.push(`Total of ${t.line}. The market expects points.`);
-    else if (t.line <= 39.5) r.push(`Total of ${t.line}. The market expects a field-position grind.`);
+    if (t.line >= 50) push("market", `Total of ${t.line}. The market expects points.`);
+    else if (t.line <= 39.5) push("market", `Total of ${t.line}. The market expects a field-position grind.`);
   }
-  if (star?.radar && star.radar.score < 70 && star.radar.score >= 55) r.push(`${star.name} (${star.team} ${star.pos}, ${star.cls}): ${star.radar.tier === "Rookie" && star.radar.eqPick ? `producing like pick No. ${star.radar.eqPick}` : star.radar.breakout?.label ?? star.radar.stat}.`);
   const topEdge = g.edges.find((e) => e.edge !== "even");
-  if (topEdge) r.push(`${topEdge.a} against ${topEdge.b.toLowerCase()}: advantage ${topEdge.edge}. ${topEdge.evidence}.`);
+  if (topEdge) push("matchup", `${topEdge.a} against ${topEdge.b.toLowerCase()}: advantage ${topEdge.edge}. ${topEdge.evidence}.`);
   if (g.weather) {
     const top = evaluateWeather(g.weather).find((f) => f.level === "elevated") ?? evaluateWeather(g.weather).find((f) => f.level === "flag");
-    if (top) r.push(`${top.title}. ${top.effect}`);
+    if (top) push("weather", `${top.title}. ${top.effect}`);
   }
   const hp = winPct(g.home);
   const ap = winPct(g.away);
-  if (hp === 1 && ap === 1 && gamesPlayed(g.home) >= 3 && gamesPlayed(g.away) >= 3) r.push(`Both teams are undefeated: ${rec(g.away)} at ${rec(g.home)}.`);
-  else if (g.raw.divGame && !g.stakes.length) r.push(`${g.home.conference} division game.`);
+  if (hp === 1 && ap === 1 && gamesPlayed(g.home) >= 3 && gamesPlayed(g.away) >= 3) push("record", `Both teams are undefeated: ${rec(g.away)} at ${rec(g.home)}.`);
+  else if (g.raw.divGame && !g.stakes.length) push("stakes", `${g.home.conference} division game.`);
   if (!s && g.homeElo != null && g.awayElo != null && Math.abs(g.homeElo - g.awayElo) >= 150) {
     const dog = g.homeElo < g.awayElo ? g.home.short : g.away.short;
-    r.push(`Big rating gap and no line. The ${dog} young players get the snaps that matter late.`);
+    push("rating", `Big rating gap and no line. The ${dog} young players get the snaps that matter late.`);
   }
-  if (!r.length) r.push("No line and no charting yet. Schedule-level coverage only.");
-  const reasons = r.slice(0, 3);
-  return { headline: reasons[0], reasons };
+  if (!r.length) push("none", "No line and no charting yet. Schedule-level coverage only.");
+  const reasons = r.slice(0, 3).map((x) => x.text);
+  // The game page: stakes, records, a line move, weather; empty when there is nothing the strip and Who to watch miss.
+  const read = r.filter((x) => x.about === "stakes" || x.about === "record" || x.about === "move" || x.about === "weather" || x.about === "rating").map((x) => x.text);
+  return { headline: reasons[0], reasons, read };
 }
 
 /** Standings sentences for the two teams, from the schedule file alone. */
@@ -497,9 +506,10 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
     const team = e.edge === "offense" ? offTeam : defTeam;
     const opp = team === offTeam ? defTeam : offTeam;
     const oppRank = e.edge === "offense" ? ranks.def : ranks.off;
+    const strength = { dominant: "a mismatch", clear: "a clear edge", real: "an edge", slight: "a slight edge", even: "even" }[e.strength ?? "real"] ?? "an edge";
     const note = e.edge === "offense"
-      ? `The ${offTeam} ${role.off} against a ${opp} ${role.unitDef} ranked No. ${oppRank ?? "?"} of ${ranks.of ?? 32} (${e.strength} edge).`
-      : `The ${defTeam} ${role.def} against a ${opp} ${role.unitOff} ranked No. ${oppRank ?? "?"} of ${ranks.of ?? 32} (${e.strength} edge).`;
+      ? `The ${offTeam} ${role.off} against a ${opp} ${role.unitDef} ranked No. ${oppRank ?? "?"} of ${ranks.of ?? 32}: ${strength}.`
+      : `The ${defTeam} ${role.def} against a ${opp} ${role.unitOff} ranked No. ${oppRank ?? "?"} of ${ranks.of ?? 32}: ${strength}.`;
     const mp = matchupPlayer(axis, e.edge as "offense" | "defense", team, note, sits);
     if (mp) matchupPicks.push(radarToProspect(mp, team === raw.home ? home.abbr : away.abbr));
   }
@@ -635,12 +645,14 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
     coverage,
     whyWatch: why.headline,
     whyWatchReasons: why.reasons,
+    whyWatchRead: why.read,
     styleLine: charted ? `${shortStyle(profAway.off.label)} O vs ${shortStyle(profHome.def.label)} D` : undefined,
     weather,
     market,
     prospects,
     matchups,
     keepAnEyeOn: eye,
+    whoToWatch: withBox ? await whoToWatch(raw, home, away, matchupPicks, sits, availability, venue, neutral).catch(() => undefined) : undefined,
     storylines,
     offense: { [home.abbr]: profHome.off, [away.abbr]: profAway.off },
     defense: { [home.abbr]: profHome.def, [away.abbr]: profAway.def },
@@ -804,4 +816,112 @@ export async function gameIndexForWeek(): Promise<Map<string, Game>> {
     m.set(g.away.short, g);
   }
   return m;
+}
+
+/* ------------------------------------------------------------ who to watch */
+
+/** DK points a game, this season blended with last at 3 games (the DraftKings lens's base): one scale for every skill position. */
+function dkPerGame(p: GenPlayer): number {
+  const now = p.s?.gp ? dkPoints(p.s) / p.s.gp : undefined;
+  const prior = p.ps?.gp && p.ps.gp >= 4 ? dkPoints(p.ps) / p.ps.gp : undefined;
+  if (now !== undefined && prior !== undefined) return (now * p.s!.gp! + prior * 3) / (p.s!.gp! + 3);
+  return now ?? prior ?? 0;
+}
+
+/** A season line under a Who to watch row: the box-score line, games played, and snap share. */
+function detailLine(p: GenPlayer): string {
+  const group = groupOf(p);
+  const gp = p.s?.gp ?? 0;
+  const parts: string[] = [];
+  if (group && group !== "OL" && p.s) {
+    // Zero counts are noise ("0 TFL, 0 sacks"); keep the first piece so a quiet line still says something.
+    const bits = statLine(p.s, group).line.split(", ");
+    const kept = bits.filter((b, i) => i === 0 || !/^0 /.test(b)).map((b) => b.replace(/^1 (sacks|QB hits)$/, (_, w: string) => `1 ${w.slice(0, -1)}`));
+    parts.push(`${kept.join(", ")}${gp ? ` in ${gp} game${gp === 1 ? "" : "s"}` : ""}`);
+  }
+  const off = p.u?.o ?? 0;
+  const def = p.u?.d ?? 0;
+  // Snap share averages only the games with a snap row; when the snap feed missed some of his games it misleads, so skip it.
+  if (Math.max(off, def) > 0 && (p.u?.gs ?? 0) >= gp) parts.push(`${Math.round(Math.max(off, def) * 100)}% of ${off >= def ? "offensive" : "defensive"} snaps`);
+  return parts.join(" · ");
+}
+
+/**
+ * Why the other team's top skill player matters, in one sentence: his load, where it ranks at his position this season
+ * (players with two or more games), and the defense he faces tonight (success rate allowed, No. 1 = best defense).
+ */
+function starLine(p: GenPlayer, opp: string): string {
+  const r1 = (x: number) => Math.round(x * 10) / 10;
+  const gp = Math.max(1, p.s?.gp ?? 0);
+  const per = (q: GenPlayer) => {
+    const g = Math.max(1, q.s?.gp ?? 0);
+    return p.pg === "QB" ? (q.s?.py ?? 0) / g : p.pg === "RB" ? ((q.s?.ry ?? 0) + (q.s?.rcy ?? 0)) / g : (q.s?.rcy ?? 0) / g;
+  };
+  const rank = (p.s?.gp ?? 0) >= 2 ? 1 + genPlayers().filter((q) => q.pg === p.pg && (q.s?.gp ?? 0) >= 2 && per(q) > per(p)).length : undefined;
+  const among = p.pg === "QB" ? "in the NFL" : p.pg === "RB" ? "among backs" : p.pg === "TE" ? "among tight ends" : "among receivers";
+  const rk = rank && rank <= 20 ? ` (No. ${rank} ${among})` : "";
+  const d = styleFor(opp)?.defense.metrics.find((m) => m.key === (p.pg === "RB" ? "rushSr" : "passSr"));
+  const vs = d?.rank ? `, against a ${opp} ${p.pg === "RB" ? "run" : "pass"} defense ranked No. ${d.rank} of ${d.of}` : "";
+  if (p.pg === "QB") return `The ${p.t} quarterback: ${Math.round(per(p))} pass yards a game${rk}${vs}.`;
+  if (p.pg === "RB") return `${r1((p.s?.ra ?? 0) / gp)} carries and ${r1((p.s?.tgt ?? 0) / gp)} targets a game, ${Math.round(per(p))} yards from scrimmage${rk}${vs}.`;
+  const share = p.s?.tshare ? `${Math.round(p.s.tshare * 100)}% of the ${p.t} targets, ` : "";
+  return `${share}${Math.round(per(p))} receiving yards a game${rk}${vs}.`.replace(/^./, (c) => c.toUpperCase());
+}
+
+/**
+ * The read's names. Tier 1: the player the biggest matchup runs through. Tier 2: the other team's top skill player (the
+ * best DK points a game among backs, receivers, tight ends, and the expected starting quarterback). Tier 3, up to three:
+ * storylines (revenge game, homecoming, college ties, mixed by kind), then a role change (a starter just went out and
+ * this player takes his work); with none, the next top skill player. Nobody who is expected to sit.
+ */
+async function whoToWatch(raw: GenGame, home: Team, away: Team, matchupPicks: Prospect[], sits: (id: string) => boolean, availability: GameAvailability | undefined, venue: Venue | undefined, neutral: boolean): Promise<Game["whoToWatch"]> {
+  const abbrOf = (team: string) => (team === raw.home ? home.abbr : away.abbr);
+  const oppOf = (team: string) => (team === raw.home ? raw.away : raw.home);
+  const byId = new Map(genPlayers().map((p) => [p.id, p]));
+  const detailOf = (id: string) => {
+    const p = byId.get(id);
+    return p ? detailLine(p) || undefined : undefined;
+  };
+  const starters = new Set([availability?.home.qb?.expected, availability?.away.qb?.expected].filter(Boolean));
+  const roster = genPlayers().filter((p) => (p.t === raw.home || p.t === raw.away) && !sits(p.id));
+  const skill = roster.filter((p) => ["RB", "WR", "TE"].includes(p.pg ?? "") || (p.pg === "QB" && starters.has(p.n))).filter((p) => (p.s?.gp ?? 0) >= 1).sort((a, b) => dkPerGame(b) - dkPerGame(a));
+  const out: NonNullable<Game["whoToWatch"]> = [];
+  const used = new Set<string>();
+  const add = (row: NonNullable<Game["whoToWatch"]>[number]) => {
+    out.push(row);
+    used.add(row.id);
+  };
+
+  // Tier 1 and 2.
+  const m = matchupPicks.find((p) => !sits(p.id));
+  if (m) add({ id: m.id, name: m.name, pos: m.pos, team: m.team, label: "Key matchup", reason: m.lensNote ?? "", detail: detailOf(m.id) });
+  const mTeam = m ? (m.team === home.abbr ? raw.home : raw.away) : undefined;
+  const top = skill.find((p) => !used.has(p.id) && (!mTeam || p.t !== mTeam));
+  if (top) add({ id: top.id, name: top.n, pos: top.p ?? top.pg ?? "", team: abbrOf(top.t), label: "Top player", reason: starLine(top, oppOf(top.t)), detail: detailLine(top) || undefined });
+
+  // Tier 3: storylines, prominent players first (snap share), anyone already listed left out.
+  const TIER3 = 3;
+  const prominence = (p: GenPlayer) => Math.max(p.u?.o ?? 0, p.u?.d ?? 0) + (skill.includes(p) ? 0.5 : 0);
+  // A storyline needs a player who is on the field: 30% of his side's snaps or more.
+  const candidates = roster.filter((p) => !used.has(p.id) && Math.max(p.u?.o ?? 0, p.u?.d ?? 0) >= 0.3).sort((a, b) => prominence(b) - prominence(a));
+  const stories = await gameStories({ home: raw.home, away: raw.away, neutral, season: raw.season, venue: venue ? { city: venue.city, state: venue.state } : undefined, candidates, max: TIER3 }).catch(() => []);
+  for (const st of stories) add({ id: st.id, name: st.name, pos: st.pos, team: abbrOf(st.team), label: st.label, reason: st.text, detail: detailOf(st.id) });
+  // A role change: a back, receiver, or tight end who played the last game is out now; his busiest healthy teammate steps in.
+  let tier3 = stories.length;
+  for (const side of [availability?.away, availability?.home]) {
+    if (tier3 >= TIER3) break;
+    const gone = side?.items.find((i) => i.kind === "out" && i.fresh && i.absence >= 0.85 && ["RB", "WR", "TE"].includes(byId.get(i.id)?.pg ?? ""));
+    if (!gone) continue;
+    const pg = byId.get(gone.id)!.pg;
+    const mate = roster.filter((p) => p.t === side!.team && p.pg === pg && !used.has(p.id) && p.id !== gone.id).sort((a, b) => (b.u?.o ?? 0) - (a.u?.o ?? 0))[0];
+    if (mate) {
+      add({ id: mate.id, name: mate.n, pos: mate.p ?? mate.pg ?? "", team: abbrOf(mate.t), label: "Role change", reason: `Takes on more work with ${gone.name} ${absentWords(gone.status)}.`, detail: detailLine(mate) || undefined });
+      tier3++;
+    }
+  }
+  if (!tier3) {
+    const next = skill.find((p) => !used.has(p.id));
+    if (next) add({ id: next.id, name: next.n, pos: next.p ?? next.pg ?? "", team: abbrOf(next.t), label: "Top player", reason: starLine(next, oppOf(next.t)), detail: detailLine(next) || undefined });
+  }
+  return out;
 }

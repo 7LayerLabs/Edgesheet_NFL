@@ -171,6 +171,15 @@ export function statusClock(team: string, kickoff: string): StatusClock {
  * none yet, to questionable (he sat or left last time, nothing since). An official report from an earlier
  * week is not this week's report and is ignored.
  */
+/** A status in words that follow a name: "on injured reserve", "out", "inactive", "doubtful". */
+export function absentWords(status: string): string {
+  const s = status.split(" (")[0].toLowerCase();
+  if (s.includes("injured reserve")) return "on injured reserve";
+  if (s.includes("physically unable")) return "on the PUP list";
+  if (s.includes("non-football")) return "on the NFI list";
+  return s;
+}
+
 export function playerStatus(p: GenPlayer, e: EspnInjury | undefined, clock: StatusClock): { status: string; source: string; absence: number } {
   const report = p.inj?.st && (clock.week === undefined || p.inj.wk >= clock.week) ? p.inj : undefined;
   if (e) {
@@ -312,6 +321,8 @@ export interface AvailItem {
   pts: number; // signed: negative hurts this team
   note: string;
   measured: boolean;
+  /** True when he played the team's most recent game: the absence is news, not something the numbers already carry. */
+  fresh?: boolean;
 }
 
 export interface TeamAvailability {
@@ -369,6 +380,8 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
   const teamGames = games.get(team)?.size ?? 0;
   const lines = byTeam.get(team) ?? [];
   const gamesFor = (id: string) => new Set(lines.filter((l) => l.id === id).map((l) => l.wk)).size;
+  const teamLastWk = Math.max(0, ...lines.map((l) => l.wk));
+  const playedLast = (id: string) => lines.some((l) => l.id === id && l.wk === teamLastWk);
   const espnById = new Map(espn.filter((e) => e.team === team).map((e) => [e.id, e]));
   const roster = players.filter((p) => p.t === team);
 
@@ -454,6 +467,7 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
       pts,
       note: pts === 0 ? `${v.basis}; no adjustment` : `${v.basis}; played ${played} of ${teamGames}; ${Math.round(st.absence * 100)}% chance he sits`,
       measured: v.measured,
+      fresh: playedLast(p.id),
     });
   }
 

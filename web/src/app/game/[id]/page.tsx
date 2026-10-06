@@ -24,6 +24,8 @@ import { SituationalCues, SituationsTable } from "@/components/Situations";
 import { DfsPanel } from "@/components/DfsPanel";
 import { AvailabilityPanel } from "@/components/AvailabilityPanel";
 import { FoldControls } from "@/components/FoldControls";
+import { UpdateNow } from "@/components/UpdateNow";
+import { absentWords } from "@/lib/availability";
 import { inputsLabel, LEAN_BACKTEST_NOTE, sideTier, tierLabel, totalTier } from "@/lib/leans";
 import { readReport, seasonOf } from "@/lib/report";
 
@@ -44,8 +46,10 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const started = game.status !== "upcoming";
   const report = readReport(seasonOf(game.kickoff), game.id);
   // The headline is reason one; the read shows two more.
-  const reasons = game.whyWatchReasons.filter((r) => r !== game.whyWatch);
-  const top = game.prospects.slice(0, 3);
+  // Why watch: only what the strip and Who to watch do not already say (older archived games: the headline and reasons).
+  const read = game.whyWatchRead ?? [game.whyWatch, ...game.whyWatchReasons.filter((r) => r !== game.whyWatch)];
+  // Who to watch: the three-slot list built for the game page, else the top of the radar.
+  const watch = game.whoToWatch ?? game.prospects.slice(0, 3).map((p) => ({ id: p.id, name: p.name, pos: p.pos, team: p.team, label: undefined as string | undefined, reason: readLine(p), detail: undefined as string | undefined }));
 
   // One-line summaries: each closed section still says something.
   const tiers = (["Matchup", "Rookie", "Breakout", "Watch"] as const).map((t) => [t, game.prospects.filter((p) => p.tier === t).length] as const).filter(([, n]) => n);
@@ -81,8 +85,9 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
       {/* Header: who, when, where. The answer strip under it carries the call. */}
       <header className={`mt-3 ${game.status === "final" ? "rounded border-l-4 border-brick pl-4" : ""}`}>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="mono text-xs text-chalk-2">{kickoffTime(game.kickoff)} ET</span>
-          <span className="text-xs text-chalk-3">{game.network}</span>
+          <span className="text-sm font-semibold text-chalk-2">
+            {new Date(game.kickoff).toLocaleDateString("en-US", { timeZone: "America/New_York", weekday: "long", month: "short", day: "numeric" })} · {kickoffTime(game.kickoff)} ET · {game.network}
+          </span>
           <StatusPill status={game.status} clock={game.score?.clock} />
           <LivePoller active={game.status === "live"} />
           {game.coverage !== "Full" && <CoverageBadge level={game.coverage} />}
@@ -94,13 +99,48 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
         </h1>
         <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <p className="text-sm text-chalk-3">
-            {game.venue}{game.city ? ` · ${game.city}` : ""}
+            {game.venue}
+            {game.divGame && game.home.conference ? ` · ${game.home.conference} game` : game.city ? ` · ${game.city}` : ""}
           </p>
           <div className="w-36">
             <ScoutScore score={score} tag={tag} size="sm" />
           </div>
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+      </header>
+
+      <AnswerStrip game={game} />
+
+      {/* The read: why it is worth the time and who to watch. Everything else is one tap away below. */}
+      <section aria-label="The read" className="mt-6">
+        {read[0] && <h2 className="display text-2xl font-bold leading-tight text-chalk sm:text-3xl">{read[0]}</h2>}
+        {read.length > 1 && (
+          <ul className="mt-2 grid max-w-3xl gap-1">
+            {read.slice(1, 3).map((r) => (
+              <li key={r} className="border-l-2 border-line-2 pl-3 text-base leading-snug text-chalk-2">{r}</li>
+            ))}
+          </ul>
+        )}
+        {watch.length > 0 && (
+          <div className={read[0] ? "mt-5" : undefined}>
+            <p className="text-sm font-semibold text-chalk">Who to watch</p>
+            <ul className="mt-1 divide-y divide-line">
+              {watch.map((w) => (
+                <li key={w.id} className="grid grid-cols-1 gap-x-3 py-2 sm:grid-cols-[15rem_minmax(0,1fr)] sm:items-baseline">
+                  <span className="min-w-0 truncate">
+                    <Link href={`/player/${w.id}`} className="font-semibold text-chalk hover:text-sky">{w.name}</Link>
+                    <span className="mono ml-2 text-xs text-chalk-3">{w.pos} · {w.team}</span>
+                  </span>
+                  <span className="min-w-0 text-sm text-chalk-2">
+                    {w.label && <span className="mr-2 rounded bg-ink-2 px-1.5 py-0.5 text-xs font-semibold text-chalk">{w.label}</span>}
+                    {w.reason}
+                    {w.detail && <span className="mono mt-0.5 block text-xs text-chalk-3">{w.detail}</span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           <FollowButton kind="games" id={game.id} size="sm" />
           {game.source === "live" && (
             <>
@@ -109,39 +149,6 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
             </>
           )}
         </div>
-      </header>
-
-      <AnswerStrip game={game} />
-
-      {/* The read: why it is worth the time and who to watch. Everything else is one tap away below. */}
-      <section aria-label="The read" className="mt-6">
-        <h2 className="display text-2xl font-bold leading-tight text-chalk sm:text-3xl">{game.whyWatch}</h2>
-        {reasons.length > 0 && (
-          <ul className="mt-2 grid max-w-3xl gap-1">
-            {reasons.slice(0, 2).map((r) => (
-              <li key={r} className="border-l-2 border-line-2 pl-3 text-base leading-snug text-chalk-2">{r}</li>
-            ))}
-          </ul>
-        )}
-        {top.length > 0 && (
-          <div className="mt-5">
-            <p className="text-sm font-semibold text-chalk">Who to watch</p>
-            <ul className="mt-1 divide-y divide-line">
-              {top.map((p) => (
-                <li key={p.id} className="grid grid-cols-[minmax(0,auto)_minmax(0,1fr)] items-baseline gap-x-3 py-2 sm:grid-cols-[14rem_minmax(0,1fr)]">
-                  <span className="min-w-0 truncate">
-                    <Link href={`/player/${p.id}`} className="font-semibold text-chalk hover:text-sky">{p.name}</Link>
-                    <span className="mono ml-2 text-xs text-chalk-3">{p.pos} · {p.team}</span>
-                  </span>
-                  <span className="min-w-0 text-sm text-chalk-2">
-                    {p.injury?.status && <span className="mono mr-2 text-xs font-semibold text-warn">{p.injury.status.split(" (")[0]}</span>}
-                    {readLine(p)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </section>
 
       <FoldControls items={jump} />
@@ -395,32 +402,36 @@ function AnswerStrip({ game }: { game: Game }) {
   const p = game.projection;
   const s = game.market.spread;
   const t = game.market.total;
-  const winner = p ? (p.winner === game.home.abbr ? game.home : game.away) : undefined;
-  const side = p?.modelSide ? (p.modelSide === game.home.abbr ? game.home : game.away) : undefined;
+  const teamOf = (abbr: string) => (abbr === game.home.abbr ? game.home : game.away);
+  const winner = p ? teamOf(p.winner) : undefined;
+  const side = p?.modelSide ? teamOf(p.modelSide) : undefined;
   const sTier = p ? sideTier(p.sideGap ?? 0) : undefined;
   const tTier = p && p.totalLean && p.totalLean !== "none" ? totalTier(p.totalGap ?? 0) : undefined;
   const sideLine = side && s ? (side.abbr === s.team ? s.line : -s.line) : undefined;
+  const signed = (n: number) => `${n > 0 ? "+" : ""}${n}`;
   const graded = game.archive?.postgame?.projectionResult;
   const notes = keyNotes(game);
-  const lockedAt = game.archive?.pregame.updatedAt ?? game.archive?.pregame.capturedAt;
+  const even = p ? p.margin < 1 : false;
+  const scoreLine = p ? `${game.away.abbr} ${p.away}, ${game.home.abbr} ${p.home}` : "";
+  const totalPart = p?.modelTotal !== undefined && t ? (tTier ? `total: model ${p.modelTotal}, leans ${p.totalLean} (${Math.abs(p.totalGap ?? 0).toFixed(1)} pts)` : `total: model ${p.modelTotal}, no lean`) : "";
   return (
     <section aria-label="The call" className="mt-5 overflow-hidden rounded border border-line bg-panel">
-      {/* Phone: the call across the top, the number and the gap side by side under it. Wider: three columns. */}
+      {/* Phone: the call across the top, the line and the edge side by side under it. Wider: three columns. */}
       <div className="grid grid-cols-2 sm:grid-cols-[1.3fr_1fr_1.2fr]">
-        <div className="col-span-2 border-b border-line p-4 sm:col-span-1 sm:border-b-0 sm:border-r" style={{ boxShadow: winner ? `inset 4px 0 0 ${winner.color}` : undefined }}>
+        <div className="col-span-2 border-b border-line p-4 sm:col-span-1 sm:border-b-0 sm:border-r" style={{ boxShadow: winner && !even ? `inset 4px 0 0 ${winner.color}` : undefined }}>
           <p className="text-xs font-semibold text-chalk-3">{game.status === "upcoming" ? "The model" : "Pregame call"}</p>
           {p && winner ? (
             <>
-              <p className="display mt-0.5 text-3xl font-bold text-chalk">{winner.short} by {p.margin.toFixed(1)}</p>
-              <p className="mono mt-0.5 text-xs text-chalk-2">{Math.round(p.winProb * 100)}% to win · {game.away.abbr} {p.away}, {game.home.abbr} {p.home}</p>
+              <p className="display mt-0.5 text-3xl font-bold text-chalk">{even ? "Even game" : `${winner.short} by ${p.margin.toFixed(1)}`}</p>
+              <p className="mono mt-0.5 text-xs text-chalk-2">{even ? `${winner.short} by ${p.margin.toFixed(1)} · ` : ""}{Math.round(p.winProb * 100)}% to win · {scoreLine}</p>
             </>
           ) : (
             <p className="mt-1 text-sm text-chalk-3">No projection: the inputs are not ingested.</p>
           )}
         </div>
         <div className="border-r border-line p-4">
-          <p className="text-xs font-semibold text-chalk-3">{game.status === "upcoming" ? "The number" : "The number at kickoff"}</p>
-          <p className="mono mt-1 text-xl text-chalk">{s ? spreadText(s.team, s.line) : "No line"}</p>
+          <p className="text-xs font-semibold text-chalk-3">{game.status === "upcoming" ? "The line" : "The line at kickoff"}</p>
+          <p className="display mt-0.5 text-xl font-bold text-chalk sm:text-2xl">{s ? `${teamOf(s.team).short} ${signed(s.line)}` : "No line"}</p>
           <p className="mono mt-0.5 text-xs text-chalk-2">{t ? `total ${t.line}` : "no total"}</p>
         </div>
         <div className="p-4">
@@ -436,39 +447,42 @@ function AnswerStrip({ game }: { game: Game }) {
             </>
           ) : (
             <>
-              <p className="text-xs font-semibold text-chalk-3">Model against the number</p>
+              <p className="text-xs font-semibold text-chalk-3">The edge</p>
               {side && sTier && sideLine !== undefined ? (
                 <>
-                  <p className="display mt-0.5 text-xl font-bold text-chalk sm:text-2xl">{side.short} {sideLine > 0 ? "+" : ""}{sideLine}</p>
-                  <p className="mono mt-0.5 text-xs text-chalk-2">{tierLabel(sTier)} of {p!.sideGap!.toFixed(1)} pts</p>
+                  <p className="display mt-0.5 text-xl font-bold text-chalk sm:text-2xl">{side.short} {signed(sideLine)}</p>
+                  <p className="mono mt-0.5 text-xs text-chalk-2">model {p!.sideGap!.toFixed(1)} pts off the line{totalPart ? ` · ${totalPart}` : ""}</p>
+                </>
+              ) : tTier && t ? (
+                <>
+                  <p className="display mt-0.5 text-xl font-bold text-chalk sm:text-2xl">{p!.totalLean === "under" ? "Under" : "Over"} {t.line}</p>
+                  <p className="mono mt-0.5 text-xs text-chalk-2">model total {p!.modelTotal} ({Math.abs(p!.totalGap ?? 0).toFixed(1)} pts) · no side</p>
                 </>
               ) : (
-                <p className="display mt-0.5 text-xl font-bold text-chalk-2 sm:text-2xl">{s && p ? "Side: no lean" : "Nothing to compare"}</p>
+                <>
+                  <p className="display mt-0.5 text-xl font-bold text-chalk-2 sm:text-2xl">{s && p ? "No edge" : "Nothing to compare"}</p>
+                  <p className="mono mt-0.5 text-xs text-chalk-2">{s && p ? "model and market agree" : ""}</p>
+                </>
               )}
-              <p className="mono mt-0.5 text-xs text-chalk-2">
-                {p?.modelTotal !== undefined && t ? `total: model ${p.modelTotal}${tTier ? `, ${p.totalLean} (${tierLabel(tTier)} ${Math.abs(p.totalGap ?? 0).toFixed(1)})` : ", no lean"}` : "no model total"}
-              </p>
             </>
           )}
         </div>
       </div>
-      {(notes.length > 0 || lockedAt) && (
-        <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1 border-t border-line bg-panel-2 px-4 py-2 text-sm text-chalk-2">
-          {notes.map((n) => (
-            <span key={n}>{n}</span>
-          ))}
-          {lockedAt && (
-            <span className="text-xs text-chalk-3">
-              {game.status === "upcoming" ? `Locked ${asOf(lockedAt)}, follows the news until kickoff` : `Locked ${asOf(lockedAt)}`} · <Link href="/history" className="text-sky">the record</Link>
-            </span>
-          )}
-        </div>
-      )}
+      <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1 border-t border-line bg-panel-2 px-4 py-2 text-sm text-chalk-2">
+        {notes.map((n) => (
+          <span key={n}>{n}</span>
+        ))}
+        {game.status !== "final" && <UpdateNow id={game.id} asOf={game.reportAsOf} />}
+      </div>
     </section>
   );
 }
 
-/** The notes that move the call: an uncertain or changed quarterback, the biggest absence on each side, a weather flag, a neutral field. */
+/**
+ * The notes that move the call, in plain words: a quarterback change or a questionable starter, absences that are news
+ * (he played the last game, or his status is uncertain; a player out for weeks is already in the numbers), a weather
+ * flag, a neutral field.
+ */
 function keyNotes(game: Game): string[] {
   const out: string[] = [];
   if (game.status === "final") {
@@ -478,9 +492,9 @@ function keyNotes(game: Game): string[] {
   }
   const a = game.availability;
   for (const [team, av] of a ? ([[game.away, a.away], [game.home, a.home]] as const) : []) {
-    if (av.qb && (av.qb.uncertain || Math.abs(av.qb.pts) >= 1.5)) out.push(`${team.abbr} QB ${av.qb.expected}${av.qb.uncertain ? " (questionable)" : ""}, ${av.qb.pts > 0 ? "+" : ""}${av.qb.pts} on the margin`);
-    const worst = av.items.find((i) => i.kind !== "qb" && i.pts <= -0.5);
-    if (worst) out.push(`${team.abbr} without ${worst.name} (${worst.status.split(" (")[0]}), ${worst.pts}`);
+    if (av.qb && (av.qb.uncertain || Math.abs(av.qb.pts) >= 1.5)) out.push(`${team.short}: ${av.qb.expected} at QB${av.qb.uncertain ? ", questionable" : ""} (${av.qb.pts > 0 ? "+" : ""}${av.qb.pts})`);
+    const news = av.items.filter((i) => i.kind === "out" && i.pts <= -0.3 && (i.fresh || i.absence < 0.85)).slice(0, 2);
+    for (const i of news) out.push(`${team.short}: ${i.name} ${absentWords(i.status)} (${i.pts} pts)`);
   }
   const flag = game.weather ? evaluateWeather(game.weather).find((f) => f.level !== "note") : undefined;
   if (flag) out.push(flag.title);
@@ -756,7 +770,7 @@ function TeamName({ t, score }: { t: Team; score?: number }) {
         </span>
       )}
       <span style={{ color: "var(--chalk)" }}>{t.short}</span>
-      {hasScore && <span className="text-flag">{score}</span>}
+      {hasScore ? <span className="text-flag">{score}</span> : t.record ? <span className="mono self-center text-base font-normal text-chalk-3 sm:text-xl">{t.record}</span> : null}
     </span>
   );
 }
