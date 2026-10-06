@@ -30,7 +30,9 @@ import { TERMS } from "@/lib/terms";
 import { TrendsPanel, type TrendsTeam } from "@/components/TrendsPanel";
 import { changeText, teamTrends, topChange } from "@/lib/trends";
 import { vacatedFor } from "@/lib/vacated";
-import { storiesSummary } from "@/lib/backtest-notes";
+import { splitsNotes, storiesSummary } from "@/lib/backtest-notes";
+import { dstSplits, teamSplits } from "@/lib/splits";
+import { SplitsTable } from "@/components/SplitsTable";
 import { teamByShort } from "@/lib/nfl";
 import { absentWords } from "@/lib/availability";
 import { inputsLabel, LEAN_BACKTEST_NOTE, sideTier, tierLabel, totalTier } from "@/lib/leans";
@@ -89,11 +91,25 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   });
   const topNote = topChange(trendsTeams.map((x) => x.trends));
   const trendsSummary = topNote ? `Week ${topNote.wk}: ${topNote.name}, ${changeText(topNote)} (${topNote.reason})` : "Snaps, targets, and carries by week for both teams";
+  // Splits since 2019 for both teams and defenses in this game's situation (src/lib/splits.ts).
+  const splitTeams = game.source === "live" ? [game.away, game.home].map((t) => ({ t, team: teamSplits(t.short, game.id), dst: dstSplits(t.short, game.id) })) : [];
+  const hasSplits = splitTeams.some((x) => x.team.some((r) => r.n > 0));
+  const homeSplit = splitTeams[1];
+  const splitsSummary = homeSplit
+    ? [
+        (() => {
+          const r = homeSplit.team.find((x) => x.key === "home" && x.now) ?? homeSplit.team.find((x) => x.now && x.n > 0);
+          return r && r.mean !== null ? `${homeSplit.t.short} ${r.label.toLowerCase()}: ${r.mean > 0 ? "+" : ""}${r.mean} against the line (${r.n})` : "";
+        })(),
+        homeSplit.dst.homeDivision.now && homeSplit.dst.homeDivision.mean !== null ? `${homeSplit.t.short} defense at home in the division: ${homeSplit.dst.homeDivision.mean} DK a game (${homeSplit.dst.homeDivision.n})` : "",
+      ].filter(Boolean).join(" · ") || "Both teams and defenses in spots like this one, since 2019"
+    : "";
   const jump: { id: string; label: string }[] = [
     ...(started ? [{ id: "showed", label: game.status === "live" ? "Live" : "Box score" }] : []),
     { id: "decided", label: "Matchups" },
     { id: "playing", label: "Who plays" },
     ...(trendsTeams.length ? [{ id: "trends", label: "Trends" }] : []),
+    ...(hasSplits ? [{ id: "splits", label: "Splits" }] : []),
     { id: "dfs", label: "DraftKings" },
     { id: "market", label: "Market" },
     { id: "feed", label: "Feed" },
@@ -225,6 +241,40 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
       {trendsTeams.length > 0 && (
         <Fold id="trends" title="Trends" summary={trendsSummary}>
           <TrendsPanel teams={trendsTeams} />
+        </Fold>
+      )}
+
+      {hasSplits && (
+        <Fold id="splits" title="Splits" summary={splitsSummary}>
+          <p className="relative max-w-3xl text-sm text-chalk-3">
+            Each team&apos;s scoring against the betting line and each defense&apos;s DraftKings points, in this game&apos;s spots, since 2019.
+            <InfoTip label="Splits" what={TERMS.splits} />
+          </p>
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            {splitTeams.map(({ t, team, dst }) => (
+              <div key={t.short} className="card p-4">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-4 w-1 rounded-sm" style={{ background: t.color }} />
+                  <span className="display text-2xl font-bold">{t.short}</span>
+                </div>
+                <div className="mt-2">
+                  <SplitsTable rows={team} mode="diff" unit="Points against the closing implied team total (games)" />
+                </div>
+                <div className="mt-3">
+                  <SplitsTable rows={dst.rows} mode="level" unit="Defense: DraftKings points a game (games)" />
+                  {dst.homeDivision.n > 0 && (
+                    <p className="mono mt-1 text-xs text-chalk-2">
+                      At home against a division rival: <span className="font-semibold text-chalk">{dst.homeDivision.mean}</span> ({dst.homeDivision.n}), other games {dst.homeDivision.rest} ({dst.homeDivision.restN})
+                      {dst.homeDivision.now && <span className="ml-2 rounded bg-ink-2 px-1.5 py-0.5 font-sans text-[11px] font-semibold text-chalk">this week</span>}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          {[...splitsNotes("teams"), ...splitsNotes("defenses")].map((n) => (
+            <p key={n} className="mt-1 max-w-3xl text-xs text-chalk-3">{n}</p>
+          ))}
         </Fold>
       )}
 

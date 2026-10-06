@@ -49,6 +49,10 @@ export const TERMS = {
   whoToWatch:
     "Key matchup: the player the biggest unit edge runs through. Top player: the other team's best skill player by DraftKings points a game. Then up to three storylines (revenge game, birth city or state, college state) or role changes (a starter out and who took his work the last times he sat).",
 
+  // Splits (player page and the game page's Splits section).
+  splits:
+    "Since 2019, regular season. Each situation's average against every other game, with the games count: at home against on the road, division games against the rest, primetime (kickoff 7 PM ET or later), and a short week (4 or fewer days of rest). For players, DraftKings points against his own average in his other games that season; for teams, points against the closing implied team total; for defenses, DraftKings points a game. The note under it says whether such splits carried over in our 2019-2025 test.",
+
   // Player page history.
   vsOpponent:
     "Every game he played against this week's opponent since 2019, with his DraftKings points and the difference from his own average in his other games that season (so a big season does not make every game look good).",

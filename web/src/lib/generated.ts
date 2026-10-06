@@ -242,6 +242,8 @@ export interface GenHistoryGames {
   cols: string[];
   seasons: number[];
   players: Record<string, (string | number)[][]>;
+  /** Team defenses (nickname): [ESPN game id, DraftKings DST points] per game. */
+  dst?: Record<string, [string, number][]>;
 }
 export const genHistoryGames = (): GenHistoryGames | undefined => memoSync(`gen:histgames:${stamp("history-games.json")}`, 3600, () => readJson<GenHistoryGames | undefined>("history-games.json", undefined));
 export const historyGamesStamp = () => stamp("history-games.json");

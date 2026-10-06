@@ -41,7 +41,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { readCsv, num, int, bool } from "./lib/csv.mjs";
 import { computeElo } from "./lib/elo.mjs";
-import { seasonRates, teamWeeks } from "../src/lib/dst-core.mjs";
+import { dstPoints, seasonRates, teamWeeks } from "../src/lib/dst-core.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
@@ -970,12 +970,14 @@ log("teams played for:", players.filter((p) => p.past).length, "players over", p
 /* ------------------------------------------------------------- history games */
 // Every QB/RB/WR/TE game since 2019 (the schedule's first season) for current players, so the player page can show his
 // games against an opponent and his storyline games without reading the weekly files. Compact rows: COLS below; the
-// opponent, home/away, division, kickoff, rest, and closing line come from schedule.json by the game id.
+// opponent, home/away, division, kickoff, rest, and closing line come from schedule.json by the game id. dst: every
+// team defense's DraftKings points per game (dst-core.mjs scoring), for the game page's home-and-division splits.
 const HIST_COLS = ["g", "t", "py", "ptd", "pint", "ry", "rtd", "rec", "rcy", "rctd", "fl", "sttd", "tgt", "ra", "pa"];
 const HIST_SUM = { passing_yards: "py", passing_tds: "ptd", passing_interceptions: "pint", rushing_yards: "ry", rushing_tds: "rtd", receptions: "rec", receiving_yards: "rcy", receiving_tds: "rctd", targets: "tgt", carries: "ra", attempts: "pa", special_teams_tds: "sttd" };
 const SKILL = new Set(["QB", "RB", "WR", "TE"]);
 const skillIds = new Map(players.filter((p) => SKILL.has(p.pg)).map((p) => [p.gsis, p.id]));
-const histGames = { cols: HIST_COLS, seasons: [], players: {} };
+const histGames = { cols: HIST_COLS, seasons: [], players: {}, dst: {} };
+const schedByGid = new Map(schedule.map((g) => [g.gid, g]));
 let histRows = 0;
 for (let y = 2019; y <= season; y++) {
   const f = local[`stats_player_week_${y}.csv`] ?? path.join(CACHE, `stats_player_week_${y}.csv`);
@@ -985,7 +987,14 @@ for (let y = 2019; y <= season; y++) {
     continue;
   }
   histGames.seasons.push(y);
+  const dstRows = [];
+  const dstGame = new Map(); // `${week}|${team code}` -> nflverse game id
   await readCsv(f, (r) => {
+    if (r.team && r.game_id) {
+      const n = (k) => num(r[k]) ?? 0;
+      dstGame.set(`${Number(r.week)}|${r.team}`, r.game_id);
+      dstRows.push({ week: Number(r.week), team: r.team, opp: r.opponent_team, sk: n("def_sacks"), int: n("def_interceptions"), fr: n("fumble_recovery_opp"), dtd: n("def_tds"), sttd: n("special_teams_tds"), saf: n("def_safeties"), give: n("passing_interceptions") + n("fumbles_lost_total"), sks: n("sacks_suffered") });
+    }
     const pid = skillIds.get(r.player_id);
     const g = espnByGid.get(r.game_id);
     if (!pid || !g) return;
@@ -995,6 +1004,14 @@ for (let y = 2019; y <= season; y++) {
     (histGames.players[pid] ??= []).push(HIST_COLS.map((k) => v[k] ?? 0));
     histRows++;
   });
+  // Team defenses: DraftKings DST points per game, against the opponent's final score.
+  for (const w of teamWeeks(dstRows).values()) {
+    const sg = schedByGid.get(dstGame.get(`${w.week}|${w.team}`));
+    if (!sg || !sg.played) continue;
+    const team = nick(w.team);
+    const oppScore = sg.home === team ? sg.as : sg.hs;
+    (histGames.dst[team] ??= []).push([sg.id, dstPoints(w, oppScore)]);
+  }
 }
 log("history games:", histRows, "rows,", Object.keys(histGames.players).length, "players,", histGames.seasons.join(", "));
 

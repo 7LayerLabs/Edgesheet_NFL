@@ -8,7 +8,9 @@ import { teamByShort } from "@/lib/nfl";
 import { PlayerWeeks } from "@/components/PlayerWeeks";
 import { StorylineGames, VsOpponent } from "@/components/PlayerHistory";
 import { storylineGames, vsOpponent } from "@/lib/player-history";
-import { storiesSummary, storyNote, vsOpponentNote } from "@/lib/backtest-notes";
+import { splitsNotes, storiesSummary, storyNote, vsOpponentNote } from "@/lib/backtest-notes";
+import { playerSplits } from "@/lib/splits";
+import { SplitsTable } from "@/components/SplitsTable";
 import { InfoTip } from "@/components/InfoTip";
 import { TERMS } from "@/lib/terms";
 import { statInfo } from "@/lib/stat-glossary";
@@ -40,6 +42,7 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
   const opp = game ? (game.home.abbr === p.team ? game.away.short : game.home.short) : undefined;
   const vs = skill && gp && opp ? vsOpponent(gp.id, opp) : undefined;
   const stories = skill && gp ? await storylineGames(gp) : undefined;
+  const splits = skill && gp ? playerSplits(gp.id, game?.id, gp.t) : undefined;
 
   return (
     <article className="rise">
@@ -197,6 +200,21 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
           </p>
           <StorylineGames stories={stories} notes={Object.fromEntries((["revenge", "hometown", "college", "home-state"] as const).map((k) => [k, storyNote(k)]))} />
           {stories.length > 0 && storiesSummary() && <p className="mt-1 max-w-3xl text-xs text-chalk-3">{storiesSummary()}</p>}
+        </section>
+      )}
+
+      {splits && splits.some((r) => r.n > 0) && (
+        <section className="mt-8">
+          <p className="eyebrow relative">
+            Splits
+            <InfoTip label="Splits" what={TERMS.splits} />
+          </p>
+          <div className="card mt-2 max-w-2xl px-4 py-2">
+            <SplitsTable rows={splits} mode="diff" unit="DK points against his own average (games)" />
+          </div>
+          {splitsNotes("players").map((n) => (
+            <p key={n} className="mt-1 max-w-3xl text-xs text-chalk-3">{n}</p>
+          ))}
         </section>
       )}
 

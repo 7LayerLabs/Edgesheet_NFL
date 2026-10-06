@@ -9,7 +9,10 @@ import { memoSync } from "./memo";
 
 interface StoryResult { n: number; diff: number; ci: number[]; beat: number; baseBeat: number; pass: boolean }
 interface Stories { seasons: number[]; population: { games: number }; results: Record<string, StoryResult> }
-interface Splits { vsOpponent?: { pairs: number; r: number; slope: number; pass: boolean } }
+interface CarryOver { pairs: number; r: number | null; pass: boolean }
+interface LeagueWide { diff: number; ci: number[]; nIn: number }
+type SplitGroup = Record<string, { leagueWide: LeagueWide; carryOver: CarryOver }>;
+interface Splits { vsOpponent?: { pairs: number; r: number; slope: number; pass: boolean }; players?: SplitGroup; teams?: SplitGroup; defenses?: SplitGroup }
 
 function load<T>(file: string): T | undefined {
   const f = path.join(process.cwd(), "data", "backtest", file);
@@ -49,6 +52,41 @@ export function storiesSummary(): string | undefined {
   return passed.length
     ? `Tested on ${s.seasons[0]}-${s.seasons[1]}: ${passed.join(", ")} beat players' normal games by our test.`
     : `Tested on ${s.seasons[0]}-${s.seasons[1]} (${s.population.games.toLocaleString("en-US")} games): no storyline beat a player's normal games. Players beat their own average in ${pct(s.results.hometown?.beat ?? 0)} of birth-city games. They make good stories, not edges.`;
+}
+
+const SPLIT_WORDS: Record<string, string> = { home: "home and away", division: "division", primetime: "primetime", short: "short-week", "home-division": "home against a division rival" };
+
+/** What the splits backtest found for one group (players, teams, defenses), in plain words, one line per finding. */
+export function splitsNotes(group: "players" | "teams" | "defenses"): string[] {
+  const s = load<Splits>("splits.json")?.[group];
+  if (!s) return [];
+  const carried = Object.entries(s).filter(([, v]) => v.carryOver.pass).map(([k]) => k);
+  const out: string[] = [];
+  if (group === "players") {
+    const h = s.home?.carryOver;
+    if (h?.pass) out.push(`A player's own home and away gap carried over in 2019-2025, weakly: about a fifth of it repeated (correlation ${h.r}).`);
+    const not = Object.keys(s).filter((k) => !carried.includes(k)).map((k) => SPLIT_WORDS[k] ?? k);
+    if (not.length) out.push(`His ${not.join(", ")} splits did not carry over.`);
+  } else {
+    out.push(carried.length ? `Carried over in 2019-2025: ${carried.map((k) => SPLIT_WORDS[k] ?? k).join(", ")}.` : `No ${group === "teams" ? "team's" : "defense's"} own split carried over from one season to the next in 2019-2025.`);
+    // League-wide differences whose interval clears zero: "in the situation" against the other side of it.
+    const WHERE: Record<string, [string, string]> = {
+      home: ["at home", "on the road"],
+      division: ["in division games", "in other games"],
+      primetime: ["in primetime", "in other games"],
+      short: ["on a short week", "on normal rest"],
+      "home-division": ["at home against a division rival", "in their other games"],
+    };
+    for (const [k, v] of Object.entries(s)) {
+      const lw = v.leagueWide;
+      if (!(lw.ci[0] > 0 || lw.ci[1] < 0) || !WHERE[k]) continue;
+      const [inS, outS] = WHERE[k];
+      const who = group === "teams" ? "teams" : "defenses";
+      const what = group === "teams" ? `${Math.abs(lw.diff).toFixed(1)} ${lw.diff > 0 ? "more" : "fewer"} points against the closing line than ${outS} (not tested against the vig)` : `${Math.abs(lw.diff).toFixed(1)} ${lw.diff > 0 ? "more" : "fewer"} DK points than ${outS}`;
+      out.push(`League-wide, ${who} ${inS} scored ${what}.`);
+    }
+  }
+  return out;
 }
 
 /** The backtest line for history against one opponent. */
