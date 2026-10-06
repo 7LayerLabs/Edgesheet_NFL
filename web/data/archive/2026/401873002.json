@@ -178,8 +178,8 @@
   ],
   "projection": {
    "winner": "PIT",
-   "winProb": 0.5867759136613833,
-   "margin": 2.96,
+   "winProb": 0.5809968709447222,
+   "margin": 2.76,
    "home": 17,
    "away": 20,
    "confidence": "high",
@@ -189,6 +189,19 @@
    "median": -2,
    "favorite": "PIT",
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.751Z",
+   "projection": {
+    "winner": "PIT",
+    "winProb": 0.5867759136613833,
+    "margin": 2.96,
+    "home": 17,
+    "away": 20,
+    "confidence": "high",
+    "modelTotal": 37.5
+   }
+  },
+  "updatedAt": "2026-10-06T20:32:35.877Z"
  }
 }

@@ -165,8 +165,8 @@
   "total": 42,
   "projection": {
    "winner": "DEN",
-   "winProb": 0.5679317990236477,
-   "margin": 2.3100000000000005,
+   "winProb": 0.5621002738679437,
+   "margin": 2.1100000000000003,
    "home": 20,
    "away": 22,
    "modelSide": "LAC",
@@ -175,11 +175,31 @@
    "totalLean": "none"
   },
   "consensus": {
-   "median": -0.9,
+   "median": -0.8,
    "favorite": "DEN",
    "side": "LAC",
    "sideCount": 3,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.588Z",
+   "spread": {
+    "team": "DEN",
+    "line": -3.5
+   },
+   "total": 42,
+   "projection": {
+    "winner": "DEN",
+    "winProb": 0.5679317990236477,
+    "margin": 2.3100000000000005,
+    "home": 20,
+    "away": 22,
+    "modelSide": "LAC",
+    "confidence": "high",
+    "modelTotal": 40.5,
+    "totalLean": "none"
+   }
+  },
+  "updatedAt": "2026-10-06T19:53:01.431Z"
  }
 }

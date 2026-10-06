@@ -178,8 +178,8 @@
   ],
   "projection": {
    "winner": "NE",
-   "winProb": 0.812570235410823,
-   "margin": 11.979999999999999,
+   "winProb": 0.8085574493465936,
+   "margin": 11.779999999999998,
    "home": 27,
    "away": 15,
    "confidence": "high",
@@ -189,6 +189,19 @@
    "median": 9.2,
    "favorite": "NE",
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.750Z",
+   "projection": {
+    "winner": "NE",
+    "winProb": 0.812570235410823,
+    "margin": 11.979999999999999,
+    "home": 27,
+    "away": 15,
+    "confidence": "high",
+    "modelTotal": 42
+   }
+  },
+  "updatedAt": "2026-10-06T20:32:35.873Z"
  }
 }

@@ -169,8 +169,8 @@
   ],
   "projection": {
    "winner": "ATL",
-   "winProb": 0.5772310171703092,
-   "margin": 2.63,
+   "winProb": 0.5743293774123369,
+   "margin": 2.53,
    "home": 24,
    "away": 21,
    "confidence": "high",
@@ -180,6 +180,19 @@
    "median": -1.6,
    "favorite": "CHI",
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.747Z",
+   "projection": {
+    "winner": "ATL",
+    "winProb": 0.5772310171703092,
+    "margin": 2.63,
+    "home": 24,
+    "away": 21,
+    "confidence": "high",
+    "modelTotal": 45
+   }
+  },
+  "updatedAt": "2026-10-06T20:32:35.868Z"
  }
 }

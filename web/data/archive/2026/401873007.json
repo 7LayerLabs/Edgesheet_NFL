@@ -169,8 +169,8 @@
   ],
   "projection": {
    "winner": "GB",
-   "winProb": 0.572586449012982,
-   "margin": 2.47,
+   "winProb": 0.5696784341335019,
+   "margin": 2.3700000000000006,
    "home": 26,
    "away": 24,
    "confidence": "high",
@@ -180,6 +180,19 @@
    "median": 0.8,
    "favorite": "GB",
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.754Z",
+   "projection": {
+    "winner": "GB",
+    "winProb": 0.572586449012982,
+    "margin": 2.47,
+    "home": 26,
+    "away": 24,
+    "confidence": "high",
+    "modelTotal": 49.5
+   }
+  },
+  "updatedAt": "2026-10-06T20:32:35.883Z"
  }
 }

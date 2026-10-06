@@ -178,17 +178,30 @@
   ],
   "projection": {
    "winner": "KC",
-   "winProb": 0.7145296987421494,
-   "margin": 7.65,
+   "winProb": 0.7094750986371929,
+   "margin": 7.450000000000001,
    "home": 24,
    "away": 17,
    "confidence": "high",
    "modelTotal": 41
   },
   "consensus": {
-   "median": 7.6,
+   "median": 7.5,
    "favorite": "KC",
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.753Z",
+   "projection": {
+    "winner": "KC",
+    "winProb": 0.7145296987421494,
+    "margin": 7.65,
+    "home": 24,
+    "away": 17,
+    "confidence": "high",
+    "modelTotal": 41
+   }
+  },
+  "updatedAt": "2026-10-06T20:32:35.881Z"
  }
 }

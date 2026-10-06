@@ -160,16 +160,16 @@
   ],
   "spread": {
    "team": "ATL",
-   "line": -1
+   "line": -3.5
   },
-  "total": 44.5,
+  "total": 43.5,
   "projection": {
    "winner": "ATL",
-   "winProb": 0.5301137197290672,
-   "margin": 1.02,
-   "home": 23,
-   "away": 22,
-   "modelSide": "ATL",
+   "winProb": 0.524217226999413,
+   "margin": 0.8200000000000001,
+   "home": 22,
+   "away": 21,
+   "modelSide": "BAL",
    "confidence": "medium",
    "modelTotal": 45.5,
    "totalLean": "none"
@@ -178,8 +178,28 @@
    "median": -0.1,
    "favorite": "BAL",
    "side": "BAL",
-   "sideCount": 3,
+   "sideCount": 4,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.590Z",
+   "spread": {
+    "team": "ATL",
+    "line": -1
+   },
+   "total": 44.5,
+   "projection": {
+    "winner": "ATL",
+    "winProb": 0.5301137197290672,
+    "margin": 1.02,
+    "home": 23,
+    "away": 22,
+    "modelSide": "ATL",
+    "confidence": "medium",
+    "modelTotal": 45.5,
+    "totalLean": "none"
+   }
+  },
+  "updatedAt": "2026-10-06T19:53:01.436Z"
  }
 }

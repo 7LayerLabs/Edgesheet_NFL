@@ -169,17 +169,30 @@
   ],
   "projection": {
    "winner": "BUF",
-   "winProb": 0.6684203557123207,
-   "margin": 5.88,
+   "winProb": 0.6737782718721431,
+   "margin": 6.08,
    "home": 21,
    "away": 27,
    "confidence": "high",
-   "modelTotal": 48
+   "modelTotal": 47.5
   },
   "consensus": {
    "median": -4.5,
    "favorite": "BUF",
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.753Z",
+   "projection": {
+    "winner": "BUF",
+    "winProb": 0.6684203557123207,
+    "margin": 5.88,
+    "home": 21,
+    "away": 27,
+    "confidence": "high",
+    "modelTotal": 48
+   }
+  },
+  "updatedAt": "2026-10-06T20:32:35.882Z"
  }
 }

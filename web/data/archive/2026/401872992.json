@@ -156,8 +156,8 @@
   "total": 47,
   "projection": {
    "winner": "SEA",
-   "winProb": 0.572586449012982,
-   "margin": 2.4699999999999998,
+   "winProb": 0.5696784341335019,
+   "margin": 2.37,
    "home": 25,
    "away": 22,
    "modelSide": "SF",
@@ -166,11 +166,31 @@
    "totalLean": "none"
   },
   "consensus": {
-   "median": 0.9,
+   "median": 0.8,
    "favorite": "SEA",
    "side": "SF",
    "sideCount": 3,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.590Z",
+   "spread": {
+    "team": "SEA",
+    "line": -3
+   },
+   "total": 47,
+   "projection": {
+    "winner": "SEA",
+    "winProb": 0.572586449012982,
+    "margin": 2.4699999999999998,
+    "home": 25,
+    "away": 22,
+    "modelSide": "SF",
+    "confidence": "high",
+    "modelTotal": 47.5,
+    "totalLean": "none"
+   }
+  },
+  "updatedAt": "2026-10-06T19:53:01.434Z"
  }
 }

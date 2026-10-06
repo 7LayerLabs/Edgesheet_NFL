@@ -162,11 +162,11 @@
    "team": "CIN",
    "line": -7
   },
-  "total": 42,
+  "total": 42.5,
   "projection": {
    "winner": "CIN",
-   "winProb": 0.6753787415291039,
-   "margin": 6.140000000000001,
+   "winProb": 0.6727095090142505,
+   "margin": 6.04,
    "home": 18,
    "away": 24,
    "modelSide": "MIA",
@@ -175,11 +175,31 @@
    "totalLean": "none"
   },
   "consensus": {
-   "median": -6.4,
+   "median": -6.3,
    "favorite": "CIN",
    "side": "MIA",
    "sideCount": 2,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.583Z",
+   "spread": {
+    "team": "CIN",
+    "line": -7
+   },
+   "total": 42,
+   "projection": {
+    "winner": "CIN",
+    "winProb": 0.6753787415291039,
+    "margin": 6.140000000000001,
+    "home": 18,
+    "away": 24,
+    "modelSide": "MIA",
+    "confidence": "high",
+    "modelTotal": 43,
+    "totalLean": "none"
+   }
+  },
+  "updatedAt": "2026-10-06T19:53:01.418Z"
  }
 }

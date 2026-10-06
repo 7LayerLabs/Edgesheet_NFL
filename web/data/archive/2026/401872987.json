@@ -160,26 +160,46 @@
   ],
   "spread": {
    "team": "MIN",
-   "line": -1.5
+   "line": -2
   },
   "total": 42,
   "projection": {
    "winner": "MIN",
-   "winProb": 0.6535101682939541,
-   "margin": 5.330000000000001,
+   "winProb": 0.6883260650184753,
+   "margin": 6.630000000000001,
    "home": 18,
    "away": 24,
    "modelSide": "MIN",
    "confidence": "high",
-   "modelTotal": 40,
+   "modelTotal": 41.5,
    "totalLean": "none"
   },
   "consensus": {
-   "median": -5.8,
+   "median": -6.4,
    "favorite": "MIN",
    "side": "MIN",
    "sideCount": 3,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.585Z",
+   "spread": {
+    "team": "MIN",
+    "line": -1.5
+   },
+   "total": 42,
+   "projection": {
+    "winner": "MIN",
+    "winProb": 0.6535101682939541,
+    "margin": 5.330000000000001,
+    "home": 18,
+    "away": 24,
+    "modelSide": "MIN",
+    "confidence": "high",
+    "modelTotal": 40,
+    "totalLean": "none"
+   }
+  },
+  "updatedAt": "2026-10-06T19:53:01.422Z"
  }
 }

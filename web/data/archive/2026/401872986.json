@@ -183,8 +183,8 @@
   "total": 45,
   "projection": {
    "winner": "NE",
-   "winProb": 0.7033548761945627,
-   "margin": 7.21,
+   "winProb": 0.7135221351368904,
+   "margin": 7.609999999999999,
    "home": 26,
    "away": 19,
    "modelSide": "NE",
@@ -193,11 +193,31 @@
    "totalLean": "under"
   },
   "consensus": {
-   "median": 5.8,
+   "median": 6,
    "favorite": "NE",
    "side": "NE",
    "sideCount": 3,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.584Z",
+   "spread": {
+    "team": "NE",
+    "line": -3.5
+   },
+   "total": 45,
+   "projection": {
+    "winner": "NE",
+    "winProb": 0.7033548761945627,
+    "margin": 7.21,
+    "home": 26,
+    "away": 19,
+    "modelSide": "NE",
+    "confidence": "high",
+    "modelTotal": 42,
+    "totalLean": "under"
+   }
+  },
+  "updatedAt": "2026-10-06T19:53:01.420Z"
  }
 }

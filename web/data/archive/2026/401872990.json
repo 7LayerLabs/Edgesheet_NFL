@@ -171,17 +171,17 @@
    "team": "CHI",
    "line": -3
   },
-  "total": 45,
+  "total": 45.5,
   "projection": {
    "winner": "GB",
-   "winProb": 0.5227422231855465,
-   "margin": 0.7700000000000002,
+   "winProb": 0.5197912997403242,
+   "margin": 0.6700000000000002,
    "home": 23,
    "away": 22,
    "modelSide": "GB",
    "confidence": "high",
    "modelTotal": 43,
-   "totalLean": "none"
+   "totalLean": "under"
   },
   "consensus": {
    "median": -1.5,
@@ -189,6 +189,26 @@
    "side": "GB",
    "sideCount": 3,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:37.709Z",
+   "spread": {
+    "team": "CHI",
+    "line": -3
+   },
+   "total": 45,
+   "projection": {
+    "winner": "GB",
+    "winProb": 0.5227422231855465,
+    "margin": 0.7700000000000002,
+    "home": 23,
+    "away": 22,
+    "modelSide": "GB",
+    "confidence": "high",
+    "modelTotal": 43,
+    "totalLean": "none"
+   }
+  },
+  "updatedAt": "2026-10-06T19:53:01.429Z"
  }
 }

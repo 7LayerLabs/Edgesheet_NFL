@@ -178,7 +178,7 @@
   ],
   "spread": {
    "team": "DET",
-   "line": -4.5
+   "line": -5
   },
   "total": 54.5,
   "projection": {
@@ -189,15 +189,35 @@
    "away": 29,
    "modelSide": "ARI",
    "confidence": "high",
-   "modelTotal": 48.5,
+   "modelTotal": 47.5,
    "totalLean": "under"
   },
   "consensus": {
    "median": -3.9,
    "favorite": "DET",
    "side": "ARI",
-   "sideCount": 2,
+   "sideCount": 3,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.589Z",
+   "spread": {
+    "team": "DET",
+    "line": -4.5
+   },
+   "total": 54.5,
+   "projection": {
+    "winner": "DET",
+    "winProb": 0.6277597315917829,
+    "margin": 4.4,
+    "home": 25,
+    "away": 29,
+    "modelSide": "ARI",
+    "confidence": "high",
+    "modelTotal": 48.5,
+    "totalLean": "under"
+   }
+  },
+  "updatedAt": "2026-10-06T19:55:27.380Z"
  }
 }

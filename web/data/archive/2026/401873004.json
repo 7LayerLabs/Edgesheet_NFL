@@ -169,17 +169,30 @@
   ],
   "projection": {
    "winner": "LAR",
-   "winProb": 0.7953668223277713,
-   "margin": 11.139999999999999,
+   "winProb": 0.7995458563370063,
+   "margin": 11.34,
    "home": 27,
    "away": 16,
    "confidence": "high",
-   "modelTotal": 43
+   "modelTotal": 42.5
   },
   "consensus": {
-   "median": 10.8,
+   "median": 10.9,
    "favorite": "LAR",
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.752Z",
+   "projection": {
+    "winner": "LAR",
+    "winProb": 0.7953668223277713,
+    "margin": 11.139999999999999,
+    "home": 27,
+    "away": 16,
+    "confidence": "high",
+    "modelTotal": 43
+   }
+  },
+  "updatedAt": "2026-10-06T20:32:35.879Z"
  }
 }

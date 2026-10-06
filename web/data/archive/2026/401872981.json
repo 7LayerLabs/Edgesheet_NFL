@@ -171,24 +171,44 @@
    "team": "JAX",
    "line": -7
   },
-  "total": 43,
+  "total": 42.5,
   "projection": {
    "winner": "JAX",
-   "winProb": 0.6383582502003413,
-   "margin": 4.78,
-   "home": 24,
+   "winProb": 0.6271991433158162,
+   "margin": 4.38,
+   "home": 23,
    "away": 19,
    "modelSide": "PHI",
    "confidence": "high",
-   "modelTotal": 45.5,
+   "modelTotal": 45,
    "totalLean": "over"
   },
   "consensus": {
-   "median": 5.7,
+   "median": 5.5,
    "favorite": "JAX",
    "side": "PHI",
    "sideCount": 3,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.582Z",
+   "spread": {
+    "team": "JAX",
+    "line": -7
+   },
+   "total": 43,
+   "projection": {
+    "winner": "JAX",
+    "winProb": 0.6383582502003413,
+    "margin": 4.78,
+    "home": 24,
+    "away": 19,
+    "modelSide": "PHI",
+    "confidence": "high",
+    "modelTotal": 45.5,
+    "totalLean": "over"
+   }
+  },
+  "updatedAt": "2026-10-06T19:53:01.415Z"
  }
 }

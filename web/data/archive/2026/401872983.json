@@ -183,13 +183,13 @@
   "total": 40,
   "projection": {
    "winner": "CLE",
-   "winProb": 0.5766510190399861,
-   "margin": 2.6100000000000003,
+   "winProb": 0.5591793637879596,
+   "margin": 2.01,
    "home": 19,
    "away": 21,
    "modelSide": "CLE",
    "confidence": "high",
-   "modelTotal": 43,
+   "modelTotal": 43.5,
    "totalLean": "over"
   },
   "consensus": {
@@ -198,6 +198,26 @@
    "side": "CLE",
    "sideCount": 2,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.585Z",
+   "spread": {
+    "team": "NYJ",
+    "line": -2
+   },
+   "total": 40,
+   "projection": {
+    "winner": "CLE",
+    "winProb": 0.5766510190399861,
+    "margin": 2.6100000000000003,
+    "home": 19,
+    "away": 21,
+    "modelSide": "CLE",
+    "confidence": "high",
+    "modelTotal": 43,
+    "totalLean": "over"
+   }
+  },
+  "updatedAt": "2026-10-06T19:53:01.424Z"
  }
 }

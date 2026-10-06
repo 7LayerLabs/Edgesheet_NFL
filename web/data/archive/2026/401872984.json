@@ -162,24 +162,44 @@
    "team": "HOU",
    "line": -7
   },
-  "total": 39.5,
+  "total": 38.5,
   "projection": {
    "winner": "HOU",
-   "winProb": 0.6632981948315266,
-   "margin": 5.69,
-   "home": 17,
-   "away": 23,
+   "winProb": 0.6686890832011465,
+   "margin": 5.89,
+   "home": 16,
+   "away": 22,
    "modelSide": "TEN",
    "confidence": "high",
    "modelTotal": 43,
    "totalLean": "over"
   },
   "consensus": {
-   "median": -4.8,
+   "median": -4.9,
    "favorite": "HOU",
    "side": "TEN",
    "sideCount": 4,
    "of": 4
-  }
+  },
+  "first": {
+   "capturedAt": "2026-10-06T13:46:39.587Z",
+   "spread": {
+    "team": "HOU",
+    "line": -7
+   },
+   "total": 39.5,
+   "projection": {
+    "winner": "HOU",
+    "winProb": 0.6632981948315266,
+    "margin": 5.69,
+    "home": 17,
+    "away": 23,
+    "modelSide": "TEN",
+    "confidence": "high",
+    "modelTotal": 43,
+    "totalLean": "over"
+   }
+  },
+  "updatedAt": "2026-10-06T19:53:01.426Z"
  }
 }
