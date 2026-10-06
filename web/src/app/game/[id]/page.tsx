@@ -20,6 +20,7 @@ import { WrittenReport } from "@/components/WrittenReport";
 import { ConsensusTable } from "@/components/ConsensusTable";
 import { Suspense } from "react";
 import { BeatFeed, BeatFeedFallback } from "@/components/BeatFeed";
+import { SleepersPanel } from "@/components/SleepersPanel";
 import { SituationalCues, SituationsTable } from "@/components/Situations";
 import { DfsPanel } from "@/components/DfsPanel";
 import { AvailabilityPanel } from "@/components/AvailabilityPanel";
@@ -429,6 +430,9 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
 
       {/* Beat feed: posts and headlines about both teams, tagged to radar players. Context only, never a source for the report. */}
       <Fold id="feed" title="Beat feed" summary={`Posts and headlines on the ${game.away.short} and ${game.home.short}, last 3 days`}>
+        <Suspense fallback={<p className="mb-4 text-xs text-chalk-3">Reading the beat for sleepers.</p>}>
+          <SleepersPanel teams={[game.away.short, game.home.short]} players={game.prospects.map((p) => ({ id: p.id, name: p.name, team: p.team === game.home.abbr ? game.home.short : game.away.short }))} vacated={vacated} />
+        </Suspense>
         <Suspense fallback={<BeatFeedFallback />}>
           <BeatFeed
             limit={10}

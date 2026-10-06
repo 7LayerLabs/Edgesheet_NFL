@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { radarForGame } from "@/lib/radar";
 import { BeatFeed, BeatFeedFallback } from "@/components/BeatFeed";
+import { SleepersPanel } from "@/components/SleepersPanel";
 import type { FeedPlayer } from "@/lib/feed";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +53,9 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
               </Link>
             ))}
           </div>
+          <Suspense fallback={<p className="mb-4 text-xs text-chalk-3">Reading the beat for sleepers.</p>}>
+            <SleepersPanel teams={teams} players={players} />
+          </Suspense>
           <Suspense fallback={<BeatFeedFallback />}>
             <BeatFeed schools={teams} players={players} />
           </Suspense>

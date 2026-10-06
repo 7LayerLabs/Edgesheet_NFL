@@ -12,6 +12,7 @@
  * Nothing here is a fact for our reports. It is context, and each item says what it is.
  */
 import { memo } from "./memo";
+import { genPlayers } from "./generated";
 
 export type FeedSource = "bluesky" | "reddit" | "news";
 /** fan = a person on a social network or a subreddit; outlet = a publication or a reporter account; news = a news article. */
@@ -26,7 +27,7 @@ export interface FeedItem {
   url: string;
   text: string;
   publishedAt: string;
-  /** Radar player ids mentioned in the text. */
+  /** Player ids mentioned in the text: the searched names plus every QB, RB, WR, and TE on the teams (tagItem rules). */
   tags: string[];
   /** School the query that found this item was about. */
   team: string;
@@ -509,9 +510,13 @@ export async function feedForTeams(schools: string[], players: FeedPlayer[] = []
       bySource.set(j.source, st);
     });
 
-    // Player-name queries can return items about another school's player with the same name; keep only items that mention a team or a player.
+    // Tag the searched names and every skill player on these teams (the sleepers list counts buzz for anyone who plays
+    // offense, not only the radar names). Player-name queries can return items about another team's player with the
+    // same name; keep only items that mention a team or a player.
+    const searched = new Set(roster.map((p) => p.id));
+    const taggable = [...roster, ...genPlayers().filter((p) => teams.includes(p.t) && ["QB", "RB", "WR", "TE"].includes(p.pg ?? "") && !searched.has(p.id) && p.n.includes(" ")).map((p) => ({ id: p.id, name: p.n, team: p.t }))];
     const tagged = dedupe(all)
-      .map((it) => ({ ...it, tags: tagItem(it.text, it.team, roster) }))
+      .map((it) => ({ ...it, tags: tagItem(it.text, it.team, taggable) }))
       .filter((it) => it.tags.length > 0 || teams.some((t) => mentionsTeam(it.text, t)))
       .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
     const items = balance(tagged);

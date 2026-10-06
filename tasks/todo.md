@@ -1,6 +1,6 @@
 # WHERE WE LEFT OFF (kept current at every push)
 
-Last updated 2026-10-06, commit "Phase 8". Derek's instruction: finish the rest and push as soon as it is done.
+Last updated 2026-10-06, commit "Phase 9". Derek's instruction: finish the rest and push as soon as it is done.
 - DONE and pushed: game page read (Section 1), Phase 1 data (per-game snaps, history-games.json, play calling), Phase 2
   trends, info tips everywhere, Phase 3 work left open, Phase 4 player history, Phase 5 backtests (results below: no
   storyline passes; only a player's own home/away split carries over, weakly; primetime teams score 1.1 under the line).
@@ -8,9 +8,9 @@ Last updated 2026-10-06, commit "Phase 8". Derek's instruction: finish the rest 
   the player page and a Splits section on the game page, with the backtest verdicts); Phase 7 (DraftKings points allowed
   table in Matchups); Phase 8 (slate home: team totals, DK value leaders, weather watch, total bands, DK Main/Showdown
   filters) plus a BUG FIX: DraftKings defense projections swapped the implied team totals whenever the home team was
-  favored (dfs.ts passed the home nickname, the spread is filed under the favorite's abbreviation).
-- LEFT, in this order: Phase 9 (sleepers by
-  beat buzz), Phase 10 (single-entry lineup). Then the section-by-section review resumes at the Matchups fold.
+  favored (dfs.ts passed the home nickname, the spread is filed under the favorite's abbreviation); Phase 9 (sleepers by
+  beat buzz on the game page's Beat feed and the feed page).
+- LEFT, in this order: Phase 10 (single-entry lineup). Then the section-by-section review resumes at the Matchups fold.
 - KNOWN: nflverse had not posted week 4 snap counts (re-run `npm run ingest` to fill them); the dev server on :3100 was
   stopped by Claude Code for low memory on 2026-10-06 and not restarted; memoSync results live on globalThis, so restart
   the dev server after changing a cached shape; pre-existing lint errors remain in BoardClient and the two error.tsx.
@@ -211,10 +211,16 @@ BUG FOUND AND FIXED: dfs.ts called impliedTotals with game.home.short, but marke
 abbreviation, so every home favorite's two implied totals were swapped in the DST projection (off by the full spread).
 
 ### Phase 9: sleepers by beat buzz
-- [ ] 9.1 Tag feed items to any rostered player by name (today only radar players get tagged).
-- [ ] 9.2 Rank players with more beat mentions this week than their role suggests (mentions against snap share and DK
+- [x] 9.1 Tag feed items to any rostered player by name (today only radar players get tagged).
+- [x] 9.2 Rank players with more beat mentions this week than their role suggests (mentions against snap share and DK
       salary), boosted by Jev's "promoted" chip and by vacated work from Phase 3. Top ten on /feed and in each game's Beat
       feed section, each with its source links.
+      Notes (2026-10-06, pushed): feed.ts tags every QB/RB/WR/TE on the teams (name searches still only the radar
+      names); src/lib/sleepers.ts: 2+ posts in 3 days and under 60% of snaps, or the top riser for a missing teammate;
+      Jev (judgeFeed, first use on the pages, cached 6 hours) reads only the candidates' posts: "moving up" on a
+      promoted read, dropped when half or more of his posts are injury news. Sorted moving-up first, then outlet posts.
+      Ran live for ATL/NO: 60 items, 7 players tagged, one sleeper (Brian Robinson, 4 outlet posts, 33% of snaps).
+      Salary was not used (the DK pool is not loaded on these pages); snap share stands in for "role".
 
 ### Phase 10: DFS single-entry lineup
 - [ ] 10.1 A third lineup that maximizes each player's 75th-percentile outcome (between Cash at the median and GPP at the

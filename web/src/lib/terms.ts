@@ -68,6 +68,10 @@ export const TERMS = {
   valuePicks:
     "Safest values: $300 or more cheap by our price, 75% or better to play, sorted by the lowest bust chance (under 2x salary per $1,000): cash games. Upside values: the same, sorted by the highest boom chance (5x): tournaments. Not locks: every player busts in some simulations. Picks are saved before kickoff and graded after the games against every player at the same position within $500 of the salary.",
 
+  // Beat feed.
+  sleepers:
+    "Backs, receivers, tight ends, and quarterbacks with 2 or more posts or headlines about them in the last 3 days who play under 60% of the offense's snaps, or who took on the most work the last times a missing teammate sat. Jev reads their posts: 'moving up' means the beat reports a promotion, a starting job, or a bigger role; players whose buzz is mostly injury news are left out. Buzz is a lead to check, not a projection.",
+
   // DraftKings (game page panel and the DFS page).
   dfs: "Proj: our average DraftKings points, blended with last season and the matchup. Floor, median, and ceiling: the 10th, 50th, and 90th percentiles of 10,000 simulations of the slate. Boom: share of simulations at 5x his salary per $1,000 or more; bust: under 2x. Value: points per $1,000 of salary (the DFS page uses the simulated median, the game page's panel the projection).",
 } as const;

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { feedForTeams, KIND_LABEL, SOURCE_LABEL, type FeedItem, type FeedPlayer, type FeedResult } from "@/lib/feed";
+import { genPlayers } from "@/lib/generated";
 
 /** "4h ago", "2d ago". */
 // eslint-disable-next-line react-hooks/purity
@@ -93,6 +94,9 @@ export async function BeatFeed({
   const feed = await feedForTeams(schools, players);
   const names: Record<string, string> = {};
   for (const p of players) names[p.id] = p.name;
+  // Tags now cover every skill player on the teams, not only the searched names.
+  const tagged = new Set(feed.items.flatMap((it) => it.tags).filter((id) => !names[id]));
+  if (tagged.size) for (const p of genPlayers()) if (tagged.has(p.id)) names[p.id] = p.n;
   let items = feed.items;
   if (onlyTagged && onlyTagged.length > 0) items = items.filter((it) => it.tags.some((t) => onlyTagged.includes(t)));
   const more = limit && items.length > limit ? items.length - limit : 0;
