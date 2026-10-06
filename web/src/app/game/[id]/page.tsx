@@ -181,6 +181,18 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
                 </li>
               ))}
             </ul>
+            {game.storyNotes && game.storyNotes.length > 0 && (
+              <p className="mt-1 border-t border-line pt-2 text-xs leading-snug text-chalk-3">
+                <span className="font-semibold text-chalk-2">Also: </span>
+                {game.storyNotes.map((n, i) => (
+                  <span key={n.id}>
+                    {i ? "; " : ""}
+                    <Link href={`/player/${n.id}`} className="hover:text-sky">{n.name}</Link> ({n.pos}, {n.team}), {n.label.toLowerCase()}: {n.text.charAt(0).toLowerCase() + n.text.slice(1).replace(/\.$/, "")}
+                  </span>
+                ))}
+                .
+              </p>
+            )}
           </div>
         )}
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -503,7 +515,7 @@ function AnswerStrip({ game }: { game: Game }) {
   const scoreLine = p ? `${game.away.abbr} ${p.away}, ${game.home.abbr} ${p.home}` : "";
   const totalPart = p?.modelTotal !== undefined && t ? (tTier ? `total: model ${p.modelTotal}, leans ${p.totalLean} (${Math.abs(p.totalGap ?? 0).toFixed(1)} pts)` : `total: model ${p.modelTotal}, no lean`) : "";
   return (
-    <section aria-label="The call" className="mt-5 overflow-hidden rounded border border-line bg-panel">
+    <section aria-label="The call" className="mt-5 rounded border border-line bg-panel">
       {/* Phone: the call across the top, the line and the edge side by side under it. Wider: three columns. */}
       <div className="grid grid-cols-2 sm:grid-cols-[1.3fr_1fr_1.2fr]">
         <div className="relative col-span-2 border-b border-line p-4 sm:col-span-1 sm:border-b-0 sm:border-r" style={{ boxShadow: winner && !even ? `inset 4px 0 0 ${winner.color}` : undefined }}>
@@ -562,7 +574,7 @@ function AnswerStrip({ game }: { game: Game }) {
           )}
         </div>
       </div>
-      <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1 border-t border-line bg-panel-2 px-4 py-2 text-sm text-chalk-2">
+      <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1 rounded-b border-t border-line bg-panel-2 px-4 py-2 text-sm text-chalk-2">
         {notes.map((n) => (
           <span key={n}>{n}</span>
         ))}

@@ -113,7 +113,7 @@ function Slate({ sim, pos, sort }: { sim: SlateSim; pos: (typeof POSITIONS)[numb
         <section className="mt-8">
           <h2 className="display text-3xl font-bold text-chalk">Might not play</h2>
           <p className="mt-1 max-w-3xl text-sm text-chalk-3">
-            Each sits in the share of simulations shown, and his backups take half his projection in those draws. With fresh news, Jev reads it into the play chance and the role; a Jev answer near 50/50 keeps the injury-status number.
+            Each sits in the share of simulations shown, and his backup takes a share of his projection in those draws (a back 25%, a tight end 20%; a receiver's targets scatter, so none). With fresh news, Jev reads it into the play chance and the role; a Jev answer near 50/50 keeps the injury-status number.
           </p>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {uncertain.map((p) => (

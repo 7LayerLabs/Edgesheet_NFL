@@ -1,0 +1,410 @@
+{
+  "builtAt": "2026-10-06T13:39:59.586Z",
+  "breakEven": 0.524,
+  "eras": [
+    {
+      "seasons": "1999-2009",
+      "window": "primetime",
+      "games": 278,
+      "unders": 140,
+      "overs": 130,
+      "pushes": 8,
+      "underRate": 0.519,
+      "ci95": [
+        0.459,
+        0.578
+      ],
+      "roi": -0.01,
+      "avgVsTotal": 0.888
+    },
+    {
+      "seasons": "1999-2009",
+      "window": "day",
+      "games": 2514,
+      "unders": 1244,
+      "overs": 1220,
+      "pushes": 50,
+      "underRate": 0.505,
+      "ci95": [
+        0.485,
+        0.525
+      ],
+      "roi": -0.036,
+      "avgVsTotal": 0.974
+    },
+    {
+      "seasons": "2010-2018",
+      "window": "primetime",
+      "games": 447,
+      "unders": 215,
+      "overs": 228,
+      "pushes": 4,
+      "underRate": 0.485,
+      "ci95": [
+        0.439,
+        0.532
+      ],
+      "roi": -0.073,
+      "avgVsTotal": 0.412
+    },
+    {
+      "seasons": "2010-2018",
+      "window": "day",
+      "games": 1857,
+      "unders": 925,
+      "overs": 912,
+      "pushes": 20,
+      "underRate": 0.504,
+      "ci95": [
+        0.481,
+        0.526
+      ],
+      "roi": -0.039,
+      "avgVsTotal": 0.404
+    },
+    {
+      "seasons": "2019-2025",
+      "window": "primetime",
+      "games": 389,
+      "unders": 217,
+      "overs": 166,
+      "pushes": 6,
+      "underRate": 0.567,
+      "ci95": [
+        0.517,
+        0.616
+      ],
+      "roi": 0.082,
+      "avgVsTotal": -1.135
+    },
+    {
+      "seasons": "2019-2025",
+      "window": "day",
+      "games": 1482,
+      "unders": 728,
+      "overs": 743,
+      "pushes": 11,
+      "underRate": 0.495,
+      "ci95": [
+        0.469,
+        0.52
+      ],
+      "roi": -0.055,
+      "avgVsTotal": 1.081
+    },
+    {
+      "seasons": "2023-2025",
+      "window": "primetime",
+      "games": 177,
+      "unders": 94,
+      "overs": 81,
+      "pushes": 2,
+      "underRate": 0.537,
+      "ci95": [
+        0.463,
+        0.611
+      ],
+      "roi": 0.025,
+      "avgVsTotal": -0.192
+    },
+    {
+      "seasons": "2023-2025",
+      "window": "day",
+      "games": 639,
+      "unders": 306,
+      "overs": 330,
+      "pushes": 3,
+      "underRate": 0.481,
+      "ci95": [
+        0.442,
+        0.52
+      ],
+      "roi": -0.081,
+      "avgVsTotal": 1.422
+    }
+  ],
+  "bySeason": [
+    {
+      "season": 2010,
+      "games": 44,
+      "unders": 21,
+      "overs": 22,
+      "pushes": 1,
+      "underRate": 0.488,
+      "ci95": [
+        0.339,
+        0.638
+      ],
+      "roi": -0.068,
+      "avgVsTotal": 0.023
+    },
+    {
+      "season": 2011,
+      "games": 43,
+      "unders": 19,
+      "overs": 24,
+      "pushes": 0,
+      "underRate": 0.442,
+      "ci95": [
+        0.293,
+        0.59
+      ],
+      "roi": -0.156,
+      "avgVsTotal": 0.581
+    },
+    {
+      "season": 2012,
+      "games": 49,
+      "unders": 30,
+      "overs": 18,
+      "pushes": 1,
+      "underRate": 0.625,
+      "ci95": [
+        0.488,
+        0.762
+      ],
+      "roi": 0.193,
+      "avgVsTotal": -2.306
+    },
+    {
+      "season": 2013,
+      "games": 50,
+      "unders": 21,
+      "overs": 28,
+      "pushes": 1,
+      "underRate": 0.429,
+      "ci95": [
+        0.29,
+        0.567
+      ],
+      "roi": -0.182,
+      "avgVsTotal": 2.38
+    },
+    {
+      "season": 2014,
+      "games": 52,
+      "unders": 17,
+      "overs": 35,
+      "pushes": 0,
+      "underRate": 0.327,
+      "ci95": [
+        0.199,
+        0.454
+      ],
+      "roi": -0.376,
+      "avgVsTotal": 3.471
+    },
+    {
+      "season": 2015,
+      "games": 52,
+      "unders": 30,
+      "overs": 21,
+      "pushes": 1,
+      "underRate": 0.588,
+      "ci95": [
+        0.453,
+        0.723
+      ],
+      "roi": 0.123,
+      "avgVsTotal": -0.404
+    },
+    {
+      "season": 2016,
+      "games": 52,
+      "unders": 26,
+      "overs": 26,
+      "pushes": 0,
+      "underRate": 0.5,
+      "ci95": [
+        0.364,
+        0.636
+      ],
+      "roi": -0.045,
+      "avgVsTotal": -1.635
+    },
+    {
+      "season": 2017,
+      "games": 52,
+      "unders": 24,
+      "overs": 28,
+      "pushes": 0,
+      "underRate": 0.462,
+      "ci95": [
+        0.326,
+        0.597
+      ],
+      "roi": -0.119,
+      "avgVsTotal": 1.529
+    },
+    {
+      "season": 2018,
+      "games": 53,
+      "unders": 27,
+      "overs": 26,
+      "pushes": 0,
+      "underRate": 0.509,
+      "ci95": [
+        0.375,
+        0.644
+      ],
+      "roi": -0.027,
+      "avgVsTotal": -0.038
+    },
+    {
+      "season": 2019,
+      "games": 50,
+      "unders": 31,
+      "overs": 18,
+      "pushes": 1,
+      "underRate": 0.633,
+      "ci95": [
+        0.498,
+        0.768
+      ],
+      "roi": 0.208,
+      "avgVsTotal": -3.96
+    },
+    {
+      "season": 2020,
+      "games": 51,
+      "unders": 27,
+      "overs": 23,
+      "pushes": 1,
+      "underRate": 0.54,
+      "ci95": [
+        0.402,
+        0.678
+      ],
+      "roi": 0.031,
+      "avgVsTotal": 0.098
+    },
+    {
+      "season": 2021,
+      "games": 56,
+      "unders": 30,
+      "overs": 25,
+      "pushes": 1,
+      "underRate": 0.545,
+      "ci95": [
+        0.414,
+        0.677
+      ],
+      "roi": 0.041,
+      "avgVsTotal": -0.786
+    },
+    {
+      "season": 2022,
+      "games": 55,
+      "unders": 35,
+      "overs": 19,
+      "pushes": 1,
+      "underRate": 0.648,
+      "ci95": [
+        0.521,
+        0.776
+      ],
+      "roi": 0.237,
+      "avgVsTotal": -3.1
+    },
+    {
+      "season": 2023,
+      "games": 58,
+      "unders": 35,
+      "overs": 23,
+      "pushes": 0,
+      "underRate": 0.603,
+      "ci95": [
+        0.478,
+        0.729
+      ],
+      "roi": 0.152,
+      "avgVsTotal": -0.75
+    },
+    {
+      "season": 2024,
+      "games": 59,
+      "unders": 28,
+      "overs": 29,
+      "pushes": 2,
+      "underRate": 0.491,
+      "ci95": [
+        0.361,
+        0.621
+      ],
+      "roi": -0.062,
+      "avgVsTotal": 0.229
+    },
+    {
+      "season": 2025,
+      "games": 60,
+      "unders": 31,
+      "overs": 29,
+      "pushes": 0,
+      "underRate": 0.517,
+      "ci95": [
+        0.39,
+        0.643
+      ],
+      "roi": -0.014,
+      "avgVsTotal": -0.067
+    },
+    {
+      "season": 2026,
+      "games": 13,
+      "unders": 5,
+      "overs": 8,
+      "pushes": 0,
+      "underRate": 0.385,
+      "ci95": [
+        0.12,
+        0.649
+      ],
+      "roi": -0.266,
+      "avgVsTotal": 2.577
+    }
+  ],
+  "byNight": [
+    {
+      "night": "Thursday",
+      "games": 234,
+      "unders": 120,
+      "overs": 112,
+      "pushes": 2,
+      "underRate": 0.517,
+      "ci95": [
+        0.453,
+        0.582
+      ],
+      "roi": -0.013,
+      "avgVsTotal": 0.053
+    },
+    {
+      "night": "Sunday",
+      "games": 280,
+      "unders": 140,
+      "overs": 134,
+      "pushes": 6,
+      "underRate": 0.511,
+      "ci95": [
+        0.452,
+        0.57
+      ],
+      "roi": -0.025,
+      "avgVsTotal": 0.013
+    },
+    {
+      "night": "Monday",
+      "games": 284,
+      "unders": 150,
+      "overs": 132,
+      "pushes": 2,
+      "underRate": 0.532,
+      "ci95": [
+        0.474,
+        0.59
+      ],
+      "roi": 0.015,
+      "avgVsTotal": -0.78
+    }
+  ]
+}

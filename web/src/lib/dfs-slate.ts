@@ -6,7 +6,7 @@
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { absenceOf } from "./availability";
-import { classicPool, type DfsPlay } from "./dfs";
+import { classicPool, NEXT_MAN_UP_SHARE, type DfsPlay } from "./dfs";
 import { assignRoles, buildLineups, seedOf, simulateSlate, type LineupSim, type PlayerSim, type SimHistory, type SimPlayer } from "./dfs-sim";
 import { newsJudgments, ROLE_MULTIPLIER, type NewsCandidate, type NewsJudgment } from "./jev-dfs";
 import { memo, memoSync } from "./memo";
@@ -15,8 +15,6 @@ import { getSlate, shiftDate } from "./slate";
 const HISTORY = path.join(process.cwd(), "data", "backtest", "dfs-sim.json");
 const DK_DIR = path.join(process.cwd(), "data", "dk");
 const N = 10000;
-/** Share of a sitter's projection his backups pick up in the draws where he sits (the lens's next-man-up rule). */
-const NEXT_MAN_UP = 0.5;
 const round1 = (x: number) => Math.round(x * 10) / 10;
 
 export interface SlatePlayer extends PlayerSim {
@@ -124,15 +122,16 @@ async function build(
       pPlay: j?.pPlay ?? b.prior,
     };
   });
-  // Backups for anyone who might sit: Jev's pick when it named one, else the best-projected teammates at the position
-  // (three receivers share a receiver's work, one back or tight end takes the rest), half his projection in all.
+  // Backups for anyone who might sit: Jev's pick when it named one, else the best-projected teammate at the position,
+  // who picks up the lens's next-man-up share of his projection in the draws where he sits (NEXT_MAN_UP_SHARE in
+  // dfs.ts: backs 25%, tight ends 20%). A receiver's work scatters across the room, so receivers get no backup.
   const byKey = new Map(players.map((p) => [p.key, p]));
   for (const p of players) {
-    if (p.pPlay >= 1 || p.pos === "DST" || p.pos === "QB") continue;
+    if (p.pPlay >= 1 || p.pos === "DST" || p.pos === "QB" || p.pos === "WR") continue;
     const pick = judged.get(p.key)?.beneficiaryId;
     const mates = players.filter((x) => x.team === p.team && x.pos === p.pos && x.key !== p.key).sort((a, b) => b.proj - a.proj);
-    const takers = pick && byKey.has(pick) ? [byKey.get(pick)!] : mates.slice(0, p.pos === "WR" ? 3 : 1);
-    if (takers.length) p.backups = takers.map((t) => ({ key: t.key, pts: round1((p.proj * NEXT_MAN_UP) / takers.length) }));
+    const takers = pick && byKey.has(pick) ? [byKey.get(pick)!] : mates.slice(0, 1);
+    if (takers.length) p.backups = takers.map((t) => ({ key: t.key, pts: round1(p.proj * NEXT_MAN_UP_SHARE[p.pos as "RB" | "TE"]) }));
   }
   assignRoles(players);
 

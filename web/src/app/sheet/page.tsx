@@ -58,7 +58,7 @@ export default async function SheetPage({ searchParams }: PageProps<"/sheet">) {
         <footer className="sheet-foot">
           <span>{sheet.notAPick} Elo, unit edges, and who is playing against the posted number, graded on the Record page after every final.</span>
           {part !== 2 && <span>{LEAN_BACKTEST_NOTE}</span>}
-          {part !== 1 && sheet.dfs.source && <span>{sheet.dfs.source}. DK pts scored from nflverse game lines with Classic rules (no two-point conversions). Proj = our average blended with last season (worth 3 games), times a quarter of the matchup factor, plus half of a new Out teammate&apos;s average. Value = proj per $1,000.</span>}
+          {part !== 1 && sheet.dfs.source && <span>{sheet.dfs.source}. DK pts scored from nflverse game lines with Classic rules (no two-point conversions). Proj = our average blended with last season (worth 3 games), times a quarter of the matchup factor, plus the next man up&apos;s share of an Out teammate&apos;s average (RB 25%, TE 20%, WR none). Value = proj per $1,000.</span>}
           <span>
             Schedule and lines from nflverse and The Odds API. Forecasts from the National Weather Service. Stats as of {sheet.statsAsOf ? sheet.statsAsOf.slice(0, 10) : "not available"}. Built {new Date(sheet.builtAt).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} ET.
           </span>

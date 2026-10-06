@@ -1,0 +1,100 @@
+{
+ "gameId": "401872980",
+ "season": 2026,
+ "generatedAt": "2026-10-06T13:32:22.002Z",
+ "provider": "anthropic",
+ "model": "claude-sonnet-5",
+ "ranker": "jev",
+ "status": "upcoming",
+ "evidenceVersion": "3cf753cc2f96",
+ "candidateCount": 12,
+ "top": [
+  {
+   "id": "PDAL1",
+   "kind": "player",
+   "title": "CeeDee Lamb (Cowboys WR, radar 89)",
+   "jev": 2.72,
+   "playerIds": [
+    "4241389"
+   ]
+  },
+  {
+   "id": "S2",
+   "kind": "situation",
+   "title": "thirdLongConv situation, Cowboys offense vs Buccaneers defense",
+   "jev": 2.25,
+   "playerIds": []
+  },
+  {
+   "id": "E2",
+   "kind": "edge",
+   "title": "Cowboys run game vs Buccaneers run defense (real defense edge)",
+   "jev": 2.14,
+   "playerIds": []
+  },
+  {
+   "id": "E3",
+   "kind": "edge",
+   "title": "Buccaneers passing-down offense vs Cowboys passing-down defense (real offense edge)",
+   "jev": 2.13,
+   "playerIds": []
+  },
+  {
+   "id": "E1",
+   "kind": "edge",
+   "title": "Buccaneers pass game vs Cowboys pass defense (clear defense edge)",
+   "jev": 2.12,
+   "playerIds": []
+  }
+ ],
+ "attempts": 1,
+ "attemptLog": [
+  []
+ ],
+ "usage": {
+  "inputTokens": 3181,
+  "outputTokens": 830,
+  "cacheReadTokens": 0,
+  "costUsd": 0.014662
+ },
+ "guide": {
+  "headline": "Cowboys lean on Lamb and third-and-long magic",
+  "hook": "Dallas has a top-1-percent receiver and a third-and-long offense that just does not fail, while Tampa Bay's defense has a real shot to break that streak.",
+  "items": [
+   {
+    "title": "CeeDee Lamb commands the field",
+    "what": "Lamb has 37 catches for 498 yards and four touchdowns this season on a 31 percent target share, putting him in the top 1 percent of NFL wide receivers. He is playing 81 percent of offensive snaps and holds a 44 percent air yards share, so the ball finds him whether it is a quick game or a shot play.",
+    "when": "Any third down or red zone snap when Dallas needs a chain-mover.",
+    "who": "CeeDee Lamb",
+    "whoPlayerId": "4241389",
+    "factIds": [
+     "PDAL1s",
+     "PDAL1l",
+     "PDAL1e1",
+     "PDAL1e4"
+    ]
+   },
+   {
+    "title": "Cowboys own third-and-long",
+    "what": "Dallas throws on 16 of 17 third-and-long snaps this season, a 94 percent rate, and converts 53 percent of them, best in the league at No. 1 of 31. Tampa Bay's defense allows just a 21 percent conversion rate there, No. 7 of 30 on 24 plays, so something has to give.",
+    "when": "Every third-and-7-or-more snap for Dallas.",
+    "who": "Cowboys offense",
+    "factIds": [
+     "S2"
+    ]
+   },
+   {
+    "title": "Buccaneers thrive when they should not",
+    "what": "Tampa Bay ranks 25th of 32 in passing-downs success at 31 percent, but Dallas ranks dead last, 32nd of 32, allowing 55 percent on those same downs. That is a 23 percentile point gap, and it means long down-and-distance is not the trap it should be for the Buccaneers.",
+    "when": "Buccaneers facing third-and-long or second-and-long.",
+    "who": "Buccaneers offense",
+    "factIds": [
+     "E3",
+     "E3e",
+     "E3w"
+    ]
+   }
+  ],
+  "cardLine": "Dallas converts third-and-long better than anyone in football, and CeeDee Lamb is the reason why."
+ }
+}

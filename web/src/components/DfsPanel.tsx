@@ -102,7 +102,7 @@ export async function DfsPanel({ game }: { game: Game }) {
       <p className="mt-3 max-w-3xl text-xs leading-relaxed text-chalk-3">
         {data.source ? `${data.source}. ` : ""}
         DK pts are scored from the nflverse game lines with DraftKings Classic rules (two-point conversions are not in the file).
-        Proj is our average blended with last season (worth 3 games), times a quarter of the matchup factor (DK points the opponent allows to the position against the league; backtests showed more weight hurt), plus half of a new Out or Doubtful teammate&apos;s average for the next man up.
+        Proj is our average blended with last season (worth 3 games), times a quarter of the matchup factor (DK points the opponent allows to the position against the league; backtests showed more weight hurt), plus a share of an Out or Doubtful teammate&apos;s average for the next man up (backs 25%, tight ends 20%, receivers none: backtested 2022 to 2025).
         {showdown ? " Showdown salaries run higher than Classic, so value here reads lower than on a Classic slate." : ""} Value is projected points per $1,000.
         {ranges.size > 0 ? " Floor, median, and ceiling are the 10th, 50th, and 90th percentiles of 10,000 simulations of the slate; lineups and the full board are on the DFS page." : ""} {NOT_A_PICK}
       </p>

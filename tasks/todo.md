@@ -1,6 +1,22 @@
 # WHERE WE LEFT OFF (kept current at every push)
 
-Last updated 2026-10-06, commit "Phase 10". ALL PHASES (1-11) BUILT AND PUSHED.
+Update 2026-10-06 afternoon, LIVE PC (Derek picked the live PC as the one that runs PM2 and the one we keep working on):
+- Merged: week 4 graded record and odds snapshots from the live PC (commit "Week 4 record from the live PC"), then
+  REFRESH=1 ingest (week 4 posted, 16 of 16), rebuild, PM2 restart. The other PC should pull before working again.
+- Game page: "The edge" box is "The gap" ("No gap"); the call strip no longer clips its info tips (overflow-hidden was
+  cutting the "i" popups to an empty sliver). Who to watch: storylines (revenge, homecoming, college ties) take a slot
+  only for QB, RB, WR (Derek's rule); defenders, linemen, and tight ends with one go in a small "Also:" line under it.
+- Next man up backtested (`npm run backtest:nextman`, data/backtest/nextman.json, 2022-2025): backups gained 28% of an
+  out back's average, 23% of a tight end's, ~0 of a receiver's (split three ways). The old flat half ran 1.8 points a
+  taker high. Now NEXT_MAN_UP_SHARE in dfs.ts (RB 0.25, TE 0.2, WR 0) for the lens and the simulator, new and repeat
+  absences alike; the gain is lopsided (median 6% at RB), so the why line calls it a tournament angle.
+- Primetime under backtested as a bet (`npm run backtest:primetime`, data/backtest/primetime.json, 1999-2026): 56.7% in
+  2019-2025 but 51.9% in 1999-2009, 48.5% in 2010-2018, 49.1% in 2024, 51.7% in 2025, 5-8 in 2026. Not a bet; the team
+  splits note on the game page now says so (primetimeBetNote in backtest-notes.ts).
+- Thursday (Bucs at Cowboys) watch guide written.
+- Derek is going through the game page section by section for flow; take his notes in order.
+
+Earlier: last updated 2026-10-06, commit "Phase 10". ALL PHASES (1-11) BUILT AND PUSHED.
 - DONE and pushed: game page read (Section 1), Phase 1 data (per-game snaps, history-games.json, play calling), Phase 2
   trends, info tips everywhere, Phase 3 work left open, Phase 4 player history, Phase 5 backtests (results below: no
   storyline passes; only a player's own home/away split carries over, weakly; primetime teams score 1.1 under the line).

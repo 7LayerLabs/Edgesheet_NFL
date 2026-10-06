@@ -653,7 +653,7 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
     prospects,
     matchups,
     keepAnEyeOn: eye,
-    whoToWatch: withBox ? await whoToWatch(raw, home, away, matchupPicks, sits, availability, venue, neutral).catch(() => undefined) : undefined,
+    ...(withBox ? await whoToWatch(raw, home, away, matchupPicks, sits, availability, venue, neutral).catch(() => ({})) : {}),
     storylines,
     offense: { [home.abbr]: profHome.off, [away.abbr]: profAway.off },
     defense: { [home.abbr]: profHome.def, [away.abbr]: profAway.def },
@@ -875,7 +875,7 @@ function starLine(p: GenPlayer, opp: string): string {
  * storylines (revenge game, homecoming, college ties, mixed by kind), then a role change (a starter just went out and
  * this player takes his work); with none, the next top skill player. Nobody who is expected to sit.
  */
-async function whoToWatch(raw: GenGame, home: Team, away: Team, matchupPicks: Prospect[], sits: (id: string) => boolean, availability: GameAvailability | undefined, venue: Venue | undefined, neutral: boolean): Promise<Game["whoToWatch"]> {
+async function whoToWatch(raw: GenGame, home: Team, away: Team, matchupPicks: Prospect[], sits: (id: string) => boolean, availability: GameAvailability | undefined, venue: Venue | undefined, neutral: boolean): Promise<Pick<Game, "whoToWatch" | "storyNotes">> {
   const abbrOf = (team: string) => (team === raw.home ? home.abbr : away.abbr);
   const oppOf = (team: string) => (team === raw.home ? raw.away : raw.home);
   const byId = new Map(genPlayers().map((p) => [p.id, p]));
@@ -905,8 +905,15 @@ async function whoToWatch(raw: GenGame, home: Team, away: Team, matchupPicks: Pr
   const prominence = (p: GenPlayer) => Math.max(p.u?.o ?? 0, p.u?.d ?? 0) + (skill.includes(p) ? 0.5 : 0);
   // A storyline needs a player who is on the field: 30% of his side's snaps or more.
   const candidates = roster.filter((p) => !used.has(p.id) && Math.max(p.u?.o ?? 0, p.u?.d ?? 0) >= 0.3).sort((a, b) => prominence(b) - prominence(a));
-  const stories = await gameStories({ home: raw.home, away: raw.away, neutral, season: raw.season, venue: venue ? { city: venue.city, state: venue.state } : undefined, candidates, max: TIER3 }).catch(() => []);
+  // Derek's rule: a storyline earns a slot only for the quarterback, backs, and receivers, the players whose game moves
+  // the score. Defenders, linemen, and tight ends with a storyline get one footnote line under the list instead.
+  // Sequential on purpose: both calls read and write the ESPN bio cache.
+  const STORY_POS = new Set(["QB", "RB", "WR"]);
+  const storyArgs = { home: raw.home, away: raw.away, neutral, season: raw.season, venue: venue ? { city: venue.city, state: venue.state } : undefined };
+  const stories = await gameStories({ ...storyArgs, candidates: candidates.filter((p) => STORY_POS.has(p.pg ?? "")), max: TIER3 }).catch(() => []);
   for (const st of stories) add({ id: st.id, name: st.name, pos: st.pos, team: abbrOf(st.team), label: st.label, reason: st.text, detail: detailOf(st.id) });
+  const others = await gameStories({ ...storyArgs, candidates: candidates.filter((p) => !STORY_POS.has(p.pg ?? "")), max: 4 }).catch(() => []);
+  const storyNotes = others.map((st) => ({ id: st.id, name: st.name, pos: st.pos, team: abbrOf(st.team), label: st.label, text: st.text }));
   // A role change: a back, receiver, or tight end who played the last game is out now. The teammate who gained the most
   // in the games he missed (src/lib/vacated.ts) steps in; with no such games, his busiest healthy teammate at the position.
   let tier3 = stories.length;
@@ -934,5 +941,5 @@ async function whoToWatch(raw: GenGame, home: Team, away: Team, matchupPicks: Pr
     const next = skill.find((p) => !used.has(p.id));
     if (next) add({ id: next.id, name: next.n, pos: next.p ?? next.pg ?? "", team: abbrOf(next.t), label: "Top player", reason: starLine(next, oppOf(next.t)), detail: detailLine(next) || undefined });
   }
-  return out;
+  return { whoToWatch: out, storyNotes: storyNotes.filter((n) => !used.has(n.id)) };
 }

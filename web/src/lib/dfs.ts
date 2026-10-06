@@ -16,7 +16,7 @@
  * Projection (shown as "proj"): our average, blended with last season's per-game line at
  * weight 3 / (games + 3), times a quarter of the matchup factor (DK points the
  * opponent allows to the position against the league average, capped 0.7 to 1.35),
- * plus half of an Out or Doubtful teammate's average handed to the next man up.
+ * plus the next man up's share of an Out or Doubtful teammate's average (NEXT_MAN_UP_SHARE: RB 25%, TE 20%, WR none).
  *
  * Defenses (DST): src/lib/dst.ts, from the defense's and the opponent's sack and turnover rates and the market's implied
  * opponent total (backtested in scripts/build-dfs-sim.mjs).
@@ -64,6 +64,13 @@ const round1 = (x: number) => Math.round(x * 10) / 10;
 /** Backtest fits (scripts/backtest-dfs.mjs): last season counts as 3 games; the matchup factor at a quarter (half was worse than none). */
 const PRIOR_GAMES = 3;
 const MATCHUP_WEIGHT = 0.25;
+/**
+ * Share of an Out player's DK average the next man up gains, by position. scripts/backtest-nextman.mjs on 2022 to 2025
+ * (595 new absences, 303 repeat): backups gained 28% of a back's average (35% on a second straight absence), 23% of a
+ * tight end's, and 3% of a receiver's split three ways, i.e. nothing. The old flat half ran 1.8 points a taker too high.
+ * The gain is lopsided (median 6% at RB): most weeks little, some weeks a breakout, so it is a tournament angle, not cash.
+ */
+export const NEXT_MAN_UP_SHARE: Record<DkPos, number> = { QB: 0, RB: 0.25, TE: 0.2, WR: 0 };
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 const pct = (x: number | undefined | null) => (x == null ? undefined : Math.round(x * 100));
 const ordinal = (n: number) => `No. ${n}`;
@@ -413,10 +420,10 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
     const dkByName = new Map(dkRows.map((r) => [nameKey(r.name), r]));
     const rosterByName = new Map(roster.map((p) => [nameKey(p.n), p]));
 
-    // Out or Doubtful skill players with a real role: half their production goes to the next man up,
-    // but only when the absence is new (he played the team's last game). When he already sat, the
-    // backup's average already carries the bigger role, so the note stays and the points do not.
-    // A quarterback never adds points: the backup's own average is the projection.
+    // Out or Doubtful skill players with a real role: the next man up gets a share of his average, by position
+    // (NEXT_MAN_UP_SHARE: backs 25%, tight ends 20%, receivers nothing), whether the absence is new or not.
+    // A quarterback never adds points: the backup's own average is the projection, and the bump only marks him
+    // as the starter.
     const teamLastWk = Math.max(0, ...roster.map((p) => season.get(p.id)?.lines.at(-1)?.wk ?? 0));
     const bumps = new Map<string, DfsPlay["bump"]>();
     for (const pos of DK_POS) {
@@ -426,12 +433,13 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
         const sd = season.get(p.id);
         if (!isOut(st) || !sd || sd.avg < 6) continue;
         vacancies.push({ team: team.short, name: p.n, pos, status: st!, avg: sd.avg });
+        if (pos === "WR") continue; // a receiver's targets scatter: no measured lift for any one teammate
         const active = group
           .filter((q) => q.id !== p.id && !isOut(statusAt(q, dkByName.get(nameKey(q.n)))) && dkByName.has(nameKey(q.n)))
           .sort((a, b) => (a.dc?.rank ?? 99) - (b.dc?.rank ?? 99) || (b.u?.o ?? 0) - (a.u?.o ?? 0));
-        const takers = pos === "WR" ? active.slice(0, 3) : active.slice(0, 1);
+        const takers = active.slice(0, 1);
         const fresh = (sd.lines.at(-1)?.wk ?? 0) >= teamLastWk;
-        const share = takers.length && fresh && pos !== "QB" ? round1((sd.avg * 0.5) / takers.length) : 0;
+        const share = takers.length && pos !== "QB" ? round1(sd.avg * NEXT_MAN_UP_SHARE[pos]) : 0;
         for (const q of takers) {
           const prev = bumps.get(q.id);
           bumps.set(q.id, prev && prev.pts >= share ? prev : { from: p.n, status: st!, pts: share, fresh });
@@ -475,7 +483,7 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
         if (allowed.rank <= 10) bits.push(`${opp.short} allow ${allowed.perGame} DK pts a game to ${POS_WORD[pos]}, ${ordinal(allowed.rank)} most`);
         else if (allowed.rank >= 23) bits.push(`${opp.short} allow ${allowed.perGame} DK pts a game to ${POS_WORD[pos]}, ${ordinal(33 - allowed.rank)} fewest`);
       }
-      if (bump) bits.push(pos === "QB" ? `starts for ${bump.from} (${bump.status})` : bump.pts ? `${bump.from} is ${bump.status}: +${bump.pts} for the next man up` : `${bump.from} is ${bump.status} again (also missed the last game)`);
+      if (bump) bits.push(pos === "QB" ? `starts for ${bump.from} (${bump.status})` : `${bump.from} is ${bump.status}: +${bump.pts} for the next man up, a tournament angle (backups usually gain little, sometimes a lot)`);
       if (st) bits.push(st);
 
       const market = pos === "QB" ? "player_pass_yds" : pos === "RB" ? "player_rush_yds" : "player_reception_yds";

@@ -1,0 +1,294 @@
+{
+  "builtAt": "2026-10-06T13:38:13.640Z",
+  "seasons": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "fresh": [
+    {
+      "kind": "fresh",
+      "k": 0,
+      "takerGames": 1244,
+      "mae": 5.681,
+      "bias": -0.841
+    },
+    {
+      "kind": "fresh",
+      "k": 0.25,
+      "takerGames": 1244,
+      "mae": 5.842,
+      "bias": 0.491
+    },
+    {
+      "kind": "fresh",
+      "k": 0.5,
+      "takerGames": 1244,
+      "mae": 6.226,
+      "bias": 1.823
+    },
+    {
+      "kind": "fresh",
+      "k": 0.75,
+      "takerGames": 1244,
+      "mae": 6.827,
+      "bias": 3.155
+    },
+    {
+      "kind": "fresh",
+      "k": 1,
+      "takerGames": 1244,
+      "mae": 7.592,
+      "bias": 4.487
+    }
+  ],
+  "repeat": [
+    {
+      "kind": "repeat",
+      "k": 0,
+      "takerGames": 619,
+      "mae": 5.556,
+      "bias": -0.775
+    },
+    {
+      "kind": "repeat",
+      "k": 0.25,
+      "takerGames": 619,
+      "mae": 5.752,
+      "bias": 0.575
+    },
+    {
+      "kind": "repeat",
+      "k": 0.5,
+      "takerGames": 619,
+      "mae": 6.176,
+      "bias": 1.925
+    },
+    {
+      "kind": "repeat",
+      "k": 0.75,
+      "takerGames": 619,
+      "mae": 6.782,
+      "bias": 3.275
+    },
+    {
+      "kind": "repeat",
+      "k": 1,
+      "takerGames": 619,
+      "mae": 7.503,
+      "bias": 4.625
+    }
+  ],
+  "capture": [
+    {
+      "kind": "fresh",
+      "pos": "RB",
+      "absences": 166,
+      "meanCapture": 0.279,
+      "medianCapture": 0.057
+    },
+    {
+      "kind": "fresh",
+      "pos": "WR",
+      "absences": 335,
+      "meanCapture": 0.026,
+      "medianCapture": -0.011
+    },
+    {
+      "kind": "fresh",
+      "pos": "TE",
+      "absences": 94,
+      "meanCapture": 0.227,
+      "medianCapture": 0.007
+    },
+    {
+      "kind": "repeat",
+      "pos": "RB",
+      "absences": 94,
+      "meanCapture": 0.345,
+      "medianCapture": 0.028
+    },
+    {
+      "kind": "repeat",
+      "pos": "WR",
+      "absences": 159,
+      "meanCapture": -0.003,
+      "medianCapture": -0.116
+    },
+    {
+      "kind": "repeat",
+      "pos": "TE",
+      "absences": 50,
+      "meanCapture": 0.171,
+      "medianCapture": 0.109
+    }
+  ],
+  "fit": {
+    "shares": {
+      "RB": 0.25,
+      "TE": 0.2,
+      "WR": 0
+    },
+    "byPos": [
+      {
+        "kind": "fresh",
+        "pos": "WR",
+        "takerGames": 984,
+        "maeNoBump": 5.809,
+        "maeFit": 5.809,
+        "biasFit": -0.271
+      },
+      {
+        "kind": "fresh",
+        "pos": "RB",
+        "takerGames": 166,
+        "maeNoBump": 5.962,
+        "maeFit": 6.073,
+        "biasFit": -0.564
+      },
+      {
+        "kind": "fresh",
+        "pos": "TE",
+        "takerGames": 94,
+        "maeNoBump": 3.845,
+        "maeFit": 4.132,
+        "biasFit": -0.053
+      },
+      {
+        "kind": "repeat",
+        "pos": "WR",
+        "takerGames": 475,
+        "maeNoBump": 5.533,
+        "maeFit": 5.533,
+        "biasFit": -0.123
+      },
+      {
+        "kind": "repeat",
+        "pos": "RB",
+        "takerGames": 94,
+        "maeNoBump": 6.483,
+        "maeFit": 6.787,
+        "biasFit": -0.614
+      },
+      {
+        "kind": "repeat",
+        "pos": "TE",
+        "takerGames": 50,
+        "maeNoBump": 4.023,
+        "maeFit": 4.041,
+        "biasFit": 0.178
+      }
+    ]
+  },
+  "samples": [
+    {
+      "season": 2022,
+      "week": 12,
+      "team": "TB",
+      "out": "Leonard Fournette",
+      "pos": "RB",
+      "outAvg": 15.9,
+      "takers": "Rachaad White 6.4 -> 19.9"
+    },
+    {
+      "season": 2022,
+      "week": 18,
+      "team": "TB",
+      "out": "Mike Evans",
+      "pos": "WR",
+      "outAvg": 15.6,
+      "takers": "Chris Godwin Jr. 15.6 -> 10.5, Russell Gage 9.3 -> 10.5, Julio Jones 7 -> 0"
+    },
+    {
+      "season": 2022,
+      "week": 7,
+      "team": "ARI",
+      "out": "Marquise Brown",
+      "pos": "WR",
+      "outAvg": 18.8,
+      "takers": "Rondale Moore 9.2 -> 4.1, A.J. Green 3.1 -> 0, Greg Dortch 7.9 -> 7.6"
+    },
+    {
+      "season": 2022,
+      "week": 17,
+      "team": "ARI",
+      "out": "DeAndre Hopkins",
+      "pos": "WR",
+      "outAvg": 17.6,
+      "takers": "Marquise Brown 14.5 -> 12.1, Greg Dortch 7.4 -> 5.5, Andy Isabella 2.1 -> 0.1"
+    },
+    {
+      "season": 2022,
+      "week": 18,
+      "team": "ARI",
+      "out": "James Conner",
+      "pos": "RB",
+      "outAvg": 15.7,
+      "takers": "Eno Benjamin 8.4 -> 0.3"
+    },
+    {
+      "season": 2022,
+      "week": 8,
+      "team": "SF",
+      "out": "Deebo Samuel Sr.",
+      "pos": "WR",
+      "outAvg": 14.9,
+      "takers": "Brandon Aiyuk 13 -> 20.1, Jauan Jennings 4.6 -> 0, Danny Gray 0 -> 0"
+    },
+    {
+      "season": 2022,
+      "week": 15,
+      "team": "SF",
+      "out": "Deebo Samuel Sr.",
+      "pos": "WR",
+      "outAvg": 14.1,
+      "takers": "Brandon Aiyuk 13.5 -> 3.9, Jauan Jennings 5.3 -> 6.1, Danny Gray 0.5 -> 0"
+    },
+    {
+      "season": 2022,
+      "week": 8,
+      "team": "GB",
+      "out": "Allen Lazard",
+      "pos": "WR",
+      "outAvg": 14.5,
+      "takers": "Romeo Doubs 8.8 -> 16.2, Sammy Watkins 7.6 -> 1.3, Samori Toure 1.4 -> 10.7"
+    },
+    {
+      "season": 2022,
+      "week": 3,
+      "team": "NE",
+      "out": "Jakobi Meyers",
+      "pos": "WR",
+      "outAvg": 14.4,
+      "takers": "Nelson Agholor 15.4 -> 5.1, DeVante Parker 1 -> 23.6, Kendrick Bourne 4.4 -> 9.8"
+    },
+    {
+      "season": 2022,
+      "week": 16,
+      "team": "IND",
+      "out": "Jonathan Taylor",
+      "pos": "RB",
+      "outAvg": 14.1,
+      "takers": "Deon Jackson 7.1 -> 3.9"
+    },
+    {
+      "season": 2022,
+      "week": 8,
+      "team": "NYJ",
+      "out": "Breece Hall",
+      "pos": "RB",
+      "outAvg": 17.4,
+      "takers": "Michael Carter 10 -> 10.1"
+    },
+    {
+      "season": 2022,
+      "week": 9,
+      "team": "BAL",
+      "out": "Mark Andrews",
+      "pos": "TE",
+      "outAvg": 15.9,
+      "takers": "Isaiah Likely 5.7 -> 9.4"
+    }
+  ]
+}

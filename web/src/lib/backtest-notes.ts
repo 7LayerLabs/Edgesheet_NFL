@@ -82,11 +82,38 @@ export function splitsNotes(group: "players" | "teams" | "defenses"): string[] {
       if (!(lw.ci[0] > 0 || lw.ci[1] < 0) || !WHERE[k]) continue;
       const [inS, outS] = WHERE[k];
       const who = group === "teams" ? "teams" : "defenses";
-      const what = group === "teams" ? `${Math.abs(lw.diff).toFixed(1)} ${lw.diff > 0 ? "more" : "fewer"} points against the closing line than ${outS} (not tested against the vig)` : `${Math.abs(lw.diff).toFixed(1)} ${lw.diff > 0 ? "more" : "fewer"} DK points than ${outS}`;
-      out.push(`League-wide, ${who} ${inS} scored ${what}.`);
+      const bet = group === "teams" && k === "primetime" ? primetimeBetNote() : undefined;
+      const what = group === "teams" ? `${Math.abs(lw.diff).toFixed(1)} ${lw.diff > 0 ? "more" : "fewer"} points against the closing line than ${outS}${bet ? "" : " (not tested against the vig)"}` : `${Math.abs(lw.diff).toFixed(1)} ${lw.diff > 0 ? "more" : "fewer"} DK points than ${outS}`;
+      out.push(`League-wide, ${who} ${inS} scored ${what}.${bet ? ` ${bet}` : ""}`);
     }
   }
   return out;
+}
+
+interface PrimetimeEra { seasons: string; window: string; underRate: number; roi: number }
+interface Primetime { breakEven: number; eras: PrimetimeEra[]; bySeason: { season: number; underRate: number; games: number }[] }
+
+/**
+ * The primetime under as a bet (scripts/backtest-primetime.mjs, data/backtest/primetime.json): the hit rate by era
+ * against the break-even, and the last two full seasons, so the 2019-2025 average is not read as a standing edge.
+ */
+export function primetimeBetNote(): string | undefined {
+  const p = load<Primetime>("primetime.json");
+  if (!p) return undefined;
+  // One decimal: 51.9% and the 52.4% break-even must not both read "52%".
+  const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
+  const era = (s: string) => p.eras.find((e) => e.seasons === s && e.window === "primetime");
+  const a = era("1999-2009");
+  const b = era("2010-2018");
+  const c = era("2019-2025");
+  if (!a || !b || !c) return undefined;
+  const full = p.bySeason.filter((s) => s.games >= 40).slice(-2);
+  const recent = full.map((s) => `${pct(s.underRate)} in ${s.season}`).join(" and ");
+  const now = p.bySeason.find((s) => s.games < 40);
+  const lead = `Betting the under in every primetime game hit ${pct(c.underRate)} in 2019-2025`;
+  const past = `but ${pct(a.underRate)} in 1999-2009 and ${pct(b.underRate)} in 2010-2018`;
+  const lately = `${recent}${now ? `, ${pct(now.underRate)} so far in ${now.season} (${now.games} games)` : ""}`;
+  return `${lead}, ${past}, and ${lately}, against ${pct(p.breakEven)} to break even: a stretch the market has caught up to, not a bet.`;
 }
 
 /** The backtest line for history against one opponent. */

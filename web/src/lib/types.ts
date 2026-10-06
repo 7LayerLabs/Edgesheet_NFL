@@ -240,6 +240,8 @@ export interface Game {
    * player, and the best storyline (revenge game, homecoming, college ties), else a role change, else the next top player.
    */
   whoToWatch?: { id: string; name: string; pos: string; team: string; label?: string; reason: string; detail?: string }[];
+  /** Storylines (revenge, homecoming, college ties) for players outside QB, RB, WR: a footnote under Who to watch, not a slot. */
+  storyNotes?: { id: string; name: string; pos: string; team: string; label: string; text: string }[];
   /** Who is actually playing, priced in points (src/lib/availability.ts): ESPN injuries, the official report, roster moves. */
   availability?: import("./availability").GameAvailability;
   /** Standings context: "Winner takes first in the AFC North" and the like. */
