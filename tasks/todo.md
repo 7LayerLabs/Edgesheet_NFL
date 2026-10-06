@@ -1,5 +1,20 @@
 # WHERE WE LEFT OFF (kept current at every push)
 
+Latest, 2026-10-06 night, LIVE PC: Leaders page and efficiency, built off Derek's TruMedia screenshot (rush success%).
+- /leaders (nav after DFS): passing, rushing, receiving, team offense/defense boards from nflverse play-by-play
+  (scripts/ingest-leaders.mjs + scripts/lib/leaders-agg.mjs, chained into ingest and prebuild; data/generated/
+  leaders.json, genLeaders). EPA, success (EPA above zero, nflfastR models, so it differs from TruMedia; yards,
+  carries, TDs match), explosive/negative/stuffed, short-yardage, CPOE, aDOT, target/air share, YACOE, pressure to
+  sack, PROE, early-down EPA. Sortable, team filter, qualified toggle, 2026 and 2025, glossary per tab. Routes run are
+  not in free data, so YPRR/TPRR are replaced by yards per offensive snap (120+ snaps, games with snap data only).
+- Ranks on player pages (AdvancedPanel efficiency rows) and one efficiency line in the DK why lines (efficiencyLine).
+- Backtest (npm run backtest:efficiency, data/backtest/efficiency.json, 2022-2025): first-half rush success barely
+  predicts second-half DK points for backs (r 0.05; YPC 0.33, DK pts a game 0.59); adding efficiency to the DK
+  projection did not lower test MAE (RB 6.629 to 6.628, WR/TE and QB best k = 0). QB EPA a dropback is the stickiest
+  (0.52 with second-half DK). Verdict: context only, not in the projection; the Leaders page says so.
+- Open: the game page unit-matchup blurbs say "A real edge, not a lock" (src/lib/tendencies.ts meaning()); that is an
+  on-field mismatch label, not a betting lean, but Derek's rule bans "edge" without a 52.4% backtest. Ask him.
+
 Latest, 2026-10-06 afternoon, LIVE PC (this PC runs the site and the PM2 jobs; pull before working on the other PC):
 - Game page (commit 2295ed9), Derek's rules: the page is for betting.
   - Injuries is the first fold (src/lib/injuries.ts, InjuryReport.tsx): ESPN's live list merged with the latest official

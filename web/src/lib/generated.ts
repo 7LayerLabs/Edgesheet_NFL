@@ -266,3 +266,14 @@ export interface GenTrade { date: string; season: number; items: { from: string;
 export interface GenExtras { asOf: string; season: number; players: Record<string, GenExtraPlayer>; moves: GenMove[]; trades: GenTrade[]; sources: Record<string, boolean> }
 export const genExtras = (): GenExtras | undefined => memoSync(`gen:extras:${stamp("extras.json")}`, 3600, () => readJson<GenExtras | undefined>("extras.json", undefined));
 export const extrasStamp = () => stamp("extras.json");
+
+/** Leaders boards from play-by-play (scripts/ingest-leaders.mjs): rushing, receiving, passing, teams, this season and last. */
+export interface LeaderBase { id: string; name: string; team: string; pos: string; games: number; qualified: boolean; rank?: Record<string, number>; of?: Record<string, number> }
+export interface RushLeader extends LeaderBase { att: number; yds: number; ypc?: number; td: number; epa?: number; epaPer?: number; succ?: number; expl?: number; stuff?: number; fd: number; sy?: string; syPct?: number; ybc?: number; ryoe?: number }
+export interface RecLeader extends LeaderBase { tgt: number; rec: number; yds: number; td: number; epa?: number; epaPer?: number; succ?: number; catchPct?: number; adot?: number; tgtShare?: number; airShare?: number; yacoe?: number; fd: number; rz: number; deep: number; ydsSnap?: number; sep?: number }
+export interface PassLeader extends LeaderBase { db: number; att: number; cmp: number; yds: number; td: number; int: number; sk: number; epa?: number; epaPer?: number; succ?: number; cpoe?: number; adot?: number; sackRate?: number; expl?: number; neg?: number; scr: number; scrEpa?: number; pressured?: number; p2s?: number }
+export interface TeamSide { plays: number; epaPer?: number; succ?: number; expl?: number; neg?: number; dbEpa?: number; rushEpa?: number; rushSucc?: number; earlyEpa?: number; sackRate?: number; hitRate?: number; proe?: number; rank?: Record<string, number> }
+export interface TeamLeader { code: string; team: string; games?: number; off: TeamSide; def: TeamSide }
+export interface LeaderBoard { season: number; teamGames: number; rushing: RushLeader[]; receiving: RecLeader[]; passing: PassLeader[]; teams: TeamLeader[] }
+export interface GenLeaders { asOf: string; seasons: number[]; boards: Record<string, LeaderBoard> }
+export const genLeaders = (): GenLeaders | undefined => memoSync(`gen:leaders:${stamp("leaders.json")}`, 3600, () => readJson<GenLeaders | undefined>("leaders.json", undefined));

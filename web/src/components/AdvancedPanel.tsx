@@ -1,4 +1,5 @@
 import { genExtras, genPlayers, type GenExtraPlayer } from "@/lib/generated";
+import { leaderRows } from "@/lib/leaders";
 
 const r1 = (x: number) => Math.round(x * 10) / 10;
 const pct = (x: number) => `${Math.round(x * 100)}%`;
@@ -58,11 +59,32 @@ export function AdvancedPanel({ id }: { id: string }) {
   );
 }
 
-function rowsFor(e: GenExtraPlayer, pg: string, y: number, pl: { s: Record<string, number> | null; ps: Record<string, number> | null }): Row[] {
+function rowsFor(e: GenExtraPlayer, pg: string, y: number, pl: { id: string; s: Record<string, number> | null; ps: Record<string, number> | null }): Row[] {
+  const id = pl.id;
   const rows: Row[] = [];
   const both = (f: (season: number) => string | undefined) => ({ now: f(y), last: f(y - 1) });
   const adv = (s: number) => e.adv?.[String(s)];
   const ngs = (s: number) => e.ngs?.[String(s)];
+
+  // Efficiency from play-by-play (the Leaders boards), with his rank among qualified players at the job.
+  const L = (s: number) => leaderRows(id, s);
+  const withRank = (v: number | undefined, r: { rank?: Record<string, number>; of?: Record<string, number> } | undefined, k: string, fmt: (x: number) => string) =>
+    v === undefined ? undefined : `${fmt(v)}${r?.rank?.[k] && r.of?.[k] ? ` · No. ${r.rank[k]} of ${r.of[k]}` : ""}`;
+  const sgn = (x: number) => `${x > 0 ? "+" : ""}${x.toFixed(2)}`;
+  if (pg === "QB") {
+    rows.push({ label: "EPA a dropback", note: "Value per dropback, sacks and scrambles in", ...both((s) => withRank(L(s).pass?.epaPer, L(s).pass, "epaPer", sgn)) });
+    rows.push({ label: "Success rate", ...both((s) => withRank(L(s).pass?.succ, L(s).pass, "succ", (x) => `${x}%`)) });
+    rows.push({ label: "Explosive / negative plays", ...both((s) => (L(s).pass ? `${L(s).pass!.expl ?? 0}% / ${L(s).pass!.neg ?? 0}%` : undefined)) });
+  } else if (pg === "RB") {
+    rows.push({ label: "Rush success rate", note: "Carries that left the offense better off", ...both((s) => withRank(L(s).rush?.succ, L(s).rush, "succ", (x) => `${x}%`)) });
+    rows.push({ label: "EPA a carry", ...both((s) => withRank(L(s).rush?.epaPer, L(s).rush, "epaPer", sgn)) });
+    rows.push({ label: "Explosive (10+) / stuffed", ...both((s) => (L(s).rush ? `${L(s).rush!.expl ?? 0}% / ${L(s).rush!.stuff ?? 0}%` : undefined)) });
+  }
+  if (pg === "WR" || pg === "TE" || pg === "RB") {
+    rows.push({ label: "EPA a target", ...both((s) => withRank(L(s).rec?.epaPer, L(s).rec, "epaPer", sgn)) });
+    rows.push({ label: "Target share / air-yards share", ...both((s) => (L(s).rec?.tgtShare !== undefined ? `${L(s).rec!.tgtShare}% / ${L(s).rec!.airShare ?? 0}%` : undefined)) });
+    if (pg !== "RB") rows.push({ label: "Depth of target (aDOT)", ...both((s) => (L(s).rec?.adot !== undefined ? `${L(s).rec!.adot} yds` : undefined)) });
+  }
 
   // Usage against scoring, same scoring on both sides (PPR, no DraftKings bonuses).
   if (e.xfp?.length) {

@@ -30,6 +30,7 @@ import { nflTeams, etDateOf, type NflTeam } from "./nfl";
 import { findOddsFile, type PropRow } from "./odds";
 import { absenceOf, espnInjuries, playerStatus, statusClock, type EspnInjury, type StatusClock } from "./availability";
 import { dstProjection, impliedTotals } from "./dst";
+import { efficiencyLine } from "./leaders";
 
 export type DkPos = "QB" | "RB" | "WR" | "TE";
 const DK_POS: DkPos[] = ["QB", "RB", "WR", "TE"];
@@ -577,6 +578,8 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
         if (gap >= 3) bits.push(`scoring ${gap} a game above what his usage is worth (${usage.now}), the kind of gap touchdowns tend to close`);
         else if (gap <= -3) bits.push(`his usage is worth ${usage.now} a game, ${Math.abs(gap)} more than he has scored`);
       }
+      const eff = p ? efficiencyLine(p.id, pos) : undefined;
+      if (eff) bits.push(eff);
       const adv = p ? advPhrase(p.id, pos) : undefined;
       if (adv) bits.push(adv);
       else if (prior !== undefined) bits.push(`${round1(prior)} DK pts a game last season, no 2026 line yet`);
