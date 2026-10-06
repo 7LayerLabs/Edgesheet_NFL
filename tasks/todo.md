@@ -1,12 +1,13 @@
 # WHERE WE LEFT OFF (kept current at every push)
 
-Last updated 2026-10-06, commit "Phase 6". Derek's instruction: finish the rest and push as soon as it is done.
+Last updated 2026-10-06, commit "Phase 7". Derek's instruction: finish the rest and push as soon as it is done.
 - DONE and pushed: game page read (Section 1), Phase 1 data (per-game snaps, history-games.json, play calling), Phase 2
   trends, info tips everywhere, Phase 3 work left open, Phase 4 player history, Phase 5 backtests (results below: no
   storyline passes; only a player's own home/away split carries over, weakly; primetime teams score 1.1 under the line).
 - DONE and pushed since: Phase 11 (DraftKings Our price, Safest/Upside value lists, graded record); Phase 6 (splits on
-  the player page and a Splits section on the game page, with the backtest verdicts).
-- LEFT, in this order: Phase 7 (defense vs position table), Phase 8 (slate home: team totals, values, weather, total bands, Main/Showdown filters), Phase 9 (sleepers by
+  the player page and a Splits section on the game page, with the backtest verdicts); Phase 7 (DraftKings points allowed
+  table in Matchups).
+- LEFT, in this order: Phase 8 (slate home: team totals, values, weather, total bands, Main/Showdown filters), Phase 9 (sleepers by
   beat buzz), Phase 10 (single-entry lineup). Then the section-by-section review resumes at the Matchups fold.
 - KNOWN: nflverse had not posted week 4 snap counts (re-run `npm run ingest` to fill them); the dev server on :3100 was
   stopped by Claude Code for low memory on 2026-10-06 and not restarted; memoSync results live on globalThis, so restart
@@ -185,8 +186,11 @@ or defense split carried over; league-wide, primetime teams 1.1 under the line (
 +0.7 at home against a division rival. Example: Steelers D at home against the division 11.0 DK in 22 games vs 7.0.
 
 ### Phase 7: defense vs position, extended
-- [ ] 7.1 DK points allowed to QB/RB/WR/TE this season and over the last four weeks, with rank, as a small table in the
+- [x] 7.1 DK points allowed to QB/RB/WR/TE this season and over the last four weeks, with rank, as a small table in the
       Matchups section for both defenses.
+      Notes (2026-10-06, pushed): dfs.ts defenseVsPosition(lastN) (season by default, as the DFS projection uses it; a
+      game without a final score no longer counts in the sums either, matching the divisor); "DraftKings points allowed"
+      table in Matchups with ranks (No. 1 = most allowed); the last-4 column appears once a defense has played 5+ games.
 
 ### Phase 8: slate home page
 - [ ] 8.1 Implied team totals on each card (dst.ts impliedTotals) and a "Highest team totals" strip.

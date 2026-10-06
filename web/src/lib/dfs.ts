@@ -227,23 +227,28 @@ export interface PosAllowed {
   games: number;
 }
 
-/** DK points each defense allows per game to QB, RB, WR, TE, from the game lines of the players who faced it. */
-export const defenseVsPosition = () =>
-  memoSync(`dfs:dvp:${gamelogsStamp()}`, 3600, () => {
+/**
+ * DK points each defense allows per game to QB, RB, WR, TE, from the game lines of the players who faced it. With
+ * `lastN`, only each defense's last N regular-season games (the game page's "last 4" column).
+ */
+export const defenseVsPosition = (lastN?: number) =>
+  memoSync(`dfs:dvp:${lastN ?? "season"}:${gamelogsStamp()}`, 3600, () => {
     const logs = genGamelogs();
     const players = new Map(genPlayers().map((p) => [p.id, p]));
     const sums = new Map<string, Record<DkPos, number>>();
     const games = new Map<string, Set<string>>();
     if (logs) {
+      const byTeam = new Map<string, { gid: string; wk: number }[]>();
       for (const [gid, g] of Object.entries(logs.games)) {
         if (g.st !== "regular" || g.hp == null) continue;
-        for (const t of [g.home, g.away]) games.set(t, (games.get(t) ?? new Set()).add(gid));
+        for (const t of [g.home, g.away]) (byTeam.get(t) ?? byTeam.set(t, []).get(t)!).push({ gid, wk: g.wk });
       }
+      for (const [t, gs] of byTeam) games.set(t, new Set(gs.sort((a, b) => a.wk - b.wk).slice(lastN ? -lastN : 0).map((x) => x.gid)));
       for (const [id, lines] of Object.entries(logs.players)) {
         const pg = players.get(id)?.pg as DkPos | undefined;
         if (!pg || !DK_POS.includes(pg)) continue;
         for (const l of lines) {
-          if (l.st !== "regular") continue;
+          if (l.st !== "regular" || !games.get(l.opp)?.has(l.g)) continue;
           const row = sums.get(l.opp) ?? { QB: 0, RB: 0, WR: 0, TE: 0 };
           row[pg] += dkPoints(l.s);
           sums.set(l.opp, row);

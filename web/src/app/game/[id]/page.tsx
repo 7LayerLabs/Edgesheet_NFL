@@ -33,6 +33,7 @@ import { vacatedFor } from "@/lib/vacated";
 import { splitsNotes, storiesSummary } from "@/lib/backtest-notes";
 import { dstSplits, teamSplits } from "@/lib/splits";
 import { SplitsTable } from "@/components/SplitsTable";
+import { defenseVsPosition } from "@/lib/dfs";
 import { teamByShort } from "@/lib/nfl";
 import { absentWords } from "@/lib/availability";
 import { inputsLabel, LEAN_BACKTEST_NOTE, sideTier, tierLabel, totalTier } from "@/lib/leans";
@@ -229,6 +230,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
         ) : (
           <p className="text-base text-chalk-3">{game.pressurePoint}</p>
         )}
+        <DvpTable game={game} />
         {game.projection && <ProjectionBox game={game} />}
       </Fold>
 
@@ -864,6 +866,59 @@ function TeamName({ t, score }: { t: Team; score?: number }) {
 }
 
 /** A collapsible report section: closed, it costs one line and its summary still says something. */
+/** DraftKings points each defense allows a game to each position, this season and over its last four games, with rank. */
+function DvpTable({ game }: { game: Game }) {
+  const season = defenseVsPosition();
+  const recent = defenseVsPosition(4);
+  const sides = [game.away, game.home].filter((t) => season.table.has(t.short));
+  if (!sides.length) return null;
+  const POS = ["QB", "RB", "WR", "TE"] as const;
+  const tone = (rank: number) => (rank <= 8 ? "text-turf" : rank >= 25 ? "text-brick" : "text-chalk");
+  // Through four games the last four are the season: the column waits until a defense has played more.
+  const showRecent = sides.some((t) => (season.table.get(t.short)?.QB?.games ?? 0) > 4);
+  return (
+    <div className="mt-4">
+      <p className="relative text-sm font-semibold text-chalk">
+        DraftKings points allowed
+        <InfoTip label="DraftKings points allowed" what={TERMS.dvp} />
+      </p>
+      <div className="mt-2 grid gap-3 md:grid-cols-2">
+        {sides.map((t) => (
+          <div key={t.short} className="card px-4 py-2">
+            <p className="text-sm text-chalk-2">
+              <span className="font-semibold text-chalk">{t.short} defense</span> allows a game (rank, No. 1 = most)
+            </p>
+            <table className="mono mt-1 w-full text-xs">
+              <thead>
+                <tr className="text-left text-chalk-3">
+                  <th className="py-1 font-normal">&nbsp;</th>
+                  <th className="py-1 text-right font-normal">season</th>
+                  {showRecent && <th className="py-1 text-right font-normal">last 4</th>}
+                  <th className="py-1 text-right font-normal">league</th>
+                </tr>
+              </thead>
+              <tbody>
+                {POS.map((pos) => {
+                  const s = season.table.get(t.short)?.[pos];
+                  const r = recent.table.get(t.short)?.[pos];
+                  return (
+                    <tr key={pos} className="border-t border-line">
+                      <td className="py-1 text-chalk-3">to {pos}s</td>
+                      <td className="py-1 text-right">{s ? <span className={tone(s.rank)}>{s.perGame} <span className="text-chalk-3">(No. {s.rank})</span></span> : "–"}</td>
+                      {showRecent && <td className="py-1 text-right">{r ? <span className={tone(r.rank)}>{r.perGame} <span className="text-chalk-3">(No. {r.rank})</span></span> : "–"}</td>}
+                      <td className="py-1 text-right text-chalk-3">{season.league[pos]}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Fold({ id, title, summary, open, children }: { id: string; title: string; summary: string; open?: boolean; children: React.ReactNode }) {
   return (
     <details id={id} className="fold" open={open}>

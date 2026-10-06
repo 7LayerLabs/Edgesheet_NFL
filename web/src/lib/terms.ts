@@ -22,6 +22,9 @@ export const TERMS = {
   matchups:
     "Success rate is the share of plays that added expected points (EPA above zero). EPA, expected points added, is how much a play changed the offense's expected points given down, distance, and field position. Passing downs are second and 8+ and third or fourth and 5+. The gap is how far apart the two units sit in percentile points among the 32 teams.",
 
+  // Matchups: DraftKings points allowed.
+  dvp: "DraftKings points that quarterbacks, backs, receivers, and tight ends scored against this defense, per game, this season and over its last four games. No. 1 allowed the most, so a low number is a soft matchup for that position. Our projection uses a quarter of this (backtests showed more weight hurt).",
+
   // Answer strip.
   model:
     "The margin starts from team Elo ratings (home field included), then adds 40% of the unit matchup edges and the injury points under Who's playing. The total comes from each offense's EPA per play against the other defense and both teams' pace, with a weather tilt when the forecast is flagged. Win chance treats the margin as the middle of a 13.5-point spread of outcomes.",
