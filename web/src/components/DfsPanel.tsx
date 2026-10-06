@@ -6,6 +6,8 @@ import { etDateOf } from "@/lib/format";
 import { NOT_A_PICK } from "@/lib/digests";
 import type { Game, Team } from "@/lib/types";
 import { PropsButton } from "./PropsButton";
+import { InfoTip } from "./InfoTip";
+import { TERMS } from "@/lib/terms";
 
 const money = (n: number) => `$${n.toLocaleString("en-US")}`;
 const odds = (n?: number) => (n === undefined ? "" : n > 0 ? `+${n}` : String(n));
@@ -58,7 +60,10 @@ export async function DfsPanel({ game }: { game: Game }) {
                 <p className="display text-2xl font-bold text-chalk">{t.short}</p>
                 <p className="mono text-xs text-chalk-3">{t === game.away ? `at ${game.home.abbr}` : `vs ${game.away.abbr}`}</p>
               </div>
-              <p className="eyebrow mt-3">DraftKings</p>
+              <p className="eyebrow relative mt-3">
+                DraftKings
+                <InfoTip label="DraftKings numbers" what={TERMS.dfs} />
+              </p>
               {plays.length === 0 ? (
                 <p className="mt-1 text-sm text-chalk-3">No salaried skill player with a 2026 line.</p>
               ) : (

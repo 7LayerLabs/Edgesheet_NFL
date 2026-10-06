@@ -1,0 +1,357 @@
+{
+ "ranAt": "2026-10-06T02:02:19.268Z",
+ "seasons": [
+  2019,
+  2025
+ ],
+ "revengeSeasons": [
+  2022,
+  2025
+ ],
+ "population": {
+  "games": 38030,
+  "players": 1046,
+  "withBio": 1044
+ },
+ "rule": "pass = 50+ games, mean residual 1.5+ DK over the baseline, 95% bootstrap interval of the difference above zero",
+ "results": {
+  "hometown": {
+   "n": 48,
+   "mean": -0.04,
+   "base": -0.19,
+   "baseN": 17672,
+   "diff": 0.15,
+   "ci": [
+    -1.62,
+    1.94
+   ],
+   "beat": 0.35,
+   "baseBeat": 0.4,
+   "pass": false
+  },
+  "hometown-first": {
+   "n": 41,
+   "mean": 0.37,
+   "base": -0.19,
+   "baseN": 17672,
+   "diff": 0.56,
+   "ci": [
+    -1.37,
+    2.62
+   ],
+   "beat": 0.34,
+   "baseBeat": 0.4,
+   "pass": false
+  },
+  "home-state": {
+   "n": 881,
+   "mean": 0.18,
+   "base": -0.19,
+   "baseN": 17672,
+   "diff": 0.38,
+   "ci": [
+    -0.08,
+    0.86
+   ],
+   "beat": 0.43,
+   "baseBeat": 0.4,
+   "pass": false
+  },
+  "college-state": {
+   "n": 685,
+   "mean": 0.16,
+   "base": -0.19,
+   "baseN": 17672,
+   "diff": 0.35,
+   "ci": [
+    -0.24,
+    0.91
+   ],
+   "beat": 0.42,
+   "baseBeat": 0.4,
+   "pass": false
+  },
+  "revenge": {
+   "n": 431,
+   "mean": 0.31,
+   "base": -0.01,
+   "baseN": 21806,
+   "diff": 0.32,
+   "ci": [
+    -0.29,
+    0.91
+   ],
+   "beat": 0.45,
+   "baseBeat": 0.41,
+   "pass": false
+  },
+  "revenge-first": {
+   "n": 300,
+   "mean": 0.16,
+   "base": -0.01,
+   "baseN": 21806,
+   "diff": 0.17,
+   "ci": [
+    -0.54,
+    0.89
+   ],
+   "beat": 0.44,
+   "baseBeat": 0.41,
+   "pass": false
+  }
+ },
+ "examples": {
+  "hometown": [
+   {
+    "pid": "00-0036275",
+    "season": 2025,
+    "week": 13,
+    "opp": "PHI",
+    "dk": 23.8,
+    "resid": 9.4
+   },
+   {
+    "pid": "00-0040138",
+    "season": 2025,
+    "week": 14,
+    "opp": "KC",
+    "dk": 3.3,
+    "resid": -0.8
+   },
+   {
+    "pid": "00-0038115",
+    "season": 2025,
+    "week": 17,
+    "opp": "LV",
+    "dk": 3.1,
+    "resid": -1.6
+   },
+   {
+    "pid": "00-0038705",
+    "season": 2025,
+    "week": 18,
+    "opp": "LA",
+    "dk": 6.7,
+    "resid": 1.9
+   },
+   {
+    "pid": "00-0039458",
+    "season": 2025,
+    "week": 18,
+    "opp": "CIN",
+    "dk": 1.6,
+    "resid": -0.2
+   }
+  ],
+  "hometown-first": [
+   {
+    "pid": "00-0038979",
+    "season": 2025,
+    "week": 12,
+    "opp": "LV",
+    "dk": 1.5,
+    "resid": -3.8
+   },
+   {
+    "pid": "00-0034827",
+    "season": 2025,
+    "week": 13,
+    "opp": "PHI",
+    "dk": 4.7,
+    "resid": -5.7
+   },
+   {
+    "pid": "00-0036275",
+    "season": 2025,
+    "week": 13,
+    "opp": "PHI",
+    "dk": 23.8,
+    "resid": 9.4
+   },
+   {
+    "pid": "00-0040138",
+    "season": 2025,
+    "week": 14,
+    "opp": "KC",
+    "dk": 3.3,
+    "resid": -0.8
+   },
+   {
+    "pid": "00-0039458",
+    "season": 2025,
+    "week": 18,
+    "opp": "CIN",
+    "dk": 1.6,
+    "resid": -0.2
+   }
+  ],
+  "home-state": [
+   {
+    "pid": "00-0036332",
+    "season": 2025,
+    "week": 18,
+    "opp": "LA",
+    "dk": 9.5,
+    "resid": 9.2
+   },
+   {
+    "pid": "00-0037545",
+    "season": 2025,
+    "week": 18,
+    "opp": "SF",
+    "dk": 1.2,
+    "resid": -8.2
+   },
+   {
+    "pid": "00-0038559",
+    "season": 2025,
+    "week": 18,
+    "opp": "LA",
+    "dk": 20.9,
+    "resid": 7.9
+   },
+   {
+    "pid": "00-0039165",
+    "season": 2025,
+    "week": 18,
+    "opp": "SF",
+    "dk": 18.7,
+    "resid": 7.8
+   },
+   {
+    "pid": "00-0040218",
+    "season": 2025,
+    "week": 18,
+    "opp": "TB",
+    "dk": 2.5,
+    "resid": -0.4
+   }
+  ],
+  "college-state": [
+   {
+    "pid": "00-0038559",
+    "season": 2025,
+    "week": 18,
+    "opp": "LA",
+    "dk": 20.9,
+    "resid": 7.9
+   },
+   {
+    "pid": "00-0039041",
+    "season": 2025,
+    "week": 18,
+    "opp": "LA",
+    "dk": 5.8,
+    "resid": 2.5
+   },
+   {
+    "pid": "00-0039165",
+    "season": 2025,
+    "week": 18,
+    "opp": "SF",
+    "dk": 18.7,
+    "resid": 7.8
+   },
+   {
+    "pid": "00-0040676",
+    "season": 2025,
+    "week": 18,
+    "opp": "JAX",
+    "dk": 9.2,
+    "resid": -2.8
+   },
+   {
+    "pid": "00-0040705",
+    "season": 2025,
+    "week": 18,
+    "opp": "JAX",
+    "dk": 5.7,
+    "resid": -1.9
+   }
+  ],
+  "revenge": [
+   {
+    "pid": "00-0035291",
+    "season": 2025,
+    "week": 18,
+    "opp": "CIN",
+    "dk": 3,
+    "resid": 0.2
+   },
+   {
+    "pid": "00-0035537",
+    "season": 2025,
+    "week": 18,
+    "opp": "NYJ",
+    "dk": 19.6,
+    "resid": 14.6
+   },
+   {
+    "pid": "00-0035685",
+    "season": 2025,
+    "week": 18,
+    "opp": "CHI",
+    "dk": 6.5,
+    "resid": -3.6
+   },
+   {
+    "pid": "00-0036275",
+    "season": 2025,
+    "week": 18,
+    "opp": "DET",
+    "dk": 5.8,
+    "resid": -9.8
+   },
+   {
+    "pid": "00-0037741",
+    "season": 2025,
+    "week": 18,
+    "opp": "WAS",
+    "dk": 7,
+    "resid": 3.9
+   }
+  ],
+  "revenge-first": [
+   {
+    "pid": "00-0034869",
+    "season": 2025,
+    "week": 17,
+    "opp": "CAR",
+    "dk": 8.1,
+    "resid": -7.5
+   },
+   {
+    "pid": "00-0035602",
+    "season": 2025,
+    "week": 17,
+    "opp": "NYG",
+    "dk": 0,
+    "resid": -0.3
+   },
+   {
+    "pid": "00-0037112",
+    "season": 2025,
+    "week": 17,
+    "opp": "CHI",
+    "dk": 19,
+    "resid": 10.7
+   },
+   {
+    "pid": "00-0026158",
+    "season": 2025,
+    "week": 18,
+    "opp": "CLE",
+    "dk": 0.2,
+    "resid": -13.3
+   },
+   {
+    "pid": "00-0035291",
+    "season": 2025,
+    "week": 18,
+    "opp": "CIN",
+    "dk": 3,
+    "resid": 0.2
+   }
+  ]
+ }
+}

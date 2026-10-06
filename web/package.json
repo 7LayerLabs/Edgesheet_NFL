@@ -19,6 +19,8 @@
     "backtest:qb": "node scripts/backtest-qb.mjs",
     "backtest:total": "node scripts/backtest-total.mjs",
     "backtest:dfs": "node scripts/backtest-dfs.mjs",
+    "backtest:stories": "tsx scripts/backtest-stories.mts",
+    "backtest:splits": "tsx scripts/backtest-splits.mts",
     "guides": "tsx scripts/write-watchguides.mjs",
     "reports": "node scripts/write-reports.mjs",
     "odds:dry": "node scripts/odds-snapshot.mjs --dry",

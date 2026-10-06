@@ -25,8 +25,12 @@ import { DfsPanel } from "@/components/DfsPanel";
 import { AvailabilityPanel } from "@/components/AvailabilityPanel";
 import { FoldControls } from "@/components/FoldControls";
 import { UpdateNow } from "@/components/UpdateNow";
+import { InfoTip } from "@/components/InfoTip";
+import { TERMS } from "@/lib/terms";
 import { TrendsPanel, type TrendsTeam } from "@/components/TrendsPanel";
 import { changeText, teamTrends, topChange } from "@/lib/trends";
+import { vacatedFor } from "@/lib/vacated";
+import { storiesSummary } from "@/lib/backtest-notes";
 import { teamByShort } from "@/lib/nfl";
 import { absentWords } from "@/lib/availability";
 import { inputsLabel, LEAN_BACKTEST_NOTE, sideTier, tierLabel, totalTier } from "@/lib/leans";
@@ -71,6 +75,12 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const injCount = (st: string) => inj.filter((i) => i.status === st).length;
   const injurySummary = inj.length ? `${[["out", injCount("Out")], ["doubtful", injCount("Doubtful")], ["questionable", injCount("Questionable")]].filter(([, n]) => n).map(([w, n]) => `${n} ${w}`).join(", ")} (week ${inj[0].week})` : "";
   const boxSummary = game.score && Number.isFinite(game.score.home) ? `${game.away.abbr} ${game.score.away}, ${game.home.abbr} ${game.score.home} · ${game.score.clock}` : game.status === "live" ? "In progress" : "Final";
+  // Work left open by each back, receiver, or tight end likely to sit (src/lib/vacated.ts), by team nickname.
+  const vacated = av
+    ? Object.fromEntries(
+        [av.away, av.home].map((t) => [t.team, vacatedFor(t.team, t.items.filter((i) => i.kind === "out" && i.absence >= 0.5).map((i) => ({ id: i.id, status: i.status })))]),
+      )
+    : undefined;
   // Trends: usage by week for both teams (src/lib/trends.ts), each week headed "W1 @PIT".
   const trendsTeams: TrendsTeam[] = [game.away, game.home].flatMap((t) => {
     const tr = teamTrends(t.short);
@@ -134,7 +144,10 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
         )}
         {watch.length > 0 && (
           <div className={read[0] ? "mt-5" : undefined}>
-            <p className="text-sm font-semibold text-chalk">Who to watch</p>
+            <p className="relative text-sm font-semibold text-chalk">
+              Who to watch
+              <InfoTip label="Who to watch" what={TERMS.whoToWatch} context={storiesSummary()} />
+            </p>
             <ul className="mt-1 divide-y divide-line">
               {watch.map((w) => (
                 <li key={w.id} className="grid grid-cols-1 gap-x-3 py-2 sm:grid-cols-[15rem_minmax(0,1fr)] sm:items-baseline">
@@ -186,8 +199,9 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
       <Fold id="decided" title="Matchups" summary={matchupSummary}>
         {game.matchups.length > 0 ? (
           <>
-            <p className="max-w-3xl text-sm text-chalk-3">
+            <p className="relative max-w-3xl text-sm text-chalk-3">
               Each offense against the opposing defense: the run, the pass, and passing downs. Run and pass show how often the play works (that decides the edge) and how much it is worth. Ranks are among all 32 teams. The gap is in percentile points; 40 or more is a clear edge, 55 or more is a mismatch.
+              <InfoTip label="Success rate, EPA, passing downs" what={TERMS.matchups} />
             </p>
             <div className="mt-3 grid gap-3">
               {game.matchups.map((m, i) => (
@@ -204,7 +218,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
 
       {game.availability && (
         <Fold id="playing" title="Who's playing" summary={playingSummary}>
-          <AvailabilityPanel game={game} a={game.availability} />
+          <AvailabilityPanel game={game} a={game.availability} vacated={vacated} />
         </Fold>
       )}
 
@@ -436,8 +450,11 @@ function AnswerStrip({ game }: { game: Game }) {
     <section aria-label="The call" className="mt-5 overflow-hidden rounded border border-line bg-panel">
       {/* Phone: the call across the top, the line and the edge side by side under it. Wider: three columns. */}
       <div className="grid grid-cols-2 sm:grid-cols-[1.3fr_1fr_1.2fr]">
-        <div className="col-span-2 border-b border-line p-4 sm:col-span-1 sm:border-b-0 sm:border-r" style={{ boxShadow: winner && !even ? `inset 4px 0 0 ${winner.color}` : undefined }}>
-          <p className="text-xs font-semibold text-chalk-3">{game.status === "upcoming" ? "The model" : "Pregame call"}</p>
+        <div className="relative col-span-2 border-b border-line p-4 sm:col-span-1 sm:border-b-0 sm:border-r" style={{ boxShadow: winner && !even ? `inset 4px 0 0 ${winner.color}` : undefined }}>
+          <p className="text-xs font-semibold text-chalk-3">
+            {game.status === "upcoming" ? "The model" : "Pregame call"}
+            <InfoTip label="The model" what={TERMS.model} />
+          </p>
           {p && winner ? (
             <>
               <p className="display mt-0.5 text-3xl font-bold text-chalk">{even ? "Even game" : `${winner.short} by ${p.margin.toFixed(1)}`}</p>
@@ -452,7 +469,7 @@ function AnswerStrip({ game }: { game: Game }) {
           <p className="display mt-0.5 text-xl font-bold text-chalk sm:text-2xl">{s ? `${teamOf(s.team).short} ${signed(s.line)}` : "No line"}</p>
           <p className="mono mt-0.5 text-xs text-chalk-2">{t ? `total ${t.line}` : "no total"}</p>
         </div>
-        <div className="p-4">
+        <div className="relative p-4">
           {graded ? (
             <>
               <p className="text-xs font-semibold text-chalk-3">How the call did</p>
@@ -465,7 +482,10 @@ function AnswerStrip({ game }: { game: Game }) {
             </>
           ) : (
             <>
-              <p className="text-xs font-semibold text-chalk-3">The edge</p>
+              <p className="text-xs font-semibold text-chalk-3">
+                The edge
+                <InfoTip label="The edge" what={TERMS.edge} context={LEAN_BACKTEST_NOTE} align="right" />
+              </p>
               {side && sTier && sideLine !== undefined ? (
                 <>
                   <p className="display mt-0.5 text-xl font-bold text-chalk sm:text-2xl">{side.short} {signed(sideLine)}</p>
@@ -875,7 +895,10 @@ function MetricRow({ m }: { m: NonNullable<OffenseProfile["metrics"]>[number] })
   const tone = pct === undefined ? "text-chalk-2" : pct >= 75 ? "text-turf" : pct <= 25 ? "text-brick" : "text-chalk-2";
   return (
     <>
-      <dt className="text-chalk-3">{m.label}</dt>
+      <dt className="relative text-chalk-3">
+        {m.label}
+        {m.key in TERMS && <InfoTip label={m.label} what={TERMS[m.key as keyof typeof TERMS]} context={m.rank ? "Ranked among the 32 teams for this side of the ball: No. 1 is the best at it." : undefined} />}
+      </dt>
       <dd className={`text-right ${tone}`}>{m.value}</dd>
       <dd className="w-14 text-right text-chalk-3">{m.rank ? `No. ${m.rank}` : ""}</dd>
     </>

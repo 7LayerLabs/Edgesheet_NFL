@@ -1,7 +1,21 @@
+# WHERE WE LEFT OFF (kept current at every push)
+
+Last updated 2026-10-06, commit "Phases 3-5". Derek's instruction: finish the rest and push as soon as it is done.
+- DONE and pushed: game page read (Section 1), Phase 1 data (per-game snaps, history-games.json, play calling), Phase 2
+  trends, info tips everywhere, Phase 3 work left open, Phase 4 player history, Phase 5 backtests (results below: no
+  storyline passes; only a player's own home/away split carries over, weakly; primetime teams score 1.1 under the line).
+- LEFT, in this order: Phase 11 (DraftKings Our price, Safest/Upside value lists, weekly graded record), Phase 6 (splits
+  on the page: the player home/away flag, primetime team note, defense home-division), Phase 7 (defense vs position
+  table), Phase 8 (slate home: team totals, values, weather, total bands, Main/Showdown filters), Phase 9 (sleepers by
+  beat buzz), Phase 10 (single-entry lineup). Then the section-by-section review resumes at the Matchups fold.
+- KNOWN: nflverse had not posted week 4 snap counts (re-run `npm run ingest` to fill them); the dev server on :3100 was
+  stopped by Claude Code for low memory on 2026-10-06 and not restarted; memoSync results live on globalThis, so restart
+  the dev server after changing a cached shape; pre-existing lint errors remain in BoardClient and the two error.tsx.
+
 # Project: Trends, splits, and storyline backtests (ideas borrowed from the "Edge" YouTube walkthrough)
 
-Status: PLAN, waiting on Derek's OK. Derek picked each item yes or no on 2026-10-05 (WR vs CB skipped: no alignment or
-coverage data in any source we have, it would be guessed). One phase at a time; Derek looks at each before the next.
+Status: Phases 1-5 BUILT and pushed; the rest in progress (see WHERE WE LEFT OFF). Derek picked each item yes or no on
+2026-10-05 (WR vs CB skipped: no alignment or coverage data in any source we have, it would be guessed).
 
 ## Problem Statement
 A walkthrough of another NFL app had ideas worth borrowing: weekly usage trends with the reason attached, position rooms,
@@ -75,35 +89,86 @@ position over a volume bar (QB 10 attempts a week, RB 5 carries, WR/TE 3 targets
 snaps, punters 2 punts, kickers 1 try): average, where the top quarter starts, best, his rank. EPA totals compare per
 dropback / carry / target; INT and sacks per attempt or dropback (lower is better). No benchmark is typed in by hand.
 Hover on desktop, tap on a phone; the box anchors to the stat's card so it stays on screen (checked at 390 px).
+Then everywhere analytics or usage shows (Derek: "anywhere it's beneficial and helpful, especially analytics/usage"):
+one definitions file, src/lib/terms.ts, checked against the code (success rate is nflverse's EPA above zero, not the
+40/60/100 rule; production mixes per-game and season totals; Watch Score is 50% production pct, 30% snap pct, 20%
+context). Tips on: the answer strip (The model, The edge with the lean backtest note), the Matchups intro, every Team
+style metric, the Trends toggles and Play calling (its footnote removed), the DraftKings panel, the DFS page's player
+table, and the player page's Watch Score, meters, Against the slot (its "producing like pick No. X" now says above,
+about at, or below that slot), and Week by week. Every tip measured inside a 390 px screen.
 
 ### Phase 3: vacated opportunity and with/without
-- [ ] 3.1 For each player who is out: the share he leaves open ("Etienne out: 38% of Saints carries, 9% of targets").
-- [ ] 3.2 With/without: in games this season and last that he missed, each teammate's share and DK points against games
+- [x] 3.1 For each player who is out: the share he leaves open ("Etienne out: 38% of Saints carries, 9% of targets").
+- [x] 3.2 With/without: in games this season and last that he missed, each teammate's share and DK points against games
       with him; top three risers, with the games count.
-- [ ] 3.3 Show it in "Who plays" and use it for the Role change pick in Who to watch (who actually absorbed the work, not
+- [x] 3.3 Show it in "Who plays" and use it for the Role change pick in Who to watch (who actually absorbed the work, not
       just the busiest teammate). The DFS sim's next-man-up rule stays until a model change passes its calibration gate.
 
+Phase 3 notes (2026-10-05, BUILT, waiting on Derek's look, not committed): src/lib/vacated.ts. Who counts: backs,
+receivers, tight ends on the availability list with a 50%+ chance to sit. Games he missed: this season after his first
+game (posted games only), last season between his first and last game for the team (history-games.json stat rows, so a
+teammate's zero-stat game drops out of both averages). Teammates compared per game: targets, carries, DK, with him (2+
+games) against without (1+); risers ranked by the work he leaves (targets for a receiver or tight end, carries plus
+targets for a back), 1+ a game gained, top three. Counts per game, not shares: last season's team totals would need
+players no longer on the roster. Shown as "Work left open" under each team in Who's playing (with an info tip), and the
+Role change slot now names the top riser ("In 3 games without Puka Nacua: 10.3 targets a game, up from 8.1") or, with
+no games without him, the busiest teammate plus the carries and targets he leaves. Checked: Puka what-if finds 2025 W7
+and 2026 W2-W3 and ranks Ferguson, Adams, Higbee by targets gained (Corum dropped once a receiver's sit counts targets
+only); Etienne and Jefferson have no games missed in the window, so the block says so.
+
 ### Phase 4: history vs the opponent, and each storyline game
-- [ ] 4.1 Player page "Vs <opponent>": every game since 2018 against this week's opponent: date, his team, DK points,
+- [x] 4.1 Player page "Vs <opponent>": every game since 2018 against this week's opponent: date, his team, DK points,
       his average that season, the difference; the average difference and the games count. No "loves playing them"
       verdict unless Phase 5 finds such history predicts.
-- [ ] 4.2 Player page "Storyline games": every past revenge, hometown, home-state, and college-state game with DK points
+- [x] 4.2 Player page "Storyline games": every past revenge, hometown, home-state, and college-state game with DK points
       against his season average (Derek: "how they performed each time should be noted").
 
+Phase 4 notes (2026-10-05, BUILT, not committed): src/lib/player-history.ts (pastGames, vsOpponent, storylineGames),
+src/components/PlayerHistory.tsx, src/lib/places.ts (where a game was played: stadium id -> the team that plays there in
+the latest season it appears -> nfl-teams.json city; OAK00 Oakland, LAX97 Carson, LAX99 Los Angeles by hand; London and
+other international games by stadium name). Since 2019 (history-games.json), QB/RB/WR/TE only (defenders have no DK
+history). The difference is against his average in his OTHER games that season. Birth city is strict: stadiums in
+suburbs (Arlington, Foxborough, East Rutherford, Inglewood) do not match a "Dallas" birthplace; birth state catches them.
+
 ### Phase 5: backtests (rules written into the script before it is run; results in data/backtest/ and a short summary)
-- [ ] 5.1 Storylines (scripts/backtest-stories.mjs): hometown (birth city), home state, college state, revenge (a team he
+- [x] 5.1 Storylines (scripts/backtest-stories.mts): hometown (birth city), home state, college state, revenge (a team he
       played for within four seasons, or his drafting team), and first return. Measure: DK points minus his average in his
       other games that season (four or more other games). Compare with his other road games so home field is not the
       effect. Passes only with 50+ games, +1.5 DK or more, a 95% bootstrap interval above zero, and a 55%+ beat-his-average
-      rate. Also report that rate plainly, against the "80 to 90%" claim. Needs ESPN birthplace and college for about 2,500
+      rate. Also report that rate plainly, against the "80 to 90%" claim.
+      AMENDED BEFORE THE FIRST RUN (2026-10-05, no results seen): the 55% beat rate is dropped as a pass condition. DK
+      points skew right, so most games sit under a player's own average and a fixed 55% bar measures the skew, not the
+      story; the beat rate is reported for the group and its baseline side by side instead. The exact rules are in the
+      header of scripts/backtest-stories.mts (also hometown-first and revenge-first subsets; revenge on 2022-2025 so the
+      four seasons before each game are in the data). Needs ESPN birthplace and college for about 2,500
       players (one fetch each, cached) and a stadium table with city and state (non-US games left out).
-- [ ] 5.2 Splits (scripts/backtest-splits.mjs): home/away, division, primetime, short week. Players: DK points against
+- [x] 5.2 Splits (scripts/backtest-splits.mts): home/away, division, primetime, short week. Players: DK points against
       their season average. Teams: points against the closing implied team total. Defenses: DST DK points against their
       season average. Two questions: does the split exist league-wide, and does a player's or team's own split carry
       into the next season (year-to-year correlation). A split gets a flag only if it carries over (correlation 0.15+,
       interval above zero).
 - [ ] 5.3 Wire the verdicts: what passes gets a flag on the player page, Who to watch, and DFS notes ("tested: +2.1 DK
       a game, 140 games"); what fails stays a storyline with "no measured edge in 2018-2025".
+
+Phase 5 RESULTS (2026-10-05; npm run backtest:stories / backtest:splits; data/backtest/stories.json, splits.json):
+Storylines, 38,030 QB/RB/WR/TE games 2019-2025, 1,046 players, ESPN birthplace for 1,044. NOTHING PASSES.
+  birth city 48 games, +0.15 DK vs other road games [-1.62, 1.94], beat his own average 35% (other road games 40%);
+  first game back in his birth city 41, +0.56, 34%; birth state 881, +0.38 [-0.08, 0.86], 43%; college state 685, +0.35,
+  42%; revenge (2022-2025) 431, +0.32 [-0.29, 0.91], 45% vs 41%; first revenge game 300, +0.17. The "80 to 90%" claim:
+  35% in our data.
+Splits (2019-2025):
+  Players: home +0.35 DK league-wide [0.14, 0.55]; a player's OWN home/away split carries over 2019-21 to 2022-25,
+  r 0.18 [0.06, 0.30], 281 players: PASS (weak: expect about a fifth of a past gap). Division, primetime, short week:
+  no carry-over.
+  Teams against the closing implied total: home and division priced in; PRIMETIME -1.11 points [-1.83, -0.37] (389
+  games, both teams under), a league-wide lean to unders that is NOT tested against the vig. No team's own split
+  carries over.
+  Defenses: home +0.53 DK [0.16, 0.90], home against a division rival +0.70 [0.26, 1.16] league-wide (mostly the home
+  part; division alone +0.19, not significant); a team's own home-division split does not carry over (r -0.11).
+  "Loves playing them": r 0.00 [-0.02, 0.03] over 9,572 games, slope 0.01. Past games against a team tell nothing.
+5.3 so far: src/lib/backtest-notes.ts puts the verdicts on the player page (a visible line under Against the <opp>
+and Storyline games, a tip on each storyline card) and in the Who to watch tip ("good stories, not edges"). The one
+pass (players' home/away) and the primetime-teams finding feed Phase 6.
 
 ### Phase 6: splits on the page
 - [ ] 6.1 Player page: home/away, division, primetime, short week, each next to his overall average with the games count.
@@ -131,8 +196,18 @@ Hover on desktop, tap on a phone; the box anchors to the stat's card so it stays
 - [ ] 10.1 A third lineup that maximizes each player's 75th-percentile outcome (between Cash at the median and GPP at the
       90th), same DraftKings Classic rules and salary cap.
 
+### Phase 11: DraftKings "Our price" and value picks (Derek, 2026-10-05: yes to all three)
+Salaries are DraftKings' own (public lobby: getcontests, then getavailableplayers per draft group).
+- [ ] 11.1 Our price for every DK player: the salary his simulated median is worth at what DK charges per point at his
+      position on that slate, next to DK's price with the gap ("DK $6,100 · ours $7,400 · $1,300 cheap") and the reasons
+      from our data (role up with a teammate out, matchup, Jev news), on the DFS page and the game's DraftKings panel.
+- [ ] 11.2 Two lists per slate: Safest values (cheap for the price, lowest bust rate: cash) and Upside values (cheap,
+      highest boom rate: tournaments). Not "can't miss": everyone busts in some simulations; each pick shows its bust chance.
+- [ ] 11.3 Log each slate's picks before kickoff, grade them after (beat the price, by how much, against everyone at that
+      price), and show the record. No past DK salaries exist to backtest, so the record is the test.
+
 Order: phases 1 to 3 first (the trends Derek asked for), then 4 and 5 together (the backtest decides what 4 may claim),
-then 6 to 10. Each phase: tsc, lint, a check on tonight's or next week's games, Derek's look, commit when he says.
+then 11 (Derek asked for it next), then 6 to 10. Each phase: tsc, lint, a check on tonight's or next week's games, Derek's look, commit when he says.
 
 ---
 

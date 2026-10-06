@@ -233,3 +233,15 @@ export interface GenHistory {
 }
 export const genHistory = (): GenHistory | undefined => memoSync(`gen:history:${stamp("history.json")}`, 3600, () => readJson<GenHistory | undefined>("history.json", undefined));
 export const historyStamp = () => stamp("history.json");
+
+/**
+ * Every QB/RB/WR/TE game since 2019 for current players (scripts/ingest.mjs "history games"): compact rows in `cols`
+ * order, g = ESPN game id (look it up in schedule.json), t = his team nickname, then the dkPoints stat keys plus tgt, ra, pa.
+ */
+export interface GenHistoryGames {
+  cols: string[];
+  seasons: number[];
+  players: Record<string, (string | number)[][]>;
+}
+export const genHistoryGames = (): GenHistoryGames | undefined => memoSync(`gen:histgames:${stamp("history-games.json")}`, 3600, () => readJson<GenHistoryGames | undefined>("history-games.json", undefined));
+export const historyGamesStamp = () => stamp("history-games.json");

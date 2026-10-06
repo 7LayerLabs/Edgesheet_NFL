@@ -35,13 +35,13 @@ interface Bio {
   state?: string; // birthplace, US postal code
   collegeId?: string;
 }
-interface College {
+export interface College {
   name?: string;
   city?: string; // the college's stadium
   state?: string;
 }
 
-const STATES: Record<string, string> = {
+export const STATES: Record<string, string> = {
   AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado", CT: "Connecticut", DE: "Delaware", DC: "Washington, D.C.",
   FL: "Florida", GA: "Georgia", HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa", KS: "Kansas", KY: "Kentucky", LA: "Louisiana",
   ME: "Maine", MD: "Maryland", MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", MO: "Missouri", MT: "Montana", NE: "Nebraska",
@@ -76,10 +76,11 @@ async function getJson<T>(url: string): Promise<T | undefined> {
 }
 
 /**
- * Birthplace and college for ESPN athlete ids, from disk or ESPN (eight at a time). Waits at most BIO_BUDGET_MS for
- * missing records and returns what it has; the fetch finishes in the background and is on disk for the next view.
+ * Birthplace and college for ESPN athlete ids, from disk or ESPN (eight at a time). Waits at most `budgetMs` (a page
+ * render: BIO_BUDGET_MS) for missing records and returns what it has; the fetch finishes in the background and is on
+ * disk for the next view. A backtest passes Infinity to wait for all of them.
  */
-async function bios(ids: string[]): Promise<Map<string, { born?: { city?: string; state?: string }; college?: College }>> {
+export async function bios(ids: string[], budgetMs = BIO_BUDGET_MS): Promise<Map<string, { born?: { city?: string; state?: string }; college?: College }>> {
   const cache = readJson<Bio>(BIOS);
   const colleges = readJson<College>(COLLEGES);
   const missing = ids.filter((id) => !cache[id]);
@@ -102,7 +103,10 @@ async function bios(ids: string[]): Promise<Map<string, { born?: { city?: string
     writeJson(BIOS, cache);
     writeJson(COLLEGES, colleges);
   };
-  if (missing.length) await Promise.race([work().catch(() => undefined), new Promise((r) => setTimeout(r, BIO_BUDGET_MS))]);
+  if (missing.length) {
+    if (Number.isFinite(budgetMs)) await Promise.race([work().catch(() => undefined), new Promise((r) => setTimeout(r, budgetMs))]);
+    else await work().catch(() => undefined);
+  }
   return new Map(
     ids.filter((id) => cache[id]).map((id) => {
       const c = cache[id];

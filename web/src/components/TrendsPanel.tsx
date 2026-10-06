@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { TeamTrends, TrendCell, TrendNote, TrendRoom } from "@/lib/trends";
+import { InfoTip } from "./InfoTip";
+import { TERMS } from "@/lib/terms";
 
 type Metric = "snaps" | "targets" | "carries" | "air" | "dk";
 const METRICS: { key: Metric; label: string }[] = [
@@ -57,7 +59,7 @@ export function TrendsPanel({ teams }: { teams: TrendsTeam[] }) {
 
   return (
     <div ref={box} className="mt-3">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="relative flex flex-wrap items-center gap-2">
         <div className="seg" role="group" aria-label="Team">
           {teams.map((x, i) => (
             <button key={x.name} type="button" aria-pressed={i === team} onClick={() => setTeam(i)}>
@@ -71,6 +73,7 @@ export function TrendsPanel({ teams }: { teams: TrendsTeam[] }) {
               {m.label}
             </button>
           ))}
+          <InfoTip label="What these mean" what={TERMS.trendMetrics} />
         </div>
       </div>
       {unposted.length > 0 && on.has("snaps") && (
@@ -81,7 +84,10 @@ export function TrendsPanel({ teams }: { teams: TrendsTeam[] }) {
 
       {t.trends.calls.length > 0 && (
         <div className="mt-4">
-          <p className="text-sm font-semibold text-chalk">Play calling</p>
+          <p className="relative text-sm font-semibold text-chalk">
+            Play calling
+            <InfoTip label="Play calling" what={TERMS.playCalling} />
+          </p>
           <div className="card scroll-x mt-1 px-3 py-1">
             <table className="mono min-w-max border-collapse text-xs">
               <thead>
@@ -112,7 +118,6 @@ export function TrendsPanel({ teams }: { teams: TrendsTeam[] }) {
               </tbody>
             </table>
           </div>
-          <p className="mt-1 text-xs text-chalk-3">Against expected: how far the pass rate ran above or below what the down, distance, field position, and score usually call for (nflverse model).</p>
         </div>
       )}
 
@@ -145,7 +150,7 @@ export function TrendsPanel({ teams }: { teams: TrendsTeam[] }) {
                           <span className="mono text-[11px] text-chalk-3">{row.pos}{row.rookie ? " · rookie" : ""}</span>
                         </td>
                         {row.cells.map((c, i) => (
-                          <Cell key={weeks[i].g} c={c} on={on} qb={room.key === "QB"} has={has(row.cells)} />
+                          <Cell key={weeks[i].g} c={c} on={on} qb={room.key === "QB"} rb={room.key === "RB"} has={has(row.cells)} />
                         ))}
                       </tr>
                     ))}
@@ -183,7 +188,7 @@ function has(cells: TrendCell[]): { tgt: boolean; ra: boolean } {
   return { tgt: played.some((c) => (c.tgt ?? 0) > 0), ra: played.some((c) => (c.ra ?? 0) > 0) };
 }
 
-function Cell({ c, on, qb, has }: { c: TrendCell; on: Set<Metric>; qb: boolean; has: { tgt: boolean; ra: boolean } }) {
+function Cell({ c, on, qb, rb, has }: { c: TrendCell; on: Set<Metric>; qb: boolean; rb: boolean; has: { tgt: boolean; ra: boolean } }) {
   if (c.status === "none") return <td className="px-2 py-1.5 text-chalk-3" title="No game with the team yet">·</td>;
   if (c.status === "out")
     return (
@@ -216,7 +221,7 @@ function Cell({ c, on, qb, has }: { c: TrendCell; on: Set<Metric>; qb: boolean; 
           {arrow("carries")}
         </span>
       )}
-      {on.has("air") && !qb && <span className="block">{c.air ? `air ${pct(c.air)}` : <span className="text-chalk-3">air 0%</span>}</span>}
+      {on.has("air") && !qb && !rb && <span className="block">{c.air ? `air ${pct(c.air)}` : <span className="text-chalk-3">air 0%</span>}</span>}
       {on.has("dk") && <span className="block">{(c.dk ?? 0).toFixed(1)} DK</span>}
     </td>
   );

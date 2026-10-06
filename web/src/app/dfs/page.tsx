@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { slateSim, type SlateLineup, type SlatePlayer, type SlateSim } from "@/lib/dfs-slate";
 import { shiftDate } from "@/lib/slate";
+import { InfoTip } from "@/components/InfoTip";
+import { TERMS } from "@/lib/terms";
 
 export const dynamic = "force-dynamic";
 
@@ -109,7 +111,10 @@ function Slate({ sim, pos, sort }: { sim: SlateSim; pos: (typeof POSITIONS)[numb
       )}
 
       <section className="mt-8">
-        <h2 className="display text-3xl font-bold text-chalk">Players</h2>
+        <h2 className="display relative text-3xl font-bold text-chalk">
+          Players
+          <InfoTip label="What the columns mean" what={TERMS.dfs} />
+        </h2>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {POSITIONS.map((p) => (
             <Link key={p} href={qs({ pos: p })} className="chip" aria-current={p === pos ? "true" : undefined} aria-pressed={p === pos}>{p}</Link>

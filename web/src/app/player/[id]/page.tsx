@@ -6,7 +6,11 @@ import { genMeta, genPlayers } from "@/lib/generated";
 import { playerTrend } from "@/lib/trends";
 import { teamByShort } from "@/lib/nfl";
 import { PlayerWeeks } from "@/components/PlayerWeeks";
+import { StorylineGames, VsOpponent } from "@/components/PlayerHistory";
+import { storylineGames, vsOpponent } from "@/lib/player-history";
+import { storiesSummary, storyNote, vsOpponentNote } from "@/lib/backtest-notes";
 import { InfoTip } from "@/components/InfoTip";
+import { TERMS } from "@/lib/terms";
 import { statInfo } from "@/lib/stat-glossary";
 import { GROUP_LABEL } from "@/lib/radar";
 import { Confidence, Tier } from "@/components/badges";
@@ -31,6 +35,11 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
   const gp = genPlayers().find((x) => x.id === p.id);
   const trend = gp ? playerTrend(gp) : undefined;
   const heads = trend?.weeks.map((w) => `W${w.wk} ${w.ha === "away" ? "@" : ""}${teamByShort(w.opp)?.abbr ?? w.opp}`) ?? [];
+  // History (QB/RB/WR/TE): this week's opponent, and every storyline game (src/lib/player-history.ts).
+  const skill = ["QB", "RB", "WR", "TE"].includes(gp?.pg ?? "");
+  const opp = game ? (game.home.abbr === p.team ? game.away.short : game.home.short) : undefined;
+  const vs = skill && gp && opp ? vsOpponent(gp.id, opp) : undefined;
+  const stories = skill && gp ? await storylineGames(gp) : undefined;
 
   return (
     <article className="rise">
@@ -60,9 +69,12 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
           </div>
         </div>
         {r && (
-          <div className="text-right">
+          <div className="relative text-right">
             <RadarScore score={r.score} size="lg" />
-            <p className="eyebrow mt-1">Watch Score</p>
+            <p className="eyebrow mt-1">
+              Watch Score
+              <InfoTip label="Watch Score" what={TERMS.watchScore} align="right" />
+            </p>
           </div>
         )}
       </header>
@@ -72,11 +84,13 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
           <span className="display text-4xl font-bold text-chalk">{r?.slot ? `No. ${r.slot}` : "UDFA"}</span>
           <span className="text-xs text-chalk-3">{r?.eligibilityNote ?? p.projected}</span>
         </Box>
-        <Box label={r?.vsSlot !== null && r?.vsSlot !== undefined ? "Against the slot" : "Lens"}>
+        <Box label={r?.vsSlot !== null && r?.vsSlot !== undefined ? "Against the slot" : "Lens"} tip={r?.vsSlot !== null && r?.vsSlot !== undefined ? TERMS.vsSlot : undefined}>
           {r && r.vsSlot !== null && r.eqPick !== null ? (
             <>
               <span className="display text-4xl font-bold text-chalk">{r.vsSlot >= 0 ? "+" : ""}{r.vsSlot}</span>
-              <span className="text-xs text-chalk-3">{r.slot ? `Drafted No. ${r.slot}` : "Undrafted"}, producing like pick No. {r.eqPick}. Production percentile minus the slot score.</span>
+              <span className="text-xs text-chalk-3">
+                {r.slot ? `Drafted No. ${r.slot}` : "Undrafted"}, {r.vsSlot >= 10 ? "producing above that slot" : r.vsSlot <= -10 ? "producing below that slot" : "producing about at that slot"}.
+              </span>
             </>
           ) : (
             <>
@@ -108,10 +122,10 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
 
       {r && (
         <section className="mt-8 grid gap-2 sm:grid-cols-4">
-          <Meter label="Production" value={r.production} note={`percentile vs NFL ${r.group}${r.qocLabel !== "unmeasured" ? `, ${r.qocLabel} schedule` : ""}`} />
-          <Meter label="Snap share" value={r.usage} note={r.snapShare !== null ? `${Math.round(r.snapShare * 100)}% of unit snaps` : "no snap counts yet"} />
-          <Meter label="Draft slot" value={r.pedigree} note={r.slot ? `pick No. ${r.slot}, ${r.draftClass}` : "undrafted"} />
-          <Meter label="Size" value={r.size === null ? 40 : r.size ? 100 : 0} note={r.size === null ? "unknown" : r.size ? "meets NFL norms" : "under NFL norms"} />
+          <Meter label="Production" tip={TERMS.production} align="left-0" value={r.production} note={`percentile vs NFL ${r.group}${r.qocLabel !== "unmeasured" ? `, ${r.qocLabel} schedule` : ""}`} />
+          <Meter label="Snap share" tip={TERMS.snapShare} align="right-0 sm:left-0 sm:right-auto" value={r.usage} note={r.snapShare !== null ? `${Math.round(r.snapShare * 100)}% of unit snaps` : "no snap counts yet"} />
+          <Meter label="Draft slot" tip={TERMS.draftSlot} align="left-0 sm:right-0 sm:left-auto" value={r.pedigree} note={r.slot ? `pick No. ${r.slot}, ${r.draftClass}` : "undrafted"} />
+          <Meter label="Size" tip={TERMS.size} align="right-0" value={r.size === null ? 40 : r.size ? 100 : 0} note={r.size === null ? "unknown" : r.size ? "meets NFL norms" : "under NFL norms"} />
         </section>
       )}
 
@@ -156,8 +170,33 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
 
       {trend && (
         <section className="mt-8">
-          <p className="eyebrow">Week by week</p>
-          <PlayerWeeks weeks={trend.weeks} heads={heads} row={trend.row} notes={trend.notes} qb={gp?.pg === "QB"} />
+          <p className="eyebrow relative">
+            Week by week
+            <InfoTip label="Week by week" what={TERMS.trendMetrics} />
+          </p>
+          <PlayerWeeks weeks={trend.weeks} heads={heads} row={trend.row} notes={trend.notes} qb={gp?.pg === "QB"} rb={gp?.pg === "RB"} />
+        </section>
+      )}
+
+      {vs && opp && (
+        <section className="mt-8">
+          <p className="eyebrow relative">
+            Against the {opp}
+            <InfoTip label={`Against the ${opp}`} what={TERMS.vsOpponent} context={vsOpponentNote()} />
+          </p>
+          <VsOpponent opp={opp} games={vs.games} meanDiff={vs.meanDiff} />
+          {vs.games.length > 0 && vsOpponentNote() && <p className="mt-1 max-w-3xl text-xs text-chalk-3">{vsOpponentNote()}</p>}
+        </section>
+      )}
+
+      {stories && (
+        <section className="mt-8">
+          <p className="eyebrow relative">
+            Storyline games
+            <InfoTip label="Storyline games" what={TERMS.storyGames} context={storiesSummary()} />
+          </p>
+          <StorylineGames stories={stories} notes={Object.fromEntries((["revenge", "hometown", "college", "home-state"] as const).map((k) => [k, storyNote(k)]))} />
+          {stories.length > 0 && storiesSummary() && <p className="mt-1 max-w-3xl text-xs text-chalk-3">{storiesSummary()}</p>}
         </section>
       )}
 
@@ -203,20 +242,26 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
   );
 }
 
-function Box({ label, children }: { label: string; children: React.ReactNode }) {
+function Box({ label, tip, children }: { label: string; tip?: string; children: React.ReactNode }) {
   return (
-    <div className="card flex flex-col gap-1 p-4">
-      <p className="eyebrow">{label}</p>
+    <div className="card relative flex flex-col gap-1 p-4">
+      <p className="eyebrow">
+        {label}
+        {tip && <InfoTip label={label} what={tip} />}
+      </p>
       {children}
     </div>
   );
 }
 
-function Meter({ label, value, note }: { label: string; value: number; note: string }) {
+function Meter({ label, value, note, tip, align }: { label: string; value: number; note: string; tip?: string; align?: string }) {
   return (
-    <div className="card p-4">
+    <div className="card relative p-4">
       <div className="flex items-baseline justify-between">
-        <p className="eyebrow">{label}</p>
+        <p className="eyebrow">
+          {label}
+          {tip && <InfoTip label={label} what={tip} align={align} />}
+        </p>
         <span className="mono text-sm text-chalk">{value}</span>
       </div>
       <div className="meter mt-2"><span style={{ width: `${value}%` }} /></div>

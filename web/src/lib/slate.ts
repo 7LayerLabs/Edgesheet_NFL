@@ -18,6 +18,7 @@ import { buildConsensus } from "./consensus";
 import { absentWords, gameAvailability, type GameAvailability } from "./availability";
 import { dkPoints } from "./dfs";
 import { gameStories } from "./storylines";
+import { riserShort, shareText, vacatedFor } from "./vacated";
 import type { Venue } from "./nfl";
 import { boxScore } from "./boxscore";
 import { memo } from "./memo";
@@ -906,16 +907,26 @@ async function whoToWatch(raw: GenGame, home: Team, away: Team, matchupPicks: Pr
   const candidates = roster.filter((p) => !used.has(p.id) && Math.max(p.u?.o ?? 0, p.u?.d ?? 0) >= 0.3).sort((a, b) => prominence(b) - prominence(a));
   const stories = await gameStories({ home: raw.home, away: raw.away, neutral, season: raw.season, venue: venue ? { city: venue.city, state: venue.state } : undefined, candidates, max: TIER3 }).catch(() => []);
   for (const st of stories) add({ id: st.id, name: st.name, pos: st.pos, team: abbrOf(st.team), label: st.label, reason: st.text, detail: detailOf(st.id) });
-  // A role change: a back, receiver, or tight end who played the last game is out now; his busiest healthy teammate steps in.
+  // A role change: a back, receiver, or tight end who played the last game is out now. The teammate who gained the most
+  // in the games he missed (src/lib/vacated.ts) steps in; with no such games, his busiest healthy teammate at the position.
   let tier3 = stories.length;
   for (const side of [availability?.away, availability?.home]) {
     if (tier3 >= TIER3) break;
     const gone = side?.items.find((i) => i.kind === "out" && i.fresh && i.absence >= 0.85 && ["RB", "WR", "TE"].includes(byId.get(i.id)?.pg ?? ""));
     if (!gone) continue;
-    const pg = byId.get(gone.id)!.pg;
+    const pg = byId.get(gone.id)!.pg ?? "";
+    const v = vacatedFor(side!.team, [{ id: gone.id, status: gone.status }])[0];
+    const riser = v?.without?.risers.find((r) => !used.has(r.id) && !sits(r.id));
+    const n = v?.without?.games.length ?? 0;
+    if (riser) {
+      add({ id: riser.id, name: riser.name, pos: riser.pos, team: abbrOf(side!.team), label: "Role change", reason: `In ${n} ${n === 1 ? "game" : "games"} without ${gone.name}: ${riserShort(riser, pg)}.`, detail: detailOf(riser.id) });
+      tier3++;
+      continue;
+    }
     const mate = roster.filter((p) => p.t === side!.team && p.pg === pg && !used.has(p.id) && p.id !== gone.id).sort((a, b) => (b.u?.o ?? 0) - (a.u?.o ?? 0))[0];
     if (mate) {
-      add({ id: mate.id, name: mate.n, pos: mate.p ?? mate.pg ?? "", team: abbrOf(mate.t), label: "Role change", reason: `Takes on more work with ${gone.name} ${absentWords(gone.status)}.`, detail: detailLine(mate) || undefined });
+      const open = v ? shareText(v, true) : "";
+      add({ id: mate.id, name: mate.n, pos: mate.p ?? mate.pg ?? "", team: abbrOf(mate.t), label: "Role change", reason: `Takes on more work with ${gone.name} ${absentWords(gone.status)}${open ? `, who leaves ${open}` : ""}.`, detail: detailLine(mate) || undefined });
       tier3++;
     }
   }

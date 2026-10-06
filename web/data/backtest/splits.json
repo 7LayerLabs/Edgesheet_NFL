@@ -1,0 +1,304 @@
+{
+ "ranAt": "2026-10-06T02:04:11.867Z",
+ "seasons": [
+  2019,
+  2025
+ ],
+ "rule": "carry-over and loves-playing-them pass = correlation 0.15+ with the 95% bootstrap interval above zero",
+ "players": {
+  "home": {
+   "leagueWide": {
+    "nIn": 18637,
+    "nOut": 18699,
+    "inMean": 0.17,
+    "outMean": -0.17,
+    "diff": 0.35,
+    "ci": [
+     0.14,
+     0.55
+    ]
+   },
+   "carryOver": {
+    "pairs": 281,
+    "r": 0.18,
+    "ci": [
+     0.06,
+     0.3
+    ],
+    "pass": true
+   }
+  },
+  "division": {
+   "leagueWide": {
+    "nIn": 13532,
+    "nOut": 24498,
+    "inMean": -0.06,
+    "outMean": 0.03,
+    "diff": -0.09,
+    "ci": [
+     -0.3,
+     0.11
+    ]
+   },
+   "carryOver": {
+    "pairs": 296,
+    "r": -0.01,
+    "ci": [
+     -0.15,
+     0.13
+    ],
+    "pass": false
+   }
+  },
+  "primetime": {
+   "leagueWide": {
+    "nIn": 7838,
+    "nOut": 30192,
+    "inMean": -0.19,
+    "outMean": 0.05,
+    "diff": -0.24,
+    "ci": [
+     -0.47,
+     -0.01
+    ]
+   },
+   "carryOver": {
+    "pairs": 225,
+    "r": 0.1,
+    "ci": [
+     -0.06,
+     0.25
+    ],
+    "pass": false
+   }
+  },
+  "short": {
+   "leagueWide": {
+    "nIn": 2301,
+    "nOut": 35729,
+    "inMean": 0.32,
+    "outMean": -0.02,
+    "diff": 0.35,
+    "ci": [
+     0.02,
+     0.68
+    ]
+   },
+   "carryOver": {
+    "pairs": 34,
+    "r": -0.19,
+    "ci": [
+     -0.46,
+     0.12
+    ],
+    "pass": false
+   }
+  }
+ },
+ "teams": {
+  "home": {
+   "leagueWide": {
+    "nIn": 1837,
+    "nOut": 1837,
+    "inMean": 0.3,
+    "outMean": 0.37,
+    "diff": -0.07,
+    "ci": [
+     -0.67,
+     0.5
+    ]
+   },
+   "carryOver": {
+    "pairs": 192,
+    "r": -0.06,
+    "ci": [
+     -0.21,
+     0.08
+    ],
+    "pass": false
+   }
+  },
+  "division": {
+   "leagueWide": {
+    "nIn": 1344,
+    "nOut": 2398,
+    "inMean": 0.19,
+    "outMean": 0.38,
+    "diff": -0.18,
+    "ci": [
+     -0.83,
+     0.44
+    ]
+   },
+   "carryOver": {
+    "pairs": 192,
+    "r": -0.11,
+    "ci": [
+     -0.23,
+     0.02
+    ],
+    "pass": false
+   }
+  },
+  "primetime": {
+   "leagueWide": {
+    "nIn": 778,
+    "nOut": 2964,
+    "inMean": -0.57,
+    "outMean": 0.54,
+    "diff": -1.11,
+    "ci": [
+     -1.83,
+     -0.37
+    ]
+   },
+   "carryOver": {
+    "pairs": 138,
+    "r": -0.06,
+    "ci": [
+     -0.24,
+     0.13
+    ],
+    "pass": false
+   }
+  },
+  "short": {
+   "leagueWide": {
+    "nIn": 229,
+    "nOut": 3513,
+    "inMean": 0.38,
+    "outMean": 0.31,
+    "diff": 0.08,
+    "ci": [
+     -1.09,
+     1.29
+    ]
+   },
+   "carryOver": {
+    "pairs": 9,
+    "r": null,
+    "ci": null,
+    "pass": false
+   }
+  }
+ },
+ "defenses": {
+  "home": {
+   "leagueWide": {
+    "nIn": 1837,
+    "nOut": 1837,
+    "inMean": 0.27,
+    "outMean": -0.26,
+    "diff": 0.53,
+    "ci": [
+     0.16,
+     0.9
+    ]
+   },
+   "carryOver": {
+    "pairs": 192,
+    "r": 0,
+    "ci": [
+     -0.15,
+     0.14
+    ],
+    "pass": false
+   }
+  },
+  "division": {
+   "leagueWide": {
+    "nIn": 1344,
+    "nOut": 2398,
+    "inMean": 0.12,
+    "outMean": -0.07,
+    "diff": 0.19,
+    "ci": [
+     -0.17,
+     0.56
+    ]
+   },
+   "carryOver": {
+    "pairs": 192,
+    "r": -0.08,
+    "ci": [
+     -0.23,
+     0.06
+    ],
+    "pass": false
+   }
+  },
+  "primetime": {
+   "leagueWide": {
+    "nIn": 778,
+    "nOut": 2964,
+    "inMean": -0.42,
+    "outMean": 0.11,
+    "diff": -0.52,
+    "ci": [
+     -0.95,
+     -0.08
+    ]
+   },
+   "carryOver": {
+    "pairs": 138,
+    "r": -0.11,
+    "ci": [
+     -0.26,
+     0.04
+    ],
+    "pass": false
+   }
+  },
+  "short": {
+   "leagueWide": {
+    "nIn": 229,
+    "nOut": 3513,
+    "inMean": -0.26,
+    "outMean": 0.02,
+    "diff": -0.28,
+    "ci": [
+     -0.95,
+     0.45
+    ]
+   },
+   "carryOver": {
+    "pairs": 9,
+    "r": null,
+    "ci": null,
+    "pass": false
+   }
+  },
+  "home-division": {
+   "leagueWide": {
+    "nIn": 666,
+    "nOut": 3008,
+    "inMean": 0.58,
+    "outMean": -0.13,
+    "diff": 0.7,
+    "ci": [
+     0.26,
+     1.16
+    ]
+   },
+   "carryOver": {
+    "pairs": 192,
+    "r": -0.11,
+    "ci": [
+     -0.25,
+     0.02
+    ],
+    "pass": false
+   }
+  }
+ },
+ "vsOpponent": {
+  "pairs": 9572,
+  "r": 0,
+  "ci": [
+   -0.02,
+   0.03
+  ],
+  "slope": 0.01,
+  "pass": false
+ }
+}

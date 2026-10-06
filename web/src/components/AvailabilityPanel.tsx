@@ -1,4 +1,7 @@
 import type { GameAvailability, TeamAvailability } from "@/lib/availability";
+import { gamesText, riserText, shareText, type Vacated } from "@/lib/vacated";
+import { TERMS } from "@/lib/terms";
+import { InfoTip } from "./InfoTip";
 import type { Game, Team } from "@/lib/types";
 
 const signed = (n: number) => (n > 0 ? `+${n}` : n === 0 ? "0" : String(n));
@@ -10,7 +13,7 @@ const KIND: Record<string, string> = { out: "", left: "Left", arrived: "New", qb
  * the team's numbers, every starter out or doubtful, players traded away or signed, and the last
  * week of roster moves. The model's call includes these points (live and final games show the locked call).
  */
-export function AvailabilityPanel({ game, a }: { game: Game; a: GameAvailability }) {
+export function AvailabilityPanel({ game, a, vacated }: { game: Game; a: GameAvailability; vacated?: Record<string, Vacated[]> }) {
   const sides: [Team, TeamAvailability][] = [
     [game.away, a.away],
     [game.home, a.home],
@@ -72,6 +75,8 @@ export function AvailabilityPanel({ game, a }: { game: Game; a: GameAvailability
               {av.items.filter((i) => i.kind !== "qb").length === 0 && <li className="py-1.5 text-sm text-chalk-3">No starter out, doubtful, traded, or newly signed.</li>}
             </ul>
 
+            {(vacated?.[av.team] ?? []).length > 0 && <WorkLeftOpen list={vacated![av.team]} />}
+
             {av.moves.length > 0 && (
               <details className="mt-2">
                 <summary className="cursor-pointer text-xs font-semibold text-chalk-2">Roster moves, latest first</summary>
@@ -88,9 +93,42 @@ export function AvailabilityPanel({ game, a }: { game: Game; a: GameAvailability
         ))}
       </div>
       <p className="mt-3 max-w-3xl text-xs leading-relaxed text-chalk-3">
-        Sources: {a.sources.join(", ")}. QB: expected starter's EPA a play (this season plus half of last, shrunk toward replacement) against the QBs whose snaps built the team's numbers (this season and last), times QB plays a game, times 0.75 (backtest fit on 2022 to 2025). Skill players: EPA a touch or target above the 25th percentile at the position, half credit. Linemen and defenders: fixed starter values times snap share (assumed, not measured). Weighted by games played and the chance he sits (Questionable 25%, 50% with no practice on the final day).
+        Sources: {a.sources.join(", ")}. QB: expected starter&apos;s EPA a play (this season plus half of last, shrunk toward replacement) against the QBs whose snaps built the team&apos;s numbers (this season and last), times QB plays a game, times 0.75 (backtest fit on 2022 to 2025). Skill players: EPA a touch or target above the 25th percentile at the position, half credit. Linemen and defenders: fixed starter values times snap share (assumed, not measured). Weighted by games played and the chance he sits (Questionable 25%, 50% with no practice on the final day).
         {a.notes.length ? ` ${a.notes.join(" ")}` : ""}
       </p>
+    </div>
+  );
+}
+
+/** The work each missing back, receiver, or tight end leaves, and who took it the last times he sat (src/lib/vacated.ts). */
+function WorkLeftOpen({ list }: { list: Vacated[] }) {
+  return (
+    <div className="relative mt-3 rounded border border-line bg-panel-2 px-3 py-2">
+      <p className="text-xs font-semibold text-chalk">
+        Work left open
+        <InfoTip label="Work left open" what={TERMS.vacated} />
+      </p>
+      {list.map((v) => (
+        <div key={v.id} className="mt-1.5 text-xs leading-snug text-chalk-2">
+          <span className="font-semibold text-chalk">{v.name}</span> <span className="mono text-chalk-3">{v.pos}</span>: {shareText(v)} in his {v.share.games} {v.share.games === 1 ? "game" : "games"}.
+          {!v.without ? (
+            <span className="text-chalk-3"> He has not missed a game for them this season or last, so there is no without-him sample.</span>
+          ) : v.without.risers.length === 0 ? (
+            <span className="text-chalk-3"> In {v.without.games.length} {v.without.games.length === 1 ? "game" : "games"} without him ({gamesText(v.without.games)}) no teammate gained a target or carry a game.</span>
+          ) : (
+            <>
+              <span className="text-chalk-3"> Without him ({v.without.games.length} {v.without.games.length === 1 ? "game" : "games"}: {gamesText(v.without.games)}):</span>
+              <ul className="mt-0.5 grid gap-0.5">
+                {v.without.risers.map((r) => (
+                  <li key={r.id}>
+                    <span className="font-medium text-chalk">{r.name}</span> <span className="mono text-chalk-3">{r.pos}</span> {riserText(r)}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
