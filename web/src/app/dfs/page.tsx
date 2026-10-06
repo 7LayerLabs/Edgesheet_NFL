@@ -3,11 +3,13 @@ import { slateSim, type SlateLineup, type SlatePlayer, type SlateSim } from "@/l
 import { shiftDate } from "@/lib/slate";
 import { InfoTip } from "@/components/InfoTip";
 import { TERMS } from "@/lib/terms";
+import { pricePlayers, valueLists, type Priced, type ValuePick } from "@/lib/dfs-value";
+import { lockPicks, picksRecord, type PicksRecord } from "@/lib/dfs-picks";
 
 export const dynamic = "force-dynamic";
 
 const POSITIONS = ["All", "QB", "RB", "WR", "TE", "DST"] as const;
-const SORTS = { median: "Median", ceiling: "Ceiling", value: "Value", boom: "Boom" } as const;
+const SORTS = { median: "Median", ceiling: "Ceiling", value: "Value", gap: "Cheap by our price", boom: "Boom" } as const;
 type SortKey = keyof typeof SORTS;
 const LINEUP_TITLE: Record<SlateLineup["kind"], [string, string]> = {
   cash: ["Cash", "best median total: the steadiest 50/50 and double-up lineup"],
@@ -58,8 +60,13 @@ function DateLinks({ date }: { date?: string }) {
 }
 
 function Slate({ sim, pos, sort }: { sim: SlateSim; pos: (typeof POSITIONS)[number]; sort: SortKey }) {
+  // Our price and the value lists (src/lib/dfs-value.ts); the lists are saved before kickoff for the record.
+  const priced = pricePlayers(sim);
+  const lists = valueLists(sim, priced);
+  lockPicks(sim, lists);
+  const record = picksRecord();
   const value = (p: SlatePlayer) => p.median / (p.play.salary / 1000);
-  const by: Record<SortKey, (p: SlatePlayer) => number> = { median: (p) => p.median, ceiling: (p) => p.ceiling, value, boom: (p) => p.boom };
+  const by: Record<SortKey, (p: SlatePlayer) => number> = { median: (p) => p.median, ceiling: (p) => p.ceiling, value, gap: (p) => priced.get(p.key)?.gap ?? 0, boom: (p) => p.boom };
   const rows = sim.players.filter((p) => pos === "All" || p.play.pos === pos).sort((a, b) => by[sort](b) - by[sort](a)).slice(0, 80);
   const lineups = sim.lineups.filter((l, i) => !sim.lineups.slice(0, i).some((m) => m.keys.join() === l.keys.join()));
   const qs = (next: Partial<{ pos: string; sort: string }>) => {
@@ -77,6 +84,18 @@ function Slate({ sim, pos, sort }: { sim: SlateSim; pos: (typeof POSITIONS)[numb
       </p>
 
       <section className="mt-6">
+        <h2 className="display relative text-3xl font-bold text-chalk">
+          Value picks
+          <InfoTip label="Value picks" what={TERMS.valuePicks} context={TERMS.ourPrice} />
+        </h2>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <ValueCard title="Safest values" sub="cheap by our price, least likely to bust: cash games" picks={lists.safest} stat="bust" />
+          <ValueCard title="Upside values" sub="cheap by our price, most likely to boom: tournaments" picks={lists.upside} stat="boom" />
+        </div>
+        <RecordLine record={record} />
+      </section>
+
+      <section className="mt-8">
         <h2 className="display text-3xl font-bold text-chalk">Lineups</h2>
         <div className="mt-3 grid gap-3 lg:grid-cols-3">
           {lineups.map((l) => (
@@ -125,11 +144,13 @@ function Slate({ sim, pos, sort }: { sim: SlateSim; pos: (typeof POSITIONS)[numb
           ))}
         </div>
         <div className="card mt-3 overflow-x-auto">
-          <table className="w-full min-w-[720px] text-sm">
+          <table className="w-full min-w-[860px] text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs text-chalk-3">
                 <th className="px-3 py-2 font-semibold">Player</th>
                 <th className="px-2 py-2 text-right font-semibold">Salary</th>
+                <th className="px-2 py-2 text-right font-semibold" title="The DraftKings salary at his rank by our median">Ours</th>
+                <th className="px-2 py-2 text-right font-semibold" title="Our price minus DraftKings': plus is cheap by our numbers">Gap</th>
                 <th className="px-2 py-2 text-right font-semibold" title="Our projection, after any Jev role change">Proj</th>
                 <th className="px-2 py-2 text-right font-semibold" title="10th percentile of the simulations">Floor</th>
                 <th className="px-2 py-2 text-right font-semibold">Median</th>
@@ -149,6 +170,8 @@ function Slate({ sim, pos, sort }: { sim: SlateSim; pos: (typeof POSITIONS)[numb
                     <span className="mono ml-2 text-xs text-chalk-3">{p.play.teamAbbr} v {p.play.oppAbbr}</span>
                   </td>
                   <td className="mono px-2 py-2 text-right text-chalk-2">{money(p.play.salary)}</td>
+                  <td className="mono px-2 py-2 text-right text-chalk-2">{priced.get(p.key) ? money(priced.get(p.key)!.ours) : ""}</td>
+                  <td className="mono px-2 py-2 text-right"><Gap pr={priced.get(p.key)} /></td>
                   <td className="mono px-2 py-2 text-right text-chalk-2">{p.proj}</td>
                   <td className="mono px-2 py-2 text-right text-chalk-3">{p.floor}</td>
                   <td className="mono px-2 py-2 text-right font-semibold text-chalk">{p.median}</td>
@@ -174,6 +197,80 @@ function Slate({ sim, pos, sort }: { sim: SlateSim; pos: (typeof POSITIONS)[numb
         </p>
       </section>
     </>
+  );
+}
+
+/** "+$1,300" in green when cheap by our price, "-$800" in red when dear. */
+function Gap({ pr }: { pr?: Priced }) {
+  if (!pr) return null;
+  const tone = pr.gap >= 300 ? "text-turf" : pr.gap <= -300 ? "text-brick" : "text-chalk-3";
+  return <span className={tone}>{pr.gap > 0 ? "+" : pr.gap < 0 ? "-" : ""}{money(Math.abs(pr.gap))}</span>;
+}
+
+/** One value list: DK's price against ours, the median, the bust or boom chance, and the reasons from our data. */
+function ValueCard({ title, sub, picks, stat }: { title: string; sub: string; picks: ValuePick[]; stat: "bust" | "boom" }) {
+  return (
+    <div className="card p-4">
+      <p className="display text-2xl font-bold text-chalk">{title}</p>
+      <p className="text-xs text-chalk-3">{sub}</p>
+      {picks.length === 0 ? (
+        <p className="mt-3 text-sm text-chalk-3">Nobody likely to play is $300 or more cheap by our price on this slate.</p>
+      ) : (
+        <ul className="mt-2 divide-y divide-line">
+          {picks.map((p) => (
+            <li key={p.key} className="py-2">
+              <div className="flex flex-wrap items-baseline gap-x-2">
+                <span className="mono w-7 text-xs text-chalk-3">{p.pos}</span>
+                {p.id ? <Link href={`/player/${p.id}`} className="font-semibold text-chalk hover:text-sky">{p.name}</Link> : <span className="font-semibold text-chalk">{p.name}</span>}
+                <span className="mono text-xs text-chalk-3">{p.teamAbbr} v {p.oppAbbr}</span>
+                <span className="mono ml-auto text-xs text-chalk-2">
+                  DK {money(p.salary)} · ours {money(p.ours)} <span className="font-semibold text-turf">+{money(p.gap)}</span>
+                </span>
+              </div>
+              <p className="mono mt-0.5 pl-9 text-xs text-chalk-3">
+                median <span className="font-semibold text-chalk">{p.median}</span> · range {p.floor} to {p.ceiling} · {stat === "bust" ? `busts ${pct(p.bust)}` : `booms ${pct(p.boom)}`}
+                {p.pPlay < 1 ? ` · plays ${pct(p.pPlay)}` : ""}
+              </p>
+              {p.reasons.length > 0 && (
+                <ul className="mt-0.5 pl-9 text-xs leading-snug text-chalk-2">
+                  {p.reasons.map((r) => (
+                    <li key={r}>{r}</li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/** The graded record of the saved picks, or why there is none yet. */
+function RecordLine({ record }: { record: PicksRecord }) {
+  const { all, safest, upside } = record.summary;
+  if (!all.n)
+    return (
+      <p className="mt-2 max-w-3xl text-xs text-chalk-3">
+        Record: no graded picks yet. Each slate&apos;s lists are saved before kickoff and graded after the games against every player at the same position within $500 of the salary
+        {record.pending ? ` (${record.pending} saved picks waiting on their games)` : ""}.
+      </p>
+    );
+  return (
+    <details className="mt-2 max-w-3xl">
+      <summary className="cursor-pointer text-sm text-chalk-2">
+        Record: {all.n} picks graded over {record.slates} {record.slates === 1 ? "slate" : "slates"}, beat players at their price {pct(all.beat)} of the time,{" "}
+        <span className={all.edge >= 0 ? "text-turf" : "text-brick"}>{all.edge > 0 ? "+" : ""}{all.edge} DK</span> on average (safest {pct(safest.beat)}, upside {pct(upside.beat)}).
+      </summary>
+      <ul className="mono mt-1 grid gap-0.5 text-xs text-chalk-2">
+        {record.graded.slice(0, 40).map((g) => (
+          <li key={`${g.date}-${g.name}`}>
+            {g.date} {g.list} {g.pos} {g.name} ${g.salary.toLocaleString("en-US")}: {g.dk} DK vs {g.mates} for his price-mates{" "}
+            <span className={g.edge >= 0 ? "text-turf" : "text-brick"}>({g.edge > 0 ? "+" : ""}{g.edge})</span>
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }
 

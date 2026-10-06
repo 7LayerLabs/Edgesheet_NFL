@@ -55,6 +55,12 @@ export const TERMS = {
   storyGames:
     "Every game since 2019 with a storyline: against a team he played for in the four seasons before (or the team that drafted him), and road games in his birth city, his college's state, or his birth state. Each shows DraftKings points against his own average in his other games that season.",
 
+  // DraftKings value (DFS page and the game's DraftKings panel).
+  ourPrice:
+    "Our price: rank every player at his position on the slate by our simulated median, and he gets the DraftKings salary at the same rank (the best median gets the highest salary, and so on). It uses DraftKings' own price scale, so the gap only says DK ranks him differently than we do. Gap: ours minus DK's; plus means cheap by our numbers.",
+  valuePicks:
+    "Safest values: $300 or more cheap by our price, 75% or better to play, sorted by the lowest bust chance (under 2x salary per $1,000): cash games. Upside values: the same, sorted by the highest boom chance (5x): tournaments. Not locks: every player busts in some simulations. Picks are saved before kickoff and graded after the games against every player at the same position within $500 of the salary.",
+
   // DraftKings (game page panel and the DFS page).
   dfs: "Proj: our average DraftKings points, blended with last season and the matchup. Floor, median, and ceiling: the 10th, 50th, and 90th percentiles of 10,000 simulations of the slate. Boom: share of simulations at 5x his salary per $1,000 or more; bust: under 2x. Value: points per $1,000 of salary (the DFS page uses the simulated median, the game page's panel the projection).",
 } as const;

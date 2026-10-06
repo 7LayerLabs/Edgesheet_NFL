@@ -8,6 +8,8 @@ import type { Game, Team } from "@/lib/types";
 import { PropsButton } from "./PropsButton";
 import { InfoTip } from "./InfoTip";
 import { TERMS } from "@/lib/terms";
+import { pricePlayers, valueLists, type Priced } from "@/lib/dfs-value";
+import { lockPicks } from "@/lib/dfs-picks";
 
 const money = (n: number) => `$${n.toLocaleString("en-US")}`;
 const odds = (n?: number) => (n === undefined ? "" : n > 0 ? `+${n}` : String(n));
@@ -27,7 +29,11 @@ export async function DfsPanel({ game }: { game: Game }) {
   // Simulated ranges when this game is on the date's main Classic slate (the /dfs simulator, memoized per salary pull).
   const sim = game.status === "upcoming" ? await slateSim(etDateOf(game.kickoff)).catch(() => undefined) : undefined;
   const ranges = new Map<string, PlayerSim>(sim && !("note" in sim) ? sim.players.map((p) => [p.key, p]) : []);
-  const rangeOf = (p: DfsPlay) => ranges.get(p.pos === "DST" ? `DST-${p.team}` : (p.id ?? `${p.team}-${p.name}`));
+  const keyOf = (p: DfsPlay) => (p.pos === "DST" ? `DST-${p.team}` : (p.id ?? `${p.team}-${p.name}`));
+  const rangeOf = (p: DfsPlay) => ranges.get(keyOf(p));
+  // Our price on the slate (src/lib/dfs-value.ts); building it here also saves the slate's value picks for the record.
+  const priced = sim && !("note" in sim) ? pricePlayers(sim) : new Map<string, Priced>();
+  if (sim && !("note" in sim)) lockPicks(sim, valueLists(sim, priced));
   const sides: Team[] = [game.away, game.home];
   const hasProps = Boolean(game.odds?.props);
   const showdown = data.plays.some((p) => p.slate === "showdown");
@@ -69,7 +75,7 @@ export async function DfsPanel({ game }: { game: Game }) {
               ) : (
                 <ul className="mt-1 divide-y divide-line">
                   {plays.map((p) => (
-                    <PlayRow key={p.name} p={p} range={rangeOf(p)} />
+                    <PlayRow key={p.name} p={p} range={rangeOf(p)} price={priced.get(keyOf(p))} />
                   ))}
                 </ul>
               )}
@@ -104,7 +110,7 @@ export async function DfsPanel({ game }: { game: Game }) {
   );
 }
 
-function PlayRow({ p, range }: { p: DfsPlay; range?: PlayerSim }) {
+function PlayRow({ p, range, price }: { p: DfsPlay; range?: PlayerSim; price?: Priced }) {
   const strong = p.slate === "classic" && p.value >= 4;
   return (
     <li className="py-2">
@@ -118,7 +124,17 @@ function PlayRow({ p, range }: { p: DfsPlay; range?: PlayerSim }) {
           <span className="display text-lg font-semibold text-chalk">{p.name}</span>
         )}
         {p.status && <span className="mono text-xs font-semibold text-warn">{p.status}</span>}
-        <span className="mono ml-auto text-sm text-chalk-2">{money(p.salary)}</span>
+        <span className="mono ml-auto text-sm text-chalk-2">
+          {money(p.salary)}
+          {price && (
+            <span className="text-xs text-chalk-3">
+              {" "}· ours {money(price.ours)}{" "}
+              <span className={price.gap >= 300 ? "text-turf" : price.gap <= -300 ? "text-brick" : "text-chalk-3"}>
+                ({price.gap > 0 ? "+" : price.gap < 0 ? "-" : ""}{money(Math.abs(price.gap))})
+              </span>
+            </span>
+          )}
+        </span>
       </div>
       <div className="mono mt-0.5 flex flex-wrap gap-x-3 pl-9 text-xs text-chalk-3">
         <span>

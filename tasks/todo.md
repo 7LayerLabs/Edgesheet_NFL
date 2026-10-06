@@ -1,10 +1,11 @@
 # WHERE WE LEFT OFF (kept current at every push)
 
-Last updated 2026-10-06, commit "Phases 3-5". Derek's instruction: finish the rest and push as soon as it is done.
+Last updated 2026-10-06, commit "Phase 11". Derek's instruction: finish the rest and push as soon as it is done.
 - DONE and pushed: game page read (Section 1), Phase 1 data (per-game snaps, history-games.json, play calling), Phase 2
   trends, info tips everywhere, Phase 3 work left open, Phase 4 player history, Phase 5 backtests (results below: no
   storyline passes; only a player's own home/away split carries over, weakly; primetime teams score 1.1 under the line).
-- LEFT, in this order: Phase 11 (DraftKings Our price, Safest/Upside value lists, weekly graded record), Phase 6 (splits
+- DONE and pushed since: Phase 11 (DraftKings Our price, Safest/Upside value lists, graded record).
+- LEFT, in this order: Phase 6 (splits
   on the page: the player home/away flag, primetime team note, defense home-division), Phase 7 (defense vs position
   table), Phase 8 (slate home: team totals, values, weather, total bands, Main/Showdown filters), Phase 9 (sleepers by
   beat buzz), Phase 10 (single-entry lineup). Then the section-by-section review resumes at the Matchups fold.
@@ -198,13 +199,25 @@ pass (players' home/away) and the primetime-teams finding feed Phase 6.
 
 ### Phase 11: DraftKings "Our price" and value picks (Derek, 2026-10-05: yes to all three)
 Salaries are DraftKings' own (public lobby: getcontests, then getavailableplayers per draft group).
-- [ ] 11.1 Our price for every DK player: the salary his simulated median is worth at what DK charges per point at his
+- [x] 11.1 Our price for every DK player: the salary his simulated median is worth at what DK charges per point at his
       position on that slate, next to DK's price with the gap ("DK $6,100 · ours $7,400 · $1,300 cheap") and the reasons
       from our data (role up with a teammate out, matchup, Jev news), on the DFS page and the game's DraftKings panel.
-- [ ] 11.2 Two lists per slate: Safest values (cheap for the price, lowest bust rate: cash) and Upside values (cheap,
+- [x] 11.2 Two lists per slate: Safest values (cheap for the price, lowest bust rate: cash) and Upside values (cheap,
       highest boom rate: tournaments). Not "can't miss": everyone busts in some simulations; each pick shows its bust chance.
-- [ ] 11.3 Log each slate's picks before kickoff, grade them after (beat the price, by how much, against everyone at that
+- [x] 11.3 Log each slate's picks before kickoff, grade them after (beat the price, by how much, against everyone at that
       price), and show the record. No past DK salaries exist to backtest, so the record is the test.
+
+Phase 11 notes (2026-10-06, BUILT and pushed; not seen in a browser: the dev server was down for low memory):
+src/lib/dfs-value.ts, src/lib/dfs-picks.ts. Our price = the DK salary at the same rank by our simulated median within
+the position on the slate (rank mapping: DraftKings' own price scale, zero-sum per position, no dollars-per-point rate
+invented), rounded to $100. Lists: $300+ cheap, 75%+ to play, capped like a lineup (1 QB, 2 RB, 2 WR, 1 TE; uncapped,
+the Safest list was six quarterbacks, who bust least by nature); Safest by lowest bust, Upside by highest boom; defenses
+left out until the record can grade them. Reasons: next-man-up work, Jev's role read, a top-8 or bottom-8 matchup, and
+the newest explained usage change (a reason when the role grew, "Caution" when it shrank). Record: picks and the priced
+pool saved to data/dk/picks-<date>.json the first time the lists are built before a pick's kickoff (DFS page or a game's
+DraftKings panel), never rewritten; graded against price-mates (same position, within $500, 75%+ to play; no stat line
+in a posted game = 0 for picks and mates alike). Checked on the cached 2026-10-11 slate: Safest = Goff, Juwan Johnson
+(+$2,200), Swift (caution: carry share 52% to 28%), Taylor, Wan'Dale Robinson, Carnell Tate.
 
 Order: phases 1 to 3 first (the trends Derek asked for), then 4 and 5 together (the backtest decides what 4 may claim),
 then 11 (Derek asked for it next), then 6 to 10. Each phase: tsc, lint, a check on tonight's or next week's games, Derek's look, commit when he says.
