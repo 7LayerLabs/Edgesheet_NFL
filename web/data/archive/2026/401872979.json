@@ -1,0 +1,435 @@
+{
+ "gameId": "401872979",
+ "season": 2026,
+ "week": 4,
+ "pregame": {
+  "capturedAt": "2026-10-05T04:00:09.765Z",
+  "kickoff": "2026-10-06T00:15:00.000Z",
+  "away": "Falcons",
+  "home": "Saints",
+  "abbr": {
+   "home": "NO",
+   "away": "ATL"
+  },
+  "scoutScore": 85,
+  "whyWatch": "Division game: Falcons 1-2, 3rd in the NFC South; Saints 1-2, 2nd in the NFC South.",
+  "pressurePoint": "Falcons on passing downs vs Saints pressure. The Saints are No. 2 of 32 on passing downs (28%). The Falcons rank No. 30 in passing-downs success (28%). This is not a lean. It is a mismatch, and a prominent one. The Saints get off the field on long downs. Early-down efficiency is everything for the Falcons. Watch the Falcons on third-and-7 or longer. Punts there mean the defense is winning.",
+  "edges": [
+   {
+    "a": "Falcons on passing downs",
+    "b": "Saints pressure",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Falcons",
+    "why": "The Saints are No. 2 of 32 on passing downs (28%). The Falcons rank No. 30 in passing-downs success (28%). This is not a lean. It is a mismatch, and a prominent one. The Saints get off the field on long downs. Early-down efficiency is everything for the Falcons."
+   },
+   {
+    "a": "Falcons run game",
+    "b": "Saints run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Falcons",
+    "why": "The Falcons are No. 5 of 32 in rush success rate (50%). The Saints rank No. 31 against the run (51%). This is not a lean. It is a mismatch, and a prominent one. Expect the Falcons to lean on the run early and often, and to keep leaning. Once the Saints load the box, play-action is the second punch."
+   },
+   {
+    "a": "Falcons ground game",
+    "b": "Saints run front",
+    "edge": "offense",
+    "axis": "line",
+    "offTeam": "Falcons",
+    "why": "The Falcons are No. 6 of 32 in rush EPA per carry (0.04). The Saints rank No. 26 against the run by EPA (0.02). This is not a lean. It is a mismatch, and a prominent one. The line of scrimmage belongs to the Falcons. Second-level runs and play-action are live all afternoon."
+   },
+   {
+    "a": "Falcons deep passing",
+    "b": "Saints secondary",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Falcons",
+    "why": "The Saints are No. 3 of 32 at limiting explosive passes (1.13). The Falcons rank No. 20 in pass explosiveness (1.29). This is not a lean. It is a mismatch, and a prominent one. Deep balls are the lowest-percentage play in this game. The Falcons need the underneath game and yards after catch."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4430807",
+    "name": "Bijan Robinson",
+    "team": "Falcons",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 82
+   },
+   {
+    "id": "4241986",
+    "name": "Chase Young",
+    "team": "Saints",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Matchup",
+    "score": 81
+   },
+   {
+    "id": "4595343",
+    "name": "Kendal Daniels",
+    "team": "Falcons",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 57
+   },
+   {
+    "id": "4685502",
+    "name": "Harold Perkins Jr.",
+    "team": "Falcons",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 37
+   },
+   {
+    "id": "4879276",
+    "name": "Bryce Lance",
+    "team": "Saints",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 32
+   },
+   {
+    "id": "4360689",
+    "name": "Tyler Shough",
+    "team": "Saints",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Breakout",
+    "score": 89
+   },
+   {
+    "id": "4569559",
+    "name": "Devaughn Vele",
+    "team": "Saints",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 87
+   },
+   {
+    "id": "3124890",
+    "name": "Kaden Elliss",
+    "team": "Saints",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 88
+   },
+   {
+    "id": "4433975",
+    "name": "Kool-Aid McKinstry",
+    "team": "Saints",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 88
+   },
+   {
+    "id": "4361370",
+    "name": "Chris Olave",
+    "team": "Saints",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "00-0031279",
+    "name": "Jake Matthews",
+    "team": "Falcons",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0039048",
+    "name": "Matthew Bergeron",
+    "team": "Falcons",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0036833",
+    "name": "Ryan Neuzil",
+    "team": "Falcons",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "NO",
+   "line": -1.5
+  },
+  "total": 47.5,
+  "projection": {
+   "winner": "ATL",
+   "winProb": 0.5008865436763196,
+   "margin": 0.030000000000000027,
+   "home": 24,
+   "away": 24,
+   "modelSide": "ATL",
+   "confidence": "high",
+   "modelTotal": 44,
+   "totalLean": "under"
+  },
+  "consensus": {
+   "median": 2.5,
+   "favorite": "NO",
+   "side": "NO",
+   "sideCount": 2,
+   "of": 4
+  },
+  "first": {
+   "capturedAt": "2026-10-05T04:00:09.765Z",
+   "spread": {
+    "team": "NO",
+    "line": -1.5
+   },
+   "total": 48,
+   "projection": {
+    "winner": "ATL",
+    "winProb": 0.5008865436763196,
+    "margin": 0.030000000000000027,
+    "home": 24,
+    "away": 24,
+    "modelSide": "ATL",
+    "confidence": "high",
+    "modelTotal": 44.5,
+    "totalLean": "under"
+   }
+  },
+  "updatedAt": "2026-10-05T23:15:17.429Z"
+ },
+ "postgame": {
+  "projectionResult": {
+   "winnerRight": true,
+   "marginError": 20.97,
+   "modelSideCovered": true,
+   "totalLeanRight": false
+  },
+  "clv": {
+   "closingAt": "2026-10-05T21:59:58.668Z",
+   "hoursBeforeKick": 2.3,
+   "closingBooks": 9,
+   "closingSpread": {
+    "team": "NO",
+    "line": -1.5
+   },
+   "sideClv": 0,
+   "closingTotal": 47.5,
+   "totalClv": 0
+  },
+  "consensusResult": {
+   "winnerRight": false,
+   "marginError": 23.5,
+   "sideCovered": false
+  },
+  "capturedAt": "2026-10-06T03:30:19.759Z",
+  "score": {
+   "home": 24,
+   "away": 45
+  },
+  "excitement": null,
+  "spreadResult": "underdog covered",
+  "totalResult": "over",
+  "edges": [
+   {
+    "a": "Falcons on passing downs",
+    "b": "Saints pressure",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Falcons",
+    "why": "The Saints are No. 2 of 32 on passing downs (28%). The Falcons rank No. 30 in passing-downs success (28%). This is not a lean. It is a mismatch, and a prominent one. The Saints get off the field on long downs. Early-down efficiency is everything for the Falcons.",
+    "verdict": "unmeasured",
+    "actual": "Third-down detail is not in the box score. Play-by-play for this game is not ingested yet (npm run ingest:plays)."
+   },
+   {
+    "a": "Falcons run game",
+    "b": "Saints run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Falcons",
+    "why": "The Falcons are No. 5 of 32 in rush success rate (50%). The Saints rank No. 31 against the run (51%). This is not a lean. It is a mismatch, and a prominent one. Expect the Falcons to lean on the run early and often, and to keep leaning. Once the Saints load the box, play-action is the second punch.",
+    "verdict": "played out",
+    "actual": "205 rush yds on 35 carries (5.9 per)"
+   },
+   {
+    "a": "Falcons ground game",
+    "b": "Saints run front",
+    "edge": "offense",
+    "axis": "line",
+    "offTeam": "Falcons",
+    "why": "The Falcons are No. 6 of 32 in rush EPA per carry (0.04). The Saints rank No. 26 against the run by EPA (0.02). This is not a lean. It is a mismatch, and a prominent one. The line of scrimmage belongs to the Falcons. Second-level runs and play-action are live all afternoon.",
+    "verdict": "played out",
+    "actual": "205 rush yds on 35 carries (5.9 per)"
+   },
+   {
+    "a": "Falcons deep passing",
+    "b": "Saints secondary",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Falcons",
+    "why": "The Saints are No. 3 of 32 at limiting explosive passes (1.13). The Falcons rank No. 20 in pass explosiveness (1.29). This is not a lean. It is a mismatch, and a prominent one. Deep balls are the lowest-percentage play in this game. The Falcons need the underneath game and yards after catch.",
+    "verdict": "did not play out",
+    "actual": "223 pass yds, longest play 59"
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4430807",
+    "name": "Bijan Robinson",
+    "team": "Falcons",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 82,
+    "verdict": "showed up",
+    "line": "19 car, 145 yds, 2 TD · 1 rec, 2 yds, 0 TD (2 tgt)"
+   },
+   {
+    "id": "4241986",
+    "name": "Chase Young",
+    "team": "Saints",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Matchup",
+    "score": 81,
+    "verdict": "quiet",
+    "line": "4 tkl, 0 TFL, 0 sacks, 1 PD"
+   },
+   {
+    "id": "4595343",
+    "name": "Kendal Daniels",
+    "team": "Falcons",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 57,
+    "verdict": "quiet",
+    "line": "4 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4685502",
+    "name": "Harold Perkins Jr.",
+    "team": "Falcons",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 37,
+    "verdict": "showed up",
+    "line": "10 tkl, 0 TFL, 0.5 sacks, 1 PD, 1 QB hits"
+   },
+   {
+    "id": "4879276",
+    "name": "Bryce Lance",
+    "team": "Saints",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 32,
+    "verdict": "quiet",
+    "line": "1 rec, 7 yds, 0 TD (5 tgt)"
+   },
+   {
+    "id": "4360689",
+    "name": "Tyler Shough",
+    "team": "Saints",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Breakout",
+    "score": 89,
+    "verdict": "showed up",
+    "line": "30/48, 286 yds, 1 TD, 0 INT · 2 car, 5 yds, 0 TD"
+   },
+   {
+    "id": "4569559",
+    "name": "Devaughn Vele",
+    "team": "Saints",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 87,
+    "verdict": "showed up",
+    "line": "6 rec, 54 yds, 1 TD (9 tgt)"
+   },
+   {
+    "id": "3124890",
+    "name": "Kaden Elliss",
+    "team": "Saints",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 88,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4433975",
+    "name": "Kool-Aid McKinstry",
+    "team": "Saints",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 88,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4361370",
+    "name": "Chris Olave",
+    "team": "Saints",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Watch",
+    "score": 87,
+    "verdict": "showed up",
+    "line": "8 rec, 116 yds, 0 TD (12 tgt)"
+   },
+   {
+    "id": "00-0031279",
+    "name": "Jake Matthews",
+    "team": "Falcons",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0039048",
+    "name": "Matthew Bergeron",
+    "team": "Falcons",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0036833",
+    "name": "Ryan Neuzil",
+    "team": "Falcons",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   }
+  ],
+  "pressurePointVerdict": "unmeasured"
+ }
+}

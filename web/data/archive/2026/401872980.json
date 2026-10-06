@@ -1,0 +1,223 @@
+{
+ "gameId": "401872980",
+ "season": 2026,
+ "week": 5,
+ "pregame": {
+  "capturedAt": "2026-10-06T04:00:20.428Z",
+  "kickoff": "2026-10-09T00:15:00.000Z",
+  "away": "Buccaneers",
+  "home": "Cowboys",
+  "abbr": {
+   "home": "DAL",
+   "away": "TB"
+  },
+  "scoutScore": 69,
+  "whyWatch": "Josiah Trotter (TB LB, Rookie) is a top-of-the-radar name: drafted No. 46, producing like pick No. 1.",
+  "pressurePoint": "Buccaneers deep passing vs Cowboys secondary. The Cowboys are No. 9 of 32 at limiting explosive passes (1.24). The Buccaneers rank No. 25 in pass explosiveness (1.20). A clear edge, the kind that shapes a game plan. The Cowboys keep the lid on. The Buccaneers should expect to drive the long way. Watch the longest Buccaneers completion. If it is under 25 yards at the half, the Cowboys have won the matchup.",
+  "edges": [
+   {
+    "a": "Buccaneers deep passing",
+    "b": "Cowboys secondary",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Buccaneers",
+    "why": "The Cowboys are No. 9 of 32 at limiting explosive passes (1.24). The Buccaneers rank No. 25 in pass explosiveness (1.20). A clear edge, the kind that shapes a game plan. The Cowboys keep the lid on. The Buccaneers should expect to drive the long way."
+   },
+   {
+    "a": "Cowboys ground game",
+    "b": "Buccaneers run front",
+    "edge": "defense",
+    "axis": "line",
+    "offTeam": "Cowboys",
+    "why": "The Buccaneers are No. 6 of 32 against the run by EPA (-0.21). The Cowboys rank No. 19 in rush EPA per carry (-0.07). A clear edge, the kind that shapes a game plan. The Buccaneers should hold the line of scrimmage. Cowboys runs will need the second level to break."
+   },
+   {
+    "a": "Cowboys run game",
+    "b": "Buccaneers run defense",
+    "edge": "defense",
+    "axis": "rush",
+    "offTeam": "Cowboys",
+    "why": "The Buccaneers are No. 3 of 32 against the run (31%). The Cowboys rank No. 13 in rush success rate (42%). A real edge, not a lock. The Cowboys will find the run hard going. Expect more second-and-long than usual."
+   },
+   {
+    "a": "Cowboys deep passing",
+    "b": "Buccaneers secondary",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Cowboys",
+    "why": "The Buccaneers are No. 9 of 32 at limiting explosive passes (1.24). The Cowboys rank No. 18 in pass explosiveness (1.30). A real edge, not a lock. The Buccaneers keep the lid on. The Cowboys should expect to drive the long way."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4384549",
+    "name": "Cobie Durant",
+    "team": "Cowboys",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Matchup",
+    "score": 54
+   },
+   {
+    "id": "5085355",
+    "name": "David Walker",
+    "team": "Buccaneers",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Matchup",
+    "score": 51
+   },
+   {
+    "id": "4870998",
+    "name": "Josiah Trotter",
+    "team": "Buccaneers",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 91
+   },
+   {
+    "id": "4685266",
+    "name": "Jaishawn Barham",
+    "team": "Cowboys",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 80
+   },
+   {
+    "id": "4870706",
+    "name": "Caleb Downs",
+    "team": "Cowboys",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 75
+   },
+   {
+    "id": "5220680",
+    "name": "Ted Hurst III",
+    "team": "Buccaneers",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 59
+   },
+   {
+    "id": "4596448",
+    "name": "Bucky Irving",
+    "team": "Buccaneers",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Breakout",
+    "score": 83
+   },
+   {
+    "id": "4567750",
+    "name": "Emeka Egbuka",
+    "team": "Buccaneers",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 80
+   },
+   {
+    "id": "4683848",
+    "name": "Donovan Ezeiruaku",
+    "team": "Cowboys",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 80
+   },
+   {
+    "id": "00-0036132",
+    "name": "Ben Bredeson",
+    "team": "Buccaneers",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0039157",
+    "name": "Cody Mauch",
+    "team": "Buccaneers",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0039348",
+    "name": "Cooper Beebe",
+    "team": "Cowboys",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0036036",
+    "name": "Terence Steele",
+    "team": "Cowboys",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0038731",
+    "name": "TJ Bass",
+    "team": "Cowboys",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "DAL",
+   "line": -9.5
+  },
+  "total": 47.5,
+  "projection": {
+   "winner": "DAL",
+   "winProb": 0.6513207753985915,
+   "margin": 5.25,
+   "home": 26,
+   "away": 22,
+   "modelSide": "TB",
+   "confidence": "high",
+   "modelTotal": 43.5,
+   "totalLean": "under"
+  },
+  "consensus": {
+   "median": 4.9,
+   "favorite": "DAL",
+   "side": "TB",
+   "sideCount": 3,
+   "of": 4
+  },
+  "first": {
+   "capturedAt": "2026-10-06T04:00:20.428Z",
+   "spread": {
+    "team": "DAL",
+    "line": -9.5
+   },
+   "total": 47.5,
+   "projection": {
+    "winner": "DAL",
+    "winProb": 0.6649190510925432,
+    "margin": 5.75,
+    "home": 27,
+    "away": 21,
+    "modelSide": "TB",
+    "confidence": "high",
+    "modelTotal": 43,
+    "totalLean": "under"
+   }
+  },
+  "updatedAt": "2026-10-06T04:15:20.426Z"
+ }
+}

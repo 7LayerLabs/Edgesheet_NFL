@@ -165,17 +165,17 @@
   "total": 48,
   "projection": {
    "winner": "SF",
-   "winProb": 0.6291600159894286,
-   "margin": 4.45,
-   "home": 26,
-   "away": 22,
+   "winProb": 0.6567846444280798,
+   "margin": 5.45,
+   "home": 27,
+   "away": 21,
    "modelSide": "SF",
    "confidence": "high",
-   "modelTotal": 50,
-   "totalLean": "none"
+   "modelTotal": 50.5,
+   "totalLean": "over"
   },
   "consensus": {
-   "median": 6.5,
+   "median": 7,
    "favorite": "SF",
    "side": "SF",
    "sideCount": 3,
@@ -200,6 +200,216 @@
     "totalLean": "over"
    }
   },
-  "updatedAt": "2026-10-04T18:43:11.289Z"
+  "updatedAt": "2026-10-04T19:10:05.929Z"
+ },
+ "postgame": {
+  "projectionResult": {
+   "winnerRight": true,
+   "marginError": 4.55,
+   "modelSideCovered": true,
+   "totalLeanRight": false
+  },
+  "clv": {
+   "closingAt": "2026-10-04T18:36:29.185Z",
+   "hoursBeforeKick": 1.8,
+   "closingBooks": 9,
+   "closingSpread": {
+    "team": "SF",
+    "line": -3
+   },
+   "sideClv": 0,
+   "closingTotal": 48,
+   "totalClv": 0
+  },
+  "consensusResult": {
+   "winnerRight": true,
+   "marginError": 3,
+   "sideCovered": true
+  },
+  "capturedAt": "2026-10-04T23:40:08.357Z",
+  "score": {
+   "home": 24,
+   "away": 14
+  },
+  "excitement": null,
+  "spreadResult": "favorite covered",
+  "totalResult": "under",
+  "edges": [
+   {
+    "a": "Broncos deep passing",
+    "b": "49ers secondary",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Broncos",
+    "why": "The 49ers are No. 6 of 32 at limiting explosive passes (1.17). The Broncos rank No. 24 in pass explosiveness (1.22). This is not a lean. It is a mismatch, and a prominent one. Deep balls are the lowest-percentage play in this game. The Broncos need the underneath game and yards after catch.",
+    "verdict": "mixed",
+    "actual": "214 pass yds, longest play 30"
+   },
+   {
+    "a": "49ers deep passing",
+    "b": "Broncos secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "49ers",
+    "why": "The 49ers are No. 6 of 32 in pass explosiveness (1.50). The Broncos rank No. 24 at limiting explosive passes (1.40). This is not a lean. It is a mismatch, and a prominent one. The Broncos do not keep the lid on. The 49ers will take shots, and the market total may be underpriced if they land.",
+    "verdict": "played out",
+    "actual": "218 pass yds, longest play 56"
+   },
+   {
+    "a": "49ers ground game",
+    "b": "Broncos run front",
+    "edge": "offense",
+    "axis": "line",
+    "offTeam": "49ers",
+    "why": "The 49ers are No. 14 of 32 in rush EPA per carry (-0.03). The Broncos rank No. 32 against the run by EPA (0.15). This is not a lean. It is a mismatch, and a prominent one. The line of scrimmage belongs to the 49ers. Second-level runs and play-action are live all afternoon.",
+    "verdict": "mixed",
+    "actual": "140 rush yds on 35 carries (4.0 per)"
+   },
+   {
+    "a": "Broncos run game",
+    "b": "49ers run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Broncos",
+    "why": "The Broncos are No. 20 of 32 in rush success rate (39%). The 49ers rank No. 32 against the run (52%). A real edge, not a lock. The Broncos should stay on schedule on the ground, which keeps third downs short and the clock moving.",
+    "verdict": "mixed",
+    "actual": "82 rush yds on 22 carries (3.7 per)"
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4427325",
+    "name": "Renardo Green",
+    "team": "49ers",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Matchup",
+    "score": 92,
+    "verdict": "quiet",
+    "line": "3 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "3040151",
+    "name": "George Kittle",
+    "team": "49ers",
+    "pos": "TE",
+    "group": "TE",
+    "tier": "Matchup",
+    "score": 74,
+    "verdict": "showed up",
+    "line": "4 rec, 70 yds, 1 TD (6 tgt)"
+   },
+   {
+    "id": "4685369",
+    "name": "Gracen Halton",
+    "team": "49ers",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Rookie",
+    "score": 64,
+    "verdict": "quiet",
+    "line": "3 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4432244",
+    "name": "Romello Height",
+    "team": "49ers",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Rookie",
+    "score": 50,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4702555",
+    "name": "Jonah Coleman",
+    "team": "Broncos",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Rookie",
+    "score": 32,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4693337",
+    "name": "Marques Sigle",
+    "team": "49ers",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Breakout",
+    "score": 71,
+    "verdict": "showed up",
+    "line": "6 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4600981",
+    "name": "Pat Bryant",
+    "team": "Broncos",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 65,
+    "verdict": "quiet",
+    "line": "3 rec, 47 yds, 0 TD (3 tgt)"
+   },
+   {
+    "id": "4382401",
+    "name": "Riley Moss",
+    "team": "Broncos",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 92,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4360853",
+    "name": "Talanoa Hufanga",
+    "team": "Broncos",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 91,
+    "verdict": "quiet",
+    "line": "4 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4039059",
+    "name": "Brandon Jones",
+    "team": "Broncos",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 89,
+    "verdict": "showed up",
+    "line": "9 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4361741",
+    "name": "Brock Purdy",
+    "team": "49ers",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "showed up",
+    "line": "19/30, 218 yds, 2 TD, 0 INT · 10 car, 29 yds, 0 TD"
+   },
+   {
+    "id": "00-0036256",
+    "name": "Colton McKivitz",
+    "team": "49ers",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   }
+  ],
+  "pressurePointVerdict": "mixed"
  }
 }

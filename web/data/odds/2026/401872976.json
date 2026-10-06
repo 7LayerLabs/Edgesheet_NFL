@@ -520,11 +520,99 @@
     "mlAway": -225,
     "books": 9
    }
+  },
+  {
+   "at": "2026-10-04T22:00:00.108Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T21:59:52Z",
+     "mlHome": -106,
+     "mlAway": -124,
+     "spread": 1.5,
+     "spreadPrice": -142,
+     "awaySpreadPrice": 108,
+     "total": 45.5,
+     "overPrice": -115,
+     "underPrice": -115
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T21:59:37Z",
+     "mlHome": 100,
+     "mlAway": -128,
+     "spread": 1.5,
+     "spreadPrice": -138,
+     "awaySpreadPrice": 104,
+     "total": 46.5,
+     "overPrice": -125,
+     "underPrice": -106
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T21:59:52Z",
+     "mlHome": 100,
+     "mlAway": -127,
+     "spread": 1,
+     "spreadPrice": -125,
+     "awaySpreadPrice": -104,
+     "total": 46.5,
+     "overPrice": -118,
+     "underPrice": -109
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T21:58:20Z",
+     "mlHome": 105,
+     "mlAway": -154,
+     "spread": 1.5,
+     "spreadPrice": -118,
+     "awaySpreadPrice": -118,
+     "total": 46.5,
+     "overPrice": -111,
+     "underPrice": -125
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T21:59:52Z",
+     "spread": -1.5,
+     "spreadPrice": 100,
+     "awaySpreadPrice": -135,
+     "total": 46.5,
+     "overPrice": -108,
+     "underPrice": -120
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T21:58:58Z",
+     "mlHome": 100,
+     "mlAway": -130,
+     "spread": 1,
+     "spreadPrice": -120,
+     "awaySpreadPrice": -110,
+     "total": 47,
+     "overPrice": -110,
+     "underPrice": -120
+    }
+   ],
+   "consensus": {
+    "spread": 1.5,
+    "total": 46.5,
+    "mlHome": 100,
+    "mlAway": -128,
+    "books": 6
+   }
   }
  ],
  "eventId": "e0cbd266dcf997089203a1b33ba0333d",
  "eventHome": "Las Vegas Raiders",
  "eventAway": "Kansas City Chiefs",
  "swapped": false,
- "lastChecked": "2026-10-04T18:36:29.185Z"
+ "lastChecked": "2026-10-04T22:00:00.108Z"
 }

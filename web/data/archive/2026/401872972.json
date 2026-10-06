@@ -219,5 +219,235 @@
    }
   },
   "updatedAt": "2026-10-04T16:00:07.997Z"
+ },
+ "postgame": {
+  "projectionResult": {
+   "winnerRight": true,
+   "marginError": 2.0700000000000003,
+   "modelSideCovered": true
+  },
+  "clv": {
+   "closingAt": "2026-10-04T16:00:00.104Z",
+   "hoursBeforeKick": 1,
+   "closingBooks": 9,
+   "closingSpread": {
+    "team": "CHI",
+    "line": -3.5
+   },
+   "sideClv": 0,
+   "closingTotal": 43.5
+  },
+  "consensusResult": {
+   "winnerRight": true,
+   "marginError": 3.7,
+   "sideCovered": true
+  },
+  "capturedAt": "2026-10-04T20:00:06.356Z",
+  "score": {
+   "home": 23,
+   "away": 12
+  },
+  "excitement": null,
+  "spreadResult": "favorite covered",
+  "totalResult": "under",
+  "edges": [
+   {
+    "a": "Bears deep passing",
+    "b": "Jets secondary",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Bears",
+    "why": "The Jets are No. 1 of 32 at limiting explosive passes (1.05). The Bears rank No. 16 in pass explosiveness (1.34). A clear edge, the kind that shapes a game plan. The Jets keep the lid on. The Bears should expect to drive the long way.",
+    "verdict": "did not play out",
+    "actual": "268 pass yds, longest play 37"
+   },
+   {
+    "a": "Bears run game",
+    "b": "Jets run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Bears",
+    "why": "The Bears are No. 15 of 32 in rush success rate (41%). The Jets rank No. 26 against the run (46%). A real edge, not a lock. The Bears should stay on schedule on the ground, which keeps third downs short and the clock moving.",
+    "verdict": "played out",
+    "actual": "232 rush yds on 54 carries (4.3 per)"
+   },
+   {
+    "a": "Jets on passing downs",
+    "b": "Bears pressure",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Jets",
+    "why": "The Bears are No. 3 of 32 on passing downs (29%). The Jets rank No. 12 in passing-downs success (42%). A real edge, not a lock. The Bears get off the field on long downs. Early-down efficiency is everything for the Jets.",
+    "verdict": "unmeasured",
+    "actual": "Third-down detail is not in the box score. Play-by-play for this game is not ingested yet (npm run ingest:plays)."
+   },
+   {
+    "a": "Jets ground game",
+    "b": "Bears run front",
+    "edge": "even",
+    "axis": "line",
+    "offTeam": "Jets",
+    "why": "The Jets are No. 23 in rush EPA per carry (-0.15) and the Bears are No. 29 against the run by EPA (0.04). Strength on strength. The ground game is a coin flip by the numbers. Watch first contact on the first two drives.",
+    "verdict": "unmeasured",
+    "actual": "59 rush yds on 14 carries (4.2 per)"
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4259545",
+    "name": "D'Andre Swift",
+    "team": "Bears",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 79,
+    "verdict": "quiet",
+    "line": "15 car, 58 yds, 0 TD · 2 rec, 16 yds, 0 TD (2 tgt)"
+   },
+   {
+    "id": "4361939",
+    "name": "Andre Cisco",
+    "team": "Jets",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Matchup",
+    "score": 78,
+    "verdict": "quiet",
+    "line": "1 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4954445",
+    "name": "Dillon Thieneman",
+    "team": "Bears",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 91,
+    "verdict": "showed up",
+    "line": "7 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4870953",
+    "name": "Malik Muhammad",
+    "team": "Bears",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 80,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks, 1 PD"
+   },
+   {
+    "id": "4685248",
+    "name": "David Bailey",
+    "team": "Jets",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 78,
+    "verdict": "showed up",
+    "line": "6 tkl, 0 TFL, 0 sacks, 1 PD"
+   },
+   {
+    "id": "5083315",
+    "name": "Kenyon Sadiq",
+    "team": "Jets",
+    "pos": "TE",
+    "group": "TE",
+    "tier": "Rookie",
+    "score": 61,
+    "verdict": "quiet",
+    "line": "0 rec, 0 yds, 0 TD (4 tgt)"
+   },
+   {
+    "id": "4431611",
+    "name": "Caleb Williams",
+    "team": "Bears",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Breakout",
+    "score": 82,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4597500",
+    "name": "Adonai Mitchell",
+    "team": "Jets",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 81,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4685278",
+    "name": "Luther Burden III",
+    "team": "Bears",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 75,
+    "verdict": "showed up",
+    "line": "1 car, 11 yds, 0 TD · 4 rec, 63 yds, 0 TD (6 tgt)"
+   },
+   {
+    "id": "00-0040123",
+    "name": "Armand Membou",
+    "team": "Jets",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0039145",
+    "name": "Joe Tippmann",
+    "team": "Jets",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0036622",
+    "name": "Josh Myers",
+    "team": "Jets",
+    "pos": "C",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0038932",
+    "name": "Darnell Wright",
+    "team": "Bears",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0035588",
+    "name": "Garrett Bradbury",
+    "team": "Bears",
+    "pos": "C",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   }
+  ],
+  "pressurePointVerdict": "did not play out"
  }
 }

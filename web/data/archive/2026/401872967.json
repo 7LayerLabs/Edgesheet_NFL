@@ -219,5 +219,237 @@
    }
   },
   "updatedAt": "2026-10-04T16:00:07.999Z"
+ },
+ "postgame": {
+  "projectionResult": {
+   "winnerRight": false,
+   "marginError": 8.09,
+   "modelSideCovered": false,
+   "totalLeanRight": true
+  },
+  "clv": {
+   "closingAt": "2026-10-04T16:00:00.104Z",
+   "hoursBeforeKick": 1,
+   "closingBooks": 9,
+   "closingSpread": {
+    "team": "HOU",
+    "line": -3
+   },
+   "sideClv": 0,
+   "closingTotal": 48.5,
+   "totalClv": 0
+  },
+  "consensusResult": {
+   "winnerRight": false,
+   "marginError": 6.1,
+   "sideCovered": false
+  },
+  "capturedAt": "2026-10-04T20:15:06.504Z",
+  "score": {
+   "home": 30,
+   "away": 34
+  },
+  "excitement": null,
+  "spreadResult": "underdog covered",
+  "totalResult": "over",
+  "edges": [
+   {
+    "a": "Texans deep passing",
+    "b": "Cowboys secondary",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Texans",
+    "why": "The Cowboys are No. 9 of 32 at limiting explosive passes (1.24). The Texans rank No. 30 in pass explosiveness (1.10). This is not a lean. It is a mismatch, and a prominent one. Deep balls are the lowest-percentage play in this game. The Texans need the underneath game and yards after catch.",
+    "verdict": "did not play out",
+    "actual": "347 pass yds, longest play 52"
+   },
+   {
+    "a": "Cowboys deep passing",
+    "b": "Texans secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Cowboys",
+    "why": "The Cowboys are No. 18 of 32 in pass explosiveness (1.30). The Texans rank No. 32 at limiting explosive passes (1.67). A clear edge, the kind that shapes a game plan. The Cowboys have the deep ball available. Watch whether the Texans roll a safety over after the first one.",
+    "verdict": "played out",
+    "actual": "335 pass yds, longest play 53"
+   },
+   {
+    "a": "Cowboys on passing downs",
+    "b": "Texans pressure",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Cowboys",
+    "why": "The Cowboys are No. 2 of 32 in passing-downs success (55%). The Texans rank No. 15 on passing downs (36%). A clear edge, the kind that shapes a game plan. The Cowboys convert the long downs the Texans need to win. A third-and-8 is not a stop here.",
+    "verdict": "unmeasured",
+    "actual": "Third-down detail is not in the box score. Play-by-play for this game is not ingested yet (npm run ingest:plays)."
+   },
+   {
+    "a": "Cowboys ground game",
+    "b": "Texans run front",
+    "edge": "defense",
+    "axis": "line",
+    "offTeam": "Cowboys",
+    "why": "The Texans are No. 9 of 32 against the run by EPA (-0.16). The Cowboys rank No. 19 in rush EPA per carry (-0.07). A real edge, not a lock. The Texans should hold the line of scrimmage. Cowboys runs will need the second level to break.",
+    "verdict": "played out",
+    "actual": "75 rush yds on 25 carries (3.0 per)"
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4241389",
+    "name": "CeeDee Lamb",
+    "team": "Cowboys",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Matchup",
+    "score": 84,
+    "verdict": "showed up",
+    "line": "1 car, -6 yds, 0 TD · 17 rec, 189 yds, 1 TD (21 tgt)"
+   },
+   {
+    "id": "4384549",
+    "name": "Cobie Durant",
+    "team": "Cowboys",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Matchup",
+    "score": 55,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4685266",
+    "name": "Jaishawn Barham",
+    "team": "Cowboys",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 78,
+    "verdict": "quiet",
+    "line": "1 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4870706",
+    "name": "Caleb Downs",
+    "team": "Cowboys",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 73,
+    "verdict": "showed up",
+    "line": "7 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4699802",
+    "name": "Sabastian Harsh",
+    "team": "Texans",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Rookie",
+    "score": 38,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4912338",
+    "name": "Aiden Fisher",
+    "team": "Texans",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 24,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4683848",
+    "name": "Donovan Ezeiruaku",
+    "team": "Cowboys",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 78,
+    "verdict": "quiet",
+    "line": "3 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4586312",
+    "name": "Jaylin Noel",
+    "team": "Texans",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 56,
+    "verdict": "showed up",
+    "line": "1 car, 4 yds, 0 TD · 3 rec, 85 yds, 0 TD (3 tgt)"
+   },
+   {
+    "id": "4685724",
+    "name": "Will Anderson Jr.",
+    "team": "Texans",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Watch",
+    "score": 87,
+    "verdict": "quiet",
+    "line": "5 tkl, 1 TFL, 0.5 sacks, 5 QB hits"
+   },
+   {
+    "id": "4243956",
+    "name": "Reed Blankenship",
+    "team": "Texans",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 86,
+    "verdict": "showed up",
+    "line": "11 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "00-0039348",
+    "name": "Cooper Beebe",
+    "team": "Cowboys",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0036036",
+    "name": "Terence Steele",
+    "team": "Cowboys",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0038731",
+    "name": "TJ Bass",
+    "team": "Cowboys",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0040745",
+    "name": "Aireontae Ersery",
+    "team": "Texans",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   }
+  ],
+  "pressurePointVerdict": "did not play out"
  }
 }

@@ -1,0 +1,481 @@
+{
+ "gameId": "401872985",
+ "season": 2026,
+ "home": "Steelers",
+ "away": "Colts",
+ "kickoff": "2026-10-11T17:00:00.000Z",
+ "snapshots": [
+  {
+   "at": "2026-10-05T04:00:00.101Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-05T03:59:51Z",
+     "mlHome": -135,
+     "mlAway": 114,
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 43.5,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-05T03:59:25Z",
+     "spread": -1,
+     "spreadPrice": -125,
+     "awaySpreadPrice": 105,
+     "total": 44,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-05T03:59:51Z",
+     "mlHome": -132,
+     "mlAway": 112,
+     "spread": -1.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 43.5,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-05T03:58:31Z",
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-05T03:59:51Z",
+     "mlHome": -142,
+     "mlAway": 122,
+     "spread": -2.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 44,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-05T03:59:53Z",
+     "mlHome": -142,
+     "mlAway": 122,
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": 100,
+     "total": 44,
+     "overPrice": -113,
+     "underPrice": -102
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-05T03:59:24Z",
+     "mlHome": -134,
+     "mlAway": 110,
+     "spread": -2,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 43.5,
+     "overPrice": -108,
+     "underPrice": -113
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-05T03:58:17Z",
+     "mlHome": -140,
+     "mlAway": 115,
+     "spread": -2,
+     "spreadPrice": -112,
+     "awaySpreadPrice": -105,
+     "total": 44,
+     "overPrice": -108,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": -2,
+    "total": 44,
+    "mlHome": -137,
+    "mlAway": 115,
+    "books": 8
+   }
+  },
+  {
+   "at": "2026-10-05T10:00:00.103Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-05T09:59:01Z",
+     "mlHome": -130,
+     "mlAway": 110,
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44.5,
+     "overPrice": -102,
+     "underPrice": -118
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-05T09:59:01Z",
+     "spread": -1,
+     "spreadPrice": -125,
+     "awaySpreadPrice": 105,
+     "total": 44,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-05T09:59:55Z",
+     "mlHome": -132,
+     "mlAway": 112,
+     "spread": -1.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 43.5,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-05T09:58:04Z",
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-05T09:59:42Z",
+     "mlHome": -142,
+     "mlAway": 122,
+     "spread": -2.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 44,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-05T09:59:29Z",
+     "mlHome": -142,
+     "mlAway": 122,
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": 100,
+     "total": 44,
+     "overPrice": -113,
+     "underPrice": -102
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-05T09:59:42Z",
+     "mlHome": -134,
+     "mlAway": 110,
+     "spread": -2,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 43.5,
+     "overPrice": -108,
+     "underPrice": -113
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-05T09:58:59Z",
+     "mlHome": -135,
+     "mlAway": 115,
+     "spread": -2.5,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -110,
+     "total": 44,
+     "overPrice": -110,
+     "underPrice": -108
+    }
+   ],
+   "consensus": {
+    "spread": -2.5,
+    "total": 44,
+    "mlHome": -134,
+    "mlAway": 114,
+    "books": 8
+   }
+  },
+  {
+   "at": "2026-10-05T16:00:00.111Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-05T15:59:06Z",
+     "mlHome": -135,
+     "mlAway": 114,
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44.5,
+     "overPrice": -108,
+     "underPrice": -112
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-05T15:59:07Z",
+     "mlHome": -140,
+     "mlAway": 120,
+     "spread": -2,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 44,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-05T15:59:33Z",
+     "mlHome": -132,
+     "mlAway": 112,
+     "spread": -1.5,
+     "spreadPrice": -115,
+     "awaySpreadPrice": -105,
+     "total": 43.5,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-05T15:59:34Z",
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-05T15:59:06Z",
+     "mlHome": -140,
+     "mlAway": 120,
+     "spread": -2.5,
+     "spreadPrice": -112,
+     "awaySpreadPrice": -108,
+     "total": 44,
+     "overPrice": -115,
+     "underPrice": -105
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-05T15:59:50Z",
+     "mlHome": -140,
+     "mlAway": 120,
+     "spread": -2.5,
+     "spreadPrice": -107,
+     "awaySpreadPrice": -103,
+     "total": 44,
+     "overPrice": -113,
+     "underPrice": -102
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-05T15:59:06Z",
+     "mlHome": -137,
+     "mlAway": 114,
+     "spread": -2.5,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -113,
+     "total": 44,
+     "overPrice": -107,
+     "underPrice": -114
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-05T15:59:34Z",
+     "mlHome": -140,
+     "mlAway": 115,
+     "spread": -2.5,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -110,
+     "total": 44,
+     "overPrice": -110,
+     "underPrice": -108
+    }
+   ],
+   "consensus": {
+    "spread": -2.5,
+    "total": 44,
+    "mlHome": -140,
+    "mlAway": 115,
+    "books": 8
+   }
+  },
+  {
+   "at": "2026-10-05T21:59:58.668Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-05T21:58:14Z",
+     "mlHome": -135,
+     "mlAway": 114,
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44.5,
+     "overPrice": -108,
+     "underPrice": -112
+    },
+    {
+     "book": "betus",
+     "title": "BetUS",
+     "updated": "2026-10-05T21:59:17Z",
+     "mlHome": -140,
+     "mlAway": 120,
+     "spread": -2,
+     "spreadPrice": -120,
+     "awaySpreadPrice": 100,
+     "total": 44.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-05T21:59:44Z",
+     "mlHome": -136,
+     "mlAway": 116,
+     "spread": -1.5,
+     "spreadPrice": -118,
+     "awaySpreadPrice": -104,
+     "total": 43.5,
+     "overPrice": -120,
+     "underPrice": -102
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-05T21:59:58Z",
+     "mlHome": -142,
+     "mlAway": 112,
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "betonlineag",
+     "title": "BetOnline.ag",
+     "updated": "2026-10-05T21:59:29Z",
+     "mlHome": -139,
+     "mlAway": 119,
+     "spread": -2.5,
+     "spreadPrice": -116,
+     "awaySpreadPrice": -104,
+     "total": 44.5,
+     "overPrice": -110,
+     "underPrice": -110
+    },
+    {
+     "book": "lowvig",
+     "title": "LowVig.ag",
+     "updated": "2026-10-05T21:58:46Z",
+     "mlHome": -139,
+     "mlAway": 119,
+     "spread": -2.5,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -102,
+     "total": 44.5,
+     "overPrice": -107,
+     "underPrice": -107
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-05T21:59:31Z",
+     "mlHome": -137,
+     "mlAway": 114,
+     "spread": -2.5,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -113,
+     "total": 44,
+     "overPrice": -107,
+     "underPrice": -114
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-05T21:59:45Z",
+     "mlHome": -140,
+     "mlAway": 115,
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -108,
+     "total": 44,
+     "overPrice": -112,
+     "underPrice": -105
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-05T21:59:35Z",
+     "mlHome": -140,
+     "mlAway": 120,
+     "spread": -2.5,
+     "spreadPrice": -110,
+     "awaySpreadPrice": -110,
+     "total": 44.5,
+     "overPrice": -110,
+     "underPrice": -110
+    }
+   ],
+   "consensus": {
+    "spread": -2.5,
+    "total": 44.5,
+    "mlHome": -139,
+    "mlAway": 116,
+    "books": 9
+   }
+  }
+ ],
+ "eventId": "448d7cf18c6db4c811ed82ded1b72867",
+ "eventHome": "Pittsburgh Steelers",
+ "eventAway": "Indianapolis Colts",
+ "swapped": false,
+ "lastChecked": "2026-10-05T22:00:00.109Z"
+}

@@ -520,11 +520,92 @@
     "mlAway": 278,
     "books": 9
    }
+  },
+  {
+   "at": "2026-10-04T22:00:00.108Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T21:59:52Z",
+     "spread": -18.5,
+     "spreadPrice": -106,
+     "awaySpreadPrice": -124,
+     "total": 45.5,
+     "overPrice": -122,
+     "underPrice": -108
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T21:59:37Z",
+     "mlHome": -20000,
+     "mlAway": 2000,
+     "spread": -17.5,
+     "spreadPrice": -120,
+     "awaySpreadPrice": -110,
+     "total": 43.5,
+     "overPrice": -136,
+     "underPrice": 102
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T21:59:52Z",
+     "spread": -20,
+     "spreadPrice": -106,
+     "awaySpreadPrice": -124,
+     "total": 45.5,
+     "overPrice": -112,
+     "underPrice": -115
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T21:51:53Z",
+     "mlHome": -2500,
+     "mlAway": 900,
+     "total": 39.5,
+     "overPrice": -118,
+     "underPrice": -111
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T21:59:52Z",
+     "mlHome": -10000,
+     "mlAway": 2200,
+     "spread": -17.5,
+     "spreadPrice": -118,
+     "awaySpreadPrice": -112,
+     "total": 45.5,
+     "overPrice": -125,
+     "underPrice": -108
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T21:54:46Z",
+     "spread": -20,
+     "spreadPrice": -120,
+     "awaySpreadPrice": -110,
+     "total": 43.5,
+     "overPrice": -110,
+     "underPrice": -120
+    }
+   ],
+   "consensus": {
+    "spread": -18.5,
+    "total": 44.5,
+    "mlHome": -10000,
+    "mlAway": 2000,
+    "books": 5
+   }
   }
  ],
  "eventId": "96d2373cda647873b971f268482bced0",
  "eventHome": "Seattle Seahawks",
  "eventAway": "Los Angeles Chargers",
  "swapped": false,
- "lastChecked": "2026-10-04T18:36:29.185Z"
+ "lastChecked": "2026-10-04T22:00:00.108Z"
 }

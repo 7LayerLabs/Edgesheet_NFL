@@ -174,14 +174,14 @@
   "total": 51.5,
   "projection": {
    "winner": "DET",
-   "winProb": 0.5896584828022036,
-   "margin": 3.06,
-   "home": 24,
-   "away": 28,
-   "modelSide": "CAR",
+   "winProb": 0.637802989560806,
+   "margin": 4.76,
+   "home": 23,
+   "away": 29,
+   "modelSide": "DET",
    "confidence": "high",
-   "modelTotal": 49.5,
-   "totalLean": "none"
+   "modelTotal": 48,
+   "totalLean": "under"
   },
   "consensus": {
    "median": -2.5,
@@ -209,6 +209,227 @@
     "totalLean": "over"
    }
   },
-  "updatedAt": "2026-10-04T18:43:11.290Z"
+  "updatedAt": "2026-10-04T23:20:07.841Z"
+ },
+ "postgame": {
+  "projectionResult": {
+   "winnerRight": false,
+   "marginError": 10.76,
+   "modelSideCovered": false,
+   "totalLeanRight": false
+  },
+  "clv": {
+   "closingAt": "2026-10-04T22:00:00.108Z",
+   "hoursBeforeKick": 2.3,
+   "closingBooks": 9,
+   "closingSpread": {
+    "team": "DET",
+    "line": -3.5
+   },
+   "sideClv": 0,
+   "closingTotal": 51.5,
+   "totalClv": 0
+  },
+  "consensusResult": {
+   "winnerRight": false,
+   "marginError": 8.5,
+   "sideCovered": true
+  },
+  "capturedAt": "2026-10-05T03:45:09.636Z",
+  "score": {
+   "home": 32,
+   "away": 26
+  },
+  "excitement": null,
+  "spreadResult": "underdog covered",
+  "totalResult": "over",
+  "edges": [
+   {
+    "a": "Lions on passing downs",
+    "b": "Panthers pressure",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Lions",
+    "why": "The Lions are No. 4 of 32 in passing-downs success (49%). The Panthers rank No. 26 on passing downs (44%). This is not a lean. It is a mismatch, and a prominent one. The Lions convert the long downs the Panthers need to win. A third-and-8 is not a stop here.",
+    "verdict": "unmeasured",
+    "actual": "Third-down detail is not in the box score. Play-by-play for this game is not ingested yet (npm run ingest:plays)."
+   },
+   {
+    "a": "Panthers on passing downs",
+    "b": "Lions pressure",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Panthers",
+    "why": "The Panthers are No. 15 of 32 in passing-downs success (38%). The Lions rank No. 31 on passing downs (52%). A clear edge, the kind that shapes a game plan. The Panthers convert the long downs the Lions need to win. A third-and-8 is not a stop here.",
+    "verdict": "unmeasured",
+    "actual": "Third-down detail is not in the box score. Play-by-play for this game is not ingested yet (npm run ingest:plays)."
+   },
+   {
+    "a": "Panthers deep passing",
+    "b": "Lions secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Panthers",
+    "why": "The Panthers are No. 5 of 32 in pass explosiveness (1.56). The Lions rank No. 19 at limiting explosive passes (1.35). A clear edge, the kind that shapes a game plan. The Panthers have the deep ball available. Watch whether the Lions roll a safety over after the first one.",
+    "verdict": "played out",
+    "actual": "329 pass yds, longest play 32"
+   },
+   {
+    "a": "Lions ground game",
+    "b": "Panthers run front",
+    "edge": "offense",
+    "axis": "line",
+    "offTeam": "Lions",
+    "why": "The Lions are No. 9 of 32 in rush EPA per carry (-0.01). The Panthers rank No. 17 against the run by EPA (-0.04). A real edge, not a lock. The Lions should win first contact more often than not, which makes every down shorter.",
+    "verdict": "did not play out",
+    "actual": "46 rush yds on 15 carries (3.1 per)"
+   }
+  ],
+  "prospects": [
+   {
+    "id": "3046779",
+    "name": "Jared Goff",
+    "team": "Lions",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Matchup",
+    "score": 87,
+    "verdict": "showed up",
+    "line": "32/52, 412 yds, 1 TD, 0 INT"
+   },
+   {
+    "id": "4685720",
+    "name": "Bryce Young",
+    "team": "Panthers",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Matchup",
+    "score": 83,
+    "verdict": "showed up",
+    "line": "29/41, 329 yds, 2 TD, 0 INT · 3 car, 3 yds, 0 TD"
+   },
+   {
+    "id": "5151083",
+    "name": "Will Lee III",
+    "team": "Panthers",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 80,
+    "verdict": "quiet",
+    "line": "5 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "5103940",
+    "name": "Skyler Gill-Howard",
+    "team": "Lions",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Rookie",
+    "score": 62,
+    "verdict": "quiet",
+    "line": "1 tkl, 0 TFL, 0 sacks, 1 QB hits"
+   },
+   {
+    "id": "4566384",
+    "name": "Zakee Wheatley",
+    "team": "Panthers",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 60,
+    "verdict": "quiet",
+    "line": "4 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "5093004",
+    "name": "Keith Abney II",
+    "team": "Lions",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 40,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4695883",
+    "name": "Jalen Coker",
+    "team": "Panthers",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 85,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4685472",
+    "name": "Tetairoa McMillan",
+    "team": "Panthers",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 84,
+    "verdict": "showed up",
+    "line": "14 rec, 192 yds, 2 TD (16 tgt)"
+   },
+   {
+    "id": "4569323",
+    "name": "Thomas Harper",
+    "team": "Lions",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Breakout",
+    "score": 75,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4260409",
+    "name": "Derrick Barnes",
+    "team": "Lions",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 89,
+    "verdict": "quiet",
+    "line": "1 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4372099",
+    "name": "Aidan Hutchinson",
+    "team": "Lions",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Watch",
+    "score": 88,
+    "verdict": "quiet",
+    "line": "3 tkl, 0 TFL, 0 sacks, 2 QB hits"
+   },
+   {
+    "id": "4243256",
+    "name": "Devin Lloyd",
+    "team": "Panthers",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 88,
+    "verdict": "showed up",
+    "line": "9 tkl, 1 TFL, 0 sacks, 1 QB hits"
+   },
+   {
+    "id": "00-0037814",
+    "name": "Luke Fortner",
+    "team": "Panthers",
+    "pos": "C",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 84,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   }
+  ],
+  "pressurePointVerdict": "unmeasured"
  }
 }

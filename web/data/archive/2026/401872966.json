@@ -201,5 +201,215 @@
    }
   },
   "updatedAt": "2026-10-04T16:00:08.000Z"
+ },
+ "postgame": {
+  "projectionResult": {
+   "winnerRight": true,
+   "marginError": 11.74,
+   "modelSideCovered": true,
+   "totalLeanRight": true
+  },
+  "clv": {
+   "closingAt": "2026-10-04T16:00:00.104Z",
+   "hoursBeforeKick": 1,
+   "closingBooks": 9,
+   "closingSpread": {
+    "team": "ARI",
+    "line": -2.5
+   },
+   "sideClv": 0,
+   "closingTotal": 44,
+   "totalClv": 0
+  },
+  "consensusResult": {
+   "winnerRight": true,
+   "marginError": 11.8,
+   "sideCovered": true
+  },
+  "capturedAt": "2026-10-04T20:15:06.557Z",
+  "score": {
+   "home": 36,
+   "away": 24
+  },
+  "excitement": null,
+  "spreadResult": "underdog covered",
+  "totalResult": "over",
+  "edges": [
+   {
+    "a": "Cardinals deep passing",
+    "b": "Giants secondary",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Cardinals",
+    "why": "The Giants are No. 15 of 32 at limiting explosive passes (1.32). The Cardinals rank No. 31 in pass explosiveness (1.04). A clear edge, the kind that shapes a game plan. The Giants keep the lid on. The Cardinals should expect to drive the long way.",
+    "verdict": "played out",
+    "actual": "166 pass yds, longest play 24"
+   },
+   {
+    "a": "Cardinals run game",
+    "b": "Giants run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Cardinals",
+    "why": "The Cardinals are No. 9 of 32 in rush success rate (45%). The Giants rank No. 24 against the run (44%). A clear edge, the kind that shapes a game plan. The Cardinals should stay on schedule on the ground, which keeps third downs short and the clock moving.",
+    "verdict": "played out",
+    "actual": "123 rush yds on 26 carries (4.7 per)"
+   },
+   {
+    "a": "Giants ground game",
+    "b": "Cardinals run front",
+    "edge": "defense",
+    "axis": "line",
+    "offTeam": "Giants",
+    "why": "The Cardinals are No. 7 of 32 against the run by EPA (-0.18). The Giants rank No. 17 in rush EPA per carry (-0.07). A real edge, not a lock. The Cardinals should hold the line of scrimmage. Giants runs will need the second level to break.",
+    "verdict": "played out",
+    "actual": "87 rush yds on 28 carries (3.1 per)"
+   },
+   {
+    "a": "Cardinals on passing downs",
+    "b": "Giants pressure",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Cardinals",
+    "why": "The Cardinals are No. 17 of 32 in passing-downs success (37%). The Giants rank No. 25 on passing downs (43%). A real edge, not a lock. The Cardinals convert the long downs the Giants need to win. A third-and-8 is not a stop here.",
+    "verdict": "unmeasured",
+    "actual": "Third-down detail is not in the box score. Play-by-play for this game is not ingested yet (npm run ingest:plays)."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4373809",
+    "name": "Jevon Holland",
+    "team": "Giants",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Matchup",
+    "score": 92,
+    "verdict": "showed up",
+    "line": "7 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4870808",
+    "name": "Jeremiyah Love",
+    "team": "Cardinals",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 54,
+    "verdict": "showed up",
+    "line": "14 car, 63 yds, 0 TD · 1 rec, -8 yds, 0 TD (1 tgt)"
+   },
+   {
+    "id": "4950400",
+    "name": "Arvell Reese",
+    "team": "Giants",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 86,
+    "verdict": "showed up",
+    "line": "9 tkl, 1 TFL, 0 sacks, 3 PD · 1 INT, 8 yds"
+   },
+   {
+    "id": "4682648",
+    "name": "Malachi Fields",
+    "team": "Giants",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 42,
+    "verdict": "showed up",
+    "line": "2 rec, 52 yds, 1 TD (3 tgt) · 1 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4430261",
+    "name": "Tyler Nubin",
+    "team": "Giants",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Breakout",
+    "score": 83,
+    "verdict": "quiet",
+    "line": "4 tkl, 0 TFL, 0 sacks, 1 PD"
+   },
+   {
+    "id": "4696981",
+    "name": "Cam Skattebo",
+    "team": "Giants",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Breakout",
+    "score": 74,
+    "verdict": "quiet",
+    "line": "18 car, 58 yds, 0 TD · 1 rec, 8 yds, 0 TD (1 tgt)"
+   },
+   {
+    "id": "4698113",
+    "name": "Max Melton",
+    "team": "Cardinals",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 71,
+    "verdict": "quiet",
+    "line": "4 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4428996",
+    "name": "Jordan Burch",
+    "team": "Cardinals",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 70,
+    "verdict": "quiet",
+    "line": "1 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4361307",
+    "name": "Trey McBride",
+    "team": "Cardinals",
+    "pos": "TE",
+    "group": "TE",
+    "tier": "Watch",
+    "score": 87,
+    "verdict": "quiet",
+    "line": "7 rec, 31 yds, 0 TD (12 tgt)"
+   },
+   {
+    "id": "00-0033676",
+    "name": "Elijah Wilkinson",
+    "team": "Cardinals",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0035258",
+    "name": "Hjalte Froholdt",
+    "team": "Cardinals",
+    "pos": "C",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0036386",
+    "name": "Andrew Thomas",
+    "team": "Giants",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   }
+  ],
+  "pressurePointVerdict": "played out"
  }
 }

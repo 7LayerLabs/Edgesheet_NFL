@@ -219,5 +219,237 @@
    }
   },
   "updatedAt": "2026-10-04T15:50:07.599Z"
+ },
+ "postgame": {
+  "projectionResult": {
+   "winnerRight": true,
+   "marginError": 5.74,
+   "modelSideCovered": false,
+   "totalLeanRight": false
+  },
+  "clv": {
+   "closingAt": "2026-10-04T16:00:00.104Z",
+   "hoursBeforeKick": 1,
+   "closingBooks": 9,
+   "closingSpread": {
+    "team": "BAL",
+    "line": -11.5
+   },
+   "sideClv": 0,
+   "closingTotal": 42.5,
+   "totalClv": 0
+  },
+  "consensusResult": {
+   "winnerRight": true,
+   "marginError": 5.4,
+   "sideCovered": true
+  },
+  "capturedAt": "2026-10-04T20:10:06.620Z",
+  "score": {
+   "home": 24,
+   "away": 18
+  },
+  "excitement": null,
+  "spreadResult": "underdog covered",
+  "totalResult": "under",
+  "edges": [
+   {
+    "a": "Titans ground game",
+    "b": "Ravens run front",
+    "edge": "offense",
+    "axis": "line",
+    "offTeam": "Titans",
+    "why": "The Titans are No. 8 of 32 in rush EPA per carry (-0.01). The Ravens rank No. 30 against the run by EPA (0.04). This is not a lean. It is a mismatch, and a prominent one. The line of scrimmage belongs to the Titans. Second-level runs and play-action are live all afternoon.",
+    "verdict": "did not play out",
+    "actual": "85 rush yds on 26 carries (3.3 per)"
+   },
+   {
+    "a": "Titans deep passing",
+    "b": "Ravens secondary",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Titans",
+    "why": "The Ravens are No. 11 of 32 at limiting explosive passes (1.26). The Titans rank No. 32 in pass explosiveness (0.93). This is not a lean. It is a mismatch, and a prominent one. Deep balls are the lowest-percentage play in this game. The Titans need the underneath game and yards after catch.",
+    "verdict": "mixed",
+    "actual": "222 pass yds, longest play 33"
+   },
+   {
+    "a": "Ravens run game",
+    "b": "Titans run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Ravens",
+    "why": "The Ravens are No. 3 of 32 in rush success rate (51%). The Titans rank No. 19 against the run (43%). A clear edge, the kind that shapes a game plan. The Ravens should stay on schedule on the ground, which keeps third downs short and the clock moving.",
+    "verdict": "mixed",
+    "actual": "112 rush yds on 30 carries (3.7 per)"
+   },
+   {
+    "a": "Ravens deep passing",
+    "b": "Titans secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Ravens",
+    "why": "The Ravens are No. 12 of 32 in pass explosiveness (1.38). The Titans rank No. 27 at limiting explosive passes (1.45). A clear edge, the kind that shapes a game plan. The Ravens have the deep ball available. Watch whether the Titans roll a safety over after the first one.",
+    "verdict": "played out",
+    "actual": "285 pass yds, longest play 52"
+   }
+  ],
+  "prospects": [
+   {
+    "id": "3126356",
+    "name": "Marlon Humphrey",
+    "team": "Ravens",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Matchup",
+    "score": 84,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "3916148",
+    "name": "Tony Pollard",
+    "team": "Titans",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 59,
+    "verdict": "showed up",
+    "line": "16 car, 48 yds, 1 TD · 2 rec, 2 yds, 0 TD (4 tgt)"
+   },
+   {
+    "id": "4870805",
+    "name": "Anthony Hill Jr.",
+    "team": "Titans",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 79,
+    "verdict": "showed up",
+    "line": "8 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4871023",
+    "name": "Carnell Tate",
+    "team": "Titans",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 59,
+    "verdict": "showed up",
+    "line": "9 rec, 145 yds, 0 TD (12 tgt)"
+   },
+   {
+    "id": "4702918",
+    "name": "Chandler Rivers",
+    "team": "Ravens",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 36,
+    "verdict": "quiet",
+    "line": "5 tkl, 1 TFL, 0 sacks"
+   },
+   {
+    "id": "4839501",
+    "name": "Zion Young",
+    "team": "Ravens",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 34,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4570469",
+    "name": "Marcus Harris",
+    "team": "Titans",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 85,
+    "verdict": "quiet",
+    "line": "4 tkl, 0 TFL, 0.5 sacks, 1 QB hits"
+   },
+   {
+    "id": "4683188",
+    "name": "Mike Green",
+    "team": "Ravens",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 72,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks, 3 QB hits"
+   },
+   {
+    "id": "4429834",
+    "name": "Cedric Gray",
+    "team": "Titans",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 65,
+    "verdict": "showed up",
+    "line": "6 tkl, 1 TFL, 0 sacks"
+   },
+   {
+    "id": "3916387",
+    "name": "Lamar Jackson",
+    "team": "Ravens",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Watch",
+    "score": 89,
+    "verdict": "showed up",
+    "line": "15/20, 222 yds, 2 TD, 0 INT · 2 car, 20 yds, 0 TD"
+   },
+   {
+    "id": "4036134",
+    "name": "Amani Hooker",
+    "team": "Titans",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 88,
+    "verdict": "showed up",
+    "line": "6 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "3915189",
+    "name": "Roquan Smith",
+    "team": "Ravens",
+    "pos": "ILB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 88,
+    "verdict": "showed up",
+    "line": "6 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4035369",
+    "name": "Jeffery Simmons",
+    "team": "Titans",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Watch",
+    "score": 87,
+    "verdict": "quiet",
+    "line": "4 tkl, 0 TFL, 0 sacks, 1 PD"
+   },
+   {
+    "id": "00-0036369",
+    "name": "John Simpson",
+    "team": "Ravens",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   }
+  ],
+  "pressurePointVerdict": "did not play out"
  }
 }

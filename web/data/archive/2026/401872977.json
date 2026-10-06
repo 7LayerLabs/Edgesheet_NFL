@@ -183,17 +183,17 @@
   "total": 42.5,
   "projection": {
    "winner": "SEA",
-   "winProb": 0.8436636021563597,
-   "margin": 13.63,
+   "winProb": 0.8309125931622477,
+   "margin": 12.930000000000001,
    "home": 28,
    "away": 15,
    "modelSide": "SEA",
    "confidence": "high",
-   "modelTotal": 40.5,
+   "modelTotal": 41,
    "totalLean": "none"
   },
   "consensus": {
-   "median": 12.5,
+   "median": 12.2,
    "favorite": "SEA",
    "side": "SEA",
    "sideCount": 4,
@@ -218,6 +218,234 @@
     "totalLean": "under"
    }
   },
-  "updatedAt": "2026-10-04T18:43:11.289Z"
+  "updatedAt": "2026-10-04T19:10:05.924Z"
+ },
+ "postgame": {
+  "projectionResult": {
+   "winnerRight": true,
+   "marginError": 5.9300000000000015
+  },
+  "clv": {
+   "closingAt": "2026-10-04T18:36:29.185Z",
+   "hoursBeforeKick": 1.8,
+   "closingBooks": 9,
+   "closingSpread": {
+    "team": "SEA",
+    "line": -7
+   },
+   "sideClv": 0,
+   "closingTotal": 42.5
+  },
+  "consensusResult": {
+   "winnerRight": true,
+   "marginError": 5.199999999999999
+  },
+  "capturedAt": "2026-10-04T23:45:08.119Z",
+  "score": {
+   "home": 30,
+   "away": 23
+  },
+  "excitement": null,
+  "spreadResult": "push",
+  "totalResult": "over",
+  "edges": [
+   {
+    "a": "Chargers ground game",
+    "b": "Seahawks run front",
+    "edge": "defense",
+    "axis": "line",
+    "offTeam": "Chargers",
+    "why": "The Seahawks are No. 1 of 32 against the run by EPA (-0.35). The Chargers rank No. 28 in rush EPA per carry (-0.22). This is not a lean. It is a mismatch, and a prominent one. The Seahawks win first contact. Backs get met in the backfield; screens and the quick game are the counter.",
+    "verdict": "mixed",
+    "actual": "147 rush yds on 32 carries (4.6 per)"
+   },
+   {
+    "a": "Seahawks ground game",
+    "b": "Chargers run front",
+    "edge": "defense",
+    "axis": "line",
+    "offTeam": "Seahawks",
+    "why": "The Chargers are No. 12 of 32 against the run by EPA (-0.12). The Seahawks rank No. 30 in rush EPA per carry (-0.26). This is not a lean. It is a mismatch, and a prominent one. The Chargers win first contact. Backs get met in the backfield; screens and the quick game are the counter.",
+    "verdict": "mixed",
+    "actual": "138 rush yds on 33 carries (4.2 per)"
+   },
+   {
+    "a": "Seahawks deep passing",
+    "b": "Chargers secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Seahawks",
+    "why": "The Seahawks are No. 9 of 32 in pass explosiveness (1.43). The Chargers rank No. 23 at limiting explosive passes (1.40). A clear edge, the kind that shapes a game plan. The Seahawks have the deep ball available. Watch whether the Chargers roll a safety over after the first one.",
+    "verdict": "mixed",
+    "actual": "168 pass yds, longest play 28"
+   },
+   {
+    "a": "Chargers on passing downs",
+    "b": "Seahawks pressure",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Chargers",
+    "why": "The Seahawks are No. 7 of 32 on passing downs (32%). The Chargers rank No. 20 in passing-downs success (34%). A clear edge, the kind that shapes a game plan. The Seahawks get off the field on long downs. Early-down efficiency is everything for the Chargers.",
+    "verdict": "unmeasured",
+    "actual": "Third-down detail is not in the box score. Play-by-play for this game is not ingested yet (npm run ingest:plays)."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "2971622",
+    "name": "Leonard Williams",
+    "team": "Seahawks",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Matchup",
+    "score": 81,
+    "verdict": "quiet",
+    "line": "0 tkl, 0 TFL, 0 sacks, 1 QB hits"
+   },
+   {
+    "id": "16710",
+    "name": "Khalil Mack",
+    "team": "Chargers",
+    "pos": "OLB",
+    "group": "EDGE",
+    "tier": "Matchup",
+    "score": 78,
+    "verdict": "showed up",
+    "line": "6 tkl, 2 TFL, 1 sacks, 1 QB hits"
+   },
+   {
+    "id": "4950551",
+    "name": "Genesis Smith",
+    "team": "Chargers",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 84,
+    "verdict": "quiet",
+    "line": "1 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4682818",
+    "name": "Nick Barrett",
+    "team": "Chargers",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Rookie",
+    "score": 61,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4685512",
+    "name": "Jadarian Price",
+    "team": "Seahawks",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Rookie",
+    "score": 44,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4427404",
+    "name": "Cam Hart",
+    "team": "Chargers",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 91,
+    "verdict": "quiet",
+    "line": "3 tkl, 0 TFL, 0 sacks, 1 PD"
+   },
+   {
+    "id": "4567222",
+    "name": "Nehemiah Pritchett",
+    "team": "Seahawks",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 78,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks, 1 PD"
+   },
+   {
+    "id": "4612826",
+    "name": "Ladd McConkey",
+    "team": "Chargers",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 77,
+    "verdict": "quiet",
+    "line": "0 rec, 0 yds, 0 TD (2 tgt)"
+   },
+   {
+    "id": "4576297",
+    "name": "AJ Barner",
+    "team": "Seahawks",
+    "pos": "TE",
+    "group": "TE",
+    "tier": "Breakout",
+    "score": 68,
+    "verdict": "quiet",
+    "line": "1 rec, 12 yds, 0 TD (3 tgt)"
+   },
+   {
+    "id": "4046675",
+    "name": "Julian Love",
+    "team": "Seahawks",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 90,
+    "verdict": "quiet",
+    "line": "5 tkl, 0 TFL, 0 sacks, 1 PD"
+   },
+   {
+    "id": "4430878",
+    "name": "Jaxon Smith-Njigba",
+    "team": "Seahawks",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Watch",
+    "score": 86,
+    "verdict": "showed up",
+    "line": "5 rec, 76 yds, 0 TD (6 tgt)"
+   },
+   {
+    "id": "00-0039897",
+    "name": "Joe Alt",
+    "team": "Chargers",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0037009",
+    "name": "Rashawn Slater",
+    "team": "Chargers",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0037812",
+    "name": "Abraham Lucas",
+    "team": "Seahawks",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   }
+  ],
+  "pressurePointVerdict": "mixed"
  }
 }

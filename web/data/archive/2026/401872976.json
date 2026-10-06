@@ -219,5 +219,237 @@
    }
   },
   "updatedAt": "2026-10-04T18:43:11.288Z"
+ },
+ "postgame": {
+  "projectionResult": {
+   "winnerRight": true,
+   "marginError": 1.379999999999999,
+   "modelSideCovered": true,
+   "totalLeanRight": false
+  },
+  "clv": {
+   "closingAt": "2026-10-04T18:36:29.185Z",
+   "hoursBeforeKick": 1.8,
+   "closingBooks": 9,
+   "closingSpread": {
+    "team": "KC",
+    "line": -4.5
+   },
+   "sideClv": 0,
+   "closingTotal": 47.5,
+   "totalClv": 0
+  },
+  "consensusResult": {
+   "winnerRight": true,
+   "marginError": 0.2999999999999998,
+   "sideCovered": true
+  },
+  "capturedAt": "2026-10-04T23:45:08.064Z",
+  "score": {
+   "home": 27,
+   "away": 30
+  },
+  "excitement": null,
+  "spreadResult": "underdog covered",
+  "totalResult": "over",
+  "edges": [
+   {
+    "a": "Raiders run game",
+    "b": "Chiefs run defense",
+    "edge": "defense",
+    "axis": "rush",
+    "offTeam": "Raiders",
+    "why": "The Chiefs are No. 5 of 32 against the run (33%). The Raiders rank No. 29 in rush success rate (32%). This is not a lean. It is a mismatch, and a prominent one. The Chiefs erase the run. The Raiders get pushed into passing downs, and that is where this defense makes its money.",
+    "verdict": "played out",
+    "actual": "72 rush yds on 26 carries (2.8 per)"
+   },
+   {
+    "a": "Chiefs on passing downs",
+    "b": "Raiders pressure",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Chiefs",
+    "why": "The Chiefs are No. 8 of 32 in passing-downs success (45%). The Raiders rank No. 22 on passing downs (41%). A clear edge, the kind that shapes a game plan. The Chiefs convert the long downs the Raiders need to win. A third-and-8 is not a stop here.",
+    "verdict": "unmeasured",
+    "actual": "Third-down detail is not in the box score. Play-by-play for this game is not ingested yet (npm run ingest:plays)."
+   },
+   {
+    "a": "Raiders on passing downs",
+    "b": "Chiefs pressure",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Raiders",
+    "why": "The Chiefs are No. 13 of 32 on passing downs (35%). The Raiders rank No. 26 in passing-downs success (30%). A clear edge, the kind that shapes a game plan. The Chiefs get off the field on long downs. Early-down efficiency is everything for the Raiders.",
+    "verdict": "unmeasured",
+    "actual": "Third-down detail is not in the box score. Play-by-play for this game is not ingested yet (npm run ingest:plays)."
+   },
+   {
+    "a": "Raiders ground game",
+    "b": "Chiefs run front",
+    "edge": "defense",
+    "axis": "line",
+    "offTeam": "Raiders",
+    "why": "The Chiefs are No. 15 of 32 against the run by EPA (-0.06). The Raiders rank No. 26 in rush EPA per carry (-0.20). A real edge, not a lock. The Chiefs should hold the line of scrimmage. Raiders runs will need the second level to break.",
+    "verdict": "played out",
+    "actual": "72 rush yds on 26 carries (2.8 per)"
+   }
+  ],
+  "prospects": [
+   {
+    "id": "3129310",
+    "name": "Drue Tranquill",
+    "team": "Chiefs",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Matchup",
+    "score": 80,
+    "verdict": "showed up",
+    "line": "7 tkl, 2 TFL, 0 sacks, 1 PD, 1 QB hits"
+   },
+   {
+    "id": "3139477",
+    "name": "Patrick Mahomes",
+    "team": "Chiefs",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Matchup",
+    "score": 72,
+    "verdict": "showed up",
+    "line": "15/30, 225 yds, 2 TD, 0 INT · 2 car, 0 yds, 0 TD"
+   },
+   {
+    "id": "4917354",
+    "name": "Hezekiah Masses",
+    "team": "Raiders",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 89,
+    "verdict": "showed up",
+    "line": "7 tkl, 0 TFL, 0 sacks, 2 PD"
+   },
+   {
+    "id": "4880124",
+    "name": "Mansoor Delane",
+    "team": "Chiefs",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 74,
+    "verdict": "showed up",
+    "line": "10 tkl, 1 TFL, 0 sacks, 1 PD"
+   },
+   {
+    "id": "4697757",
+    "name": "Treydan Stukes",
+    "team": "Raiders",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 71,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "5081927",
+    "name": "R Mason Thomas",
+    "team": "Chiefs",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Rookie",
+    "score": 56,
+    "verdict": "quiet",
+    "line": "0 tkl, 0 TFL, 0 sacks, 1 QB hits"
+   },
+   {
+    "id": "4610705",
+    "name": "Nohl Williams",
+    "team": "Chiefs",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 92,
+    "verdict": "quiet",
+    "line": "4 tkl, 0 TFL, 0 sacks, 1 PD"
+   },
+   {
+    "id": "4685232",
+    "name": "Jaden Hicks",
+    "team": "Chiefs",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Breakout",
+    "score": 82,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4890973",
+    "name": "Ashton Jeanty",
+    "team": "Raiders",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Breakout",
+    "score": 81,
+    "verdict": "showed up",
+    "line": "15 car, 58 yds, 0 TD · 6 rec, 68 yds, 0 TD (8 tgt)"
+   },
+   {
+    "id": "4426340",
+    "name": "Nakobe Dean",
+    "team": "Raiders",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 91,
+    "verdict": "quiet",
+    "line": "5 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4362759",
+    "name": "Nick Bolton",
+    "team": "Chiefs",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 87,
+    "verdict": "showed up",
+    "line": "9 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4432665",
+    "name": "Brock Bowers",
+    "team": "Raiders",
+    "pos": "TE",
+    "group": "TE",
+    "tier": "Watch",
+    "score": 86,
+    "verdict": "showed up",
+    "line": "6 rec, 86 yds, 1 TD (11 tgt)"
+   },
+   {
+    "id": "00-0036623",
+    "name": "Creed Humphrey",
+    "team": "Chiefs",
+    "pos": "C",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0034759",
+    "name": "Kolton Miller",
+    "team": "Raiders",
+    "pos": "T",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   }
+  ],
+  "pressurePointVerdict": "played out"
  }
 }

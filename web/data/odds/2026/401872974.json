@@ -520,11 +520,101 @@
     "mlAway": 410,
     "books": 9
    }
+  },
+  {
+   "at": "2026-10-04T22:00:00.108Z",
+   "perBook": [
+    {
+     "book": "draftkings",
+     "title": "DraftKings",
+     "updated": "2026-10-04T21:59:52Z",
+     "mlHome": -2200,
+     "mlAway": 920,
+     "spread": -11.5,
+     "spreadPrice": -132,
+     "awaySpreadPrice": 100,
+     "total": 29.5,
+     "overPrice": -105,
+     "underPrice": -126
+    },
+    {
+     "book": "fanduel",
+     "title": "FanDuel",
+     "updated": "2026-10-04T21:59:37Z",
+     "mlHome": -1800,
+     "mlAway": 800,
+     "spread": -10.5,
+     "spreadPrice": -114,
+     "awaySpreadPrice": -114,
+     "total": 27.5,
+     "overPrice": -120,
+     "underPrice": -110
+    },
+    {
+     "book": "betrivers",
+     "title": "BetRivers",
+     "updated": "2026-10-04T21:59:52Z",
+     "mlHome": -5000,
+     "mlAway": 1100,
+     "spread": -13,
+     "spreadPrice": -108,
+     "awaySpreadPrice": -120,
+     "total": 29,
+     "overPrice": -109,
+     "underPrice": -118
+    },
+    {
+     "book": "mybookieag",
+     "title": "MyBookie.ag",
+     "updated": "2026-10-04T21:58:20Z",
+     "mlHome": -1667,
+     "mlAway": 650,
+     "spread": -9.5,
+     "spreadPrice": -118,
+     "awaySpreadPrice": -118,
+     "total": 28.5,
+     "overPrice": -111,
+     "underPrice": -118
+    },
+    {
+     "book": "betmgm",
+     "title": "BetMGM",
+     "updated": "2026-10-04T21:59:52Z",
+     "mlHome": -2000,
+     "mlAway": 1000,
+     "spread": -12.5,
+     "spreadPrice": -120,
+     "awaySpreadPrice": -110,
+     "total": 28.5,
+     "overPrice": -120,
+     "underPrice": -105
+    },
+    {
+     "book": "bovada",
+     "title": "Bovada",
+     "updated": "2026-10-04T21:58:58Z",
+     "mlHome": -1600,
+     "mlAway": 750,
+     "spread": -11.5,
+     "spreadPrice": -120,
+     "awaySpreadPrice": -110,
+     "total": 28.5,
+     "overPrice": 100,
+     "underPrice": -130
+    }
+   ],
+   "consensus": {
+    "spread": -11.5,
+    "total": 28.5,
+    "mlHome": -1900,
+    "mlAway": 860,
+    "books": 6
+   }
   }
  ],
  "eventId": "c327223d76a3b7b0db8c6c104442f44b",
  "eventHome": "Minnesota Vikings",
  "eventAway": "Miami Dolphins",
  "swapped": false,
- "lastChecked": "2026-10-04T18:36:29.185Z"
+ "lastChecked": "2026-10-04T22:00:00.108Z"
 }

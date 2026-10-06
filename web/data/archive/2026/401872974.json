@@ -219,5 +219,235 @@
    }
   },
   "updatedAt": "2026-10-04T18:43:11.287Z"
+ },
+ "postgame": {
+  "projectionResult": {
+   "winnerRight": true,
+   "marginError": 8.43,
+   "modelSideCovered": false
+  },
+  "clv": {
+   "closingAt": "2026-10-04T18:36:29.185Z",
+   "hoursBeforeKick": 1.5,
+   "closingBooks": 9,
+   "closingSpread": {
+    "team": "MIN",
+    "line": -10
+   },
+   "sideClv": 0,
+   "closingTotal": 38.5
+  },
+  "consensusResult": {
+   "winnerRight": true,
+   "marginError": 6.6,
+   "sideCovered": false
+  },
+  "capturedAt": "2026-10-04T23:10:07.815Z",
+  "score": {
+   "home": 15,
+   "away": 10
+  },
+  "excitement": null,
+  "spreadResult": "underdog covered",
+  "totalResult": "under",
+  "edges": [
+   {
+    "a": "Dolphins run game",
+    "b": "Vikings run defense",
+    "edge": "defense",
+    "axis": "rush",
+    "offTeam": "Dolphins",
+    "why": "The Vikings are No. 2 of 32 against the run (27%). The Dolphins rank No. 30 in rush success rate (31%). This is not a lean. It is a mismatch, and a prominent one. The Vikings erase the run. The Dolphins get pushed into passing downs, and that is where this defense makes its money.",
+    "verdict": "did not play out",
+    "actual": "121 rush yds on 18 carries (6.7 per)"
+   },
+   {
+    "a": "Vikings deep passing",
+    "b": "Dolphins secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Vikings",
+    "why": "The Vikings are No. 1 of 32 in pass explosiveness (1.69). The Dolphins rank No. 29 at limiting explosive passes (1.46). This is not a lean. It is a mismatch, and a prominent one. The Dolphins do not keep the lid on. The Vikings will take shots, and the market total may be underpriced if they land.",
+    "verdict": "mixed",
+    "actual": "247 pass yds, longest play 27"
+   },
+   {
+    "a": "Dolphins ground game",
+    "b": "Vikings run front",
+    "edge": "defense",
+    "axis": "line",
+    "offTeam": "Dolphins",
+    "why": "The Vikings are No. 2 of 32 against the run by EPA (-0.35). The Dolphins rank No. 29 in rush EPA per carry (-0.23). This is not a lean. It is a mismatch, and a prominent one. The Vikings win first contact. Backs get met in the backfield; screens and the quick game are the counter.",
+    "verdict": "did not play out",
+    "actual": "121 rush yds on 18 carries (6.7 per)"
+   },
+   {
+    "a": "Dolphins deep passing",
+    "b": "Vikings secondary",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Dolphins",
+    "why": "The Dolphins are No. 7 of 32 in pass explosiveness (1.47). The Vikings rank No. 30 at limiting explosive passes (1.51). This is not a lean. It is a mismatch, and a prominent one. The Vikings do not keep the lid on. The Dolphins will take shots, and the market total may be underpriced if they land.",
+    "verdict": "played out",
+    "actual": "85 pass yds, longest play 53"
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4262921",
+    "name": "Justin Jefferson",
+    "team": "Vikings",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Matchup",
+    "score": 75,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "16772",
+    "name": "Kyle Van Noy",
+    "team": "Vikings",
+    "pos": "MLB",
+    "group": "LB",
+    "tier": "Matchup",
+    "score": 59,
+    "verdict": "showed up",
+    "line": "2 tkl, 2 TFL, 0 sacks"
+   },
+   {
+    "id": "4566094",
+    "name": "Jacob Rodriguez",
+    "team": "Dolphins",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 91,
+    "verdict": "showed up",
+    "line": "18 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4880346",
+    "name": "Michael Taaffe",
+    "team": "Dolphins",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 81,
+    "verdict": "showed up",
+    "line": "6 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4602019",
+    "name": "Caleb Banks",
+    "team": "Vikings",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Rookie",
+    "score": 45,
+    "verdict": "quiet",
+    "line": "1 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4698728",
+    "name": "Domonique Orange",
+    "team": "Vikings",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Rookie",
+    "score": 34,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4565190",
+    "name": "Dallas Turner",
+    "team": "Vikings",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 93,
+    "verdict": "showed up",
+    "line": "3 tkl, 1 TFL, 2 sacks, 2 QB hits"
+   },
+   {
+    "id": "4431664",
+    "name": "Dante Trader Jr.",
+    "team": "Dolphins",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Breakout",
+    "score": 85,
+    "verdict": "quiet",
+    "line": "5 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "4569603",
+    "name": "Malik Washington",
+    "team": "Dolphins",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 82,
+    "verdict": "showed up",
+    "line": "2 car, 3 yds, 0 TD · 5 rec, 67 yds, 0 TD (5 tgt)"
+   },
+   {
+    "id": "5093973",
+    "name": "Levi Drake Rodriguez",
+    "team": "Vikings",
+    "pos": "DL",
+    "group": "DL",
+    "tier": "Breakout",
+    "score": 74,
+    "verdict": "quiet",
+    "line": "No box-score line."
+   },
+   {
+    "id": "4038999",
+    "name": "Byron Murphy",
+    "team": "Vikings",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 90,
+    "verdict": "quiet",
+    "line": "2 tkl, 0 TFL, 0 sacks"
+   },
+   {
+    "id": "3728281",
+    "name": "Blake Cashman",
+    "team": "Vikings",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 89,
+    "verdict": "showed up",
+    "line": "8 tkl, 0 TFL, 0 sacks, 1 QB hits"
+   },
+   {
+    "id": "00-0036248",
+    "name": "Austin Jackson",
+    "team": "Dolphins",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   },
+   {
+    "id": "00-0040742",
+    "name": "Jonah Savaiinaea",
+    "team": "Dolphins",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85,
+    "verdict": "unmeasured",
+    "line": "Linemen have no box-score line."
+   }
+  ],
+  "pressurePointVerdict": "did not play out"
  }
 }
