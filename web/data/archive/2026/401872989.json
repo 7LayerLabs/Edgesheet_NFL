@@ -1,0 +1,185 @@
+{
+ "gameId": "401872989",
+ "season": 2026,
+ "week": 5,
+ "pregame": {
+  "capturedAt": "2026-10-06T13:46:39.588Z",
+  "kickoff": "2026-10-11T20:05:00.000Z",
+  "away": "Broncos",
+  "home": "Chargers",
+  "abbr": {
+   "home": "LAC",
+   "away": "DEN"
+  },
+  "scoutScore": 74,
+  "whyWatch": "Division game: Broncos 2-2, 3rd in the AFC West; Chargers 0-4, 4th in the AFC West.",
+  "pressurePoint": "Broncos passing-down offense vs Chargers passing-down defense. The Broncos are No. 13 of 32 in passing-downs success (40%). The Chargers rank No. 28 on passing downs (45%). A clear edge, the kind that shapes a game plan. The Broncos convert the long downs the Chargers need to win. A third-and-8 is not a stop here. Watch the Broncos on third-and-long. Two conversions in the first half break the Chargers plan.",
+  "edges": [
+   {
+    "a": "Broncos passing-down offense",
+    "b": "Chargers passing-down defense",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Broncos",
+    "why": "The Broncos are No. 13 of 32 in passing-downs success (40%). The Chargers rank No. 28 on passing downs (45%). A clear edge, the kind that shapes a game plan. The Broncos convert the long downs the Chargers need to win. A third-and-8 is not a stop here."
+   },
+   {
+    "a": "Chargers run game",
+    "b": "Broncos run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Chargers",
+    "why": "The Chargers are No. 11 of 32 in rush success rate (45%) and No. 23 in EPA a carry (-0.13). The Broncos rank No. 18 against the run (42%) and No. 31 by EPA a carry (0.08). A real edge, not a lock. The Chargers should stay on schedule on the ground, which keeps third downs short and the clock moving."
+   },
+   {
+    "a": "Chargers pass game",
+    "b": "Broncos pass defense",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Chargers",
+    "why": "The Chargers are No. 8 of 32 in pass explosiveness (1.40) and No. 30 in pass success rate (38%). The Broncos rank No. 15 at limiting explosive passes (1.30) and No. 14 in pass success allowed (45%). A real edge, not a lock. The Chargers have the deep ball available. Watch whether the Broncos roll a safety over after the first one."
+   },
+   {
+    "a": "Broncos pass game",
+    "b": "Chargers pass defense",
+    "edge": "even",
+    "axis": "pass",
+    "offTeam": "Broncos",
+    "why": "The Broncos are No. 24 in pass explosiveness (1.23) and No. 24 in pass success rate (42%), and the Chargers are No. 27 at limiting explosive passes (1.39) and No. 23 in pass success allowed (48%). Strength on strength. The Broncos take shots and the Chargers give up few. Whoever wins the first deep ball changes the other side's call sheet."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4685382",
+    "name": "Omarion Hampton",
+    "team": "Chargers",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 70
+   },
+   {
+    "id": "4426338",
+    "name": "Bo Nix",
+    "team": "Broncos",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Matchup",
+    "score": 55
+   },
+   {
+    "id": "4950551",
+    "name": "Genesis Smith",
+    "team": "Chargers",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 79
+   },
+   {
+    "id": "4429190",
+    "name": "Akheem Mesidor",
+    "team": "Chargers",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 55
+   },
+   {
+    "id": "4427404",
+    "name": "Cam Hart",
+    "team": "Chargers",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 86
+   },
+   {
+    "id": "4686612",
+    "name": "Tre Harris",
+    "team": "Chargers",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 80
+   },
+   {
+    "id": "4568490",
+    "name": "RJ Harvey",
+    "team": "Broncos",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Breakout",
+    "score": 65
+   },
+   {
+    "id": "2612151",
+    "name": "Alex Singleton",
+    "team": "Broncos",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 88
+   },
+   {
+    "id": "4360853",
+    "name": "Talanoa Hufanga",
+    "team": "Broncos",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "3915282",
+    "name": "Zach Allen",
+    "team": "Broncos",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "00-0038103",
+    "name": "Cole Strange",
+    "team": "Chargers",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 84
+   },
+   {
+    "id": "16710",
+    "name": "Khalil Mack",
+    "team": "Chargers",
+    "pos": "OLB",
+    "group": "EDGE",
+    "tier": "Watch",
+    "score": 84
+   }
+  ],
+  "spread": {
+   "team": "DEN",
+   "line": -3.5
+  },
+  "total": 42,
+  "projection": {
+   "winner": "DEN",
+   "winProb": 0.5679317990236477,
+   "margin": 2.3100000000000005,
+   "home": 20,
+   "away": 22,
+   "modelSide": "LAC",
+   "confidence": "high",
+   "modelTotal": 40.5,
+   "totalLean": "none"
+  },
+  "consensus": {
+   "median": -0.9,
+   "favorite": "DEN",
+   "side": "LAC",
+   "sideCount": 3,
+   "of": 4
+  }
+ }
+}

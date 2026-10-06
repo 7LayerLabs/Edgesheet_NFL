@@ -1,0 +1,101 @@
+{
+  "builtAt": "2026-10-06T13:59:55.038Z",
+  "field": "96/96",
+  "seeds": "96/96",
+  "seasons": [
+    {
+      "season": 2019,
+      "playoffTeams": 12,
+      "fieldMatched": 12,
+      "seedsMatched": 12,
+      "mismatches": [],
+      "tiebreakNotes": [
+        "Packers: Took the No. 2 seed on conference record over the Saints.",
+        "Chiefs: Took the No. 2 seed on head-to-head over the Patriots.",
+        "49ers: Took the No. 1 seed on a head-to-head sweep over the Saints and Packers."
+      ]
+    },
+    {
+      "season": 2020,
+      "playoffTeams": 14,
+      "fieldMatched": 14,
+      "seedsMatched": 14,
+      "mismatches": [],
+      "tiebreakNotes": [
+        "Ravens: Finished 2nd in the AFC North on head-to-head, ahead of the Browns. Took the No. 5 seed on head-to-head over the Browns and Colts.",
+        "Bears: Took the No. 7 seed on record in common games over the Cardinals.",
+        "Browns: Took the No. 6 seed on head-to-head over the Colts.",
+        "Saints: Took the No. 2 seed on conference record over the Seahawks.",
+        "Titans: Won the AFC South on division record over the Colts."
+      ]
+    },
+    {
+      "season": 2021,
+      "playoffTeams": 14,
+      "fieldMatched": 14,
+      "seedsMatched": 14,
+      "mismatches": [],
+      "tiebreakNotes": [
+        "Cowboys: Took the No. 3 seed on conference record over the Rams.",
+        "Packers: Took the No. 1 seed on conference record over the Buccaneers.",
+        "Raiders: Took the No. 5 seed on record in common games over the Patriots.",
+        "Eagles: Took the No. 7 seed on head-to-head over the Saints.",
+        "Titans: Took the No. 1 seed on head-to-head over the Chiefs."
+      ]
+    },
+    {
+      "season": 2022,
+      "playoffTeams": 14,
+      "fieldMatched": 14,
+      "seedsMatched": 14,
+      "mismatches": [],
+      "tiebreakNotes": [
+        "Chargers: Took the No. 5 seed on conference record over the Ravens.",
+        "Dolphins: Took the No. 7 seed on head-to-head over the Steelers.",
+        "Seahawks: Took the No. 7 seed on head-to-head over the Lions.",
+        "49ers: Took the No. 2 seed on conference record over the Vikings."
+      ]
+    },
+    {
+      "season": 2023,
+      "playoffTeams": 14,
+      "fieldMatched": 14,
+      "seedsMatched": 14,
+      "mismatches": [],
+      "tiebreakNotes": [
+        "Bills: Won the AFC East on head-to-head over the Dolphins. Took the No. 2 seed on head-to-head over the Chiefs.",
+        "Browns: Took the No. 5 seed on conference record over the Dolphins.",
+        "Cowboys: Took the No. 2 seed on head-to-head over the Lions.",
+        "Packers: Took the No. 7 seed on strength of victory over the Saints and Seahawks.",
+        "49ers: Took the No. 1 seed on conference record over the Lions and Cowboys.",
+        "Buccaneers: Won the NFC South on record in common games over the Saints."
+      ]
+    },
+    {
+      "season": 2024,
+      "playoffTeams": 14,
+      "fieldMatched": 14,
+      "seedsMatched": 14,
+      "mismatches": [],
+      "tiebreakNotes": [
+        "Rams: Won the NFC West on strength of victory over the Seahawks.",
+        "Steelers: Took the No. 6 seed on head-to-head over the Broncos.",
+        "Buccaneers: Took the No. 3 seed on conference record over the Rams."
+      ]
+    },
+    {
+      "season": 2025,
+      "playoffTeams": 14,
+      "fieldMatched": 14,
+      "seedsMatched": 14,
+      "mismatches": [],
+      "tiebreakNotes": [
+        "Panthers: Won the NFC South on head-to-head record among the tied teams over the Falcons and Buccaneers.",
+        "Bears: Took the No. 2 seed on head-to-head over the Eagles.",
+        "Broncos: Took the No. 1 seed on record in common games over the Patriots.",
+        "Texans: Took the No. 5 seed on head-to-head over the Bills.",
+        "Rams: Finished 2nd in the NFC West on record in common games, ahead of the 49ers. Took the No. 5 seed on a better division finish over the 49ers."
+      ]
+    }
+  ]
+}

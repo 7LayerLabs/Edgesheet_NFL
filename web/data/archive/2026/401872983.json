@@ -1,0 +1,203 @@
+{
+ "gameId": "401872983",
+ "season": 2026,
+ "week": 5,
+ "pregame": {
+  "capturedAt": "2026-10-06T13:46:39.585Z",
+  "kickoff": "2026-10-11T17:00:00.000Z",
+  "away": "Browns",
+  "home": "Jets",
+  "abbr": {
+   "home": "NYJ",
+   "away": "CLE"
+  },
+  "scoutScore": 74,
+  "whyWatch": "The market calls it a toss-up: NYJ -2.",
+  "pressurePoint": "Browns pass game vs Jets pass defense. The Jets are No. 1 of 32 at limiting explosive passes (1.01) and No. 28 in pass success allowed (50%). The Browns rank No. 23 in pass explosiveness (1.26) and No. 11 in pass success rate (49%). This is not a lean. It is a mismatch, and a prominent one. Deep balls are the lowest-percentage play in this game. The Browns need the underneath game and yards after catch. Watch the longest Browns completion. If it is under 25 yards at the half, the Jets have won the matchup.",
+  "edges": [
+   {
+    "a": "Browns pass game",
+    "b": "Jets pass defense",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Browns",
+    "why": "The Jets are No. 1 of 32 at limiting explosive passes (1.01) and No. 28 in pass success allowed (50%). The Browns rank No. 23 in pass explosiveness (1.26) and No. 11 in pass success rate (49%). This is not a lean. It is a mismatch, and a prominent one. Deep balls are the lowest-percentage play in this game. The Browns need the underneath game and yards after catch."
+   },
+   {
+    "a": "Jets run game",
+    "b": "Browns run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Jets",
+    "why": "The Jets are No. 15 of 32 in rush success rate (40%) and No. 21 in EPA a carry (-0.12). The Browns rank No. 26 against the run (46%) and No. 22 by EPA a carry (-0.01). A real edge, not a lock. The Jets should stay on schedule on the ground, which keeps third downs short and the clock moving."
+   },
+   {
+    "a": "Jets passing-down offense",
+    "b": "Browns passing-down defense",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Jets",
+    "why": "The Jets are No. 15 of 32 in passing-downs success (38%). The Browns rank No. 26 on passing downs (42%). A real edge, not a lock. The Jets convert the long downs the Browns need to win. A third-and-8 is not a stop here."
+   },
+   {
+    "a": "Browns passing-down offense",
+    "b": "Jets passing-down defense",
+    "edge": "even",
+    "axis": "passing-downs",
+    "offTeam": "Browns",
+    "why": "The Browns are No. 26 in passing-downs success (29%), and the Jets are No. 29 on passing downs (45%). Strength on strength. Both sides are average on long downs. Early-down efficiency decides who sees more of them."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4426686",
+    "name": "Dane Belton",
+    "team": "Jets",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Matchup",
+    "score": 82
+   },
+   {
+    "id": "4685247",
+    "name": "Braelon Allen",
+    "team": "Jets",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 65
+   },
+   {
+    "id": "4832800",
+    "name": "Denzel Boston",
+    "team": "Browns",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 88
+   },
+   {
+    "id": "4685248",
+    "name": "David Bailey",
+    "team": "Jets",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 71
+   },
+   {
+    "id": "5083315",
+    "name": "Kenyon Sadiq",
+    "team": "Jets",
+    "pos": "TE",
+    "group": "TE",
+    "tier": "Rookie",
+    "score": 61
+   },
+   {
+    "id": "4870653",
+    "name": "KC Concepcion",
+    "team": "Browns",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 56
+   },
+   {
+    "id": "4873232",
+    "name": "Mason Graham",
+    "team": "Browns",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Breakout",
+    "score": 89
+   },
+   {
+    "id": "4695783",
+    "name": "Myles Harden",
+    "team": "Browns",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 80
+   },
+   {
+    "id": "4569371",
+    "name": "Isaiah Williams",
+    "team": "Jets",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 74
+   },
+   {
+    "id": "4876017",
+    "name": "Carson Schwesinger",
+    "team": "Browns",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "3915535",
+    "name": "Denzel Ward",
+    "team": "Browns",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "14958",
+    "name": "Demario Davis",
+    "team": "Jets",
+    "pos": "OLB",
+    "group": "EDGE",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "00-0040123",
+    "name": "Armand Membou",
+    "team": "Jets",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0039145",
+    "name": "Joe Tippmann",
+    "team": "Jets",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "NYJ",
+   "line": -2
+  },
+  "total": 40,
+  "projection": {
+   "winner": "CLE",
+   "winProb": 0.5766510190399861,
+   "margin": 2.6100000000000003,
+   "home": 19,
+   "away": 21,
+   "modelSide": "CLE",
+   "confidence": "high",
+   "modelTotal": 43,
+   "totalLean": "over"
+  },
+  "consensus": {
+   "median": 0.2,
+   "favorite": "NYJ",
+   "side": "CLE",
+   "sideCount": 2,
+   "of": 4
+  }
+ }
+}

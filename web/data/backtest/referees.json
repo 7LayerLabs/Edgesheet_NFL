@@ -1,0 +1,104 @@
+{
+  "builtAt": "2026-10-06T14:02:53.098Z",
+  "carryOver": {
+    "pairs": 221,
+    "r": -0.023,
+    "ci95": [
+      -0.154,
+      0.11
+    ]
+  },
+  "bet": {
+    "bets": 1502,
+    "hitRate": 0.499,
+    "ci95": [
+      0.474,
+      0.525
+    ],
+    "roi": -0.047
+  },
+  "pass": false,
+  "verdict": "Referee over/under records did not carry over: a referee's past over rate predicted his next season with a correlation of -0.023 (221 referee-seasons), and betting the tendency hit 49.9% on 1502 games since 2010 against 52.4% to break even. Not shown as a lean.",
+  "bySeason": [
+    {
+      "season": 2010,
+      "bets": 104,
+      "hitRate": 0.442
+    },
+    {
+      "season": 2011,
+      "bets": 98,
+      "hitRate": 0.561
+    },
+    {
+      "season": 2012,
+      "bets": 89,
+      "hitRate": 0.483
+    },
+    {
+      "season": 2013,
+      "bets": 90,
+      "hitRate": 0.567
+    },
+    {
+      "season": 2014,
+      "bets": 74,
+      "hitRate": 0.446
+    },
+    {
+      "season": 2015,
+      "bets": 72,
+      "hitRate": 0.472
+    },
+    {
+      "season": 2016,
+      "bets": 61,
+      "hitRate": 0.557
+    },
+    {
+      "season": 2017,
+      "bets": 74,
+      "hitRate": 0.554
+    },
+    {
+      "season": 2018,
+      "bets": 88,
+      "hitRate": 0.545
+    },
+    {
+      "season": 2019,
+      "bets": 74,
+      "hitRate": 0.446
+    },
+    {
+      "season": 2020,
+      "bets": 62,
+      "hitRate": 0.661
+    },
+    {
+      "season": 2021,
+      "bets": 126,
+      "hitRate": 0.484
+    },
+    {
+      "season": 2022,
+      "bets": 140,
+      "hitRate": 0.493
+    },
+    {
+      "season": 2023,
+      "bets": 142,
+      "hitRate": 0.493
+    },
+    {
+      "season": 2024,
+      "bets": 125,
+      "hitRate": 0.48
+    },
+    {
+      "season": 2025,
+      "bets": 83,
+      "hitRate": 0.373
+    }
+  ]
+}

@@ -1,0 +1,185 @@
+{
+ "gameId": "401872998",
+ "season": 2026,
+ "week": 6,
+ "pregame": {
+  "capturedAt": "2026-10-06T13:46:39.751Z",
+  "kickoff": "2026-10-18T17:00:00.000Z",
+  "away": "Panthers",
+  "home": "Eagles",
+  "abbr": {
+   "home": "PHI",
+   "away": "CAR"
+  },
+  "scoutScore": 77,
+  "whyWatch": "Both in the playoff picture by record: Panthers 2-2 (No. 4 seed line in the NFC), Eagles 2-2 (No. 7 in the NFC).",
+  "pressurePoint": "Panthers run game vs Eagles run defense. The Panthers are No. 14 of 32 in rush success rate (40%) and No. 20 in EPA a carry (-0.11). The Eagles rank No. 28 against the run (46%) and No. 28 by EPA a carry (0.04). A clear edge, the kind that shapes a game plan. The Panthers should stay on schedule on the ground, which keeps third downs short and the clock moving. Watch the Panthers rushing attempts by halftime. North of 20 means the plan is working.",
+  "edges": [
+   {
+    "a": "Eagles run game",
+    "b": "Panthers run defense",
+    "edge": "defense",
+    "axis": "rush",
+    "offTeam": "Eagles",
+    "why": "The Panthers are No. 8 of 32 against the run (37%) and No. 19 by EPA a carry (-0.04). The Eagles rank No. 26 in rush success rate (36%) and No. 22 in EPA a carry (-0.12). This is not a lean. It is a mismatch, and a prominent one. The Panthers erase the run. The Eagles get pushed into passing downs, and that is where this defense makes its money."
+   },
+   {
+    "a": "Eagles pass game",
+    "b": "Panthers pass defense",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Eagles",
+    "why": "The Eagles are No. 2 of 32 in pass explosiveness (1.59) and No. 29 in pass success rate (38%). The Panthers rank No. 19 at limiting explosive passes (1.34) and No. 19 in pass success allowed (47%). This is not a lean. It is a mismatch, and a prominent one. The Panthers do not keep the lid on. The Eagles will take shots, and the market total may be underpriced if they land."
+   },
+   {
+    "a": "Panthers run game",
+    "b": "Eagles run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Panthers",
+    "why": "The Panthers are No. 14 of 32 in rush success rate (40%) and No. 20 in EPA a carry (-0.11). The Eagles rank No. 28 against the run (46%) and No. 28 by EPA a carry (0.04). A clear edge, the kind that shapes a game plan. The Panthers should stay on schedule on the ground, which keeps third downs short and the clock moving."
+   },
+   {
+    "a": "Eagles passing-down offense",
+    "b": "Panthers passing-down defense",
+    "edge": "even",
+    "axis": "passing-downs",
+    "offTeam": "Eagles",
+    "why": "The Eagles are No. 28 in passing-downs success (29%), and the Panthers are No. 25 on passing downs (41%). Strength on strength. Both sides are average on long downs. Early-down efficiency decides who sees more of them."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4243256",
+    "name": "Devin Lloyd",
+    "team": "Panthers",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Matchup",
+    "score": 87
+   },
+   {
+    "id": "4428850",
+    "name": "Dontayvion Wicks",
+    "team": "Eagles",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Matchup",
+    "score": 69
+   },
+   {
+    "id": "5151083",
+    "name": "Will Lee III",
+    "team": "Panthers",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 78
+   },
+   {
+    "id": "4602967",
+    "name": "Aaron Hall",
+    "team": "Panthers",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Rookie",
+    "score": 70
+   },
+   {
+    "id": "4870795",
+    "name": "Makai Lemon",
+    "team": "Eagles",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 35
+   },
+   {
+    "id": "4685472",
+    "name": "Tetairoa McMillan",
+    "team": "Panthers",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 96
+   },
+   {
+    "id": "4685287",
+    "name": "Jihaad Campbell",
+    "team": "Eagles",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 91
+   },
+   {
+    "id": "4695883",
+    "name": "Jalen Coker",
+    "team": "Panthers",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 87
+   },
+   {
+    "id": "4432777",
+    "name": "Jeremiah Trotter Jr.",
+    "team": "Eagles",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 61
+   },
+   {
+    "id": "4682618",
+    "name": "Cooper DeJean",
+    "team": "Eagles",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 88
+   },
+   {
+    "id": "4241416",
+    "name": "Chuba Hubbard",
+    "team": "Panthers",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Watch",
+    "score": 86
+   },
+   {
+    "id": "00-0038112",
+    "name": "Cam Jurgens",
+    "team": "Eagles",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "4685759",
+    "name": "Jalen Carter",
+    "team": "Eagles",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "projection": {
+   "winner": "PHI",
+   "winProb": 0.6159322580057751,
+   "margin": 3.9800000000000004,
+   "home": 25,
+   "away": 21,
+   "confidence": "high",
+   "modelTotal": 45.5
+  },
+  "consensus": {
+   "median": 2.5,
+   "favorite": "PHI",
+   "of": 4
+  }
+ }
+}

@@ -26,7 +26,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { genGamelogs, genHistory, genMeta, genPlayers, genSchedule, gamelogsStamp, historyStamp, type GenPlayer, type StatLine } from "./generated";
+import { genExtras, genGamelogs, genHistory, genMeta, genPlayers, genSchedule, gamelogsStamp, historyStamp, type GenMove, type GenPlayer, type StatLine } from "./generated";
 import { memo, memoSync } from "./memo";
 import { nflTeams } from "./nfl";
 
@@ -335,6 +335,8 @@ export interface TeamAvailability {
   defense: number; // points this defense loses (negative): the opponent scores that many more
   total: number; // offense + defense
   moves: Transaction[];
+  /** Week-over-week roster changes from nflverse weekly rosters: joined from another team, signed, promoted, to reserve. */
+  rosterMoves: GenMove[];
   /** Every rostered player who is not plainly active, by id: the one status the whole game page uses. */
   statuses: Record<string, { status: string; source: string; absence: number }>;
 }
@@ -508,7 +510,7 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
   }
   const defense = round1(cap(items.filter((i) => i.side === "defense").reduce((a, b) => a + b.pts, 0)));
   items.sort((a, b) => a.pts - b.pts);
-  return { team, qb, items, offense, offenseTotal, defense, total: round1(offense + defense), moves: moves.filter((m) => m.team === team).slice(0, 8), statuses };
+  return { team, qb, items, offense, offenseTotal, defense, total: round1(offense + defense), moves: moves.filter((m) => m.team === team).slice(0, 8), rosterMoves: (genExtras()?.moves ?? []).filter((m) => m.team === team).slice(0, 10), statuses };
 }
 
 /** Both teams for one game. Never throws: missing feeds fall back to the official report and say so. */

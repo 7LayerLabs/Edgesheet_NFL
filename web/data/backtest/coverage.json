@@ -1,0 +1,125 @@
+{
+  "builtAt": "2026-10-06T13:57:34.698Z",
+  "seasons": [
+    2023,
+    2024,
+    2025
+  ],
+  "minTargets": 20,
+  "leagueDrift": {
+    "2023": {
+      "manRate": 0.42,
+      "twoHighRate": 0.383
+    },
+    "2024": {
+      "manRate": 0.493,
+      "twoHighRate": 0.373
+    },
+    "2025": {
+      "manRate": 0.318,
+      "twoHighRate": 0.426
+    }
+  },
+  "tests": {
+    "defenseTwoHighRate": {
+      "what": "a defense's share of pass plays with two deep safeties (Cover 2, 4, 6, 2-man)",
+      "pairs": 64,
+      "r": 0.489,
+      "ci": [
+        0.277,
+        0.656
+      ],
+      "verdict": "carries over"
+    },
+    "receiverTwoHighMinusOneHighYards": {
+      "what": "a receiver's yards per target against two-deep shells minus one-deep shells",
+      "pairs": 150,
+      "r": -0.089,
+      "ci": [
+        -0.246,
+        0.073
+      ],
+      "verdict": "does not carry over"
+    },
+    "receiverTwoHighMinusOneHighEpa": {
+      "what": "a receiver's EPA per target against two-deep shells minus one-deep shells",
+      "pairs": 150,
+      "r": -0.072,
+      "ci": [
+        -0.23,
+        0.089
+      ],
+      "verdict": "does not carry over"
+    },
+    "offenseTwoHighMinusOneHighEpa": {
+      "what": "an offense's EPA per dropback against two-deep shells minus one-deep shells",
+      "pairs": 64,
+      "r": -0.22,
+      "ci": [
+        -0.442,
+        0.027
+      ],
+      "verdict": "does not carry over"
+    },
+    "receiverManMinusZoneYards": {
+      "what": "a receiver's yards per target against man minus against zone",
+      "pairs": 153,
+      "r": 0.185,
+      "ci": [
+        0.027,
+        0.334
+      ],
+      "verdict": "carries over"
+    },
+    "receiverManMinusZoneEpa": {
+      "what": "a receiver's EPA per target against man minus against zone",
+      "pairs": 153,
+      "r": 0.078,
+      "ci": [
+        -0.082,
+        0.234
+      ],
+      "verdict": "does not carry over"
+    },
+    "defenseManRate": {
+      "what": "a defense's share of pass plays in man coverage",
+      "pairs": 64,
+      "r": 0.011,
+      "ci": [
+        -0.235,
+        0.257
+      ],
+      "verdict": "does not carry over"
+    },
+    "defenseEpaVsMan": {
+      "what": "a defense's EPA per dropback allowed against man",
+      "pairs": 64,
+      "r": 0.066,
+      "ci": [
+        -0.183,
+        0.307
+      ],
+      "verdict": "does not carry over"
+    },
+    "defenseManMinusZoneEpa": {
+      "what": "a defense's EPA allowed in man minus in zone",
+      "pairs": 64,
+      "r": -0.329,
+      "ci": [
+        -0.532,
+        -0.09
+      ],
+      "verdict": "reverses"
+    },
+    "offenseManMinusZoneEpa": {
+      "what": "an offense's EPA per dropback against man minus against zone",
+      "pairs": 64,
+      "r": -0.136,
+      "ci": [
+        -0.369,
+        0.114
+      ],
+      "verdict": "does not carry over"
+    }
+  }
+}

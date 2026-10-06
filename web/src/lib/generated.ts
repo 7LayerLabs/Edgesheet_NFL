@@ -247,3 +247,22 @@ export interface GenHistoryGames {
 }
 export const genHistoryGames = (): GenHistoryGames | undefined => memoSync(`gen:histgames:${stamp("history-games.json")}`, 3600, () => readJson<GenHistoryGames | undefined>("history-games.json", undefined));
 export const historyGamesStamp = () => stamp("history-games.json");
+
+/** PFR advanced, Next Gen, and expected fantasy points per player, plus roster moves and trades (scripts/ingest-extras.mjs). */
+export interface GenAdvDef { g: number; tgt?: number; cmp?: number; yds?: number; td?: number; int?: number; blitz?: number; hurry?: number; hit?: number; sk?: number; press?: number; tk?: number; mtk?: number }
+export interface GenAdvRush { g: number; att?: number; ybc?: number; yac?: number; brk?: number; rbrk?: number }
+export interface GenAdvRec { g: number; drops?: number; brk?: number; int?: number }
+export interface GenAdvPass { g: number; bad?: number; press?: number; blitz?: number; hurry?: number; hit?: number; sk?: number; drops?: number }
+export interface GenExtraPlayer {
+  sleeper?: string;
+  combine?: { yr?: number; ht?: string; wt?: number; forty?: number; vert?: number; broad?: number; bench?: number; cone?: number; shuttle?: number };
+  adv?: Record<string, { def?: GenAdvDef; rush?: GenAdvRush; rec?: GenAdvRec; pass?: GenAdvPass }>;
+  ngs?: Record<string, { rush?: { att?: number; ryoe?: number; ryoePer?: number; box8?: number; ttl?: number; eff?: number }; rec?: { tgt?: number; sep?: number; cush?: number; yacx?: number; airShare?: number; iay?: number }; pass?: { att?: number; ttt?: number; agg?: number; cpoe?: number; iay?: number } }>;
+  /** [season, week, expected fantasy points, fantasy points] per game (ffopportunity PPR scoring, no DK bonuses). */
+  xfp?: [number, number, number, number][];
+}
+export interface GenMove { id: string; name: string; pos: string; team: string; week: number; kind: "joined" | "signed" | "promoted" | "reserve"; from?: string }
+export interface GenTrade { date: string; season: number; items: { from: string; to: string; player?: string; id?: string; pick?: string }[] }
+export interface GenExtras { asOf: string; season: number; players: Record<string, GenExtraPlayer>; moves: GenMove[]; trades: GenTrade[]; sources: Record<string, boolean> }
+export const genExtras = (): GenExtras | undefined => memoSync(`gen:extras:${stamp("extras.json")}`, 3600, () => readJson<GenExtras | undefined>("extras.json", undefined));
+export const extrasStamp = () => stamp("extras.json");

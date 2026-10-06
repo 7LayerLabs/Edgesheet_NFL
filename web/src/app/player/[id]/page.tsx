@@ -6,6 +6,7 @@ import { genMeta, genPlayers } from "@/lib/generated";
 import { playerTrend } from "@/lib/trends";
 import { teamByShort } from "@/lib/nfl";
 import { PlayerWeeks } from "@/components/PlayerWeeks";
+import { AdvancedPanel } from "@/components/AdvancedPanel";
 import { StorylineGames, VsOpponent } from "@/components/PlayerHistory";
 import { storylineGames, vsOpponent } from "@/lib/player-history";
 import { splitsNotes, storiesSummary, storyNote, vsOpponentNote } from "@/lib/backtest-notes";
@@ -180,6 +181,8 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
           <PlayerWeeks weeks={trend.weeks} heads={heads} row={trend.row} notes={trend.notes} qb={gp?.pg === "QB"} rb={gp?.pg === "RB"} />
         </section>
       )}
+
+      <AdvancedPanel id={p.id} />
 
       {vs && opp && (
         <section className="mt-8">

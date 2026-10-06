@@ -24,7 +24,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { kickoffTime } from "./format";
-import { genGamelogs, genPlayers, genSchedule, genTeams, gamelogsStamp, type GenPlayer, type StatLine } from "./generated";
+import { extrasStamp, genExtras, genGamelogs, genPlayers, genSchedule, genTeams, gamelogsStamp, type GenPlayer, type StatLine } from "./generated";
 import { memo, memoSync } from "./memo";
 import { nflTeams, etDateOf, type NflTeam } from "./nfl";
 import { findOddsFile, type PropRow } from "./odds";
@@ -71,6 +71,96 @@ const MATCHUP_WEIGHT = 0.25;
  * The gain is lopsided (median 6% at RB): most weeks little, some weeks a breakout, so it is a tournament angle, not cash.
  */
 export const NEXT_MAN_UP_SHARE: Record<DkPos, number> = { QB: 0, RB: 0.25, TE: 0.2, WR: 0 };
+
+/**
+ * Weight of expected fantasy points (ffverse ffopportunity: what a player's targets, carries, and field position were
+ * worth) in the projection base. scripts/backtest-xfp.mjs on 2022 to 2025 (8,209 player-weeks): miss 6.52 DK points
+ * with none, 6.46 at half (best), 6.50 with expected points alone; correlation 0.397 to 0.404.
+ */
+const XFP_WEIGHT = 0.5;
+
+/** League sacks per PFR pressure this season (last season while this one is thin), for the pass-rush lens. */
+const sackPerPressure = () =>
+  memoSync(`dfs:skpr:${extrasStamp()}`, 3600, () => {
+    const ex = genExtras();
+    if (!ex) return 0.13;
+    const sum = (y: number) => {
+      let sk = 0, pr = 0;
+      for (const e of Object.values(ex.players)) {
+        const d = e.adv?.[String(y)]?.def;
+        if (d) { sk += d.sk ?? 0; pr += d.press ?? 0; }
+      }
+      return { sk, pr };
+    };
+    const now = sum(ex.season);
+    const use = now.pr >= 500 ? now : sum(ex.season - 1);
+    return use.pr ? use.sk / use.pr : 0.13;
+  });
+
+/** DraftKings points over ffopportunity points this season across everyone with both (DK adds yardage bonuses). */
+const xfpScale = () =>
+  memoSync(`dfs:xfpScale:${gamelogsStamp()}:${extrasStamp()}`, 3600, () => {
+    const logs = genGamelogs();
+    const ex = genExtras();
+    if (!logs || !ex) return 1;
+    let dk = 0, fp = 0;
+    for (const [id, e] of Object.entries(ex.players)) {
+      if (!e.xfp) continue;
+      const lines = logs.players[id];
+      if (!lines) continue;
+      for (const [y, wk, , f] of e.xfp) {
+        if (y !== ex.season) continue;
+        const l = lines.find((x) => x.wk === wk && x.st === "regular");
+        if (l) { dk += dkPoints(l.s); fp += f; }
+      }
+    }
+    return fp > 0 ? dk / fp : 1;
+  });
+
+/**
+ * One short line of this season's tracking and charting for a skill player, from the extras feed: blocking and
+ * rush yards over expected for backs, separation and drops for receivers, pressure for quarterbacks. Shown only
+ * with a real sample; never a guess.
+ */
+export function advPhrase(id: string, pos: DkPos): string | undefined {
+  const ex = genExtras();
+  const e = ex?.players[id];
+  if (!ex || !e) return undefined;
+  const adv = e.adv?.[ex.season];
+  const ngs = e.ngs?.[ex.season];
+  const out: string[] = [];
+  if (pos === "RB") {
+    const r = adv?.rush;
+    if (r?.att && r.att >= 20 && r.ybc !== undefined) out.push(`${round1(r.ybc / r.att)} yards before contact a carry (blocking) and ${round1((r.yac ?? 0) / r.att)} after`);
+    if (ngs?.rush?.ryoePer !== undefined && (ngs.rush.att ?? 0) >= 20) out.push(`${ngs.rush.ryoePer > 0 ? "+" : ""}${round1(ngs.rush.ryoePer)} rush yards over expected a carry`);
+  } else if (pos === "WR" || pos === "TE") {
+    if (ngs?.rec?.sep !== undefined && (ngs.rec.tgt ?? 0) >= 12) out.push(`${round1(ngs.rec.sep)} yards of separation at the catch point`);
+    const d = adv?.rec?.drops ?? 0;
+    if (d >= 2) out.push(`${d} drops`);
+  } else if (pos === "QB") {
+    const ps = adv?.pass;
+    const pl = genPlayers().find((x) => x.id === id);
+    const dropbacks = (pl?.s?.pa ?? 0) + (pl?.s?.sks ?? 0);
+    if (ps?.press !== undefined && dropbacks >= 40) out.push(`pressured on ${Math.round((ps.press / dropbacks) * 100)}% of dropbacks`);
+    if (ngs?.pass?.ttt !== undefined) out.push(`${round1(ngs.pass.ttt)} seconds to throw`);
+  }
+  return out.length ? out.join(", ") : undefined;
+}
+
+/** What his usage was worth a game, on DK's scale: this season blended with last season the way the projection blends points. */
+export function usageWorth(id: string): { now: number; base: number; games: number } | undefined {
+  const ex = genExtras();
+  const lines = ex?.players[id]?.xfp;
+  if (!ex || !lines?.length) return undefined;
+  const now = lines.filter((l) => l[0] === ex.season);
+  if (!now.length) return undefined;
+  const last = lines.filter((l) => l[0] === ex.season - 1);
+  const avg = (xs: typeof lines) => xs.reduce((a, b) => a + b[2], 0) / xs.length;
+  const xNow = avg(now);
+  const blended = last.length >= 4 ? (now.length * xNow + PRIOR_GAMES * avg(last)) / (now.length + PRIOR_GAMES) : xNow;
+  const s = xfpScale();
+  return { now: round1(xNow * s), base: blended * s, games: now.length };
+}
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 const pct = (x: number | undefined | null) => (x == null ? undefined : Math.round(x * 100));
 const ordinal = (n: number) => `No. ${n}`;
@@ -337,6 +427,10 @@ export interface DefProp {
   pos: string;
   kind: "tackles" | "pass rush";
   games: number;
+  /** Pass rush: model chance (0-100) of half a sack or more this game, from pressures (PFR). */
+  sackChance?: number;
+  /** Pass rush: PFR pressures this season. */
+  pressures?: number;
   tkpg: number;
   solopg: number;
   sacks: number;
@@ -463,6 +557,9 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
       if (sd && prior !== undefined) base = (sd.avg * sd.games + prior * PRIOR_GAMES) / (sd.games + PRIOR_GAMES);
       else base = sd?.avg ?? prior ?? row.dkPpg;
       if (base === undefined) continue;
+      // Half what he scored, half what his usage was worth (expected fantasy points, same last-season blend, on DK's scale).
+      const usage = p ? usageWorth(p.id) : undefined;
+      if (usage !== undefined) base = (1 - XFP_WEIGHT) * base + XFP_WEIGHT * usage.base;
       const allowed = table.get(opp.short)?.[pos];
       const factor = allowed && league[pos] ? Math.min(1.35, Math.max(0.7, allowed.perGame / league[pos])) : 1;
       const bump = p ? bumps.get(p.id) : undefined;
@@ -475,6 +572,13 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
 
       const bits: string[] = [];
       if (sd) bits.push(`${sd.avg} DK pts a game over ${sd.games}${sd.last !== undefined ? ` (${sd.last} last time out)` : ""}${prior !== undefined ? `, ${round1(prior)} last season` : ""}`);
+      if (sd && usage) {
+        const gap = round1(sd.avg - usage.now);
+        if (gap >= 3) bits.push(`scoring ${gap} a game above what his usage is worth (${usage.now}), the kind of gap touchdowns tend to close`);
+        else if (gap <= -3) bits.push(`his usage is worth ${usage.now} a game, ${Math.abs(gap)} more than he has scored`);
+      }
+      const adv = p ? advPhrase(p.id, pos) : undefined;
+      if (adv) bits.push(adv);
       else if (prior !== undefined) bits.push(`${round1(prior)} DK pts a game last season, no 2026 line yet`);
       if (pos === "RB" && (carries || targets)) bits.push(`${plural(carries ?? 0, "carry", "carries")} and ${plural(targets ?? 0, "target")} a game${snap ? `, ${snap}% of snaps` : ""}`);
       else if ((pos === "WR" || pos === "TE") && tshare) bits.push(`${tshare}% target share${snap ? `, ${snap}% of snaps` : ""}`);
@@ -585,17 +689,34 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
         kickoff: kick,
         matchup,
       };
+      // PFR charting this season (pressures, missed tackles); absent until PFR posts the weeks.
+      const pfr = genExtras()?.players[p.id]?.adv?.[String(genExtras()!.season)]?.def;
       if (tkpg >= 5) {
-        const why = [`${tkpg} tackles a game (${solopg} solo) over ${gp}`, base.snap ? `${base.snap}% of snaps` : ""]
+        const mtk = pfr?.mtk !== undefined && pfr.tk ? `${plural(pfr.mtk, "missed tackle")} on ${pfr.tk + pfr.mtk} chances (PFR)` : "";
+        const why = [`${tkpg} tackles a game (${solopg} solo) over ${gp}`, base.snap ? `${base.snap}% of snaps` : "", mtk]
           .concat(oc ? [`${opp.short} run ${oc.plays} plays a game, ${ordinal(oc.playsRank)} most${oc.rushRate && oc.rushRate >= 0.45 ? `, and run it ${pct(oc.rushRate)}% of the time` : ""}`] : [])
           .filter(Boolean);
         defense.push({ ...base, kind: "tackles", score: round1(tkpg * (oc ? oc.plays / ctx.avgPlays : 1)), line: propLine(props, p.n, "player_tackles_assists"), why: why.join("; ") + (st ? `; ${st}` : "") });
       }
-      if (hits / gp >= 1 || sacks >= 2) {
-        const why = [`${plural(sacks, "sack")} and ${plural(hits, "QB hit")} in ${gp} games`, base.snap ? `${base.snap}% of snaps` : ""]
+      // Pass rush: pressures predict next week's sacks better than sacks do (scripts/backtest-pressure.mjs, 2022 to
+      // 2025, 12,394 rusher-weeks: Brier on "half a sack or more" 0.196 from sacks, 0.179 from pressures at the league
+      // sacks-per-pressure rate with the opponent's pressure allowed at half weight). Falls back to QB hits before PFR posts.
+      const press = pfr?.press ?? 0;
+      const pfrGames = pfr?.g ?? 0;
+      const usePress = pfrGames >= 2 && press >= 2;
+      if (usePress || hits / gp >= 1 || sacks >= 2) {
+        const oppF = oc && ctx.avgPress ? Math.min(1.3, Math.max(0.75, oc.pressure / ctx.avgPress)) : 1;
+        const rate = usePress ? (press / pfrGames) * sackPerPressure() * (1 + 0.5 * (oppF - 1)) : undefined;
+        const chance = rate !== undefined ? Math.round((1 - Math.exp(-rate)) * 100) : undefined;
+        const why = [
+          usePress ? `${plural(press, "pressure")} in ${pfrGames} games charted by PFR; ${plural(sacks, "sack")} in ${gp}` : `${plural(sacks, "sack")} and ${plural(hits, "QB hit")} in ${gp} games`,
+          base.snap ? `${base.snap}% of snaps` : "",
+          chance !== undefined ? `${chance}% chance of half a sack or more by our model (not tested against book prices)` : "",
+        ]
           .concat(oc ? [`${opp.short} allow pressure on ${pct(oc.pressure)}% of dropbacks, ${ordinal(oc.pressureRank)} most`] : [])
           .filter(Boolean);
-        defense.push({ ...base, kind: "pass rush", score: round1((hits / gp) * (oc && ctx.avgPress ? oc.pressure / ctx.avgPress : 1)), line: propLine(props, p.n, "player_sacks"), why: why.join("; ") + (st ? `; ${st}` : "") });
+        const score = Math.round((rate ?? (hits / gp) * (oc && ctx.avgPress ? oc.pressure / ctx.avgPress : 1) * 0.1) * 100) / 100;
+        defense.push({ ...base, kind: "pass rush", score, sackChance: chance, pressures: usePress ? press : undefined, line: propLine(props, p.n, "player_sacks"), why: why.join("; ") + (st ? `; ${st}` : "") });
       }
     }
   }

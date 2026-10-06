@@ -176,6 +176,7 @@ function DefRow({ d }: { d: DefProp }) {
           {d.name}
         </Link>
         <span className="mono text-xs uppercase tracking-wide text-chalk-3">{d.kind}</span>
+        {d.sackChance !== undefined && <span className="mono text-xs font-semibold text-chalk">{d.sackChance}% half a sack+</span>}
         {d.line?.point !== undefined && (
           <span className="mono ml-auto text-sm text-sky">
             {d.kind === "tackles" ? "tkl+ast" : "sacks"} {d.line.point}

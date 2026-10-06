@@ -1,0 +1,185 @@
+{
+ "gameId": "401872982",
+ "season": 2026,
+ "week": 5,
+ "pregame": {
+  "capturedAt": "2026-10-06T13:46:39.583Z",
+  "kickoff": "2026-10-11T17:00:00.000Z",
+  "away": "Bengals",
+  "home": "Dolphins",
+  "abbr": {
+   "home": "MIA",
+   "away": "CIN"
+  },
+  "scoutScore": 62,
+  "whyWatch": "Jacob Rodriguez (MIA LB) is a top-of-the-radar name: a rookie drafted No. 43 who is playing above that slot, 46 tkl, 3 TFL, 0 sacks, 1 QB hits.",
+  "pressurePoint": "No unit has a clear edge. The closest thing to a swing: bengals run game vs dolphins run defense. The Bengals are No. 19 in rush success rate (38%) and No. 18 in EPA a carry (-0.09), and the Dolphins are No. 14 against the run (40%) and No. 6 by EPA a carry (-0.15). Strength on strength. Neither side has shown it can impose the run on a unit this good. The first stuffed series tells you who blinks. First quarter: who wins first contact.",
+  "edges": [
+   {
+    "a": "Dolphins run game",
+    "b": "Bengals run defense",
+    "edge": "defense",
+    "axis": "rush",
+    "offTeam": "Dolphins",
+    "why": "The Bengals are No. 4 of 32 against the run (33%) and No. 13 by EPA a carry (-0.10). The Dolphins rank No. 31 in rush success rate (32%) and No. 26 in EPA a carry (-0.14). This is not a lean. It is a mismatch, and a prominent one. The Bengals erase the run. The Dolphins get pushed into passing downs, and that is where this defense makes its money."
+   },
+   {
+    "a": "Dolphins passing-down offense",
+    "b": "Bengals passing-down defense",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Dolphins",
+    "why": "The Bengals are No. 4 of 32 on passing downs (30%). The Dolphins rank No. 12 in passing-downs success (41%). A real edge, not a lock. The Bengals get off the field on long downs. Early-down efficiency is everything for the Dolphins."
+   },
+   {
+    "a": "Bengals run game",
+    "b": "Dolphins run defense",
+    "edge": "even",
+    "axis": "rush",
+    "offTeam": "Bengals",
+    "why": "The Bengals are No. 19 in rush success rate (38%) and No. 18 in EPA a carry (-0.09), and the Dolphins are No. 14 against the run (40%) and No. 6 by EPA a carry (-0.15). Strength on strength. Neither side has shown it can impose the run on a unit this good. The first stuffed series tells you who blinks."
+   },
+   {
+    "a": "Bengals passing-down offense",
+    "b": "Dolphins passing-down defense",
+    "edge": "even",
+    "axis": "passing-downs",
+    "offTeam": "Bengals",
+    "why": "The Bengals are No. 8 in passing-downs success (43%), and the Dolphins are No. 11 on passing downs (33%). Strength on strength. Both sides are average on long downs. Early-down efficiency decides who sees more of them."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4431519",
+    "name": "Barrett Carter",
+    "team": "Bengals",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Matchup",
+    "score": 97
+   },
+   {
+    "id": "4035483",
+    "name": "Dexter Lawrence",
+    "team": "Bengals",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Matchup",
+    "score": 89
+   },
+   {
+    "id": "4566094",
+    "name": "Jacob Rodriguez",
+    "team": "Dolphins",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 93
+   },
+   {
+    "id": "4869579",
+    "name": "Chris Johnson",
+    "team": "Dolphins",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 77
+   },
+   {
+    "id": "4384852",
+    "name": "Dohnte Meyers",
+    "team": "Bengals",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 51
+   },
+   {
+    "id": "4726127",
+    "name": "Tacario Davis",
+    "team": "Bengals",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 36
+   },
+   {
+    "id": "4569603",
+    "name": "Malik Washington",
+    "team": "Dolphins",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 86
+   },
+   {
+    "id": "4431664",
+    "name": "Dante Trader Jr.",
+    "team": "Dolphins",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Breakout",
+    "score": 76
+   },
+   {
+    "id": "4432301",
+    "name": "Kris Jenkins",
+    "team": "Bengals",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Breakout",
+    "score": 73
+   },
+   {
+    "id": "4426422",
+    "name": "Daxton Hill",
+    "team": "Bengals",
+    "pos": "DB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "00-0036248",
+    "name": "Austin Jackson",
+    "team": "Dolphins",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0040742",
+    "name": "Jonah Savaiinaea",
+    "team": "Dolphins",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "CIN",
+   "line": -7
+  },
+  "total": 42,
+  "projection": {
+   "winner": "CIN",
+   "winProb": 0.6753787415291039,
+   "margin": 6.140000000000001,
+   "home": 18,
+   "away": 24,
+   "modelSide": "MIA",
+   "confidence": "high",
+   "modelTotal": 43,
+   "totalLean": "none"
+  },
+  "consensus": {
+   "median": -6.4,
+   "favorite": "CIN",
+   "side": "MIA",
+   "sideCount": 2,
+   "of": 4
+  }
+ }
+}

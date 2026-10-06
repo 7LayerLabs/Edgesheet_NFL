@@ -1,0 +1,49 @@
+{
+  "builtAt": "2026-10-06T13:55:48.451Z",
+  "seasons": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "priorGames": 3,
+  "matchupWeight": 0.25,
+  "results": [
+    {
+      "xfpWeight": 0,
+      "playerWeeks": 8209,
+      "mae": 6.521,
+      "corr": 0.397
+    },
+    {
+      "xfpWeight": 0.25,
+      "playerWeeks": 8209,
+      "mae": 6.48,
+      "corr": 0.403
+    },
+    {
+      "xfpWeight": 0.5,
+      "playerWeeks": 8209,
+      "mae": 6.463,
+      "corr": 0.404
+    },
+    {
+      "xfpWeight": 0.6,
+      "playerWeeks": 8209,
+      "mae": 6.463,
+      "corr": 0.403
+    },
+    {
+      "xfpWeight": 0.75,
+      "playerWeeks": 8209,
+      "mae": 6.469,
+      "corr": 0.4
+    },
+    {
+      "xfpWeight": 1,
+      "playerWeeks": 8209,
+      "mae": 6.497,
+      "corr": 0.391
+    }
+  ]
+}

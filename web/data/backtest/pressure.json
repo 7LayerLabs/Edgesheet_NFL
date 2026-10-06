@@ -1,0 +1,116 @@
+{
+  "builtAt": "2026-10-06T13:57:27.673Z",
+  "seasons": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "results": [
+    {
+      "pressureWeight": 1,
+      "opponentWeight": 0.5,
+      "rusherWeeks": 12394,
+      "mae": 0.3882,
+      "brier": 0.1788
+    },
+    {
+      "pressureWeight": 1,
+      "opponentWeight": 1,
+      "rusherWeeks": 12394,
+      "mae": 0.3874,
+      "brier": 0.179
+    },
+    {
+      "pressureWeight": 0.75,
+      "opponentWeight": 0.5,
+      "rusherWeeks": 12394,
+      "mae": 0.3884,
+      "brier": 0.1793
+    },
+    {
+      "pressureWeight": 0.75,
+      "opponentWeight": 1,
+      "rusherWeeks": 12394,
+      "mae": 0.3876,
+      "brier": 0.1795
+    },
+    {
+      "pressureWeight": 1,
+      "opponentWeight": 0,
+      "rusherWeeks": 12394,
+      "mae": 0.3897,
+      "brier": 0.1795
+    },
+    {
+      "pressureWeight": 0.75,
+      "opponentWeight": 0,
+      "rusherWeeks": 12394,
+      "mae": 0.3898,
+      "brier": 0.18
+    },
+    {
+      "pressureWeight": 0.5,
+      "opponentWeight": 0.5,
+      "rusherWeeks": 12394,
+      "mae": 0.3893,
+      "brier": 0.1821
+    },
+    {
+      "pressureWeight": 0.5,
+      "opponentWeight": 1,
+      "rusherWeeks": 12394,
+      "mae": 0.3888,
+      "brier": 0.1823
+    },
+    {
+      "pressureWeight": 0.5,
+      "opponentWeight": 0,
+      "rusherWeeks": 12394,
+      "mae": 0.3906,
+      "brier": 0.1828
+    },
+    {
+      "pressureWeight": 0.25,
+      "opponentWeight": 0.5,
+      "rusherWeeks": 12394,
+      "mae": 0.3912,
+      "brier": 0.1873
+    },
+    {
+      "pressureWeight": 0.25,
+      "opponentWeight": 1,
+      "rusherWeeks": 12394,
+      "mae": 0.3909,
+      "brier": 0.1874
+    },
+    {
+      "pressureWeight": 0.25,
+      "opponentWeight": 0,
+      "rusherWeeks": 12394,
+      "mae": 0.3925,
+      "brier": 0.1879
+    },
+    {
+      "pressureWeight": 0,
+      "opponentWeight": 0.5,
+      "rusherWeeks": 12394,
+      "mae": 0.3942,
+      "brier": 0.195
+    },
+    {
+      "pressureWeight": 0,
+      "opponentWeight": 1,
+      "rusherWeeks": 12394,
+      "mae": 0.3941,
+      "brier": 0.1951
+    },
+    {
+      "pressureWeight": 0,
+      "opponentWeight": 0,
+      "rusherWeeks": 12394,
+      "mae": 0.3951,
+      "brier": 0.1956
+    }
+  ]
+}

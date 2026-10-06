@@ -1,0 +1,194 @@
+{
+ "gameId": "401872990",
+ "season": 2026,
+ "week": 5,
+ "pregame": {
+  "capturedAt": "2026-10-06T13:46:37.709Z",
+  "kickoff": "2026-10-11T17:00:00.000Z",
+  "away": "Bears",
+  "home": "Packers",
+  "abbr": {
+   "home": "GB",
+   "away": "CHI"
+  },
+  "scoutScore": 82,
+  "whyWatch": "Division game: Bears 3-1, 2nd in the NFC North; Packers 2-2, 4th in the NFC North.",
+  "pressurePoint": "Bears passing-down offense vs Packers passing-down defense. The Bears are No. 3 of 32 in passing-downs success (49%). The Packers rank No. 17 on passing downs (37%). A clear edge, the kind that shapes a game plan. The Bears convert the long downs the Packers need to win. A third-and-8 is not a stop here. Watch the Bears on third-and-long. Two conversions in the first half break the Packers plan.",
+  "edges": [
+   {
+    "a": "Packers pass game",
+    "b": "Bears pass defense",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Packers",
+    "why": "The Packers are No. 3 of 32 in pass explosiveness (1.54) and No. 25 in pass success rate (41%). The Bears rank No. 30 at limiting explosive passes (1.44) and No. 2 in pass success allowed (39%). This is not a lean. It is a mismatch, and a prominent one. The Bears do not keep the lid on. The Packers will take shots, and the market total may be underpriced if they land."
+   },
+   {
+    "a": "Packers passing-down offense",
+    "b": "Bears passing-down defense",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Packers",
+    "why": "The Bears are No. 1 of 32 on passing downs (26%). The Packers rank No. 18 in passing-downs success (34%). This is not a lean. It is a mismatch, and a prominent one. The Bears get off the field on long downs. Early-down efficiency is everything for the Packers."
+   },
+   {
+    "a": "Bears passing-down offense",
+    "b": "Packers passing-down defense",
+    "edge": "offense",
+    "axis": "passing-downs",
+    "offTeam": "Bears",
+    "why": "The Bears are No. 3 of 32 in passing-downs success (49%). The Packers rank No. 17 on passing downs (37%). A clear edge, the kind that shapes a game plan. The Bears convert the long downs the Packers need to win. A third-and-8 is not a stop here."
+   },
+   {
+    "a": "Bears pass game",
+    "b": "Packers pass defense",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Bears",
+    "why": "The Packers are No. 13 of 32 at limiting explosive passes (1.29) and No. 17 in pass success allowed (47%). The Bears rank No. 26 in pass explosiveness (1.22) and No. 4 in pass success rate (51%). A clear edge, the kind that shapes a game plan. The Packers keep the lid on. The Bears should expect to drive the long way."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4701936",
+    "name": "Matthew Golden",
+    "team": "Packers",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Matchup",
+    "score": 91
+   },
+   {
+    "id": "4242659",
+    "name": "Dayo Odeyingbo",
+    "team": "Bears",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Matchup",
+    "score": 73
+   },
+   {
+    "id": "4954445",
+    "name": "Dillon Thieneman",
+    "team": "Bears",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Rookie",
+    "score": 89
+   },
+   {
+    "id": "4870953",
+    "name": "Malik Muhammad",
+    "team": "Bears",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 78
+   },
+   {
+    "id": "5076652",
+    "name": "Brandon Cisse",
+    "team": "Packers",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 64
+   },
+   {
+    "id": "4685315",
+    "name": "Dani Dennis-Sutton",
+    "team": "Packers",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 50
+   },
+   {
+    "id": "4428863",
+    "name": "Evan Williams",
+    "team": "Packers",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Breakout",
+    "score": 99
+   },
+   {
+    "id": "4608686",
+    "name": "Kyle Monangai",
+    "team": "Bears",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Breakout",
+    "score": 85
+   },
+   {
+    "id": "4685278",
+    "name": "Luther Burden III",
+    "team": "Bears",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 78
+   },
+   {
+    "id": "4259493",
+    "name": "Keisean Nixon",
+    "team": "Packers",
+    "pos": "DB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 90
+   },
+   {
+    "id": "00-0038932",
+    "name": "Darnell Wright",
+    "team": "Bears",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0035588",
+    "name": "Garrett Bradbury",
+    "team": "Bears",
+    "pos": "C",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0039904",
+    "name": "Jordan Morgan",
+    "team": "Packers",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "CHI",
+   "line": -3
+  },
+  "total": 45,
+  "projection": {
+   "winner": "GB",
+   "winProb": 0.5227422231855465,
+   "margin": 0.7700000000000002,
+   "home": 23,
+   "away": 22,
+   "modelSide": "GB",
+   "confidence": "high",
+   "modelTotal": 43,
+   "totalLean": "none"
+  },
+  "consensus": {
+   "median": -1.5,
+   "favorite": "CHI",
+   "side": "GB",
+   "sideCount": 3,
+   "of": 4
+  }
+ }
+}

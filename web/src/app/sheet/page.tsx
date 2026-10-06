@@ -276,7 +276,7 @@ function DefenseProps({ s }: { s: Sheet }) {
         <ul className="sheet-list">
           {rows.map((d) => (
             <li key={`${d.kind}-${d.id}`}>
-              <span className="sheet-gap">{d.kind === "tackles" ? d.tkpg : d.hits}</span>
+              <span className="sheet-gap">{d.kind === "tackles" ? d.tkpg : d.sackChance !== undefined ? `${d.sackChance}%` : d.hits}</span>
               <span>
                 <strong>{d.name}</strong> <span className="sheet-sub">{d.pos} · {d.teamAbbr} vs {d.oppAbbr} · {d.kickoff}</span>
                 {d.line?.point !== undefined && (
@@ -299,7 +299,7 @@ function DefenseProps({ s }: { s: Sheet }) {
       <SectionTitle n="05" note="tackle volume against play volume, pass rush against pressure allowed">Defensive names for props</SectionTitle>
       <div className="sheet-cols">
         {col("Tackles", "a game with assists, ranked vs opponent play volume", s.dfs.tackles, "tkl+ast")}
-        {col("Pass rush", "QB hits, ranked vs pressure the opponent allows", s.dfs.rush, "sacks")}
+        {col("Pass rush", "chance of half a sack, from pressures (PFR) and the pressure the opponent allows", s.dfs.rush, "sacks")}
       </div>
     </section>
   );

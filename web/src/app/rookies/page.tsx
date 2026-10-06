@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { genDraft, genMeta, generatedLoaded } from "@/lib/generated";
+import { genDraft, genExtras, genMeta, generatedLoaded } from "@/lib/generated";
 import { radarIndex, GROUP_LABEL, pickForPercentile, type RadarPlayer } from "@/lib/radar";
 import { Avatar } from "@/components/Avatar";
 import { gameIndexForWeek } from "@/lib/slate";
@@ -179,4 +179,12 @@ function RookieRow({ p, i, games }: { p: RadarPlayer; i: number; games: Map<stri
       </span>
     </li>
   );
+}
+
+/** His combine numbers from nflverse (PFR), when he tested: 40, vertical, broad jump, 3-cone. */
+function combineLine(id: string): string | undefined {
+  const c = genExtras()?.players[id]?.combine;
+  if (!c) return undefined;
+  const bits = [c.forty && `40 ${c.forty}`, c.vert && `vertical ${c.vert} in`, c.broad && `broad ${c.broad} in`, c.cone && `3-cone ${c.cone}`].filter(Boolean);
+  return bits.length ? bits.join(" · ") : undefined;
 }

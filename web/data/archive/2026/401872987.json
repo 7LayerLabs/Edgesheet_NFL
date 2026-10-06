@@ -1,0 +1,185 @@
+{
+ "gameId": "401872987",
+ "season": 2026,
+ "week": 5,
+ "pregame": {
+  "capturedAt": "2026-10-06T13:46:39.585Z",
+  "kickoff": "2026-10-11T17:00:00.000Z",
+  "away": "Vikings",
+  "home": "Saints",
+  "abbr": {
+   "home": "NO",
+   "away": "MIN"
+  },
+  "scoutScore": 70,
+  "whyWatch": "The market calls it a toss-up: MIN -1.5.",
+  "pressurePoint": "Vikings passing-down offense vs Saints passing-down defense. The Saints are No. 3 of 32 on passing downs (30%). The Vikings rank No. 32 in passing-downs success (25%). This is not a lean. It is a mismatch, and a prominent one. The Saints get off the field on long downs. Early-down efficiency is everything for the Vikings. Watch the Vikings on third-and-7 or longer. Punts there mean the defense is winning.",
+  "edges": [
+   {
+    "a": "Vikings passing-down offense",
+    "b": "Saints passing-down defense",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Vikings",
+    "why": "The Saints are No. 3 of 32 on passing downs (30%). The Vikings rank No. 32 in passing-downs success (25%). This is not a lean. It is a mismatch, and a prominent one. The Saints get off the field on long downs. Early-down efficiency is everything for the Vikings."
+   },
+   {
+    "a": "Saints run game",
+    "b": "Vikings run defense",
+    "edge": "defense",
+    "axis": "rush",
+    "offTeam": "Saints",
+    "why": "The Vikings are No. 1 of 32 against the run (29%) and No. 2 by EPA a carry (-0.24). The Saints rank No. 17 in rush success rate (39%) and No. 17 in EPA a carry (-0.06). A clear edge, the kind that shapes a game plan. The Saints will find the run hard going. Expect more second-and-long than usual."
+   },
+   {
+    "a": "Saints pass game",
+    "b": "Vikings pass defense",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Saints",
+    "why": "The Saints are No. 18 of 32 in pass explosiveness (1.32) and No. 15 in pass success rate (47%). The Vikings rank No. 29 at limiting explosive passes (1.43) and No. 1 in pass success allowed (35%). A real edge, not a lock. The Saints have the deep ball available. Watch whether the Vikings roll a safety over after the first one."
+   },
+   {
+    "a": "Vikings run game",
+    "b": "Saints run defense",
+    "edge": "even",
+    "axis": "rush",
+    "offTeam": "Vikings",
+    "why": "The Vikings are No. 29 in rush success rate (33%) and No. 20 in EPA a carry (-0.11), and the Saints are No. 32 against the run (54%) and No. 32 by EPA a carry (0.13). Strength on strength. Neither side has shown it can impose the run on a unit this good. The first stuffed series tells you who blinks."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "3728281",
+    "name": "Blake Cashman",
+    "team": "Vikings",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Matchup",
+    "score": 87
+   },
+   {
+    "id": "4241986",
+    "name": "Chase Young",
+    "team": "Saints",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Matchup",
+    "score": 86
+   },
+   {
+    "id": "4602019",
+    "name": "Caleb Banks",
+    "team": "Vikings",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Rookie",
+    "score": 35
+   },
+   {
+    "id": "4879276",
+    "name": "Bryce Lance",
+    "team": "Saints",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 34
+   },
+   {
+    "id": "4698728",
+    "name": "Domonique Orange",
+    "team": "Vikings",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Rookie",
+    "score": 26
+   },
+   {
+    "id": "4569559",
+    "name": "Devaughn Vele",
+    "team": "Saints",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Breakout",
+    "score": 91
+   },
+   {
+    "id": "4565190",
+    "name": "Dallas Turner",
+    "team": "Vikings",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 89
+   },
+   {
+    "id": "4384595",
+    "name": "Khristian Boyd",
+    "team": "Saints",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Breakout",
+    "score": 72
+   },
+   {
+    "id": "4361370",
+    "name": "Chris Olave",
+    "team": "Saints",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Watch",
+    "score": 89
+   },
+   {
+    "id": "3124890",
+    "name": "Kaden Elliss",
+    "team": "Saints",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 88
+   },
+   {
+    "id": "3133487",
+    "name": "Andrew Van Ginkel",
+    "team": "Vikings",
+    "pos": "OLB",
+    "group": "EDGE",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "00-0036347",
+    "name": "Blake Brandel",
+    "team": "Vikings",
+    "pos": "C",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "MIN",
+   "line": -1.5
+  },
+  "total": 42,
+  "projection": {
+   "winner": "MIN",
+   "winProb": 0.6535101682939541,
+   "margin": 5.330000000000001,
+   "home": 18,
+   "away": 24,
+   "modelSide": "MIN",
+   "confidence": "high",
+   "modelTotal": 40,
+   "totalLean": "none"
+  },
+  "consensus": {
+   "median": -5.8,
+   "favorite": "MIN",
+   "side": "MIN",
+   "sideCount": 3,
+   "of": 4
+  }
+ }
+}

@@ -42,7 +42,9 @@ next-env.d.ts
 !.env.local.example
 
 # generated data digests (run: npm run ingest)
-/data/generated/
+/data/generated/*
+# Last season's coverage digest is fixed for the year and costs ~200 MB of downloads to rebuild: keep it in git.
+!/data/generated/coverage.json
 
 # caches and logs from ingest scripts
 /data/cache/

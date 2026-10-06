@@ -89,11 +89,25 @@ export function AvailabilityPanel({ game, a, vacated }: { game: Game; a: GameAva
                 </ul>
               </details>
             )}
+
+            {av.rosterMoves?.length > 0 && (
+              <details className="mt-2">
+                <summary className="cursor-pointer text-xs font-semibold text-chalk-2">Roster changes by week</summary>
+                <ul className="mt-1 grid gap-1">
+                  {av.rosterMoves.map((m, idx) => (
+                    <li key={idx} className="text-xs text-chalk-2">
+                      <span className="mono text-chalk-3">Week {m.week}</span> {m.name} ({m.pos}){" "}
+                      {m.kind === "joined" ? `joined from the ${m.from}` : m.kind === "signed" ? "signed" : m.kind === "promoted" ? "promoted from the practice squad" : "moved to a reserve list"}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
           </div>
         ))}
       </div>
       <p className="mt-3 max-w-3xl text-xs leading-relaxed text-chalk-3">
-        Sources: {a.sources.join(", ")}. QB: expected starter&apos;s EPA a play (this season plus half of last, shrunk toward replacement) against the QBs whose snaps built the team&apos;s numbers (this season and last), times QB plays a game, times 0.75 (backtest fit on 2022 to 2025). Skill players: EPA a touch or target above the 25th percentile at the position, half credit. Linemen and defenders: fixed starter values times snap share (assumed, not measured). Weighted by games played and the chance he sits (Questionable 25%, 50% with no practice on the final day).
+        Sources: {a.sources.join(", ")}. QB: expected starter&apos;s EPA a play over up to five seasons (recent seasons count more; a thin record is pulled toward a backup, a proven one toward an average starter) against the QBs whose snaps built the team&apos;s numbers (this season and last), times QB plays a game, times 0.75 (backtest fit on 2022 to 2025). Skill players: EPA a touch or target above the 25th percentile at the position, half credit. Linemen and defenders: fixed starter values times snap share (assumed, not measured). Weighted by games played and the chance he sits (Questionable 25%, 50% with no practice on the final day). Roster changes by week come from nflverse weekly rosters.
         {a.notes.length ? ` ${a.notes.join(" ")}` : ""}
       </p>
     </div>

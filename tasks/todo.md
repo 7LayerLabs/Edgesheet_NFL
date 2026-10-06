@@ -1,5 +1,27 @@
 # WHERE WE LEFT OFF (kept current at every push)
 
+Update 2026-10-06 evening, LIVE PC, "go all in" on nflverse (Derek): new feeds and models, all backtested first.
+- Feeds (scripts/ingest-extras.mjs, chained into npm run ingest and prebuild; data/generated/extras.json, read by
+  genExtras): PFR advanced stats (pressures, missed tackles, coverage allowed, yards before/after contact, drops,
+  bad throws), Next Gen Stats season lines, expected fantasy points per game (ffverse), weekly roster moves, trades
+  (offseason only: nflverse last updated it in May), combine (PFR id join plus name and draft-class fallback),
+  Sleeper ids.
+- Expected fantasy points in the DK projection at half weight (backtest-xfp: miss 6.52 to 6.46, corr 0.397 to
+  0.404, 8,209 player-weeks); why lines say when a player scores 3+ a game above or below what his usage is worth,
+  plus one line of charting by position (advPhrase in dfs.ts).
+- Pass rush lens from PFR pressures (backtest-pressure: Brier on half a sack 0.196 from sacks, 0.179 from pressures
+  with the opponent at half, 12,394 rusher-weeks); shows a model chance of half a sack or more (not tested against
+  book prices). Tackle lines show missed tackles.
+- Standings: official tiebreak chain and Elo playoff odds (src/lib/seed.ts, helper "seed"; backtest-seed matched all
+  96 playoff teams and seeds 2019-2025). Coverage: 2025 man/zone and shells by team, receiver splits, carry-over test
+  (src/lib/coverage.ts, CoveragePanel in Matchups; two-deep rate carries over r 0.49, receiver man/zone split weakly
+  r 0.19, man rate does not). data/generated/coverage.json is tracked in git (fixed for the year).
+- Referee totals: no carry-over (r -0.02), betting the tendency 49.9% on 1,502 games since 2010. Not shown.
+- Game page: watch guide under Who to watch (it was never rendered before). Player page: Charting and tracking
+  panel. Rookies: combine line. Who plays: roster changes by week.
+- In progress: fourth-down model (helper "fourth": WP model distilled from nflfastR, go/kick/punt costs, game-page
+  FourthDowns list). Wire it in when its report lands.
+
 Update 2026-10-06 afternoon, LIVE PC (Derek picked the live PC as the one that runs PM2 and the one we keep working on):
 - Merged: week 4 graded record and odds snapshots from the live PC (commit "Week 4 record from the live PC"), then
   REFRESH=1 ingest (week 4 posted, 16 of 16), rebuild, PM2 restart. The other PC should pull before working again.

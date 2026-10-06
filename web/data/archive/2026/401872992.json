@@ -1,0 +1,176 @@
+{
+ "gameId": "401872992",
+ "season": 2026,
+ "week": 5,
+ "pregame": {
+  "capturedAt": "2026-10-06T13:46:39.590Z",
+  "kickoff": "2026-10-11T20:25:00.000Z",
+  "away": "49ers",
+  "home": "Seahawks",
+  "abbr": {
+   "home": "SEA",
+   "away": "SF"
+  },
+  "scoutScore": 77,
+  "whyWatch": "Division game for first place: the 49ers lead the NFC West at 4-0, the Seahawks are 3-1.",
+  "pressurePoint": "49ers run game vs Seahawks run defense. The Seahawks are No. 2 of 32 against the run (30%) and No. 4 by EPA a carry (-0.23). The 49ers rank No. 10 in rush success rate (45%) and No. 15 in EPA a carry (-0.04). A real edge, not a lock. The 49ers will find the run hard going. Expect more second-and-long than usual. Watch 49ers yards per carry through the first quarter. Under 3 and the game plan has to change.",
+  "edges": [
+   {
+    "a": "Seahawks passing-down offense",
+    "b": "49ers passing-down defense",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Seahawks",
+    "why": "The 49ers are No. 5 of 32 on passing downs (31%). The Seahawks rank No. 30 in passing-downs success (28%). This is not a lean. It is a mismatch, and a prominent one. The 49ers get off the field on long downs. Early-down efficiency is everything for the Seahawks."
+   },
+   {
+    "a": "49ers run game",
+    "b": "Seahawks run defense",
+    "edge": "defense",
+    "axis": "rush",
+    "offTeam": "49ers",
+    "why": "The Seahawks are No. 2 of 32 against the run (30%) and No. 4 by EPA a carry (-0.23). The 49ers rank No. 10 in rush success rate (45%) and No. 15 in EPA a carry (-0.04). A real edge, not a lock. The 49ers will find the run hard going. Expect more second-and-long than usual."
+   },
+   {
+    "a": "Seahawks run game",
+    "b": "49ers run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Seahawks",
+    "why": "The Seahawks are No. 23 of 32 in rush success rate (36%) and No. 28 in EPA a carry (-0.19). The 49ers rank No. 31 against the run (50%) and No. 20 by EPA a carry (-0.04). A real edge, not a lock. The Seahawks should stay on schedule on the ground, which keeps third downs short and the clock moving."
+   },
+   {
+    "a": "49ers passing-down offense",
+    "b": "Seahawks passing-down defense",
+    "edge": "even",
+    "axis": "passing-downs",
+    "offTeam": "49ers",
+    "why": "The 49ers are No. 1 in passing-downs success (57%), and the Seahawks are No. 6 on passing downs (32%). Strength on strength. Both sides are average on long downs. Early-down efficiency decides who sees more of them."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4428659",
+    "name": "Drake Thomas",
+    "team": "Seahawks",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Matchup",
+    "score": 82
+   },
+   {
+    "id": "4243493",
+    "name": "Keion White",
+    "team": "49ers",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Matchup",
+    "score": 71
+   },
+   {
+    "id": "4685369",
+    "name": "Gracen Halton",
+    "team": "49ers",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Rookie",
+    "score": 61
+   },
+   {
+    "id": "4696044",
+    "name": "Kaelon Black",
+    "team": "49ers",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Rookie",
+    "score": 43
+   },
+   {
+    "id": "4567222",
+    "name": "Nehemiah Pritchett",
+    "team": "Seahawks",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 70
+   },
+   {
+    "id": "4430878",
+    "name": "Jaxon Smith-Njigba",
+    "team": "Seahawks",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Watch",
+    "score": 89
+   },
+   {
+    "id": "3138826",
+    "name": "Fred Warner",
+    "team": "49ers",
+    "pos": "MLB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 86
+   },
+   {
+    "id": "4362851",
+    "name": "Ernest Jones",
+    "team": "Seahawks",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 86
+   },
+   {
+    "id": "00-0036256",
+    "name": "Colton McKivitz",
+    "team": "49ers",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0040245",
+    "name": "Connor Colby",
+    "team": "49ers",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0037812",
+    "name": "Abraham Lucas",
+    "team": "Seahawks",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "SEA",
+   "line": -3
+  },
+  "total": 47,
+  "projection": {
+   "winner": "SEA",
+   "winProb": 0.572586449012982,
+   "margin": 2.4699999999999998,
+   "home": 25,
+   "away": 22,
+   "modelSide": "SF",
+   "confidence": "high",
+   "modelTotal": 47.5,
+   "totalLean": "none"
+  },
+  "consensus": {
+   "median": 0.9,
+   "favorite": "SEA",
+   "side": "SF",
+   "sideCount": 3,
+   "of": 4
+  }
+ }
+}

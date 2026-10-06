@@ -1,0 +1,194 @@
+{
+ "gameId": "401872981",
+ "season": 2026,
+ "week": 5,
+ "pregame": {
+  "capturedAt": "2026-10-06T13:46:39.582Z",
+  "kickoff": "2026-10-11T13:30:00.000Z",
+  "away": "Eagles",
+  "home": "Jaguars",
+  "abbr": {
+   "home": "JAX",
+   "away": "PHI"
+  },
+  "scoutScore": 70,
+  "whyWatch": "Jaguars run game against eagles run defense: advantage offense. rush success rate: offense 48% (No. 4/32), defense 46% (No. 28/32), gap 77 percentile points; EPA a carry: offense 0.08 (No. 5), defense 0.04 (No. 28).",
+  "pressurePoint": "Eagles run game vs Jaguars run defense. The Jaguars are No. 7 of 32 against the run (35%) and No. 7 by EPA a carry (-0.13). The Eagles rank No. 26 in rush success rate (36%) and No. 22 in EPA a carry (-0.12). This is not a lean. It is a mismatch, and a prominent one. The Jaguars erase the run. The Eagles get pushed into passing downs, and that is where this defense makes its money. Watch Eagles yards per carry through the first quarter. Under 3 and the game plan has to change.",
+  "edges": [
+   {
+    "a": "Jaguars run game",
+    "b": "Eagles run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Jaguars",
+    "why": "The Jaguars are No. 4 of 32 in rush success rate (48%) and No. 5 in EPA a carry (0.08). The Eagles rank No. 28 against the run (46%) and No. 28 by EPA a carry (0.04). This is not a lean. It is a mismatch, and a prominent one. Expect the Jaguars to lean on the run early and often, and to keep leaning. Once the Eagles load the box, play-action is the second punch."
+   },
+   {
+    "a": "Eagles run game",
+    "b": "Jaguars run defense",
+    "edge": "defense",
+    "axis": "rush",
+    "offTeam": "Eagles",
+    "why": "The Jaguars are No. 7 of 32 against the run (35%) and No. 7 by EPA a carry (-0.13). The Eagles rank No. 26 in rush success rate (36%) and No. 22 in EPA a carry (-0.12). This is not a lean. It is a mismatch, and a prominent one. The Jaguars erase the run. The Eagles get pushed into passing downs, and that is where this defense makes its money."
+   },
+   {
+    "a": "Eagles pass game",
+    "b": "Jaguars pass defense",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Eagles",
+    "why": "The Eagles are No. 2 of 32 in pass explosiveness (1.59) and No. 29 in pass success rate (38%). The Jaguars rank No. 16 at limiting explosive passes (1.31) and No. 25 in pass success allowed (49%). A clear edge, the kind that shapes a game plan. The Eagles have the deep ball available. Watch whether the Jaguars roll a safety over after the first one."
+   },
+   {
+    "a": "Jaguars pass game",
+    "b": "Eagles pass defense",
+    "edge": "even",
+    "axis": "pass",
+    "offTeam": "Jaguars",
+    "why": "The Jaguars are No. 11 in pass explosiveness (1.38) and No. 3 in pass success rate (52%), and the Eagles are No. 6 at limiting explosive passes (1.24) and No. 19 in pass success allowed (47%). Strength on strength. The Jaguars take shots and the Eagles give up few. Whoever wins the first deep ball changes the other side's call sheet."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4882093",
+    "name": "Bhayshul Tuten",
+    "team": "Jaguars",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 84
+   },
+   {
+    "id": "4240610",
+    "name": "Ventrell Miller",
+    "team": "Jaguars",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Matchup",
+    "score": 76
+   },
+   {
+    "id": "4879194",
+    "name": "Josh Cameron",
+    "team": "Jaguars",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 38
+   },
+   {
+    "id": "4870795",
+    "name": "Makai Lemon",
+    "team": "Eagles",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Rookie",
+    "score": 35
+   },
+   {
+    "id": "4685287",
+    "name": "Jihaad Campbell",
+    "team": "Eagles",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 91
+   },
+   {
+    "id": "4426448",
+    "name": "Jarrian Jones",
+    "team": "Jaguars",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 85
+   },
+   {
+    "id": "4432777",
+    "name": "Jeremiah Trotter Jr.",
+    "team": "Eagles",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Breakout",
+    "score": 61
+   },
+   {
+    "id": "4682618",
+    "name": "Cooper DeJean",
+    "team": "Eagles",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Watch",
+    "score": 88
+   },
+   {
+    "id": "00-0038112",
+    "name": "Cam Jurgens",
+    "team": "Eagles",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "4685759",
+    "name": "Jalen Carter",
+    "team": "Eagles",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0038934",
+    "name": "Anton Harrison",
+    "team": "Jaguars",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0036327",
+    "name": "Ezra Cleveland",
+    "team": "Jaguars",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 84
+   },
+   {
+    "id": "00-0036985",
+    "name": "Robert Hainsey",
+    "team": "Jaguars",
+    "pos": "C",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 84
+   }
+  ],
+  "spread": {
+   "team": "JAX",
+   "line": -7
+  },
+  "total": 43,
+  "projection": {
+   "winner": "JAX",
+   "winProb": 0.6383582502003413,
+   "margin": 4.78,
+   "home": 24,
+   "away": 19,
+   "modelSide": "PHI",
+   "confidence": "high",
+   "modelTotal": 45.5,
+   "totalLean": "over"
+  },
+  "consensus": {
+   "median": 5.7,
+   "favorite": "JAX",
+   "side": "PHI",
+   "sideCount": 3,
+   "of": 4
+  }
+ }
+}

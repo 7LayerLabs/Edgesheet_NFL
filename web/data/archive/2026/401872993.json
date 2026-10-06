@@ -1,0 +1,185 @@
+{
+ "gameId": "401872993",
+ "season": 2026,
+ "week": 5,
+ "pregame": {
+  "capturedAt": "2026-10-06T13:46:39.590Z",
+  "kickoff": "2026-10-12T00:20:00.000Z",
+  "away": "Ravens",
+  "home": "Falcons",
+  "abbr": {
+   "home": "ATL",
+   "away": "BAL"
+  },
+  "scoutScore": 78,
+  "whyWatch": "The market calls it a toss-up: ATL -1.",
+  "pressurePoint": "Ravens pass game vs Falcons pass defense. The Ravens are No. 16 of 32 in pass explosiveness (1.34) and No. 2 in pass success rate (58%). The Falcons rank No. 28 at limiting explosive passes (1.43) and No. 3 in pass success allowed (40%). A real edge, not a lock. The Ravens have the deep ball available. Watch whether the Falcons roll a safety over after the first one. Watch the first deep shot. If it connects, the Falcons change shells and the run game opens.",
+  "edges": [
+   {
+    "a": "Ravens pass game",
+    "b": "Falcons pass defense",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Ravens",
+    "why": "The Ravens are No. 16 of 32 in pass explosiveness (1.34) and No. 2 in pass success rate (58%). The Falcons rank No. 28 at limiting explosive passes (1.43) and No. 3 in pass success allowed (40%). A real edge, not a lock. The Ravens have the deep ball available. Watch whether the Falcons roll a safety over after the first one."
+   },
+   {
+    "a": "Falcons run game",
+    "b": "Ravens run defense",
+    "edge": "offense",
+    "axis": "rush",
+    "offTeam": "Falcons",
+    "why": "The Falcons are No. 2 of 32 in rush success rate (53%) and No. 2 in EPA a carry (0.13). The Ravens rank No. 14 against the run (40%) and No. 21 by EPA a carry (-0.02). A real edge, not a lock. The Falcons should stay on schedule on the ground, which keeps third downs short and the clock moving."
+   },
+   {
+    "a": "Ravens passing-down offense",
+    "b": "Falcons passing-down defense",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Ravens",
+    "why": "The Falcons are No. 7 of 32 on passing downs (32%). The Ravens rank No. 16 in passing-downs success (38%). A real edge, not a lock. The Falcons get off the field on long downs. Early-down efficiency is everything for the Ravens."
+   },
+   {
+    "a": "Falcons passing-down offense",
+    "b": "Ravens passing-down defense",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Falcons",
+    "why": "The Ravens are No. 22 of 32 on passing downs (39%). The Falcons rank No. 31 in passing-downs success (27%). A real edge, not a lock. The Ravens get off the field on long downs. Early-down efficiency is everything for the Falcons."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4430807",
+    "name": "Bijan Robinson",
+    "team": "Falcons",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Matchup",
+    "score": 88
+   },
+   {
+    "id": "4429615",
+    "name": "Zay Flowers",
+    "team": "Ravens",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Matchup",
+    "score": 75
+   },
+   {
+    "id": "4685502",
+    "name": "Harold Perkins Jr.",
+    "team": "Falcons",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 62
+   },
+   {
+    "id": "4595343",
+    "name": "Kendal Daniels",
+    "team": "Falcons",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Rookie",
+    "score": 58
+   },
+   {
+    "id": "4432260",
+    "name": "Matthew Hibner",
+    "team": "Ravens",
+    "pos": "TE",
+    "group": "TE",
+    "tier": "Rookie",
+    "score": 52
+   },
+   {
+    "id": "4702918",
+    "name": "Chandler Rivers",
+    "team": "Ravens",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Rookie",
+    "score": 46
+   },
+   {
+    "id": "4360423",
+    "name": "Michael Penix Jr.",
+    "team": "Falcons",
+    "pos": "QB",
+    "group": "QB",
+    "tier": "Breakout",
+    "score": 94
+   },
+   {
+    "id": "4431567",
+    "name": "Maason Smith",
+    "team": "Falcons",
+    "pos": "DT",
+    "group": "DL",
+    "tier": "Breakout",
+    "score": 62
+   },
+   {
+    "id": "3915189",
+    "name": "Roquan Smith",
+    "team": "Ravens",
+    "pos": "ILB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 90
+   },
+   {
+    "id": "4426502",
+    "name": "Drake London",
+    "team": "Falcons",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "00-0036369",
+    "name": "John Simpson",
+    "team": "Ravens",
+    "pos": "G",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   },
+   {
+    "id": "00-0039233",
+    "name": "Roger Rosengarten",
+    "team": "Ravens",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "spread": {
+   "team": "ATL",
+   "line": -1
+  },
+  "total": 44.5,
+  "projection": {
+   "winner": "ATL",
+   "winProb": 0.5301137197290672,
+   "margin": 1.02,
+   "home": 23,
+   "away": 22,
+   "modelSide": "ATL",
+   "confidence": "medium",
+   "modelTotal": 45.5,
+   "totalLean": "none"
+  },
+  "consensus": {
+   "median": -0.1,
+   "favorite": "BAL",
+   "side": "BAL",
+   "sideCount": 3,
+   "of": 4
+  }
+ }
+}

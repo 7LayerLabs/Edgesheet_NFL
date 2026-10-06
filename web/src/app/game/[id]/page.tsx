@@ -39,6 +39,9 @@ import { teamByShort } from "@/lib/nfl";
 import { absentWords } from "@/lib/availability";
 import { inputsLabel, LEAN_BACKTEST_NOTE, sideTier, tierLabel, totalTier } from "@/lib/leans";
 import { readReport, seasonOf } from "@/lib/report";
+import { publishedGuide } from "@/lib/watchguide";
+import { WatchGuide } from "@/components/WatchGuide";
+import { CoveragePanel } from "@/components/CoveragePanel";
 
 export const dynamic = "force-dynamic";
 
@@ -60,6 +63,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   // Why watch: only what the strip and Who to watch do not already say (older archived games: the headline and reasons).
   const read = game.whyWatchRead ?? [game.whyWatch, ...game.whyWatchReasons.filter((r) => r !== game.whyWatch)];
   // Who to watch: the three-slot list built for the game page, else the top of the radar.
+  const guide = publishedGuide(game);
   const watch = game.whoToWatch ?? game.prospects.slice(0, 3).map((p) => ({ id: p.id, name: p.name, pos: p.pos, team: p.team, label: undefined as string | undefined, reason: readLine(p), detail: undefined as string | undefined }));
 
   // One-line summaries: each closed section still says something.
@@ -195,6 +199,16 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
             )}
           </div>
         )}
+        {/* The watch guide (scripts/write-watchguides.mjs): a hook and three things to look for, every name and number
+            checked against the source. Shown only when one has been written for this game. */}
+        {guide && (
+          <div className="mt-6">
+            <p className="text-sm font-semibold text-chalk">
+              Watch guide <span className="font-normal text-chalk-3">· {guide.headline}</span>
+            </p>
+            <WatchGuide game={game} guide={guide} />
+          </div>
+        )}
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <FollowButton kind="games" id={game.id} size="sm" />
           {game.source === "live" && (
@@ -243,6 +257,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
         ) : (
           <p className="text-base text-chalk-3">{game.pressurePoint}</p>
         )}
+        <CoveragePanel away={game.away.short} home={game.home.short} />
         <DvpTable game={game} />
         {game.projection && <ProjectionBox game={game} />}
       </Fold>
