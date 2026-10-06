@@ -12,6 +12,7 @@ import { slateDfs, type DfsPlay } from "@/lib/dfs";
 import { evaluateWeather } from "@/lib/weather";
 import { genSchedule } from "@/lib/generated";
 import { kickoffTime } from "@/lib/format";
+import { CleanSheet } from "@/components/CleanSheet";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,39 @@ export default async function Today({ searchParams }: PageProps<"/">) {
   const dateParam = typeof sp.date === "string" ? sp.date : undefined;
   const slate = await getSlate(dateParam);
   const { games } = slate;
+  const view = sp.view === "full" ? "full" : "clean";
+
+  // The clean sheet (default): every game of the week, a short summary under each, click for the full breakdown.
+  if (view === "clean") {
+    const week = slate.weekGames.length ? slate.weekGames : games;
+    const liveNow = week.filter((g) => g.status === "live").length;
+    const left = week.filter((g) => g.status === "upcoming").length;
+    return (
+      <div>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="eyebrow">
+              {slate.season}{slate.week ? ` · Week ${slate.week.week}` : ""} · the clean sheet
+              {slate.source === "live" && <span className="ml-2 text-turf">● live data</span>}
+            </p>
+            <h1 className="display mt-1 text-5xl font-extrabold text-chalk sm:text-6xl">{slate.week ? `Week ${slate.week.week}` : "This week"}</h1>
+            <p className="mt-1 max-w-2xl text-sm text-chalk-3">Every game, the line, the model, and what matters. Click a game for everything else.</p>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <ViewToggle view={view} date={dateParam} />
+            <div className="mono text-right text-xs text-chalk-3">
+              {week.length} games · {liveNow ? `${liveNow} in progress` : left ? `${left} still to kick off` : "all final"}
+            </div>
+          </div>
+        </div>
+        <WeekStrip slate={slate} />
+        <LiveTicker games={week} />
+        <div className="mt-6">
+          <CleanSheet games={week} />
+        </div>
+      </div>
+    );
+  }
 
   const live = games.filter((g) => g.status === "live").length;
   const upcoming = games.filter((g) => g.status === "upcoming").length;
@@ -57,6 +91,7 @@ export default async function Today({ searchParams }: PageProps<"/">) {
           </h1>
         </div>
         <div className="mono text-right text-xs text-chalk-3">
+          <div className="mb-2 flex justify-end"><ViewToggle view={view} date={dateParam} /></div>
           <div>{games.length} games on the slate</div>
           <div>{live ? `${live} in progress` : upcoming ? `${upcoming} still to kick off` : "all final"}</div>
           <div className="mt-1"><Link href="/ask" className="text-sky hover:underline">Ask the slate</Link></div>
@@ -200,22 +235,49 @@ function SlateGlance({ games, implied, values }: { games: Game[]; implied: Recor
   );
 }
 
+function ViewToggle({ view, date }: { view: "clean" | "full"; date?: string }) {
+  const q = (v: string) => {
+    const p = new URLSearchParams();
+    if (date) p.set("date", date);
+    if (v === "full") p.set("view", "full");
+    const t = p.toString();
+    return `/${t ? `?${t}` : ""}`;
+  };
+  return (
+    <span className="seg">
+      <Link href={q("clean")} aria-current={view === "clean"}>Clean sheet</Link>
+      <Link href={q("full")} aria-current={view === "full"}>Full slate</Link>
+    </span>
+  );
+}
+
+/** Previous and next week on the clean sheet. */
+function WeekStrip({ slate }: { slate: SlateData }) {
+  if (slate.source !== "live") return null;
+  return (
+    <div className="mt-4 flex items-center gap-1.5">
+      <Link href={`/?date=${shiftDate(slate.date, -7)}`} className="chip !py-1 !text-[11px]">← Previous week</Link>
+      <Link href={`/?date=${shiftDate(slate.date, 7)}`} className="chip !py-1 !text-[11px]">Next week →</Link>
+    </div>
+  );
+}
+
 function DayStrip({ slate }: { slate: SlateData }) {
   if (slate.source !== "live") return null;
   const prev = shiftDate(slate.date, -7);
   const next = shiftDate(slate.date, 7);
   return (
     <div className="scroll-x -mx-4 mt-4 flex items-center gap-1.5 px-4 pb-1">
-      <Link href={`/?date=${prev}`} className="chip !py-1 !text-[11px]" title="Previous week">
+      <Link href={`/?date=${prev}&view=full`} className="chip !py-1 !text-[11px]" title="Previous week">
         ← wk
       </Link>
       {slate.days.map((d) => (
-        <Link key={d.date} href={`/?date=${d.date}`} className="chip" aria-pressed={d.date === slate.date}>
+        <Link key={d.date} href={`/?date=${d.date}&view=full`} className="chip" aria-pressed={d.date === slate.date}>
           {fmtDate(d.date, { weekday: "short" })} {fmtDate(d.date, { day: "numeric" })}
           <span className="ml-1.5 mono text-[10px] opacity-70">{d.count}</span>
         </Link>
       ))}
-      <Link href={`/?date=${next}`} className="chip !py-1 !text-[11px]" title="Next week">
+      <Link href={`/?date=${next}&view=full`} className="chip !py-1 !text-[11px]" title="Next week">
         wk →
       </Link>
     </div>

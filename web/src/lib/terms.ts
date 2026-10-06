@@ -41,7 +41,7 @@ export const TERMS = {
   snapShare: "Snap share: his share of his unit's snaps (offense or defense) in the games he played, as a 0 to 100 score.",
   draftSlot: "Draft slot score: where he was picked on a 0 to 100 scale (pick 1 = 100, pick 32 = 75, pick 100 = 55, undrafted = 8).",
   size: "Size: whether his height and weight meet rough NFL norms for the position.",
-  vsSlot: "His production percentile minus his draft slot score (pick 1 = 100, pick 32 = 75, pick 100 = 55, undrafted = 8). Plus means his production ranks higher than where he was drafted; +10 or more reads as above his slot, -10 or less below it.",
+  vsSlot: "Against the slot, from history: every player drafted 2018 on in the same range at his position (top 10, rest of round 1, round 2, round 3, rounds 4-5, rounds 6-7; small groups pooled with a neighbor), at the same point of the same season of their careers. Production is DraftKings points per team game for offense and IDP points for defense, a missed game counted as zero. The number is his percentile among them minus 50: 0 is the typical player from his range, +20 is ahead of 70% of them, -20 behind 70%. Linemen, specialists, and undrafted players have no comparison.",
   watchScore: "Watch Score (0 to 100): half his production percentile, 30% his snap share percentile, 20% context (a breakout, production against his draft slot, or the starter's spot on the depth chart). How worth watching he is, not a grade of the player.",
 
   // Who's playing (game page).

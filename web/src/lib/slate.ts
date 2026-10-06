@@ -379,7 +379,7 @@ function deriveWhyWatch(g: Ctx): { headline: string; reasons: string[]; read: st
   const star = g.prospects.find((p) => p.tier === "Rookie" || p.tier === "Breakout");
   if (star?.radar && star.radar.score >= 70) {
     const r0 = star.radar;
-    const aboveSlot = r0.tier === "Rookie" && r0.eqPick !== null && (r0.slot === null || r0.eqPick < r0.slot);
+    const aboveSlot = r0.tier === "Rookie" && r0.vsSlot !== null && r0.vsSlot >= 10;
     const what = aboveSlot ? (r0.slot ? `a rookie drafted No. ${r0.slot} who is playing above that slot, ${r0.stat}` : `an undrafted rookie playing like a drafted one, ${r0.stat}`) : r0.breakout?.label ?? r0.stat;
     push("player", `${star.name} (${star.team} ${star.pos}) is a top-of-the-radar name: ${what}.`);
   }

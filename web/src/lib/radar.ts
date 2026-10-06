@@ -15,7 +15,7 @@
  * It is not a grade and never claims to be one. It ranks evidence. Every number
  * on a card can be traced to a source row.
  */
-import { genPlayers, genMeta, type GenPlayer, type StatLine } from "./generated";
+import { genPlayers, genMeta, genRookieBaselines, type GenPlayer, type StatLine } from "./generated";
 import { memoSync } from "./memo";
 import { adjustedIndex, type QocLabel } from "./adjusted";
 import { movementFor, movementStamp } from "./movement";
@@ -80,10 +80,13 @@ export interface RadarPlayer {
   /* NFL additions */
   slot: number | null;
   slotYear: number | null;
-  /** Production percentile minus the slot score. Positive = producing above his draft slot. Rookies and second-year players only. */
+  /** His percentile among past players drafted in the same range at his position, same career season and point of the
+   * season, minus 50. Positive = producing above his draft range. Rookies and second-year players only. */
   vsSlot: number | null;
-  /** The pick his production percentile would correspond to ("producing like pick No. 21"). */
+  /** The middle pick of the draft range whose typical player he matches (rookie-baselines.json). */
   eqPick: number | null;
+  /** The comparison behind vsSlot: his points a team game against history. */
+  slotComp: import("./generated").RookieBaseline | null;
   breakout: Breakout | null;
   injury: { status: string | null; practice: string | null; injury: string | null; week: number } | null;
   depth: { pos: string; rank: number } | null;
@@ -301,6 +304,7 @@ function buildIndex(): RadarIndex {
   const players = genPlayers();
   const season = genMeta()?.season ?? new Date().getFullYear();
   const adjIdx = adjustedIndex();
+  const baselines = genRookieBaselines();
 
   const tables = new Map<string, number[]>();
   const raw = new Map<string, number>();
@@ -345,8 +349,11 @@ function buildIndex(): RadarIndex {
     const draftClass = p.r.yr ?? p.r.entry ?? season;
     const breakout = y === 2 || y === 3 ? detectBreakout(p, group) : null;
     const rookie = y === 1 || p.r.yr === season;
-    const vsSlot = (rookie || y === 2) && v > 0 ? prodPct - slot : null;
-    const eqPick = vsSlot !== null ? pickForPercentile(prodPct) : null;
+    // Against the slot: history, not a curve. Past players drafted in the same range at his position, at the same
+    // point of the same career season (scripts/ingest-rookie-baselines.mjs).
+    const slotComp = rookie || y === 2 ? baselines?.players[p.id] ?? null : null;
+    const vsSlot = slotComp ? slotComp.vsSlot : null;
+    const eqPick = slotComp ? slotComp.likePick : null;
 
     // Watch Score for the player: production 50%, snap share 30% (both as percentiles inside the position group), context 20% (slot beaten, breakout, or starter default).
     const context = breakout ? 100 : vsSlot !== null ? Math.max(0, Math.min(100, 50 + vsSlot)) : p.dc?.rank === 1 ? 60 : 40;
@@ -368,7 +375,7 @@ function buildIndex(): RadarIndex {
     const evidence: Evidence[] = [];
     const sl = statLine(p.s, group);
     if (v > 0) evidence.push({ kind: "production", label: sl.line, note: prodPct >= 50 ? `top ${Math.max(1, 100 - prodPct)}% of NFL ${group}` : `${ordinal(prodPct)} percentile of NFL ${group}` });
-    if (vsSlot !== null && eqPick !== null) evidence.push({ kind: "pedigree", label: pick ? `Drafted No. ${pick}, producing like pick No. ${eqPick}` : `Undrafted, producing like pick No. ${eqPick}`, note: vsSlot >= 10 ? "above his slot" : vsSlot <= -10 ? "below his slot" : "about on slot" });
+    if (slotComp && vsSlot !== null) evidence.push({ kind: "pedigree", label: `Drafted No. ${slotComp.pick}, producing like ${slotComp.like}`, note: `${slotComp.pts} ${slotComp.metric} pts a team game; ${slotComp.comps.label} at his position averaged a median ${slotComp.comps.median} at this point (${slotComp.comps.n} since 2018), ahead of ${slotComp.pctile}%` });
     else if (pick) evidence.push({ kind: "pedigree", label: `Pick No. ${pick}, ${draftClass}${p.r.club ? ` (${p.r.club})` : ""}` });
     if (breakout) evidence.push({ kind: "breakout", label: breakout.label, note: `last season ${p.ps?.gp ?? 0} games` });
     if (p.h && p.w) evidence.push({ kind: "size", label: `${Math.floor(p.h / 12)}-${p.h % 12}, ${p.w} lb`, note: size ? "NFL size for the position" : size === false ? "under NFL size norms" : undefined });
@@ -414,6 +421,7 @@ function buildIndex(): RadarIndex {
       slotYear: pick ? draftClass : null,
       vsSlot,
       eqPick,
+      slotComp,
       breakout,
       injury: p.inj ? { status: p.inj.st, practice: p.inj.pr, injury: p.inj.inj, week: p.inj.wk } : null,
       depth: p.dc ? { pos: p.dc.pos, rank: p.dc.rank } : null,
@@ -436,7 +444,7 @@ function buildIndex(): RadarIndex {
   return { byId, byTeam, all, season, rosterByTeam };
 }
 
-export const radarIndex = (): RadarIndex => memoSync(`radar:${genMeta()?.ingestedAt ?? "none"}:${adjustedIndex().stamp}:${movementStamp()}`, 3600, buildIndex);
+export const radarIndex = (): RadarIndex => memoSync(`radar:${genMeta()?.ingestedAt ?? "none"}:${genRookieBaselines()?.asOf ?? "nobase"}:${adjustedIndex().stamp}:${movementStamp()}`, 3600, buildIndex);
 
 export const radarForTeam = (team: string): RadarPlayer[] => radarIndex().byTeam.get(team) ?? [];
 export const radarPlayer = (id: string): RadarPlayer | undefined => radarIndex().byId.get(id);

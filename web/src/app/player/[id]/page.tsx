@@ -93,7 +93,9 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
             <>
               <span className="display text-4xl font-bold text-chalk">{r.vsSlot >= 0 ? "+" : ""}{r.vsSlot}</span>
               <span className="text-xs text-chalk-3">
-                {r.slot ? `Drafted No. ${r.slot}` : "Undrafted"}, {r.vsSlot >= 10 ? "producing above that slot" : r.vsSlot <= -10 ? "producing below that slot" : "producing about at that slot"}.
+                {r.slotComp
+                  ? `Drafted No. ${r.slot}. ${r.slotComp.pts} ${r.slotComp.metric} pts a team game through ${r.slotComp.games}; ${r.slotComp.comps.label} at his position since 2018 had a median ${r.slotComp.comps.median} at this point. Ahead of ${r.slotComp.pctile}% of ${r.slotComp.comps.n}, producing like ${r.slotComp.like}.`
+                  : `${r.slot ? `Drafted No. ${r.slot}` : "Undrafted"}.`}
               </span>
             </>
           ) : (

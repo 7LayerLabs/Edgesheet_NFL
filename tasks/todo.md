@@ -18,6 +18,16 @@ Latest, 2026-10-06 night, LIVE PC: Leaders page and efficiency, built off Derek'
 - /rookies defaults to the real draft order (overall pick, round and pick in round, drafting team, "now X" if moved),
   same production-vs-slot info per row; picks without a stat line listed too; undrafted with a line at the end;
   "Beat the slot" toggle (?sort=slot) keeps the old ranking.
+- Clean sheet (Derek: "every game listed, a brief summary underneath, click for all the extreme data; no analysis
+  paralysis"): / is now the whole week by day, each game = line, model, gap (if any), News (QB/absences/weather via
+  lib/keynotes.ts), biggest unit matchup in plain words, three offensive names to watch. Old busy home = ?view=full
+  (toggle top right). components/CleanSheet.tsx.
+- Against the slot is now HISTORY, not the hand curve (Derek: "some type of variable that's consistent"):
+  scripts/ingest-rookie-baselines.mjs (chained in ingest/prebuild) -> rookie-baselines.json. DK pts per team game
+  (offense) / IDP per team game (defense), missed games = 0, vs every player drafted 2018+ in the same range (top 10,
+  rest of R1, R2, R3, R4-5, R6-7; pooled to 12+), same position PLAYED that season, same career year, same team-game
+  count. vsSlot = percentile - 50. Check: medians fall with draft range at every position; first 4 games vs rest r 0.75
+  (635 offensive rookies). Linemen, specialists, undrafted: no comparison. node scripts/ingest-rookie-baselines.mjs --check
 - Open: the game page unit-matchup blurbs say "A real edge, not a lock" (src/lib/tendencies.ts meaning()); that is an
   on-field mismatch label, not a betting lean, but Derek's rule bans "edge" without a 52.4% backtest. Ask him.
 

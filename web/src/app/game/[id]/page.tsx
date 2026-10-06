@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getGame } from "@/lib/slate";
+import { keyNotes } from "@/lib/keynotes";
 import { COMPONENT_KEYS, COMPONENT_LABELS, WEIGHTS, availableWeight, prospectCounts, scoreTag, scoutScore } from "@/lib/score";
 import { evaluateWeather } from "@/lib/weather";
 import { axisLabel, componentPhrase } from "@/lib/stadiums";
@@ -36,7 +37,6 @@ import { dstSplits, teamSplits } from "@/lib/splits";
 import { SplitsTable } from "@/components/SplitsTable";
 import { defenseVsPosition } from "@/lib/dfs";
 import { teamByShort } from "@/lib/nfl";
-import { absentWords } from "@/lib/availability";
 import { inputsLabel, LEAN_BACKTEST_NOTE, sideTier, tierLabel, totalTier } from "@/lib/leans";
 import { readReport, seasonOf } from "@/lib/report";
 import { publishedGuide } from "@/lib/watchguide";
@@ -622,31 +622,6 @@ function AnswerStrip({ game }: { game: Game }) {
       </div>
     </section>
   );
-}
-
-/**
- * The notes that move the call, in plain words: a quarterback change or a questionable starter, absences that are news
- * (he played the last game, or his status is uncertain; a player out for weeks is already in the numbers), a weather
- * flag, a neutral field.
- */
-function keyNotes(game: Game): string[] {
-  const out: string[] = [];
-  if (game.status === "final") {
-    const post = game.archive?.postgame;
-    if (post?.spreadResult) out.push(`Market: ${post.spreadResult}${post.totalResult ? `, total went ${post.totalResult}` : ""}`);
-    return out;
-  }
-  const a = game.availability;
-  for (const [team, av] of a ? ([[game.away, a.away], [game.home, a.home]] as const) : []) {
-    if (av.qb && (av.qb.uncertain || Math.abs(av.qb.pts) >= 1.5)) out.push(`${team.short}: ${av.qb.expected} at QB${av.qb.uncertain ? ", questionable" : ""} (${av.qb.pts > 0 ? "+" : ""}${av.qb.pts})`);
-    const news = av.items.filter((i) => i.kind === "out" && i.pts <= -0.3 && (i.fresh || i.absence < 0.85)).slice(0, 2);
-    for (const i of news) out.push(`${team.short}: ${i.name} ${absentWords(i.status)} (${i.pts} pts)`);
-  }
-  const flag = game.weather ? evaluateWeather(game.weather).find((f) => f.level !== "note") : undefined;
-  if (flag) out.push(flag.title);
-  const neutral = game.storylines.find((s) => s.startsWith("Neutral site"));
-  if (neutral) out.push(neutral.replace(/\.$/, ""));
-  return out.slice(0, 4);
 }
 
 function RadarTiers({ list, game, titles = TIER_TITLE }: { list: Prospect[]; game: Game; titles?: Record<Prospect["tier"], [string, string]> }) {

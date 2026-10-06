@@ -277,3 +277,15 @@ export interface TeamLeader { code: string; team: string; games?: number; off: T
 export interface LeaderBoard { season: number; teamGames: number; rushing: RushLeader[]; receiving: RecLeader[]; passing: PassLeader[]; teams: TeamLeader[] }
 export interface GenLeaders { asOf: string; seasons: number[]; boards: Record<string, LeaderBoard> }
 export const genLeaders = (): GenLeaders | undefined => memoSync(`gen:leaders:${stamp("leaders.json")}`, 3600, () => readJson<GenLeaders | undefined>("leaders.json", undefined));
+
+/** One rookie or second-year player against history (scripts/ingest-rookie-baselines.mjs). */
+export interface RookieBaseline {
+  gsis: string | null; name: string; group: string; classYear: 1 | 2; pick: number; round: number;
+  /** DraftKings points (offense) or IDP points (defense) per team game, games he missed counted as zero. */
+  metric: "DK" | "IDP"; games: number; pts: number;
+  /** Players drafted 2018 on in the same position group and draft range, same career season, same team-game count. */
+  comps: { label: string; n: number; median: number; p25: number; p75: number };
+  pctile: number; vsSlot: number; like: string; likePick: number | null;
+}
+export interface GenRookieBaselines { asOf: string; season: number; minComps: number; history: string; bands: string[]; players: Record<string, RookieBaseline> }
+export const genRookieBaselines = (): GenRookieBaselines | undefined => memoSync(`gen:rookiebase:${stamp("rookie-baselines.json")}`, 3600, () => readJson<GenRookieBaselines | undefined>("rookie-baselines.json", undefined));

@@ -5,10 +5,10 @@
   "scripts": {
     "dev": "next dev -p 3100",
     "build": "next build",
-    "prebuild": "node scripts/ingest.mjs && node scripts/ingest-extras.mjs && node scripts/ingest-leaders.mjs",
+    "prebuild": "node scripts/ingest.mjs && node scripts/ingest-extras.mjs && node scripts/ingest-leaders.mjs && node scripts/ingest-rookie-baselines.mjs",
     "start": "next start -p 3100",
     "lint": "eslint",
-    "ingest": "node scripts/ingest.mjs && node scripts/ingest-extras.mjs && node scripts/ingest-leaders.mjs",
+    "ingest": "node scripts/ingest.mjs && node scripts/ingest-extras.mjs && node scripts/ingest-leaders.mjs && node scripts/ingest-rookie-baselines.mjs",
     "telegram:bot": "node scripts/telegram-bot.mjs",
     "telegram:preview": "node scripts/telegram-preview.mjs",
     "telegram:chat-id": "node scripts/telegram-chat-id.mjs",

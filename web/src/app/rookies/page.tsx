@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { genDraft, genExtras, genMeta, generatedLoaded } from "@/lib/generated";
-import { radarIndex, GROUP_LABEL, groupOfPos, pickForPercentile, type RadarPlayer } from "@/lib/radar";
+import { radarIndex, GROUP_LABEL, groupOfPos, type RadarPlayer } from "@/lib/radar";
 import type { GenDraftPick } from "@/lib/generated";
 import { Avatar } from "@/components/Avatar";
 import { gameIndexForWeek } from "@/lib/slate";
@@ -39,13 +39,13 @@ export default async function RookiesPage({ searchParams }: PageProps<"/rookies"
   const picks = genDraft();
   const games: Map<string, Game> = loaded ? await gameIndexForWeek() : new Map();
 
-  const enrich = (p: RadarPlayer): RadarPlayer => ({ ...p, vsSlot: p.vsSlot ?? p.production - p.pedigree, eqPick: p.eqPick ?? pickForPercentile(p.production) });
+  const enrich = (p: RadarPlayer): RadarPlayer => p;
   const classOf = (yr: number): RadarPlayer[] =>
     (idx ? [...idx.byId.values()] : [])
       .filter((p) => p.draftClass === yr && p.classYear !== null && p.classYear <= 2 && p.production > 0)
       .filter((p) => !pos || p.group === pos)
       .map(enrich)
-      .sort((a, b) => (b.vsSlot ?? 0) - (a.vsSlot ?? 0) || b.score - a.score);
+      .sort((a, b) => (b.vsSlot ?? -99) - (a.vsSlot ?? -99) || b.score - a.score);
   const rows = typeof tab === "number" ? classOf(tab) : [];
 
   const classPicks = typeof tab === "number" ? picks.filter((p) => p.year === tab) : [];
@@ -57,7 +57,7 @@ export default async function RookiesPage({ searchParams }: PageProps<"/rookies"
   const inRound = new Map<number, number>();
   for (const p of classPicks) inRound.set(p.overall, classPicks.filter((q) => q.round === p.round && q.overall < p.overall).length + 1);
   const rounds = [...new Set(ordered.map((p) => p.round))].sort((a, b) => a - b);
-  const undrafted = rows.filter((p) => !p.slot);
+  const undrafted = rows.filter((p) => !p.slot).sort((a, b) => b.production - a.production);
   const byRound = new Map<number, number>();
   for (const p of classPicks) byRound.set(p.round, (byRound.get(p.round) ?? 0) + 1);
   const withLine = typeof tab === "number" ? rows.length : 0;
@@ -68,7 +68,7 @@ export default async function RookiesPage({ searchParams }: PageProps<"/rookies"
       <p className="eyebrow">Rookie class{meta ? ` · stats as of ${new Date(meta.ingestedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : ""}</p>
       <h1 className="display mt-1 text-5xl font-extrabold text-chalk sm:text-6xl">{tab === "incoming" ? "Incoming" : `${tab} class`}</h1>
       <p className="mt-2 max-w-3xl text-base text-chalk-3">
-        The class in the order it was drafted: the pick, the team that made it, and what he has done since. Each player with a stat line carries his production against his draft slot. The slot score runs 100 for pick 1 to 8 for an undrafted player; the production score is his percentile against the league at his position. A positive number means he is producing above where he was taken. Last year&apos;s class is scored on this season&apos;s production, so the question becomes who grew in year two.
+        The class in the order it was drafted: the pick, the team that made it, and what he has done since. Against the slot compares him with every player drafted in the same range at his position since 2018, at the same point of the same season of their careers: DraftKings points per team game for offense, IDP points for defense, a game he missed counted as zero. +20 means he is ahead of 70% of them; 0 is the typical player from his range. The slot score runs 100 for pick 1 to 8 for an undrafted player; the production score is his percentile against the league at his position. A positive number means he is producing above where he was taken. Last year&apos;s class is scored on this season&apos;s production, so the question becomes who grew in year two.
       </p>
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
@@ -206,13 +206,18 @@ function RookieRow({ p, lead, sub, drafted, games }: { p: RadarPlayer; lead: str
           {p.pos} · {p.team} · {p.cls}{p.height ? ` · ${Math.floor(p.height / 12)}-${p.height % 12}, ${p.weight}` : ""} · {GROUP_LABEL[p.group]}{p.college ? ` · ${p.college}` : ""}
         </span>
         <span className="block truncate text-xs text-chalk-2">{p.stat}</span>
+        {p.slotComp && (
+          <span className="mono block truncate text-[11px] text-chalk-3">
+            {p.slotComp.pts} {p.slotComp.metric} pts a team game · {p.slotComp.comps.label} at {p.slotComp.group} since 2018: median {p.slotComp.comps.median} ({p.slotComp.comps.n})
+          </span>
+        )}
         <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
-          <span className="mono text-[11px] font-semibold text-navy">{p.slot ? `Drafted No. ${p.slot}` : "Undrafted"}, producing like pick No. {p.eqPick}</span>
+          <span className="mono text-[11px] font-semibold text-navy">{p.slotComp ? `Drafted No. ${p.slot}, producing like ${p.slotComp.like}` : p.slot ? `Drafted No. ${p.slot}` : "Undrafted, no draft-range history to compare"}</span>
           {p.injury?.status && <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${p.injury.status === "Out" ? "bg-brick text-white" : "bg-ink-2 text-chalk-2"}`}>{p.injury.status}</span>}
         </span>
       </span>
       <span className="flex shrink-0 flex-col items-end gap-1">
-        <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${vs >= 20 ? "bg-turf text-white" : vs >= 0 ? "bg-navy text-white" : vs >= -20 ? "bg-ink-2 text-chalk" : "bg-ink-2 text-chalk-3"}`}>{vs >= 0 ? "+" : ""}{vs} vs slot</span>
+        {p.slotComp && <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${vs >= 20 ? "bg-turf text-white" : vs >= 0 ? "bg-navy text-white" : vs >= -20 ? "bg-ink-2 text-chalk" : "bg-ink-2 text-chalk-3"}`} title={`Ahead of ${p.slotComp.pctile}% of ${p.slotComp.comps.n} ${p.slotComp.comps.label} at his position since 2018`}>{vs >= 0 ? "+" : ""}{vs} vs slot</span>}
         <span className="mono text-xs text-chalk-3" title="production percentile, then snap share">{p.production} · {p.usage}%</span>
       </span>
     </li>
