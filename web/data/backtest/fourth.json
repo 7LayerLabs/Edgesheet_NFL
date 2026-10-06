@@ -1,0 +1,242 @@
+{
+  "builtAt": "2026-10-06T14:10:44.941Z",
+  "seasons": [
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "note": "In-sample for the win-probability fit; see holdout in the model file.",
+  "bySeason": [
+    {
+      "season": 2018,
+      "decisions": 2906,
+      "wentForIt": 0.123,
+      "modelSaidGoBy3": 248,
+      "wentWhenModelSaidGoBy3": 0.621,
+      "modelSaidKickOrPuntBy3": 441,
+      "wentAnywayWhenModelSaidKickOrPuntBy3": 0.007,
+      "agreedWithModel": 0.896
+    },
+    {
+      "season": 2019,
+      "decisions": 2960,
+      "wentForIt": 0.143,
+      "modelSaidGoBy3": 252,
+      "wentWhenModelSaidGoBy3": 0.635,
+      "modelSaidKickOrPuntBy3": 394,
+      "wentAnywayWhenModelSaidKickOrPuntBy3": 0.005,
+      "agreedWithModel": 0.897
+    },
+    {
+      "season": 2020,
+      "decisions": 2846,
+      "wentForIt": 0.174,
+      "modelSaidGoBy3": 287,
+      "wentWhenModelSaidGoBy3": 0.683,
+      "modelSaidKickOrPuntBy3": 333,
+      "wentAnywayWhenModelSaidKickOrPuntBy3": 0.012,
+      "agreedWithModel": 0.908
+    },
+    {
+      "season": 2021,
+      "decisions": 3126,
+      "wentForIt": 0.18,
+      "modelSaidGoBy3": 287,
+      "wentWhenModelSaidGoBy3": 0.711,
+      "modelSaidKickOrPuntBy3": 406,
+      "wentAnywayWhenModelSaidKickOrPuntBy3": 0.015,
+      "agreedWithModel": 0.921
+    },
+    {
+      "season": 2022,
+      "decisions": 3324,
+      "wentForIt": 0.169,
+      "modelSaidGoBy3": 326,
+      "wentWhenModelSaidGoBy3": 0.629,
+      "modelSaidKickOrPuntBy3": 494,
+      "wentAnywayWhenModelSaidKickOrPuntBy3": 0.012,
+      "agreedWithModel": 0.894
+    },
+    {
+      "season": 2023,
+      "decisions": 3397,
+      "wentForIt": 0.171,
+      "modelSaidGoBy3": 296,
+      "wentWhenModelSaidGoBy3": 0.72,
+      "modelSaidKickOrPuntBy3": 474,
+      "wentAnywayWhenModelSaidKickOrPuntBy3": 0.015,
+      "agreedWithModel": 0.913
+    },
+    {
+      "season": 2024,
+      "decisions": 3202,
+      "wentForIt": 0.18,
+      "modelSaidGoBy3": 311,
+      "wentWhenModelSaidGoBy3": 0.688,
+      "modelSaidKickOrPuntBy3": 451,
+      "wentAnywayWhenModelSaidKickOrPuntBy3": 0.016,
+      "agreedWithModel": 0.907
+    },
+    {
+      "season": 2025,
+      "decisions": 3138,
+      "wentForIt": 0.206,
+      "modelSaidGoBy3": 314,
+      "wentWhenModelSaidGoBy3": 0.774,
+      "modelSaidKickOrPuntBy3": 447,
+      "wentAnywayWhenModelSaidKickOrPuntBy3": 0.002,
+      "agreedWithModel": 0.922
+    }
+  ],
+  "costSplit": [
+    {
+      "gaveUpMoreBy": "1 to 3 points",
+      "games": 720,
+      "won": 0.351,
+      "pregameExpected": 0.437,
+      "shortfall": -0.086
+    },
+    {
+      "gaveUpMoreBy": "3 to 6 points",
+      "games": 430,
+      "won": 0.356,
+      "pregameExpected": 0.457,
+      "shortfall": -0.101
+    },
+    {
+      "gaveUpMoreBy": "6+ points",
+      "games": 227,
+      "won": 0.317,
+      "pregameExpected": 0.431,
+      "shortfall": -0.114
+    }
+  ],
+  "conversionHoldout": [
+    {
+      "yardsToGo": "1",
+      "attempts": 2256,
+      "converted": 0.674,
+      "holdoutAttempts": 349,
+      "holdoutPredicted": 0.68,
+      "holdoutActual": 0.659
+    },
+    {
+      "yardsToGo": "2",
+      "attempts": 821,
+      "converted": 0.587,
+      "holdoutAttempts": 124,
+      "holdoutPredicted": 0.594,
+      "holdoutActual": 0.653
+    },
+    {
+      "yardsToGo": "3",
+      "attempts": 523,
+      "converted": 0.511,
+      "holdoutAttempts": 98,
+      "holdoutPredicted": 0.518,
+      "holdoutActual": 0.52
+    },
+    {
+      "yardsToGo": "4-5",
+      "attempts": 745,
+      "converted": 0.483,
+      "holdoutAttempts": 118,
+      "holdoutPredicted": 0.442,
+      "holdoutActual": 0.576
+    },
+    {
+      "yardsToGo": "6-7",
+      "attempts": 388,
+      "converted": 0.42,
+      "holdoutAttempts": 53,
+      "holdoutPredicted": 0.377,
+      "holdoutActual": 0.34
+    },
+    {
+      "yardsToGo": "8-10",
+      "attempts": 465,
+      "converted": 0.303,
+      "holdoutAttempts": 64,
+      "holdoutPredicted": 0.307,
+      "holdoutActual": 0.25
+    },
+    {
+      "yardsToGo": "11+",
+      "attempts": 430,
+      "converted": 0.193,
+      "holdoutAttempts": 54,
+      "holdoutPredicted": 0.235,
+      "holdoutActual": 0.241
+    }
+  ],
+  "fieldGoalHoldout": [
+    {
+      "yards": "18-29",
+      "attempts": 1829,
+      "made": 0.98,
+      "holdoutAttempts": 206,
+      "holdoutPredicted": 0.98,
+      "holdoutActual": 0.981
+    },
+    {
+      "yards": "30-39",
+      "attempts": 2293,
+      "made": 0.932,
+      "holdoutAttempts": 298,
+      "holdoutPredicted": 0.926,
+      "holdoutActual": 0.93
+    },
+    {
+      "yards": "40-44",
+      "attempts": 1199,
+      "made": 0.827,
+      "holdoutAttempts": 161,
+      "holdoutPredicted": 0.836,
+      "holdoutActual": 0.851
+    },
+    {
+      "yards": "45-49",
+      "attempts": 1191,
+      "made": 0.742,
+      "holdoutAttempts": 150,
+      "holdoutPredicted": 0.756,
+      "holdoutActual": 0.833
+    },
+    {
+      "yards": "50-54",
+      "attempts": 1089,
+      "made": 0.712,
+      "holdoutAttempts": 150,
+      "holdoutPredicted": 0.667,
+      "holdoutActual": 0.72
+    },
+    {
+      "yards": "55-59",
+      "attempts": 453,
+      "made": 0.614,
+      "holdoutAttempts": 92,
+      "holdoutPredicted": 0.59,
+      "holdoutActual": 0.663
+    },
+    {
+      "yards": "60-70",
+      "attempts": 87,
+      "made": 0.402,
+      "holdoutAttempts": 22,
+      "holdoutPredicted": 0.508,
+      "holdoutActual": 0.545
+    }
+  ],
+  "verdicts": [
+    "Teams went for it on 62% of fourth downs the model called a clear go (3+ points) in 2018 and 77% in 2025.",
+    "The win-probability model was off from nflfastR by 2.0 points on average in the held-out 2025 season, and its buckets line up with how often teams actually won (table in the model file).",
+    "Teams that gave up 1 to 3 points more win probability on fourth downs than their opponent won 35% of 720 games against 44% expected from the pregame line. Association, not proof: a team that falls behind also faces more hard fourth downs.",
+    "Teams that gave up 3 to 6 points more win probability on fourth downs than their opponent won 36% of 430 games against 46% expected from the pregame line. Association, not proof: a team that falls behind also faces more hard fourth downs.",
+    "Teams that gave up 6+ points more win probability on fourth downs than their opponent won 32% of 227 games against 43% expected from the pregame line. Association, not proof: a team that falls behind also faces more hard fourth downs."
+  ]
+}

@@ -42,6 +42,8 @@ import { readReport, seasonOf } from "@/lib/report";
 import { publishedGuide } from "@/lib/watchguide";
 import { WatchGuide } from "@/components/WatchGuide";
 import { CoveragePanel } from "@/components/CoveragePanel";
+import { FourthDowns } from "@/components/FourthDowns";
+import { fourthDownsFor, type FourthDown } from "@/lib/fourth";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +60,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const flags = game.weather ? evaluateWeather(game.weather) : [];
   const { likely, future } = prospectCounts(game);
   const started = game.status !== "upcoming";
+  const fourth = started ? fourthDownsFor(game.id) : [];
   const report = readReport(seasonOf(game.kickoff), game.id);
   // The headline is reason one; the read shows two more.
   // Why watch: only what the strip and Who to watch do not already say (older archived games: the headline and reasons).
@@ -225,6 +228,13 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
       {started && (
         <Fold id="showed" title={game.status === "live" ? "Live" : "Box score"} summary={boxSummary} open>
           <PostgameBody game={game} />
+        </Fold>
+      )}
+
+      {/* Fourth downs: each call against the win-probability model (src/lib/fourth.ts), once play-by-play is posted. */}
+      {started && fourth.length > 0 && (
+        <Fold id="fourth" title="Fourth downs" summary={fourthSummary(fourth)}>
+          <FourthDowns gameId={game.id} />
         </Fold>
       )}
 
@@ -1058,4 +1068,13 @@ function weatherHeadline(g: Game) {
 
 function roofLabel(r: NonNullable<Game["weather"]>["roof"]) {
   return r === "open" ? "open air" : r === "fixed" ? "fixed roof" : r === "retractable-closed" ? "roof closed" : "retractable, status unknown";
+}
+
+/** One line for the Fourth downs fold: how many calls, and the costliest one the model disagreed with. */
+function fourthSummary(downs: FourthDown[]): string {
+  const costly = downs.filter((d) => !d.agree && d.cost >= 3).sort((a, b) => b.cost - a.cost);
+  const base = `${downs.length} ${downs.length === 1 ? "decision" : "decisions"}`;
+  if (!costly.length) return `${base}, none that cost 3+ points of win probability`;
+  const top = costly[0];
+  return `${base}; costliest: the ${top.team} chose to ${top.callWord} on ${top.situation.split(",")[0]} (${top.cost.toFixed(1)} pts)`;
 }

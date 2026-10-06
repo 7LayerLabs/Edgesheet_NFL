@@ -213,3 +213,4 @@
 {"at":"2026-10-06T14:05:19.924Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"3915416","input":1638,"output":171,"costUsd":0.00006879600000000001,"ms":179,"questions":4,"ok":true,"cacheRead":0}
 {"at":"2026-10-06T14:05:19.990Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"4242557","input":1019,"output":147,"costUsd":0.000042798,"ms":173,"questions":4,"ok":true,"cacheRead":0}
 {"at":"2026-10-06T14:05:20.043Z","provider":"typesafe","model":"jev-1.13.0","purpose":"dfs","ref":"4710855","input":1744,"output":210,"costUsd":0.000073248,"ms":205,"questions":4,"ok":true,"cacheRead":0}
+{"at":"2026-10-06T14:13:39.945Z","provider":"typesafe","model":"jev-1.13.0","purpose":"sleepers","input":15819,"output":2872,"costUsd":0.0006643980000000001,"ms":414,"questions":144,"ok":true,"cacheRead":0}

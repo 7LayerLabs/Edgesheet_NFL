@@ -45,6 +45,8 @@ next-env.d.ts
 /data/generated/*
 # Last season's coverage digest is fixed for the year and costs ~200 MB of downloads to rebuild: keep it in git.
 !/data/generated/coverage.json
+# The fourth-down model (6 KB) is refit once a season from ~1 GB of play-by-play: keep it in git too.
+!/data/generated/fourth-model.json
 
 # caches and logs from ingest scripts
 /data/cache/

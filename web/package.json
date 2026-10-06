@@ -25,6 +25,8 @@
     "backtest:pressure": "node scripts/backtest-pressure.mjs",
     "backtest:seed": "tsx scripts/backtest-seed.mts",
     "backtest:coverage": "node scripts/backtest-coverage.mjs",
+    "backtest:fourth": "node scripts/backtest-fourth.mjs",
+    "fourth:fit": "node scripts/fourth-fit.mjs",
     "coverage": "node scripts/ingest-coverage.mjs",
     "backtest:stories": "tsx scripts/backtest-stories.mts",
     "backtest:splits": "tsx scripts/backtest-splits.mts",
