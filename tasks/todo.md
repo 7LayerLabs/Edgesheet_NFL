@@ -19,8 +19,12 @@ Update 2026-10-06 evening, LIVE PC, "go all in" on nflverse (Derek): new feeds a
 - Referee totals: no carry-over (r -0.02), betting the tendency 49.9% on 1,502 games since 2010. Not shown.
 - Game page: watch guide under Who to watch (it was never rendered before). Player page: Charting and tracking
   panel. Rookies: combine line. Who plays: roster changes by week.
-- In progress: fourth-down model (helper "fourth": WP model distilled from nflfastR, go/kick/punt costs, game-page
-  FourthDowns list). Wire it in when its report lands.
+- Fourth downs (helper "fourth", wired, commit dfe001c): WP model distilled from nflfastR (off 2.0 points on 2025,
+  calibrated), empirical go/FG/punt from 2018-2025; game page "Fourth downs" fold once a game starts (play-by-play
+  posted), cost = WP given up vs the best call, toss-up under 1.5. data/generated/fourth-model.json tracked; npm run
+  fourth:fit refits once a season. Teams went for it on 62% of clear-go downs in 2018, 77% in 2025.
+- Open with Derek: free RAM on this PC (12 GB, mismatched sticks; 32 GB kit recommended), stop unused PM2 apps
+  (scout, scout-telegram, dbterminal) only if he says so, and a read-only scan of old projects before any deletes.
 
 Update 2026-10-06 afternoon, LIVE PC (Derek picked the live PC as the one that runs PM2 and the one we keep working on):
 - Merged: week 4 graded record and odds snapshots from the live PC (commit "Week 4 record from the live PC"), then
