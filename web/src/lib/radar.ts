@@ -113,6 +113,11 @@ export const GROUP_LABEL: Record<PosGroup, string> = {
   DL: "Interior D-line", EDGE: "Edge", LB: "Linebacker", CB: "Cornerback", S: "Safety", ST: "Specialist",
 };
 
+/** Position group for a raw position code (a draft file "OT" or "DE"); OLB reads as edge here. */
+export function groupOfPos(pos: string): PosGroup | null {
+  return GROUP[pos] ?? null;
+}
+
 export function groupOf(p: GenPlayer): PosGroup | null {
   const raw = p.p ?? p.pg ?? "";
   const g = GROUP[raw] ?? GROUP[p.pg ?? ""] ?? null;

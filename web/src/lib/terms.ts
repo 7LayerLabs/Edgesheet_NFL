@@ -50,7 +50,7 @@ export const TERMS = {
 
   // Game page read.
   whoToWatch:
-    "Key matchup: the player the biggest unit edge runs through. Top player: the other team's best skill player by DraftKings points a game. Then up to three storylines (revenge game, birth city or state, college state) or role changes (a starter out and who took his work the last times he sat).",
+    "Key matchup: the offensive player the biggest unit edge sets up. Tough matchup: when the defense wins the biggest matchup, the offensive player it squeezes (a tough spot, not a play). Top player: the other team's best skill player by DraftKings points a game. Then up to three storylines (revenge game, birth city or state, college state) or role changes (a starter out and who took his work the last times he sat).",
 
   // Splits (player page and the game page's Splits section).
   splits:

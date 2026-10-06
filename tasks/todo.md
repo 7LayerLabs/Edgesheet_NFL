@@ -12,6 +12,12 @@ Latest, 2026-10-06 night, LIVE PC: Leaders page and efficiency, built off Derek'
   predicts second-half DK points for backs (r 0.05; YPC 0.33, DK pts a game 0.59); adding efficiency to the DK
   projection did not lower test MAE (RB 6.629 to 6.628, WR/TE and QB best k = 0). QB EPA a dropback is the stickiest
   (0.52 with second-half DK). Verdict: context only, not in the projection; the Leaders page says so.
+- Who to watch: when the defense wins the top unit matchup, the offensive player it squeezes is labeled "Tough matchup"
+  (not "Key matchup") and the note shows both units' ranks and why it leans (Derek on Egbuka: "why is he a play to
+  watch when the edge is the defense?"). matchupNote() in slate.ts, matchupSide on Prospect.
+- /rookies defaults to the real draft order (overall pick, round and pick in round, drafting team, "now X" if moved),
+  same production-vs-slot info per row; picks without a stat line listed too; undrafted with a line at the end;
+  "Beat the slot" toggle (?sort=slot) keeps the old ranking.
 - Open: the game page unit-matchup blurbs say "A real edge, not a lock" (src/lib/tendencies.ts meaning()); that is an
   on-field mismatch label, not a betting lean, but Derek's rule bans "edge" without a 52.4% backtest. Ask him.
 

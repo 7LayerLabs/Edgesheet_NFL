@@ -258,6 +258,34 @@ function ranksOf(e: UnitEdge): { off?: number; def?: number; of?: number } {
   return m ? { off: Number(m[1]), of: Number(m[2]), def: Number(m[3]) } : {};
 }
 
+/** Every stat in an edge's evidence: "pass explosiveness: offense 1.18 (No. 27/32), defense 1.29 (No. 14/32), ...". */
+function statsOf(e: UnitEdge): { stat: string; off: number; def: number }[] {
+  return [...e.evidence.matchAll(/([a-z][a-z -]*): offense [^(]+\(No\. (\d+)(?:\/\d+)?\), defense [^(]+\(No\. (\d+)(?:\/\d+)?\)/g)].map((m) => ({ stat: m[1].trim(), off: Number(m[2]), def: Number(m[3]) }));
+}
+
+/**
+ * The radar line for the offensive player a unit matchup runs through, with both units' ranks so the reader can see
+ * who the matchup leans to and why (a weak offense against an average defense reads very differently from a good
+ * defense). Rank 1 is the best unit on both sides.
+ */
+function matchupNote(e: UnitEdge, axis: EdgeAxis, offTeam: string, defTeam: string): string {
+  const role = ROLE[axis];
+  const st = statsOf(e).slice(0, 2);
+  if (!st.length) return `The ${offTeam} ${role.off}: the ${role.unitOff} against the ${defTeam} ${role.unitDef} leans ${e.edge === "offense" ? `the ${offTeam}` : `the ${defTeam}`}.`;
+  const of = ranksOf(e).of ?? 32;
+  const offLine = st.map((s, i) => `No. ${s.off}${i === 0 ? ` of ${of}` : ""} in ${s.stat}`).join(" and ");
+  const defLine = st.map((s) => `No. ${s.def} in ${s.stat}`).join(" and ");
+  const [a] = st;
+  const lean = e.edge === "offense" ? offTeam : defTeam;
+  const why = e.edge === "offense"
+    ? a.off <= 10 && a.def >= 23 ? "a good unit against a weak one" : a.off <= 10 ? `mostly because the ${offTeam} ${role.unitOff} is good` : `mostly because the ${defTeam} ${role.unitDef} has been poor`
+    : a.def <= 10 && a.off >= 23 ? "a good unit against a weak one" : a.def <= 10 ? `mostly because the ${defTeam} ${role.unitDef} is good` : `mostly because the ${offTeam} ${role.unitOff} has been poor, not because the ${defTeam} are stingy`;
+  const so = e.edge === "offense"
+    ? `As the ${role.off}, he is the one the matchup sets up.`
+    : `He is here because, as the ${role.off}, his line is the one this matchup squeezes: a tough spot, not a play. If he produces anyway, he is matchup-proof.`;
+  return `${offTeam} ${role.unitOff}: ${offLine}. ${defTeam} ${role.unitDef}: ${defLine}. Leans ${lean}, ${why}. ${so}`;
+}
+
 const ROLE: Record<EdgeAxis, { off: string; def: string; unitOff: string; unitDef: string }> = {
   rush: { off: "lead back", def: "run stopper", unitOff: "run game", unitDef: "run defense" },
   line: { off: "lead back", def: "run stopper", unitOff: "ground game", unitDef: "run front" },
@@ -522,14 +550,14 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
     const note = e.edge === "offense"
       ? `The ${offTeam} ${role.off} against a ${opp} ${role.unitDef} ranked No. ${oppRank ?? "?"} of ${ranks.of ?? 32}: ${strength}.`
       : `The ${defTeam} ${role.def} against a ${opp} ${role.unitOff} ranked No. ${oppRank ?? "?"} of ${ranks.of ?? 32}: ${strength}.`;
-    const mp = matchupPlayer(axis, e.edge as "offense" | "defense", team, note, sits);
-    if (mp) matchupPicks.push(radarToProspect(mp, team === raw.home ? home.abbr : away.abbr));
+    const mp = matchupPlayer(axis, e.edge as "offense" | "defense", team, e.edge === "offense" ? matchupNote(e, axis, offTeam, defTeam) : note, sits);
+    if (mp) matchupPicks.push({ ...radarToProspect(mp, team === raw.home ? home.abbr : away.abbr), matchupSide: "for" });
     // Derek's rule: the betting side of the page is the offense. When the defense holds the edge, the offensive player
     // who carries that unit is the one on the spot (his line is what moves); the defender goes to the Defense section.
+    // He is labeled a tough matchup, not a key one, so nobody reads him as a play.
     if (e.edge === "defense") {
-      const offNote = `The ${offTeam} ${role.off} runs into a ${defTeam} ${role.unitDef} ranked No. ${ranks.def ?? "?"} of ${ranks.of ?? 32}: ${strength} for the defense.`;
-      const op = matchupPlayer(axis, "offense", offTeam, offNote, sits);
-      if (op) offenseSpot.push(radarToProspect(op, offTeam === raw.home ? home.abbr : away.abbr));
+      const op = matchupPlayer(axis, "offense", offTeam, matchupNote(e, axis, offTeam, defTeam), sits);
+      if (op) offenseSpot.push({ ...radarToProspect(op, offTeam === raw.home ? home.abbr : away.abbr), matchupSide: "against" });
     }
   }
   const seenP = new Set<string>();
@@ -939,7 +967,7 @@ async function whoToWatch(raw: GenGame, home: Team, away: Team, matchupPicks: Pr
 
   // Tier 1 and 2.
   const m = matchupPicks.find((p) => !sits(p.id));
-  if (m) add({ id: m.id, name: m.name, pos: m.pos, team: m.team, label: "Key matchup", reason: m.lensNote ?? "", detail: detailOf(m.id) });
+  if (m) add({ id: m.id, name: m.name, pos: m.pos, team: m.team, label: m.matchupSide === "against" ? "Tough matchup" : "Key matchup", reason: m.lensNote ?? "", detail: detailOf(m.id) });
   const mTeam = m ? (m.team === home.abbr ? raw.home : raw.away) : undefined;
   const top = skill.find((p) => !used.has(p.id) && (!mTeam || p.t !== mTeam));
   if (top) add({ id: top.id, name: top.n, pos: top.p ?? top.pg ?? "", team: abbrOf(top.t), label: "Top player", reason: starLine(top, oppOf(top.t)), detail: detailLine(top) || undefined });

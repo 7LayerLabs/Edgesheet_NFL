@@ -82,6 +82,8 @@ export interface Prospect {
   injury?: { status: string | null; practice: string | null; injury: string | null; week: number };
   /** Why this player is on the game's radar, one line ("WR1 against the No. 31 pass defense by EPA"). */
   lensNote?: string;
+  /** For a matchup player: "for" when the unit edge favors his side, "against" when he runs into the better unit. */
+  matchupSide?: "for" | "against";
   /** nflverse headshot URL, the fallback when the ESPN id is missing. */
   headshot?: string;
 }
