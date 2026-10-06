@@ -28,7 +28,7 @@ export const TERMS = {
   // Answer strip.
   model:
     "The margin starts from team Elo ratings (home field included), then adds 40% of the unit matchup edges and the injury points under Who's playing. The total comes from each offense's EPA per play against the other defense and both teams' pace, with a weather tilt when the forecast is flagged. Win chance treats the margin as the middle of a 13.5-point spread of outcomes.",
-  edge: "The edge is how far the model's margin or total sits from the betting line, in points. A side gap of 2 or more counts as a gap and 4 or more as a big gap; for totals, 2.5 and 5. It names where the model disagrees with the market, not a pick.",
+  edge: "The gap is how far the model's margin or total sits from the betting line, in points. A side gap of 2 or more counts as a gap and 4 or more as a big gap; for totals, 2.5 and 5. It names where the model disagrees with the market, not a pick.",
 
   // Trends (game page) and Week by week (player page).
   trendMetrics:

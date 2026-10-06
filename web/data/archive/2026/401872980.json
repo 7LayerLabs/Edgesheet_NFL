@@ -178,22 +178,22 @@
   ],
   "spread": {
    "team": "DAL",
-   "line": -9.5
+   "line": -8.5
   },
   "total": 47.5,
   "projection": {
    "winner": "DAL",
-   "winProb": 0.6513207753985915,
-   "margin": 5.25,
-   "home": 26,
-   "away": 22,
+   "winProb": 0.6961409231553555,
+   "margin": 6.93,
+   "home": 27,
+   "away": 20,
    "modelSide": "TB",
    "confidence": "high",
-   "modelTotal": 43.5,
+   "modelTotal": 45,
    "totalLean": "under"
   },
   "consensus": {
-   "median": 4.9,
+   "median": 5.7,
    "favorite": "DAL",
    "side": "TB",
    "sideCount": 3,
@@ -218,6 +218,6 @@
     "totalLean": "under"
    }
   },
-  "updatedAt": "2026-10-06T04:15:20.426Z"
+  "updatedAt": "2026-10-06T13:15:35.917Z"
  }
 }

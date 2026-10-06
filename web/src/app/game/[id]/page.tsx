@@ -539,8 +539,8 @@ function AnswerStrip({ game }: { game: Game }) {
           ) : (
             <>
               <p className="text-xs font-semibold text-chalk-3">
-                The edge
-                <InfoTip label="The edge" what={TERMS.edge} context={LEAN_BACKTEST_NOTE} align="right" />
+                The gap
+                <InfoTip label="The gap" what={TERMS.edge} context={LEAN_BACKTEST_NOTE} align="right" />
               </p>
               {side && sTier && sideLine !== undefined ? (
                 <>
@@ -554,7 +554,7 @@ function AnswerStrip({ game }: { game: Game }) {
                 </>
               ) : (
                 <>
-                  <p className="display mt-0.5 text-xl font-bold text-chalk-2 sm:text-2xl">{s && p ? "No edge" : "Nothing to compare"}</p>
+                  <p className="display mt-0.5 text-xl font-bold text-chalk-2 sm:text-2xl">{s && p ? "No gap" : "Nothing to compare"}</p>
                   <p className="mono mt-0.5 text-xs text-chalk-2">{s && p ? "model and market agree" : ""}</p>
                 </>
               )}

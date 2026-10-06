@@ -6,7 +6,7 @@ import { feedForTeams, KIND_LABEL, type FeedPlayer } from "../src/lib/feed";
 
 async function main() {
   const [a = "Miami", b = "Clemson"] = process.argv.slice(2);
-  let players: FeedPlayer[] = [];
+  const players: FeedPlayer[] = [];
   try {
     const { radarForGame } = await import("../src/lib/radar");
     for (const t of [a, b]) players.push(...radarForGame(t, 6).map((r) => ({ id: r.id, name: r.name, team: r.team })));

@@ -46,6 +46,9 @@ export function BoardClient({ rows }: { rows: BoardRow[] }) {
   useEffect(() => {
     try {
       const v = Number(localStorage.getItem(BLEND_KEY));
+      // The saved blend is read after mount on purpose: localStorage does not exist on the server, and reading it
+      // during render would make the server and browser markup disagree. One extra render on load is the cost.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (Number.isFinite(v) && v >= 0 && v <= 100 && localStorage.getItem(BLEND_KEY) !== null) setBlend(v);
     } catch {}
   }, []);

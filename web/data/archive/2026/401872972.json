@@ -278,8 +278,8 @@
     "axis": "passing-downs",
     "offTeam": "Jets",
     "why": "The Bears are No. 3 of 32 on passing downs (29%). The Jets rank No. 12 in passing-downs success (42%). A real edge, not a lock. The Bears get off the field on long downs. Early-down efficiency is everything for the Jets.",
-    "verdict": "unmeasured",
-    "actual": "Third-down detail is not in the box score. Play-by-play for this game is not ingested yet (npm run ingest:plays)."
+    "verdict": "played out",
+    "actual": "The Jets on passing downs: 1 of 8 successful (13%); third down 0 of 7 (0%). Season baseline 26% (what the Bears allow all season, 50 plays)."
    },
    {
     "a": "Jets ground game",

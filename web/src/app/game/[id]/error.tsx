@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect } from "react";
 
 /**
@@ -30,9 +31,9 @@ export default function GameError({ error, reset }: { error: Error & { digest?: 
         <button type="button" onClick={() => reset()} className="inline-flex items-center rounded border border-navy bg-navy px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-chalk">
           Try again
         </button>
-        <a href="/" className="inline-flex items-center rounded border border-line bg-white px-4 py-2 text-sm font-semibold text-chalk transition-colors hover:border-navy">
+        <Link href="/" className="inline-flex items-center rounded border border-line bg-white px-4 py-2 text-sm font-semibold text-chalk transition-colors hover:border-navy">
           Back to the slate
-        </a>
+        </Link>
       </div>
     </div>
   );

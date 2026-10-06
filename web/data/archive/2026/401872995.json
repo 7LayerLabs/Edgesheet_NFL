@@ -1,0 +1,158 @@
+{
+ "gameId": "401872995",
+ "season": 2026,
+ "week": 6,
+ "pregame": {
+  "capturedAt": "2026-10-06T13:15:36.252Z",
+  "kickoff": "2026-10-16T00:15:00.000Z",
+  "away": "Seahawks",
+  "home": "Broncos",
+  "abbr": {
+   "home": "DEN",
+   "away": "SEA"
+  },
+  "scoutScore": 68,
+  "whyWatch": "Nehemiah Pritchett (SEA CB) is a top-of-the-radar name: Production per game up 579% on last season.",
+  "pressurePoint": "Seahawks passing-down offense vs Broncos passing-down defense. The Broncos are No. 19 of 32 on passing downs (38%). The Seahawks rank No. 30 in passing-downs success (28%). A real edge, not a lock. The Broncos get off the field on long downs. Early-down efficiency is everything for the Seahawks. Watch the Seahawks on third-and-7 or longer. Punts there mean the defense is winning.",
+  "edges": [
+   {
+    "a": "Broncos pass game",
+    "b": "Seahawks pass defense",
+    "edge": "defense",
+    "axis": "pass",
+    "offTeam": "Broncos",
+    "why": "The Seahawks are No. 7 of 32 at limiting explosive passes (1.25) and No. 6 in pass success allowed (41%). The Broncos rank No. 24 in pass explosiveness (1.23) and No. 24 in pass success rate (42%). This is not a lean. It is a mismatch, and a prominent one. Deep balls are the lowest-percentage play in this game. The Broncos need the underneath game and yards after catch."
+   },
+   {
+    "a": "Broncos run game",
+    "b": "Seahawks run defense",
+    "edge": "defense",
+    "axis": "rush",
+    "offTeam": "Broncos",
+    "why": "The Seahawks are No. 2 of 32 against the run (30%) and No. 4 by EPA a carry (-0.23). The Broncos rank No. 16 in rush success rate (39%) and No. 8 in EPA a carry (-0.02). A clear edge, the kind that shapes a game plan. The Broncos will find the run hard going. Expect more second-and-long than usual."
+   },
+   {
+    "a": "Seahawks passing-down offense",
+    "b": "Broncos passing-down defense",
+    "edge": "defense",
+    "axis": "passing-downs",
+    "offTeam": "Seahawks",
+    "why": "The Broncos are No. 19 of 32 on passing downs (38%). The Seahawks rank No. 30 in passing-downs success (28%). A real edge, not a lock. The Broncos get off the field on long downs. Early-down efficiency is everything for the Seahawks."
+   },
+   {
+    "a": "Seahawks pass game",
+    "b": "Broncos pass defense",
+    "edge": "offense",
+    "axis": "pass",
+    "offTeam": "Seahawks",
+    "why": "The Seahawks are No. 7 of 32 in pass explosiveness (1.41) and No. 5 in pass success rate (51%). The Broncos rank No. 15 at limiting explosive passes (1.30) and No. 14 in pass success allowed (45%). A real edge, not a lock. The Seahawks have the deep ball available. Watch whether the Broncos roll a safety over after the first one."
+   }
+  ],
+  "prospects": [
+   {
+    "id": "4046675",
+    "name": "Julian Love",
+    "team": "Seahawks",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Matchup",
+    "score": 84
+   },
+   {
+    "id": "4428659",
+    "name": "Drake Thomas",
+    "team": "Seahawks",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Matchup",
+    "score": 82
+   },
+   {
+    "id": "4567222",
+    "name": "Nehemiah Pritchett",
+    "team": "Seahawks",
+    "pos": "CB",
+    "group": "CB",
+    "tier": "Breakout",
+    "score": 70
+   },
+   {
+    "id": "4568490",
+    "name": "RJ Harvey",
+    "team": "Broncos",
+    "pos": "RB",
+    "group": "RB",
+    "tier": "Breakout",
+    "score": 65
+   },
+   {
+    "id": "4430878",
+    "name": "Jaxon Smith-Njigba",
+    "team": "Seahawks",
+    "pos": "WR",
+    "group": "WR",
+    "tier": "Watch",
+    "score": 89
+   },
+   {
+    "id": "2612151",
+    "name": "Alex Singleton",
+    "team": "Broncos",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 88
+   },
+   {
+    "id": "4360853",
+    "name": "Talanoa Hufanga",
+    "team": "Broncos",
+    "pos": "SAF",
+    "group": "S",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "3915282",
+    "name": "Zach Allen",
+    "team": "Broncos",
+    "pos": "DE",
+    "group": "EDGE",
+    "tier": "Watch",
+    "score": 87
+   },
+   {
+    "id": "4362851",
+    "name": "Ernest Jones",
+    "team": "Seahawks",
+    "pos": "LB",
+    "group": "LB",
+    "tier": "Watch",
+    "score": 86
+   },
+   {
+    "id": "00-0037812",
+    "name": "Abraham Lucas",
+    "team": "Seahawks",
+    "pos": "OT",
+    "group": "OL",
+    "tier": "Watch",
+    "score": 85
+   }
+  ],
+  "projection": {
+   "winner": "SEA",
+   "winProb": 0.6477522678370589,
+   "margin": 5.12,
+   "home": 19,
+   "away": 24,
+   "confidence": "high",
+   "modelTotal": 42.5
+  },
+  "consensus": {
+   "median": -3.5,
+   "favorite": "SEA",
+   "of": 4
+  }
+ }
+}
