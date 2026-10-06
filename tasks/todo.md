@@ -1,6 +1,6 @@
 # WHERE WE LEFT OFF (kept current at every push)
 
-Last updated 2026-10-06, commit "Phase 9". Derek's instruction: finish the rest and push as soon as it is done.
+Last updated 2026-10-06, commit "Phase 10". ALL PHASES (1-11) BUILT AND PUSHED.
 - DONE and pushed: game page read (Section 1), Phase 1 data (per-game snaps, history-games.json, play calling), Phase 2
   trends, info tips everywhere, Phase 3 work left open, Phase 4 player history, Phase 5 backtests (results below: no
   storyline passes; only a player's own home/away split carries over, weakly; primetime teams score 1.1 under the line).
@@ -10,14 +10,18 @@ Last updated 2026-10-06, commit "Phase 9". Derek's instruction: finish the rest 
   filters) plus a BUG FIX: DraftKings defense projections swapped the implied team totals whenever the home team was
   favored (dfs.ts passed the home nickname, the spread is filed under the favorite's abbreviation); Phase 9 (sleepers by
   beat buzz on the game page's Beat feed and the feed page).
-- LEFT, in this order: Phase 10 (single-entry lineup). Then the section-by-section review resumes at the Matchups fold.
+  Phase 10 (single-entry lineup on the DFS page).
+- LEFT: (1) look at everything in a browser: Phases 6-11 were checked with typecheck, lint, and scripts on real data,
+  not on screen (the dev server was down); (2) resume the section-by-section review of the game page at the Matchups
+  fold; (3) re-run `npm run ingest` so week 4 snap counts fill in; (4) the value picks record needs a few slates before it
+  says anything; (5) the primetime-unders lean (teams 1.1 under the closing line) is untested against the vig.
 - KNOWN: nflverse had not posted week 4 snap counts (re-run `npm run ingest` to fill them); the dev server on :3100 was
   stopped by Claude Code for low memory on 2026-10-06 and not restarted; memoSync results live on globalThis, so restart
   the dev server after changing a cached shape; pre-existing lint errors remain in BoardClient and the two error.tsx.
 
 # Project: Trends, splits, and storyline backtests (ideas borrowed from the "Edge" YouTube walkthrough)
 
-Status: Phases 1-5 BUILT and pushed; the rest in progress (see WHERE WE LEFT OFF). Derek picked each item yes or no on
+Status: COMPLETE, all phases built and pushed 2026-10-06 (review at the end of this project). Derek picked each item yes or no on
 2026-10-05 (WR vs CB skipped: no alignment or coverage data in any source we have, it would be guessed).
 
 ## Problem Statement
@@ -223,8 +227,13 @@ abbreviation, so every home favorite's two implied totals were swapped in the DS
       Salary was not used (the DK pool is not loaded on these pages); snap share stands in for "role".
 
 ### Phase 10: DFS single-entry lineup
-- [ ] 10.1 A third lineup that maximizes each player's 75th-percentile outcome (between Cash at the median and GPP at the
+- [x] 10.1 A third lineup that maximizes each player's 75th-percentile outcome (between Cash at the median and GPP at the
       90th), same DraftKings Classic rules and salary cap.
+      Notes (2026-10-06, pushed): dfs-sim.ts buildLineups kind "single" maximizes the lineup total's 75th percentile over
+      the simulated draws (the same search as Cash at the 50th and Tournament at the 90th; candidate pool by the player's
+      median-to-ceiling midpoint); LineupSim gains p75. DFS page shows it as "Single entry"; when it is the same nine as
+      another lineup, that card says "Also the best single-entry lineup". Synthetic two-game check: all four lineups legal
+      (cap, nine distinct, two games), single's 75th percentile above Cash's.
 
 ### Phase 11: DraftKings "Our price" and value picks (Derek, 2026-10-05: yes to all three)
 Salaries are DraftKings' own (public lobby: getcontests, then getavailableplayers per draft group).
@@ -250,6 +259,31 @@ in a posted game = 0 for picks and mates alike). Checked on the cached 2026-10-1
 
 Order: phases 1 to 3 first (the trends Derek asked for), then 4 and 5 together (the backtest decides what 4 may claim),
 then 11 (Derek asked for it next), then 6 to 10. Each phase: tsc, lint, a check on tonight's or next week's games, Derek's look, commit when he says.
+
+## Review (2026-10-06)
+### Changes made (commits 1d3e6f7 through Phase 10, all on GitHub)
+- Data: per-game snap shares and carry share in gamelogs.json; team play calling by week in teams.json;
+  history-games.json (every QB/RB/WR/TE game since 2019 for current players, plus every defense's DK points per game).
+- Game page: Trends (rooms by week, toggles, reasons, play calling), Work left open in Who's playing, Splits section,
+  DraftKings points allowed in Matchups, sleepers at the top of Beat feed, Who to watch role change from real
+  with/without games, info tips on every analytics term.
+- Player page: Week by week, Against <opponent>, Storyline games, Splits, info tips with league benchmarks.
+- DFS page: Our price and Gap columns, Safest and Upside value picks with reasons, a graded record, Single entry lineup.
+- Home page: Slate at a glance (team totals, DK value leaders, weather watch), total bands on cards, DK Main/Showdown
+  filters.
+- Backtests (scripts/backtest-stories.mts, backtest-splits.mts; npm run backtest:stories / backtest:splits).
+- Bug fixes found on the way: Update now could not clear the cache (memo store per bundle; now on globalThis);
+  DraftKings defense projections swapped implied totals for every home favorite; defensive matchup picks ignored snap share.
+### Key decisions
+- Nothing claims an edge without a test written before the run: storylines and "loves playing them" failed and are shown
+  as history with the verdict; only a player's own home/away split passed (weakly).
+- WR vs CB skipped: no source says where a receiver lines up or who covers him.
+- Our price uses DraftKings' own salary scale by rank (zero-sum per position), not an invented dollars-per-point rate.
+- No "can't miss" label: Safest and Upside values, each with its bust or boom chance, graded forward.
+### Notes for later
+- Phases 6-11 were not seen in a browser (the dev server was stopped for low memory); look before trusting the layout.
+- The value picks record starts empty; it grades each slate once its games post.
+- judgeFeed (Jev) now runs on the pages for sleeper candidates only, cached 6 hours.
 
 ---
 

@@ -13,6 +13,7 @@ const SORTS = { median: "Median", ceiling: "Ceiling", value: "Value", gap: "Chea
 type SortKey = keyof typeof SORTS;
 const LINEUP_TITLE: Record<SlateLineup["kind"], [string, string]> = {
   cash: ["Cash", "best median total: the steadiest 50/50 and double-up lineup"],
+  single: ["Single entry", "best 75th-percentile total: between cash safety and tournament upside"],
   gpp: ["Tournament", "best 90th-percentile total: the ceiling a big field needs"],
   "gpp-bringback": ["Tournament, stacked", "a QB with a pass catcher and a player from the other side of his game"],
 };
@@ -68,7 +69,10 @@ function Slate({ sim, pos, sort }: { sim: SlateSim; pos: (typeof POSITIONS)[numb
   const value = (p: SlatePlayer) => p.median / (p.play.salary / 1000);
   const by: Record<SortKey, (p: SlatePlayer) => number> = { median: (p) => p.median, ceiling: (p) => p.ceiling, value, gap: (p) => priced.get(p.key)?.gap ?? 0, boom: (p) => p.boom };
   const rows = sim.players.filter((p) => pos === "All" || p.play.pos === pos).sort((a, b) => by[sort](b) - by[sort](a)).slice(0, 80);
-  const lineups = sim.lineups.filter((l, i) => !sim.lineups.slice(0, i).some((m) => m.keys.join() === l.keys.join()));
+  // Identical lineups show once. A single-entry lineup that matches another is folded into that card's note.
+  const single = sim.lineups.find((l) => l.kind === "single");
+  const singleTwin = single ? sim.lineups.find((l) => l.kind !== "single" && l.keys.join() === single.keys.join()) : undefined;
+  const lineups = sim.lineups.filter((l, i) => !(l.kind === "single" && singleTwin) && !sim.lineups.slice(0, i).some((m) => m.kind !== "single" && m.keys.join() === l.keys.join()));
   const qs = (next: Partial<{ pos: string; sort: string }>) => {
     const p = new URLSearchParams({ date: sim.date, pos, sort, ...next });
     if (p.get("pos") === "All") p.delete("pos");
@@ -97,9 +101,9 @@ function Slate({ sim, pos, sort }: { sim: SlateSim; pos: (typeof POSITIONS)[numb
 
       <section className="mt-8">
         <h2 className="display text-3xl font-bold text-chalk">Lineups</h2>
-        <div className="mt-3 grid gap-3 lg:grid-cols-3">
+        <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {lineups.map((l) => (
-            <LineupCard key={l.kind} l={l} />
+            <LineupCard key={l.kind} l={l} alsoSingle={singleTwin?.kind === l.kind} />
           ))}
         </div>
         {lineups.length === 0 && <p className="mt-2 text-sm text-chalk-3">Not enough salaried players across two games to build a legal lineup.</p>}
@@ -274,12 +278,13 @@ function RecordLine({ record }: { record: PicksRecord }) {
   );
 }
 
-function LineupCard({ l }: { l: SlateLineup }) {
+function LineupCard({ l, alsoSingle }: { l: SlateLineup; alsoSingle?: boolean }) {
   const [title, sub] = LINEUP_TITLE[l.kind];
   return (
     <div className="card p-4">
       <p className="display text-2xl font-bold text-chalk">{title}</p>
       <p className="text-xs text-chalk-3">{sub}</p>
+      {alsoSingle && <p className="mt-1 text-xs font-semibold text-turf">Also the best single-entry lineup (75th percentile).</p>}
       <ul className="mt-3 grid gap-1 text-sm">
         {l.players.map((p, i) => (
           <li key={p.key} className="grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-baseline gap-2">
@@ -292,7 +297,11 @@ function LineupCard({ l }: { l: SlateLineup }) {
       <div className="mono mt-3 grid grid-cols-3 gap-2 border-t border-line pt-2 text-xs">
         <span><span className="text-chalk-3">salary</span><br />{money(l.salary)}</span>
         <span><span className="text-chalk-3">median</span><br /><span className="font-semibold text-chalk">{l.median}</span></span>
-        <span><span className="text-chalk-3">90th pct</span><br /><span className="font-semibold text-chalk">{l.p90}</span></span>
+        {l.kind === "single" ? (
+          <span><span className="text-chalk-3">75th pct</span><br /><span className="font-semibold text-chalk">{l.p75}</span></span>
+        ) : (
+          <span><span className="text-chalk-3">90th pct</span><br /><span className="font-semibold text-chalk">{l.p90}</span></span>
+        )}
       </div>
     </div>
   );

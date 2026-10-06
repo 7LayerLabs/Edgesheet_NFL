@@ -167,7 +167,7 @@ async function build(
   };
   try {
     mkdirSync(DK_DIR, { recursive: true });
-    writeFileSync(path.join(DK_DIR, `${date}-sim.json`), JSON.stringify({ ...result, players: result.players.map(({ play, ...rest }) => ({ ...rest, name: play.name, team: play.team, pos: play.pos, salary: play.salary })), lineups: result.lineups.map((l) => ({ kind: l.kind, keys: l.keys, salary: l.salary, mean: l.mean, median: l.median, p90: l.p90, p99: l.p99 })) }));
+    writeFileSync(path.join(DK_DIR, `${date}-sim.json`), JSON.stringify({ ...result, players: result.players.map(({ play, ...rest }) => ({ ...rest, name: play.name, team: play.team, pos: play.pos, salary: play.salary })), lineups: result.lineups.map((l) => ({ kind: l.kind, keys: l.keys, salary: l.salary, mean: l.mean, median: l.median, p75: l.p75, p90: l.p90, p99: l.p99 })) }));
   } catch {
     /* the disk copy is a convenience */
   }

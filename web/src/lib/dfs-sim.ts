@@ -9,7 +9,8 @@
  * backups pick up their share of his projection in that same draw.
  *
  * Lineups (DraftKings Classic: QB, 2 RB, 3 WR, TE, FLEX, DST, $50,000, players from 2+ games) are scored on the summed
- * draws, so correlation is in the math: Cash maximizes the median total, GPP the 90th percentile.
+ * draws, so correlation is in the math: Cash maximizes the median total, GPP the 90th percentile, and Single entry the
+ * 75th (between a cash game's safety and a big field's ceiling).
  */
 
 export type SimPos = "QB" | "RB" | "WR" | "TE" | "DST";
@@ -49,11 +50,12 @@ export interface PlayerSim {
 }
 
 export interface LineupSim {
-  kind: "cash" | "gpp" | "gpp-bringback";
+  kind: "cash" | "single" | "gpp" | "gpp-bringback";
   keys: string[]; // slot order: QB, RB, RB, WR, WR, WR, TE, FLEX, DST
   salary: number;
   mean: number;
   median: number;
+  p75: number;
   p90: number;
   p99: number;
 }
@@ -242,7 +244,7 @@ function kth(src: Float64Array, k: number): number {
 }
 
 /**
- * Cash, GPP, and GPP with a bring-back lineup from the simulated draws. Greedy start, then single-player swaps until
+ * Cash, Single entry, GPP, and GPP with a bring-back lineup from the simulated draws. Greedy start, then single-player swaps until
  * nothing improves, from several starts. The search scores the first `searchN` draws; the reported numbers use all.
  */
 export function buildLineups(players: SimPlayer[], sim: { n: number; draws: Map<string, Float32Array>; players: PlayerSim[] }, opts: { searchN?: number; seed?: number } = {}): LineupSim[] {
@@ -252,8 +254,11 @@ export function buildLineups(players: SimPlayer[], sim: { n: number; draws: Map<
   const rand = mulberry32((opts.seed ?? 7) + 11);
 
   const lineupFor = (kind: LineupSim["kind"]): LineupSim | undefined => {
-    const score = (vals: Float64Array) => (kind === "cash" ? kth(vals, Math.floor(M * 0.5)) : kth(vals, Math.floor(M * 0.9)));
-    const metric = (k: string) => (kind === "cash" ? stats.get(k)!.median : stats.get(k)!.ceiling);
+    // The lineup total's percentile each kind maximizes: 50th for cash, 75th for single entry, 90th for tournaments.
+    const q = kind === "cash" ? 0.5 : kind === "single" ? 0.75 : 0.9;
+    const score = (vals: Float64Array) => kth(vals, Math.floor(M * q));
+    // A player's own number for the candidate pool and the greedy start (single entry: halfway from median to ceiling).
+    const metric = (k: string) => (kind === "cash" ? stats.get(k)!.median : kind === "single" ? (stats.get(k)!.median + stats.get(k)!.ceiling) / 2 : stats.get(k)!.ceiling);
     // Candidate pool per position: the best by the objective's own player number, plus the best values.
     const pool = (pos: SimPos, size: number) => {
       const ps = players.filter((p) => p.pos === pos && p.pPlay > 0.3);
@@ -360,12 +365,13 @@ export function buildLineups(players: SimPlayer[], sim: { n: number; draws: Map<
       salary: best.keys.reduce((a, k) => a + byKey.get(k)!.salary, 0),
       mean: r1(full.reduce((a, b) => a + b, 0) / sim.n),
       median: r1(kth(full, Math.floor(sim.n * 0.5))),
+      p75: r1(kth(full, Math.floor(sim.n * 0.75))),
       p90: r1(kth(full, Math.floor(sim.n * 0.9))),
       p99: r1(kth(full, Math.floor(sim.n * 0.99))),
     };
   };
 
-  return (["cash", "gpp", "gpp-bringback"] as const).map(lineupFor).filter((x): x is LineupSim => Boolean(x));
+  return (["cash", "single", "gpp", "gpp-bringback"] as const).map(lineupFor).filter((x): x is LineupSim => Boolean(x));
 }
 
 /** Roles inside each team by projection: QB1, RB1-2, WR1-3, TE1 (the shapes and links were fit on these). */
