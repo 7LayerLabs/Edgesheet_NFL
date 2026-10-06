@@ -34,22 +34,14 @@ export default async function Today({ searchParams }: PageProps<"/">) {
     const left = week.filter((g) => g.status === "upcoming").length;
     return (
       <div>
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="eyebrow">
-              {slate.season}{slate.week ? ` · Week ${slate.week.week}` : ""} · the clean sheet
-              {slate.source === "live" && <span className="ml-2 text-turf">● live data</span>}
-            </p>
-            <h1 className="display mt-1 text-5xl font-extrabold text-chalk sm:text-6xl">{slate.week ? `Week ${slate.week.week}` : "This week"}</h1>
-            <p className="mt-1 max-w-2xl text-sm text-chalk-3">Every game, the line, the model, and what matters. Click a game for everything else.</p>
-          </div>
-          <div className="flex flex-col items-end gap-2">
-            <ViewToggle view={view} date={dateParam} />
-            <div className="mono text-right text-xs text-chalk-3">
-              {week.length} games · {liveNow ? `${liveNow} in progress` : left ? `${left} still to kick off` : "all final"}
-            </div>
-          </div>
-        </div>
+        <Header
+          slate={slate}
+          view={view}
+          date={dateParam}
+          title={slate.week ? `Week ${slate.week.week}` : "This week"}
+          subtitle="Every game, the line, the model, and what matters. Click a game for everything else."
+          counts={`${week.length} games · ${liveNow ? `${liveNow} in progress` : left ? `${left} still to kick off` : "all final"}`}
+        />
         <WeekStrip slate={slate} />
         <LiveTicker games={week} />
         <div className="mt-6">
@@ -80,29 +72,22 @@ export default async function Today({ searchParams }: PageProps<"/">) {
 
   return (
     <div>
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="eyebrow">
-            {slate.week ? `${slate.season} · Week ${slate.week.week}` : "Sample slate"}
-            {slate.source === "live" && <span className="ml-2 text-turf">● live data</span>}
-          </p>
-          <h1 className="display mt-1 text-5xl font-extrabold text-chalk sm:text-6xl">
-            {fmtDate(slate.date, { weekday: "long", month: "long", day: "numeric" })}
-          </h1>
-        </div>
-        <div className="mono text-right text-xs text-chalk-3">
-          <div className="mb-2 flex justify-end"><ViewToggle view={view} date={dateParam} /></div>
-          <div>{games.length} games on the slate</div>
-          <div>{live ? `${live} in progress` : upcoming ? `${upcoming} still to kick off` : "all final"}</div>
-          <div className="mt-1"><Link href="/ask" className="text-sky hover:underline">Ask the slate</Link></div>
-          {slate.source === "live" && (
-            <div className="mt-1.5 flex justify-end gap-1.5">
-              <SendToTelegram type="slate" date={slate.date} enabled={telegramReady()} />
-              <SendToTelegram type="leans" date={slate.date} enabled={telegramReady()} />
-            </div>
-          )}
-        </div>
-      </div>
+      <Header
+        slate={slate}
+        view={view}
+        date={dateParam}
+        title={fmtDate(slate.date, { weekday: "long", month: "long", day: "numeric" })}
+        subtitle="One day at a time, every number on the card. Pick a day below."
+        counts={`${games.length} games · ${live ? `${live} in progress` : upcoming ? `${upcoming} still to kick off` : "all final"}`}
+      >
+        <Link href="/ask" className="text-sky hover:underline">Ask the slate</Link>
+        {slate.source === "live" && (
+          <span className="flex justify-end gap-1.5">
+            <SendToTelegram type="slate" date={slate.date} enabled={telegramReady()} />
+            <SendToTelegram type="leans" date={slate.date} enabled={telegramReady()} />
+          </span>
+        )}
+      </Header>
 
       <DayStrip slate={slate} />
 
@@ -112,7 +97,7 @@ export default async function Today({ searchParams }: PageProps<"/">) {
       {games.length > 0 && (
         <div className="mt-5 hidden gap-2.5 sm:grid sm:grid-cols-2">
           <Callout label="Highest Watch Score" game={top} tone="flag" />
-          {gem ? <Callout label="Hidden Gem" game={gem} tone="turf" /> : <Callout label="Next best" game={sorted[1] ?? top} tone="flag" />}
+          {gem ? <Callout label="Hidden Gem" game={gem} tone="turf" /> : sorted[1] ? <Callout label="Next best" game={sorted[1]} tone="flag" /> : null}
         </div>
       )}
 
@@ -232,6 +217,27 @@ function SlateGlance({ games, implied, values }: { games: Game[]; implied: Recor
         </div>
       )}
     </section>
+  );
+}
+
+/** One header for both views: the same eyebrow, title size, subtitle, and the toggle in the same spot. */
+function Header({ slate, view, date, title, subtitle, counts, children }: { slate: SlateData; view: "clean" | "full"; date?: string; title: string; subtitle: string; counts: string; children?: React.ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <p className="eyebrow">
+          {slate.week ? `${slate.season} · Week ${slate.week.week}` : "Sample slate"} · {view === "clean" ? "clean sheet" : "full slate"}
+          {slate.source === "live" && <span className="ml-2 text-turf">● live data</span>}
+        </p>
+        <h1 className="display mt-1 text-5xl font-extrabold text-chalk sm:text-6xl">{title}</h1>
+        <p className="mt-1 max-w-2xl text-sm text-chalk-3">{subtitle}</p>
+      </div>
+      <div className="flex flex-col items-start gap-1.5 text-xs text-chalk-3 sm:items-end sm:text-right">
+        <ViewToggle view={view} date={date} />
+        <span className="mono">{counts}</span>
+        {children}
+      </div>
+    </div>
   );
 }
 

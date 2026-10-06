@@ -194,8 +194,10 @@ body {
   inset-inline: 0;
   bottom: 0;
   z-index: 40;
+  /* One row however many tabs there are; phones only (the top bar carries the nav from 768px up). */
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   border-top: 1px solid var(--line);
   background: #fff;
   padding-bottom: env(safe-area-inset-bottom);
@@ -207,16 +209,21 @@ body {
   gap: 2px;
   padding: 8px 0 6px;
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--chalk-3);
 }
 .tab:hover, .tab:focus-visible { color: var(--chalk); }
 .tab[aria-current="page"] { color: var(--navy); }
 .tab-icon { display: block; width: 22px; height: 22px; }
 .tab-icon svg { width: 100%; height: 100%; }
+@media (min-width: 768px) {
+  .tabbar { display: none; }
+}
 
 /* Segmented control for the radar filters */
 .seg {
@@ -228,6 +235,7 @@ body {
   background: #fff;
 }
 .seg a, .seg button {
+  font-family: var(--font-sans);
   padding: 6px 12px;
   border-radius: 3px;
   font-size: 0.85rem;
