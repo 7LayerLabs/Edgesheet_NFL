@@ -70,6 +70,11 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const read = game.whyWatchRead ?? [game.whyWatch, ...game.whyWatchReasons.filter((r) => r !== game.whyWatch)];
   // Who to watch: the three-slot list built for the game page, else the top of the radar.
   const guide = publishedGuide(game);
+  // Derek: a questionable player can stay on the list, but the list says so.
+  const injuryOf = (id: string) => {
+    const st = game.availability?.home.statuses[id] ?? game.availability?.away.statuses[id];
+    return st && st.absence > 0 ? st.status : undefined;
+  };
   const watch = game.whoToWatch ?? game.prospects.slice(0, 3).map((p) => ({ id: p.id, name: p.name, pos: p.pos, team: p.team, label: undefined as string | undefined, reason: readLine(p), detail: undefined as string | undefined }));
 
   // One-line summaries: each closed section still says something.
@@ -187,6 +192,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
                   <span className="min-w-0 truncate">
                     <Link href={`/player/${w.id}`} className="font-semibold text-chalk hover:text-sky">{w.name}</Link>
                     <span className="mono ml-2 text-xs text-chalk-3">{w.pos} · {w.team}</span>
+                    {injuryOf(w.id) && <span className={`ml-2 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${/^(out|doubtful|inactive|injured)/i.test(injuryOf(w.id)!) ? "bg-brick text-white" : "bg-warn text-chalk"}`}>{injuryOf(w.id)}</span>}
                   </span>
                   <span className="min-w-0 text-sm text-chalk-2">
                     {w.label && <span className="mr-2 rounded bg-ink-2 px-1.5 py-0.5 text-xs font-semibold text-chalk">{w.label}</span>}

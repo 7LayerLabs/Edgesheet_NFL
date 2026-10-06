@@ -155,7 +155,12 @@ function summary(game: Game): { k: string; text: string }[] {
     out.push({ k: "Matchup", text: `${cap(m.a)} vs ${m.b}: favors the ${favors}.` });
   }
   const names = (game.offenseRadar ?? game.prospects).filter((p) => ["QB", "RB", "WR", "TE"].includes(p.radar?.group ?? p.pos)).slice(0, 3);
-  if (names.length && game.status !== "final") out.push({ k: "Watch", text: names.map((p) => `${p.name} (${p.team} ${p.pos}${p.tier === "Rookie" ? ", rookie" : ""}${p.matchupSide === "against" ? ", tough matchup" : ""})`).join(", ") });
+  // A questionable player stays on the list with his status next to his name (Derek's call).
+  const injuryOf = (id: string) => {
+    const st = game.availability?.home.statuses[id] ?? game.availability?.away.statuses[id];
+    return st && st.absence > 0 ? st.status.toLowerCase() : undefined;
+  };
+  if (names.length && game.status !== "final") out.push({ k: "Watch", text: names.map((p) => `${p.name} (${[`${p.team} ${p.pos}`, injuryOf(p.id), p.tier === "Rookie" ? "rookie" : undefined, p.matchupSide === "against" ? "tough matchup" : undefined].filter(Boolean).join(", ")})`).join(", ") });
   return out.slice(0, 3);
 }
 
