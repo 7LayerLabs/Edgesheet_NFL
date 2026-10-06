@@ -10,6 +10,14 @@ const ET = "America/New_York";
 const dayKey = (iso: string) => new Date(iso).toLocaleDateString("en-CA", { timeZone: ET });
 const dayLabel = (iso: string) => new Date(iso).toLocaleDateString("en-US", { timeZone: ET, weekday: "long", month: "short", day: "numeric" });
 
+/** Kickoff windows, ET (Derek: the morning game, the 1 PM games, the 4 PM games, prime time). */
+const WINDOWS = ["Morning", "Early", "Late", "Prime time"] as const;
+type SheetWindow = (typeof WINDOWS)[number];
+function windowOf(iso: string): SheetWindow {
+  const h = Number(new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", hour12: false, timeZone: ET }));
+  return h < 12 ? "Morning" : h < 15 ? "Early" : h < 19 ? "Late" : "Prime time";
+}
+
 /**
  * The clean sheet (Derek: every game, a brief summary under it, click for everything; no analysis paralysis). The
  * whole week grouped by day, each game in four short lines: the line, the model, what moves it, and who to watch.
@@ -28,11 +36,24 @@ export function CleanSheet({ games }: { games: Game[] }) {
             <span className="mono text-xs text-chalk-3">{list.length} {list.length === 1 ? "game" : "games"}</span>
             <span className="h-px flex-1 bg-line" />
           </div>
-          <ul className="mt-3 grid gap-2.5 lg:grid-cols-2">
-            {list.map((g) => (
-              <SheetRow key={g.id} game={g} />
-            ))}
-          </ul>
+          {WINDOWS.map((w) => {
+            const inW = list.filter((g) => windowOf(g.kickoff) === w);
+            if (!inW.length) return null;
+            const times = [...new Set(inW.map((g) => kickoffTime(g.kickoff)))].join(" / ");
+            return (
+              <div key={w} className="mt-4">
+                <div className="flex items-baseline gap-2">
+                  <h3 className={`display text-xl font-bold ${w === "Prime time" ? "text-flag" : "text-chalk-2"}`}>{w}</h3>
+                  <span className="mono text-[11px] text-chalk-3">{times} ET · {inW.length} {inW.length === 1 ? "game" : "games"}</span>
+                </div>
+                <ul className="mt-2 grid gap-2.5 lg:grid-cols-2">
+                  {inW.map((g) => (
+                    <SheetRow key={g.id} game={g} />
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </section>
       ))}
       {!sorted.length && <p className="text-sm text-chalk-3">No games this week.</p>}
