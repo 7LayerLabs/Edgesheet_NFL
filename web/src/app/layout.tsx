@@ -39,6 +39,7 @@ const I = {
   record: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>',
   dfs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>',
   leaders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/></svg>',
+  index: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg>',
   star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>',
 };
 
@@ -51,6 +52,7 @@ const NAV = [
   { href: "/rookies", label: "Rookies", icon: I.rookies },
   { href: "/history", label: "Record", icon: I.record },
   { href: "/watchlist", label: "Watchlist", icon: I.star },
+  { href: "/index", label: "Index", icon: I.index },
 ];
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -69,9 +71,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </div>
         </header>
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-28 pt-5 sm:pb-24">{children}</main>
-        <NavLinks items={NAV} variant="tabs" />
+        {/* Phones: eight tabs fit one row; the index is linked in the footer instead. */}
+        <NavLinks items={NAV.filter((n) => n.href !== "/index")} variant="tabs" />
         <footer className="border-t border-line px-4 py-6 text-center text-xs text-chalk-3">
-          Schedules, results, stats, play-by-play, injuries, and draft picks from nflverse. Live scores, broadcasts, and FPI from ESPN. Lines from The Odds API. Forecasts from the National Weather Service. Nothing is invented; gaps are labeled.
+          Schedules, results, stats, play-by-play, injuries, and draft picks from nflverse. Live scores, broadcasts, and FPI from ESPN. Lines from The Odds API. Forecasts from the National Weather Service. Nothing is invented; gaps are labeled.{" "}
+          <Link href="/index" className="text-sky hover:underline">Index of every source, stat, and model</Link>
         </footer>
       </body>
     </html>

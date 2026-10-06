@@ -28,6 +28,12 @@ Latest, 2026-10-06 night, LIVE PC: Leaders page and efficiency, built off Derek'
   rest of R1, R2, R3, R4-5, R6-7; pooled to 12+), same position PLAYED that season, same career year, same team-game
   count. vsSlot = percentile - 50. Check: medians fall with draft range at every position; first 4 games vs rest r 0.75
   (635 offensive rookies). Linemen, specialists, undrafted: no comparison. node scripts/ingest-rookie-baselines.mjs --check
+- /index (nav after Watchlist; footer link on phones): every source (read off the code's URLs), nflverse files,
+  models with inputs, backtest verdicts (Used / Context only / Not used), the full glossary (TERMS + Leaders columns,
+  now in src/lib/leader-cols.ts), pages, update schedule. Hand-kept lists in src/app/index/page.tsx: update when a
+  source, model, or verdict changes.
+- Clean sheet groups each day by window (Morning before noon, Early, Late, Prime time). Watch lines and Who to watch
+  show injury status next to the name (Derek: questionable can stay, but say so).
 - Open: the game page unit-matchup blurbs say "A real edge, not a lock" (src/lib/tendencies.ts meaning()); that is an
   on-field mismatch label, not a betting lean, but Derek's rule bans "edge" without a 52.4% backtest. Ask him.
 
