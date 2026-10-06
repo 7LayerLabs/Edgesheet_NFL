@@ -2,7 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPlayer } from "@/lib/slate";
 import { asOf, kickoffTime } from "@/lib/format";
-import { genMeta } from "@/lib/generated";
+import { genMeta, genPlayers } from "@/lib/generated";
+import { playerTrend } from "@/lib/trends";
+import { teamByShort } from "@/lib/nfl";
+import { PlayerWeeks } from "@/components/PlayerWeeks";
+import { InfoTip } from "@/components/InfoTip";
+import { statInfo } from "@/lib/stat-glossary";
 import { GROUP_LABEL } from "@/lib/radar";
 import { Confidence, Tier } from "@/components/badges";
 import { FollowButton } from "@/components/FollowButton";
@@ -22,6 +27,10 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
   const team = game ? (p.team === game.home.abbr ? game.home : game.away) : undefined;
   const r = p.radar;
   const meta = genMeta();
+  // Week by week with his team (src/lib/trends.ts).
+  const gp = genPlayers().find((x) => x.id === p.id);
+  const trend = gp ? playerTrend(gp) : undefined;
+  const heads = trend?.weeks.map((w) => `W${w.wk} ${w.ha === "away" ? "@" : ""}${teamByShort(w.opp)?.abbr ?? w.opp}`) ?? [];
 
   return (
     <article className="rise">
@@ -118,12 +127,20 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
         <p className="eyebrow">{r ? "Season line" : "Traits"}</p>
         {r && r.statLine.length > 0 ? (
           <dl className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {r.statLine.map((s) => (
-              <div key={s.label} className="card px-3 py-2">
-                <dt className="eyebrow">{s.label}</dt>
+            {r.statLine.map((s, i) => {
+              const info = statInfo(r.group, s.label, p.id);
+              // Keep the tip on screen: right-anchored in the right column on a phone (2 columns) and in the right half wider (4).
+              const align = `${i % 2 ? "right-0" : "left-0"} ${i % 4 >= 2 ? "sm:right-0 sm:left-auto" : "sm:left-0 sm:right-auto"}`;
+              return (
+              <div key={s.label} className="card relative px-3 py-2">
+                <dt className="eyebrow">
+                  {s.label}
+                  {info && <InfoTip label={s.label} what={info.what} context={info.context} align={align} />}
+                </dt>
                 <dd className="mono mt-0.5 text-xl text-chalk">{s.value}</dd>
               </div>
-            ))}
+              );
+            })}
           </dl>
         ) : (
           <div className="mt-2 flex flex-wrap gap-2">
@@ -136,6 +153,13 @@ export default async function PlayerPage({ params }: PageProps<"/player/[id]">) 
         )}
         {r && r.gamesPlayed ? <p className="mono mt-2 text-xs text-chalk-3">{r.gamesPlayed} games with a stat line this season.{r.lastSeason ? ` Last season: ${r.lastSeason}.` : ""}</p> : null}
       </section>
+
+      {trend && (
+        <section className="mt-8">
+          <p className="eyebrow">Week by week</p>
+          <PlayerWeeks weeks={trend.weeks} heads={heads} row={trend.row} notes={trend.notes} qb={gp?.pg === "QB"} />
+        </section>
+      )}
 
       {p.lines && p.lines.length > 0 && (
         <section className="mt-8">

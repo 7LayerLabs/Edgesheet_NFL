@@ -22,30 +22,59 @@ per game, play-by-play 2026 with xpass and pass_oe, ESPN birthplace and college 
 
 ## Plan
 ### Phase 1: data foundation (ingest only, no UI)
-- [ ] 1.1 Per-game snap share (offense, defense, special teams, and snap counts) on every gamelogs.json line, from
+- [x] 1.1 Per-game snap share (offense, defense, special teams, and snap counts) on every gamelogs.json line, from
       snap_counts per game, plus carry share per game (his carries over the team's). Check: Bijan's week lines match the
       snap_counts CSV.
-- [ ] 1.2 History lines: data/generated/history-games.json, every QB/RB/WR/TE game 2018 to now: season, week, game id,
+- [x] 1.2 History lines: data/generated/history-games.json, every QB/RB/WR/TE game 2018 to now: season, week, game id,
       team, opponent, home/away/neutral, DK points, targets, carries, yards, TDs, plus the game's flags from games.csv
       (division, primetime = not Sunday or kickoff 7 PM ET or later, short week = 4 or fewer days of rest, closing spread
       and total, stadium id). Report the file size; keep it under about 5 MB.
-- [ ] 1.3 Team play calling by week from play-by-play: pass rate, neutral-situation pass rate, and pass rate over
+- [x] 1.3 Team play calling by week from play-by-play: pass rate, neutral-situation pass rate, and pass rate over
       expected (nflverse pass_oe) per team per week.
 
+Phase 1 notes (2026-10-05): gamelogs lines carry `sn` {o, d, st, os, ds} and `s.rshare`; teams.json carries `calls` by
+week; history-games.json is compact rows (cols: g, t, then the dkPoints stat keys plus tgt, ra, pa), 23,900 rows for 555
+of 599 current skill players, 1.2 MB. It starts in 2019, not 2018: rows point at schedule.json by game id, and the
+schedule starts in 2019, so the opponent, home/away, division, kickoff, rest, and closing line are not copied. DK points
+are computed at read time with dkPoints (one scoring function). Checks: Bijan's snaps match the CSV (77/51/72%), carry
+shares sum to 1.00 in all 116 team-games, every history row's game is in the schedule, Bijan's 2024 DK total 354.7, no
+other game log field changed. Known gap: nflverse had posted 91 snap rows for week 4 (a full week is about 1,500), so
+week 4 lines have no snaps yet; the trends must say "snaps not posted yet", never 0%. League mean pass rate over
+expected is -1.9 points this season (nflverse's xpass model), small next to the +/-5 labels.
+
 ### Phase 2: trends (game page section + player page)
-- [ ] 2.1 src/lib/trends.ts: each team's rooms (QB, RB, WR/TE) by week: snap %, carries and carry share, targets and
+- [x] 2.1 src/lib/trends.ts: each team's rooms (QB, RB, WR/TE) by week: snap %, carries and carry share, targets and
       target share, air yards share, DK points. A week is a change when snap share moves 15 points or target or carry
       share moves 8 points against his average before it.
-- [ ] 2.2 The reason for each change, from data only, first match wins: a teammate in his room who normally plays did not
+- [x] 2.2 The reason for each change, from data only, first match wins: a teammate in his room who normally plays did not
       play ("Michael Pittman did not play"); he came back from missing games; blowout (final margin 17+, starters sat
       late); left early (snaps under half his norm and on the injury report the next week); rookie workload growing
       (rookie, snaps up three straight weeks); new team this season. Else "no clear cause in the data".
-- [ ] 2.3 Game page: a "Trends" section (closed by default like the others) with metric toggles (snaps, targets,
+- [x] 2.3 Game page: a "Trends" section (closed by default like the others) with metric toggles (snaps, targets,
       carries, air yards, DK points; several at once), rooms per team, the reason under each change. Closed summary line,
       for example "Saints backfield: Kamara 31% of snaps; Etienne out".
-- [ ] 2.4 Player page: his week-by-week log with the same metrics and reasons.
-- [ ] 2.5 Play calling by week on the game page: each team's pass rate and pass rate over expected per week, labeled
+- [x] 2.4 Player page: his week-by-week log with the same metrics and reasons.
+- [x] 2.5 Play calling by week on the game page: each team's pass rate and pass rate over expected per week, labeled
       pass-heavy / balanced / run-heavy (over expected by +5 points or more / within 5 / -5 or less).
+
+Phase 2 notes (2026-10-05, BUILT, waiting on Derek's look, not committed): reasons as built, first match wins: a regular
+in his room (40% snaps, 15% targets, or 25% carries) did not play, left for another team, or came back; he left early
+(snaps under half his norm, then missed the next game or listed the next week); blowout (17+, snap changes only: a
+blowout says nothing about who got the targets); first game back; rookie snaps up three games running; a teammate's role
+moving the other way. "New team this season" was dropped (it is a context, not a cause). Unexplained changes keep their
+cell tint and hover text but sit in one muted "no clear cause" line, not in the notes. The summary line leads with the
+newest week's strongest cause (topChange). Checked on the Rams: week 2 "Puka Nacua did not play" lifts Mumpfield 26 to
+69% snaps and Ferguson 4 to 30% of targets; week 3 Ferguson "left early, then missed week 4"; week 4 Adams "Puka Nacua
+came back". Layout: phone 390 px has no page overflow, tables scroll inside their card from the newest week with the name
+column fixed; receivers with no carries skip the carries line; QBs show attempts. Gotcha hit again: memoSync results
+live on globalThis, so a shape change in trends needs a dev server restart.
+
+Added on Derek's ask (2026-10-05): an "i" tip on every player-page season-line stat (src/components/InfoTip.tsx,
+src/lib/stat-glossary.ts): what the stat means, and what counts as good computed from this season's league at his
+position over a volume bar (QB 10 attempts a week, RB 5 carries, WR/TE 3 targets, defenders half the games and 30% of
+snaps, punters 2 punts, kickers 1 try): average, where the top quarter starts, best, his rank. EPA totals compare per
+dropback / carry / target; INT and sacks per attempt or dropback (lower is better). No benchmark is typed in by hand.
+Hover on desktop, tap on a phone; the box anchors to the stat's card so it stays on screen (checked at 390 px).
 
 ### Phase 3: vacated opportunity and with/without
 - [ ] 3.1 For each player who is out: the share he leaves open ("Etienne out: 38% of Saints carries, 9% of targets").

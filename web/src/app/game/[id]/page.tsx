@@ -25,6 +25,9 @@ import { DfsPanel } from "@/components/DfsPanel";
 import { AvailabilityPanel } from "@/components/AvailabilityPanel";
 import { FoldControls } from "@/components/FoldControls";
 import { UpdateNow } from "@/components/UpdateNow";
+import { TrendsPanel, type TrendsTeam } from "@/components/TrendsPanel";
+import { changeText, teamTrends, topChange } from "@/lib/trends";
+import { teamByShort } from "@/lib/nfl";
 import { absentWords } from "@/lib/availability";
 import { inputsLabel, LEAN_BACKTEST_NOTE, sideTier, tierLabel, totalTier } from "@/lib/leans";
 import { readReport, seasonOf } from "@/lib/report";
@@ -68,10 +71,19 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const injCount = (st: string) => inj.filter((i) => i.status === st).length;
   const injurySummary = inj.length ? `${[["out", injCount("Out")], ["doubtful", injCount("Doubtful")], ["questionable", injCount("Questionable")]].filter(([, n]) => n).map(([w, n]) => `${n} ${w}`).join(", ")} (week ${inj[0].week})` : "";
   const boxSummary = game.score && Number.isFinite(game.score.home) ? `${game.away.abbr} ${game.score.away}, ${game.home.abbr} ${game.score.home} · ${game.score.clock}` : game.status === "live" ? "In progress" : "Final";
+  // Trends: usage by week for both teams (src/lib/trends.ts), each week headed "W1 @PIT".
+  const trendsTeams: TrendsTeam[] = [game.away, game.home].flatMap((t) => {
+    const tr = teamTrends(t.short);
+    if (!tr?.weeks.length) return [];
+    return [{ name: t.short, abbr: t.abbr, color: t.color, heads: tr.weeks.map((w) => `W${w.wk} ${w.ha === "away" ? "@" : ""}${teamByShort(w.opp)?.abbr ?? w.opp}`), trends: tr }];
+  });
+  const topNote = topChange(trendsTeams.map((x) => x.trends));
+  const trendsSummary = topNote ? `Week ${topNote.wk}: ${topNote.name}, ${changeText(topNote)} (${topNote.reason})` : "Snaps, targets, and carries by week for both teams";
   const jump: { id: string; label: string }[] = [
     ...(started ? [{ id: "showed", label: game.status === "live" ? "Live" : "Box score" }] : []),
     { id: "decided", label: "Matchups" },
     { id: "playing", label: "Who plays" },
+    ...(trendsTeams.length ? [{ id: "trends", label: "Trends" }] : []),
     { id: "dfs", label: "DraftKings" },
     { id: "market", label: "Market" },
     { id: "feed", label: "Feed" },
@@ -193,6 +205,12 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
       {game.availability && (
         <Fold id="playing" title="Who's playing" summary={playingSummary}>
           <AvailabilityPanel game={game} a={game.availability} />
+        </Fold>
+      )}
+
+      {trendsTeams.length > 0 && (
+        <Fold id="trends" title="Trends" summary={trendsSummary}>
+          <TrendsPanel teams={trendsTeams} />
         </Fold>
       )}
 

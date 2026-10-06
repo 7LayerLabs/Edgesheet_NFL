@@ -68,6 +68,8 @@ export interface GenTeam {
   def: GenUnit;
   /** DST counts this season and last (src/lib/dst-core.mjs seasonRates): games, sacks, takeaways, TDs, safeties, giveaways, sacks taken, DK DST points. */
   dst?: { now?: import("./dst-core.mjs").DstSeason; prev?: import("./dst-core.mjs").DstSeason };
+  /** Play calling by week (offense): pass rate, neutral-situation pass rate, and pass rate over expected, in points. */
+  calls?: { wk: number; g: string; opp: string; plays: number; pass: number; neutral: number | null; neutralPlays: number; proe: number | null }[];
 }
 
 export interface GenDraftPick {
@@ -197,6 +199,7 @@ export const genElo = (): GenElo | undefined => memoSync(`gen:elo:${stamp("elo.j
 export const genSchedule = (): GenGame[] => memoSync(`gen:sched:${stamp("schedule.json")}`, 3600, () => readJson<GenGame[]>("schedule.json", []));
 export const scheduleStamp = () => stamp("schedule.json");
 export const teamsStamp = () => stamp("teams.json");
+export const playersStamp = () => stamp("players.json");
 export const generatedLoaded = () => genMeta() !== undefined && genPlayers().length > 0;
 
 /* ---------------------------------------------------- game logs (scripts/ingest.mjs) */
@@ -208,7 +211,9 @@ export interface GenGameLine {
   t: string; // his team nickname
   opp: string; // opponent nickname
   ha: "home" | "away";
-  s: StatLine; // compact stat keys, same as GenPlayer.s
+  s: StatLine; // compact stat keys, same as GenPlayer.s, plus rshare (carry share in this game)
+  /** This game's snaps: o/d/st = share of the team's offense, defense, special teams snaps (0 to 1); os/ds = snap counts. */
+  sn?: { o?: number; d?: number; st?: number; os?: number; ds?: number };
 }
 
 export interface GenGameLogs {

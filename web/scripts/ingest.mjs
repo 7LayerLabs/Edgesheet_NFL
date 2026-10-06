@@ -26,7 +26,9 @@
  *   teams.json       per team offense and defense tendencies computed from play-by-play (GenTeam shape), plus DST
  *                    counts this season and last (sacks, takeaways, TDs, giveaways, sacks taken, DK DST points)
  *   players.json     every player we track with season stats, last season's stats, usage, draft slot, injury status
- *   gamelogs.json    per player per game lines (opponent adjustment, box scores, grading)
+ *   gamelogs.json    per player per game lines (opponent adjustment, box scores, grading, trends), with per-game snap
+ *                    shares (sn) and carry share (s.rshare)
+ *   history-games.json  every QB/RB/WR/TE game since 2019 for current players (history vs an opponent, storyline games)
  *   situational.json per team situational splits from play-by-play (same shape the college app used)
  *   draft.json       the last five draft classes
  *   injuries.json    the latest official injury report per team
@@ -353,6 +355,20 @@ function finish(s) {
   return s;
 }
 
+/** One game's snap row as compact shares and counts, zeros left out: o/d/st = share (0 to 1), os/ds = snaps. */
+function snapShares(sr) {
+  const out = {};
+  const put = (k, v) => {
+    if (v) out[k] = v;
+  };
+  put("o", num(sr.offense_pct));
+  put("d", num(sr.defense_pct));
+  put("st", num(sr.st_pct));
+  put("os", int(sr.offense_snaps));
+  put("ds", int(sr.defense_snaps));
+  return out;
+}
+
 /** One per-game line: g = ESPN game id, t = his team, ha from the schedule. */
 function gameLine(gid, week, seasonType, team, opp, s) {
   const espn = espnByGid.get(gid) ?? `nv-${gid}`;
@@ -375,6 +391,7 @@ async function loadStats(file, seasonYear, { lines = false, regOnly = false, sna
   const gameLines = lines ? new Map() : undefined; // gsis -> [{...}]
   const games = new Map(); // gsis -> Set(game_id)
   const posted = new Set(); // every game id in the file
+  const nvGid = new Map(); // line -> nflverse game id, to attach that game's snap row
   await readCsv(file, (r) => {
     if (regOnly && r.season_type !== "REG") return;
     posted.add(r.game_id);
@@ -409,7 +426,11 @@ async function loadStats(file, seasonYear, { lines = false, regOnly = false, sna
     if (r.position) posOf.set(g, r.position);
     if (r.team) teamOf.set(g, { team: code(r.team), week: Number(r.week), st: r.season_type });
     (games.get(g) ?? games.set(g, new Set()).get(g)).add(r.game_id);
-    if (gameLines) (gameLines.get(g) ?? gameLines.set(g, []).get(g)).push(gameLine(r.game_id, r.week, r.season_type, r.team, r.opponent_team, finish({ ...line, _cpoe: 0 })));
+    if (gameLines) {
+      const gl = gameLine(r.game_id, r.week, r.season_type, r.team, r.opponent_team, finish({ ...line, _cpoe: 0 }));
+      nvGid.set(gl, r.game_id);
+      (gameLines.get(g) ?? gameLines.set(g, []).get(g)).push(gl);
+    }
   });
   for (const [g, s] of totals) {
     const m = means.get(g) ?? {};
@@ -419,9 +440,19 @@ async function loadStats(file, seasonYear, { lines = false, regOnly = false, sna
     for (const [gid, sr] of snapsOf?.(g) ?? []) {
       if (played.has(gid) || !posted.has(gid)) continue;
       played.add(gid);
-      gameLines?.get(g).push(gameLine(gid, sr.week, sr.game_type, sr.team, sr.opponent, {}));
+      const gl = gameLine(gid, sr.week, sr.game_type, sr.team, sr.opponent, {});
+      nvGid.set(gl, gid);
+      gameLines?.get(g).push(gl);
     }
     if (gameLines && played.size > statGames) gameLines.get(g).sort((a, b) => a.wk - b.wk);
+    // Per-game snap shares for the trends (src/lib/trends.ts): offense, defense, and special teams share and snap counts.
+    if (gameLines) {
+      const snaps = snapsOf?.(g);
+      for (const gl of gameLines.get(g) ?? []) {
+        const sr = snaps?.get(nvGid.get(gl));
+        if (sr) gl.sn = snapShares(sr);
+      }
+    }
     s.gp = played.size;
     finish(s);
   }
@@ -575,6 +606,8 @@ const gameLong = new Map(); // espn id -> { [nick]: longest play }
 const driveResultPts = { Touchdown: 7, "Field goal": 3 };
 let plays = 0;
 let pbpWeeks = new Set();
+// Play calling by week, offense: `${team}|${week}` -> plays, passes, neutral plays and passes, pass rate over expected.
+const callByWeek = new Map();
 let lastSnap = null; // for seconds between snaps: { game, drive, team, secs }
 const tally = (b, o) => {
   b.n++;
@@ -620,6 +653,17 @@ await readCsv(local[`play_by_play_${season}.csv`], (r) => {
   const espn = espnByGid.get(r.game_id) ?? `nv-${r.game_id}`;
   const ftn = ftnByPlay.get(`${r.game_id}|${r.play_id}`);
   const qtr = int(r.qtr) ?? 1;
+  {
+    // Same play set and neutral rule as the season unit (one score or less, quarters 1 to 3); pass_oe is nflverse's
+    // pass over expected for the play, in points (100 x (pass - xpass)).
+    const wk = Number(r.week);
+    const c = callByWeek.get(`${off}|${wk}`) ?? callByWeek.set(`${off}|${wk}`, { wk, g: espn, opp: def, n: 0, pass: 0, nN: 0, nPass: 0, oe: 0, oeN: 0 }).get(`${off}|${wk}`);
+    c.n++;
+    if (isPass) c.pass++;
+    if (Math.abs(diff) <= 8 && qtr <= 3) { c.nN++; if (isPass) c.nPass++; }
+    const oe = num(r.pass_oe);
+    if (oe !== null) { c.oe += oe; c.oeN++; }
+  }
 
   for (const side of ["off", "def"]) {
     const u = unitFor(side === "off" ? off : def, side);
@@ -784,6 +828,14 @@ async function dstSeason(file, year) {
 const dstNow = await dstSeason(local[`stats_player_week_${season}.csv`], season);
 const dstPrev = await dstSeason(local[`stats_player_week_${prev}.csv`], prev);
 for (const t of teamsOut) t.dst = { now: dstNow.get(t.code), prev: dstPrev.get(t.code) };
+// Play calling by week: pass rate, neutral-situation pass rate, and pass rate over expected, each in points (0 to 100).
+for (const t of teamsOut) {
+  const r1 = (x) => Math.round(x * 10) / 10;
+  t.calls = [...callByWeek.values()]
+    .filter((c) => callByWeek.get(`${t.team}|${c.wk}`) === c)
+    .sort((a, b) => a.wk - b.wk)
+    .map((c) => ({ wk: c.wk, g: c.g, opp: c.opp, plays: c.n, pass: r1((c.pass / c.n) * 100), neutral: c.nN ? r1((c.nPass / c.nN) * 100) : null, neutralPlays: c.nN, proe: c.oeN ? r1(c.oe / c.oeN) : null }));
+}
 log("DST counts", dstNow.size, "teams this season,", dstPrev.size, "last season");
 
 /* --------------------------------------------------------- situational */
@@ -848,7 +900,11 @@ for (const g of thisSeason) {
 }
 const logPlayers = {};
 let lineCount = 0;
+// Carry share per game: his carries over his team's carries in that game (nflverse writes target share, not carry share).
+const teamCarries = new Map(); // `${game}|${team}` -> carries
+for (const l of [...statsNow.gameLines.values()].flat()) if (l.s.ra) teamCarries.set(`${l.g}|${l.t}`, (teamCarries.get(`${l.g}|${l.t}`) ?? 0) + l.s.ra);
 for (const [gsis, lines] of statsNow.gameLines) {
+  for (const l of lines) if (l.s.ra && teamCarries.get(`${l.g}|${l.t}`)) l.s.rshare = Math.round((l.s.ra / teamCarries.get(`${l.g}|${l.t}`)) * 1000) / 1000;
   logPlayers[pidOf(gsis)] = lines;
   lineCount += lines.length;
 }
@@ -911,6 +967,37 @@ for (const p of players) {
 }
 log("teams played for:", players.filter((p) => p.past).length, "players over", pastSeasons, "seasons");
 
+/* ------------------------------------------------------------- history games */
+// Every QB/RB/WR/TE game since 2019 (the schedule's first season) for current players, so the player page can show his
+// games against an opponent and his storyline games without reading the weekly files. Compact rows: COLS below; the
+// opponent, home/away, division, kickoff, rest, and closing line come from schedule.json by the game id.
+const HIST_COLS = ["g", "t", "py", "ptd", "pint", "ry", "rtd", "rec", "rcy", "rctd", "fl", "sttd", "tgt", "ra", "pa"];
+const HIST_SUM = { passing_yards: "py", passing_tds: "ptd", passing_interceptions: "pint", rushing_yards: "ry", rushing_tds: "rtd", receptions: "rec", receiving_yards: "rcy", receiving_tds: "rctd", targets: "tgt", carries: "ra", attempts: "pa", special_teams_tds: "sttd" };
+const SKILL = new Set(["QB", "RB", "WR", "TE"]);
+const skillIds = new Map(players.filter((p) => SKILL.has(p.pg)).map((p) => [p.gsis, p.id]));
+const histGames = { cols: HIST_COLS, seasons: [], players: {} };
+let histRows = 0;
+for (let y = 2019; y <= season; y++) {
+  const f = local[`stats_player_week_${y}.csv`] ?? path.join(CACHE, `stats_player_week_${y}.csv`);
+  try {
+    await access(f);
+  } catch {
+    continue;
+  }
+  histGames.seasons.push(y);
+  await readCsv(f, (r) => {
+    const pid = skillIds.get(r.player_id);
+    const g = espnByGid.get(r.game_id);
+    if (!pid || !g) return;
+    const v = { g, t: nick(r.team) };
+    for (const [col, key] of Object.entries(HIST_SUM)) v[key] = num(r[col]) ?? 0;
+    v.fl = num(r.fumbles_lost_total) ?? 0; // the same column the season lines use (SUM fl)
+    (histGames.players[pid] ??= []).push(HIST_COLS.map((k) => v[k] ?? 0));
+    histRows++;
+  });
+}
+log("history games:", histRows, "rows,", Object.keys(histGames.players).length, "players,", histGames.seasons.join(", "));
+
 /* ------------------------------------------------------------- history */
 // For src/lib/availability.ts. players: seasons before last, compact regular-season QB and skill totals per current player
 // (this season and last are already on players.json as s and ps). teamQb: last season's regular-season QB
@@ -951,6 +1038,7 @@ await writeFile(path.join(OUT, "schedule.json"), JSON.stringify(schedule));
 await writeFile(path.join(OUT, "teams.json"), JSON.stringify(teamsOut));
 await writeFile(path.join(OUT, "players.json"), JSON.stringify(players));
 await writeFile(path.join(OUT, "gamelogs.json"), JSON.stringify(gamelogs));
+await writeFile(path.join(OUT, "history-games.json"), JSON.stringify(histGames));
 await writeFile(path.join(OUT, "situational.json"), JSON.stringify(situational));
 await writeFile(path.join(OUT, "draft.json"), JSON.stringify(draftOut));
 await writeFile(path.join(OUT, "injuries.json"), JSON.stringify({ asOf: new Date().toISOString(), season, rows: injuries }));
