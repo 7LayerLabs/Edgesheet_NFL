@@ -8,12 +8,8 @@ import { genTeams } from "./generated";
 /** League-average team total, used when a game has no posted line. */
 const LEAGUE_TEAM_TOTAL = 22.4;
 
-/** Implied team totals from a posted spread (team and line, favorite negative) and total. */
-export function impliedTotals(home: string, spread: { team: string; line: number } | undefined, total: number | undefined): { home: number; away: number } | undefined {
-  if (!spread || total === undefined) return undefined;
-  const homeMargin = spread.team === home ? -spread.line : spread.line; // home points minus away points
-  return { home: (total + homeMargin) / 2, away: (total - homeMargin) / 2 };
-}
+/** Implied team totals from a posted line (src/lib/implied.ts, client-safe; re-exported here for the server callers). */
+export { impliedTotals } from "./implied";
 
 export interface DstProjection {
   proj: number;

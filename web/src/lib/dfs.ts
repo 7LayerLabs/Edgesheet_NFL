@@ -514,7 +514,9 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
 
     // The team defense: sacks, takeaways, TDs, and points allowed against the opponent's implied total.
     const dstRow = dkRows.find((r) => r.pos === "DST");
-    const implied = impliedTotals(game.home.short, game.market?.spread, game.market?.total?.line);
+    // The spread is filed under the favorite's abbreviation: the home ABBREVIATION decides the sign (passing the nickname
+    // swapped the two totals whenever the home team was favored).
+    const implied = impliedTotals(game.home.abbr, game.market?.spread, game.market?.total?.line);
     const d = dstRow ? dstProjection(team.short, opp.short, implied ? (opp.short === game.home.short ? implied.home : implied.away) : undefined) : undefined;
     if (dstRow && d) {
       plays.push({

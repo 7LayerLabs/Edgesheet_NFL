@@ -9,7 +9,7 @@ import { useWatchlist } from "@/lib/watchlist";
 import { GameCard } from "./GameCard";
 import { flipScore } from "@/lib/live";
 
-type Quick = "All" | "Live" | "Flip to" | "Upcoming" | "Finished" | "Division games" | "Rookie Heavy" | "Hidden Gems" | "Watchlist" | "Prime time";
+type Quick = "All" | "Live" | "Flip to" | "Upcoming" | "Finished" | "Division games" | "Rookie Heavy" | "Hidden Gems" | "Watchlist" | "Prime time" | "DK main slate" | "Showdown only";
 const QUICK: Quick[] = ["All", "Live", "Flip to", "Upcoming", "Finished", "Division games", "Rookie Heavy", "Hidden Gems", "Prime time", "Watchlist"];
 
 type Group = "window" | "division" | "score";
@@ -17,8 +17,12 @@ const WINDOWS: Window[] = ["Early", "Late afternoon", "Prime time", "Late night"
 const confOf = (g: Game) => g.home.conference || g.away.conference || "Other";
 const DIV_ORDER = ["AFC East", "AFC North", "AFC South", "AFC West", "NFC East", "NFC North", "NFC South", "NFC West"];
 
-/** All 32 teams are one division: nothing to filter by level. Group by kickoff window, by the home team's division, or by Watch Score. */
-export function Slate({ games }: { games: Game[] }) {
+/**
+ * All 32 teams are one division: nothing to filter by level. Group by kickoff window, by the home team's division, or by
+ * Watch Score. `dkSlate` tags each upcoming game as on DraftKings' main Classic slate or showdown-only (its two filters
+ * show when the tags exist); `bands` marks high and low game totals; `implied` is each game's implied team totals.
+ */
+export function Slate({ games, bands = {}, dkSlate = {}, implied = {} }: { games: Game[]; bands?: Record<string, "high" | "low">; dkSlate?: Record<string, "main" | "showdown">; implied?: Record<string, { home: number; away: number }> }) {
   const [quick, setQuick] = useState<Quick>("All");
   const [weatherOnly, setWeatherOnly] = useState(false);
   const [sort, setSort] = useState<"kickoff" | "score">("kickoff");
@@ -37,6 +41,8 @@ export function Slate({ games }: { games: Game[] }) {
       case "Rookie Heavy": out = out.filter((g) => prospectCounts(g).likely >= 2); break;
       case "Hidden Gems": out = out.filter((g) => scoreTag(g) === "Hidden Gem"); break;
       case "Prime time": out = out.filter((g) => g.status === "live" || kickoffWindow(g.kickoff) === "Prime time" || kickoffWindow(g.kickoff) === "Late night"); break;
+      case "DK main slate": out = out.filter((g) => dkSlate[g.id] === "main"); break;
+      case "Showdown only": out = out.filter((g) => dkSlate[g.id] === "showdown"); break;
       case "Watchlist":
         out = out.filter(
           (g) =>
@@ -64,7 +70,7 @@ export function Slate({ games }: { games: Game[] }) {
         : a.kickoff.localeCompare(b.kickoff) || scoutScore(b.scoreComponents) - scoutScore(a.scoreComponents),
     );
     return out;
-  }, [games, quick, weatherOnly, sort, list, q]);
+  }, [games, quick, weatherOnly, sort, list, q, dkSlate]);
 
   const grouped = useMemo((): (readonly [string, Game[]])[] => {
     if (quick === "Flip to") return [["Flip to, best first", filtered] as const];
@@ -86,7 +92,7 @@ export function Slate({ games }: { games: Game[] }) {
     <div>
       {/* One row of filters; search and grouping fold away so the first card sits on the first screen. */}
       <div className="scroll-x -mx-4 flex gap-2 px-4 pb-1">
-        {QUICK.map((k) => (
+        {[...QUICK, ...(Object.values(dkSlate).includes("main") ? (["DK main slate"] as Quick[]) : []), ...(Object.values(dkSlate).includes("showdown") ? (["Showdown only"] as Quick[]) : [])].map((k) => (
           <button key={k} type="button" className="chip" aria-pressed={quick === k} onClick={() => setQuick(k)}>
             {k === "Live" && <span className="live-dot" />}
             {k}
@@ -147,7 +153,7 @@ export function Slate({ games }: { games: Game[] }) {
           </div>
           <div className="grid min-w-0 gap-2.5">
             {gs.map((g, i) => (
-              <GameCard key={g.id} game={g} index={i} />
+              <GameCard key={g.id} game={g} index={i} band={bands[g.id]} implied={implied[g.id]} />
             ))}
           </div>
         </section>

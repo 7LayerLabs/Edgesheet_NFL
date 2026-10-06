@@ -1,13 +1,15 @@
 # WHERE WE LEFT OFF (kept current at every push)
 
-Last updated 2026-10-06, commit "Phase 7". Derek's instruction: finish the rest and push as soon as it is done.
+Last updated 2026-10-06, commit "Phase 8". Derek's instruction: finish the rest and push as soon as it is done.
 - DONE and pushed: game page read (Section 1), Phase 1 data (per-game snaps, history-games.json, play calling), Phase 2
   trends, info tips everywhere, Phase 3 work left open, Phase 4 player history, Phase 5 backtests (results below: no
   storyline passes; only a player's own home/away split carries over, weakly; primetime teams score 1.1 under the line).
 - DONE and pushed since: Phase 11 (DraftKings Our price, Safest/Upside value lists, graded record); Phase 6 (splits on
   the player page and a Splits section on the game page, with the backtest verdicts); Phase 7 (DraftKings points allowed
-  table in Matchups).
-- LEFT, in this order: Phase 8 (slate home: team totals, values, weather, total bands, Main/Showdown filters), Phase 9 (sleepers by
+  table in Matchups); Phase 8 (slate home: team totals, DK value leaders, weather watch, total bands, DK Main/Showdown
+  filters) plus a BUG FIX: DraftKings defense projections swapped the implied team totals whenever the home team was
+  favored (dfs.ts passed the home nickname, the spread is filed under the favorite's abbreviation).
+- LEFT, in this order: Phase 9 (sleepers by
   beat buzz), Phase 10 (single-entry lineup). Then the section-by-section review resumes at the Matchups fold.
 - KNOWN: nflverse had not posted week 4 snap counts (re-run `npm run ingest` to fill them); the dev server on :3100 was
   stopped by Claude Code for low memory on 2026-10-06 and not restarted; memoSync results live on globalThis, so restart
@@ -193,11 +195,20 @@ or defense split carried over; league-wide, primetime teams 1.1 under the line (
       table in Matchups with ranks (No. 1 = most allowed); the last-4 column appears once a defense has played 5+ games.
 
 ### Phase 8: slate home page
-- [ ] 8.1 Implied team totals on each card (dst.ts impliedTotals) and a "Highest team totals" strip.
-- [ ] 8.2 Top DK values strip (the day's simulation if built, else value per $1,000).
-- [ ] 8.3 Weather watch list (games with a flag, worst first).
-- [ ] 8.4 Cards banded by game total (high, middle, low; thresholds from the league's totals this season).
-- [ ] 8.5 Main and Showdown filters (DK's main-slate games; single-game showdowns).
+- [x] 8.1 Implied team totals on each card (dst.ts impliedTotals) and a "Highest team totals" strip.
+- [x] 8.2 Top DK values strip (the day's simulation if built, else value per $1,000).
+- [x] 8.3 Weather watch list (games with a flag, worst first).
+- [x] 8.4 Cards banded by game total (high, middle, low; thresholds from the league's totals this season).
+- [x] 8.5 Main and Showdown filters (DK's main-slate games; single-game showdowns).
+
+Phase 8 notes (2026-10-06, pushed; not seen in a browser): home page "Slate at a glance" (one row that scrolls on a phone,
+three columns wider): highest implied team totals (src/lib/implied.ts, client-safe, re-exported by dst.ts), DraftKings
+value leaders from slateDfs (projection per $1,000, no simulation on the home page; links to the DFS page's value picks),
+weather watch (worst flag first). Cards: implied team totals next to the line, "High total"/"Low total" chips (this
+season's posted totals, top and bottom quarter) and a green edge on high totals. Filters "DK main slate" and "Showdown
+only" appear when DraftKings has a Classic slate that day (showdown-only = slateDfs showdown games).
+BUG FOUND AND FIXED: dfs.ts called impliedTotals with game.home.short, but market.spread.team is the favorite's
+abbreviation, so every home favorite's two implied totals were swapped in the DST projection (off by the full spread).
 
 ### Phase 9: sleepers by beat buzz
 - [ ] 9.1 Tag feed items to any rostered player by name (today only radar players get tagged).

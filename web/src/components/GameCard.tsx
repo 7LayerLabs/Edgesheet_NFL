@@ -9,7 +9,8 @@ import { CoverageBadge, StatusPill } from "./badges";
 import { ScoutScore } from "./ScoutScore";
 import { LiveLine } from "./LiveLine";
 
-export function GameCard({ game, index = 0 }: { game: Game; index?: number }) {
+/** `band`: a high or low game total for the season (the home page); `implied`: the implied team totals. */
+export function GameCard({ game, index = 0, band, implied }: { game: Game; index?: number; band?: "high" | "low"; implied?: { home: number; away: number } }) {
   const score = scoutScore(game.scoreComponents);
   const tag = scoreTag(game);
   const { likely, future } = prospectCounts(game);
@@ -21,7 +22,7 @@ export function GameCard({ game, index = 0 }: { game: Game; index?: number }) {
   return (
     <Link
       href={`/game/${game.id}`}
-      className={`card rise group block min-w-0 overflow-hidden p-4 transition-colors hover:bg-panel-2 ${game.status === "final" ? "final-card" : ""}`}
+      className={`card rise group block min-w-0 overflow-hidden p-4 transition-colors hover:bg-panel-2 ${game.status === "final" ? "final-card" : ""} ${band === "high" ? "border-l-4 border-l-turf" : ""}`}
       style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
     >
       <div className="flex gap-4">
@@ -73,9 +74,17 @@ export function GameCard({ game, index = 0 }: { game: Game; index?: number }) {
               <span className="mono text-sky">
                 {spreadText(game.market.spread.team, game.market.spread.line)}
                 {game.market.total ? ` · ${game.market.total.line}` : ""}
+                {implied && (
+                  <span className="text-chalk-3">
+                    {" "}({game.away.abbr} {implied.away.toFixed(1)}, {game.home.abbr} {implied.home.toFixed(1)})
+                  </span>
+                )}
               </span>
             ) : (
               <span className="mono text-chalk-3">No line</span>
+            )}
+            {band && game.status !== "final" && (
+              <span className={`rounded px-1.5 py-0.5 text-[11px] font-semibold ${band === "high" ? "bg-turf/10 text-turf" : "bg-ink-2 text-chalk-3"}`}>{band === "high" ? "High total" : "Low total"}</span>
             )}
             {game.coverage !== "Full" && <CoverageBadge level={game.coverage} />}
           </div>
