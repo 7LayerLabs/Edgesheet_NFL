@@ -44,6 +44,8 @@ export interface EspnInjury {
   pos?: string;
   status: string; // Out, Doubtful, Questionable, Injured Reserve, Active, Suspension ...
   comment?: string;
+  /** ESPN's longer news line (the short one is often just "out" on game day). */
+  detail?: string;
   date?: string;
 }
 
@@ -94,7 +96,7 @@ export function espnInjuries(): Promise<{ at: string; rows: EspnInjury[]; error?
         for (const i of t.injuries ?? []) {
           const id = i.athlete?.links?.map((l) => /\/id\/(\d+)/.exec(l.href)?.[1]).find(Boolean);
           if (!id) continue;
-          rows.push({ id, name: i.athlete?.displayName ?? "", team, pos: i.athlete?.position?.abbreviation, status: i.status, comment: i.shortComment ?? i.longComment, date: i.date });
+          rows.push({ id, name: i.athlete?.displayName ?? "", team, pos: i.athlete?.position?.abbreviation, status: i.status, comment: i.shortComment ?? i.longComment, detail: i.longComment, date: i.date });
         }
       }
       return { at: new Date().toISOString(), rows };

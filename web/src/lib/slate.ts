@@ -10,7 +10,17 @@
 import { calendar, espnWeek, etDateOf, eloCurrent, fpiRatings, eloPregame, gameById, gamesForWeek, logoUrl, NATIONAL_WINDOWS, roofState, scheduleLoaded, standingFor, teamByShort, venueFor, type EspnWeekRow, type Finals, type NflWeek, type Standing } from "./nfl";
 import { forecastAtKickoff, forecastMany } from "./nws";
 import { generatedLoaded, genInjuries, genMeta, genPlayers, type GenGame, type GenInjury, type GenPlayer } from "./generated";
-import { groupOf, matchupPlayer, radarForGame, radarForTeam, radarPlayer, statLine, type EdgeAxis, type RadarPlayer } from "./radar";
+import { groupOf, matchupPlayer, radarForGame, radarForTeam, radarPlayer, statLine, type EdgeAxis, type PosGroup, type RadarPlayer } from "./radar";
+
+/** The game page splits its radar: offense (the betting side, kickers listed apart) and defense (its own section). */
+const OFFENSE_GROUPS = new Set<PosGroup>(["QB", "RB", "WR", "TE"]);
+const DEFENSE_GROUPS = new Set<PosGroup>(["DL", "EDGE", "LB", "CB", "S"]);
+
+/** A kicker in one line: field goals and extra points this season, and last season while this one is thin. */
+function kickerLine(k: GenPlayer): string {
+  const part = (s: GenPlayer["s"], label: string) => (s?.fga || s?.xpa ? `${label}: ${s.fgm ?? 0} of ${s.fga ?? 0} field goals${s.fglg ? ` (long ${s.fglg})` : ""}, ${s.xpm ?? 0} of ${s.xpa ?? 0} extra points` : "");
+  return [part(k.s, "this season"), (k.s?.fga ?? 0) < 6 ? part(k.ps, "last season") : ""].filter(Boolean).join("; ") || "no kicks on record";
+}
 import { leagueMeans, pressurePoint, styleContrast, styleFor, unitEdges, type UnitEdge } from "./tendencies";
 import { gameCues, situationsFor } from "./situational";
 import { lockedProjection, projectGame } from "./projection";
@@ -498,6 +508,7 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
   const radarAway = radarForGame(raw.away, 6, sits).map((r) => withUnit(r, away.abbr, raw.away));
   const radarHome = radarForGame(raw.home, 6, sits).map((r) => withUnit(r, home.abbr, raw.home));
   const matchupPicks: Prospect[] = [];
+  const offenseSpot: Prospect[] = [];
   for (const e of topEdges.filter((x) => x.edge !== "even").slice(0, 2)) {
     const axis = axisOf(e);
     const offTeam = e.title.split(" ")[0] === raw.home.split(" ")[0] && e.title.startsWith(raw.home) ? raw.home : raw.away;
@@ -513,11 +524,40 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
       : `The ${defTeam} ${role.def} against a ${opp} ${role.unitOff} ranked No. ${oppRank ?? "?"} of ${ranks.of ?? 32}: ${strength}.`;
     const mp = matchupPlayer(axis, e.edge as "offense" | "defense", team, note, sits);
     if (mp) matchupPicks.push(radarToProspect(mp, team === raw.home ? home.abbr : away.abbr));
+    // Derek's rule: the betting side of the page is the offense. When the defense holds the edge, the offensive player
+    // who carries that unit is the one on the spot (his line is what moves); the defender goes to the Defense section.
+    if (e.edge === "defense") {
+      const offNote = `The ${offTeam} ${role.off} runs into a ${defTeam} ${role.unitDef} ranked No. ${ranks.def ?? "?"} of ${ranks.of ?? 32}: ${strength} for the defense.`;
+      const op = matchupPlayer(axis, "offense", offTeam, offNote, sits);
+      if (op) offenseSpot.push(radarToProspect(op, offTeam === raw.home ? home.abbr : away.abbr));
+    }
   }
   const seenP = new Set<string>();
-  const prospects = [...matchupPicks, ...radarAway, ...radarHome].filter((p) => (seenP.has(p.id) ? false : seenP.add(p.id))).sort((x, y) => {
+  const byTierThenScore = (x: Prospect, y: Prospect) => {
     const order = (t: Prospect["tier"]) => (t === "Matchup" ? 0 : t === "Rookie" ? 1 : t === "Breakout" ? 2 : 3);
     return order(x.tier) - order(y.tier) || (y.radar?.score ?? 0) - (x.radar?.score ?? 0);
+  };
+  const prospects = [...matchupPicks, ...radarAway, ...radarHome].filter((p) => (seenP.has(p.id) ? false : seenP.add(p.id))).sort(byTierThenScore);
+  // Display lists: offense (the betting side) and defense, each with its own picks so neither crowds out the other.
+  const isGroup = (set: Set<PosGroup>) => (p: Prospect) => Boolean(p.radar && set.has(p.radar.group));
+  const dedupe = (list: Prospect[]) => {
+    const seen = new Set<string>();
+    return list.filter((p) => (seen.has(p.id) ? false : seen.add(p.id))).sort(byTierThenScore);
+  };
+  const offenseRadar = dedupe([
+    ...matchupPicks.filter(isGroup(OFFENSE_GROUPS)),
+    ...offenseSpot,
+    ...radarForGame(raw.away, 6, sits, OFFENSE_GROUPS).map((r) => withUnit(r, away.abbr, raw.away)),
+    ...radarForGame(raw.home, 6, sits, OFFENSE_GROUPS).map((r) => withUnit(r, home.abbr, raw.home)),
+  ]);
+  const defenseRadar = dedupe([
+    ...matchupPicks.filter(isGroup(DEFENSE_GROUPS)),
+    ...radarForGame(raw.away, 4, sits, DEFENSE_GROUPS).map((r) => withUnit(r, away.abbr, raw.away)),
+    ...radarForGame(raw.home, 4, sits, DEFENSE_GROUPS).map((r) => withUnit(r, home.abbr, raw.home)),
+  ]);
+  const kickers = [raw.away, raw.home].flatMap((t) => {
+    const k = genPlayers().filter((p) => p.t === t && p.pg === "K" && !sits(p.id)).sort((a, b) => (b.s?.fga ?? 0) - (a.s?.fga ?? 0) || (b.ps?.fga ?? 0) - (a.ps?.fga ?? 0))[0];
+    return k ? [{ id: k.id, name: k.n, team: t === raw.home ? home.abbr : away.abbr, line: kickerLine(k) }] : [];
   });
 
   // Official injury report, both teams, this game's week only (another week's report is not this game's).
@@ -564,9 +604,10 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
 
   // Keep an eye on: watch names that did not make the main list.
   const inMain = new Set(prospects.map((p) => p.id));
+  const offInMain = new Set(offenseRadar.map((p) => p.id));
   const eye = [
-    ...radarForTeam(raw.away).filter((r) => !inMain.has(r.id) && !sits(r.id)).slice(0, 2).map((r) => ({ r, abbr: away.abbr })),
-    ...radarForTeam(raw.home).filter((r) => !inMain.has(r.id) && !sits(r.id)).slice(0, 2).map((r) => ({ r, abbr: home.abbr })),
+    ...radarForTeam(raw.away).filter((r) => !inMain.has(r.id) && !offInMain.has(r.id) && !sits(r.id) && OFFENSE_GROUPS.has(r.group)).slice(0, 2).map((r) => ({ r, abbr: away.abbr })),
+    ...radarForTeam(raw.home).filter((r) => !inMain.has(r.id) && !offInMain.has(r.id) && !sits(r.id) && OFFENSE_GROUPS.has(r.group)).slice(0, 2).map((r) => ({ r, abbr: home.abbr })),
   ].map(({ r, abbr }) => ({
     name: r.name,
     team: abbr,
@@ -651,9 +692,12 @@ async function buildGame(raw: GenGame, b: Bundle, withWeather: boolean, withBox 
     weather,
     market,
     prospects,
+    offenseRadar,
+    defenseRadar,
+    kickers,
     matchups,
     keepAnEyeOn: eye,
-    ...(withBox ? await whoToWatch(raw, home, away, matchupPicks, sits, availability, venue, neutral).catch(() => ({})) : {}),
+    ...(withBox ? await whoToWatch(raw, home, away, [...matchupPicks.filter(isGroup(OFFENSE_GROUPS)), ...offenseSpot], sits, availability, venue, neutral).catch(() => ({})) : {}),
     storylines,
     offense: { [home.abbr]: profHome.off, [away.abbr]: profAway.off },
     defense: { [home.abbr]: profHome.def, [away.abbr]: profAway.def },

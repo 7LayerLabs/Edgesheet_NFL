@@ -42,12 +42,15 @@ import { readReport, seasonOf } from "@/lib/report";
 import { publishedGuide } from "@/lib/watchguide";
 import { WatchGuide } from "@/components/WatchGuide";
 import { CoveragePanel } from "@/components/CoveragePanel";
+import { InjuryReport } from "@/components/InjuryReport";
+import { injuriesFor, injurySummaryLine, starterOut } from "@/lib/injuries";
 import { FourthDowns } from "@/components/FourthDowns";
 import { fourthDownsFor, type FourthDown } from "@/lib/fourth";
 
 export const dynamic = "force-dynamic";
 
 const TIERS: Prospect["tier"][] = ["Matchup", "Rookie", "Breakout", "Watch"];
+const DEFENSE_TIER_TITLE: Record<Prospect["tier"], [string, string]> = { Matchup: ["What to watch on defense", "the defender each defensive edge puts on the spot"], Rookie: ["Defensive rookies", "ranked against the draft slot"], Breakout: ["Breakout defenders", "year 2 and 3 jumps against last season"], Watch: ["Watch", "defensive starters worth knowing"] };
 const TIER_TITLE: Record<Prospect["tier"], [string, string]> = { Matchup: ["On the spot", "the unit edges put these players in the game plan"], Rookie: ["Rookie class", "ranked against the draft slot"], Breakout: ["Breakout watch", "year 2 and 3 jumps against last season"], Watch: ["Watch", "starters worth knowing"] };
 
 export default async function GamePage({ params }: PageProps<"/game/[id]">) {
@@ -70,8 +73,12 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const watch = game.whoToWatch ?? game.prospects.slice(0, 3).map((p) => ({ id: p.id, name: p.name, pos: p.pos, team: p.team, label: undefined as string | undefined, reason: readLine(p), detail: undefined as string | undefined }));
 
   // One-line summaries: each closed section still says something.
-  const tiers = (["Matchup", "Rookie", "Breakout", "Watch"] as const).map((t) => [t, game.prospects.filter((p) => p.tier === t).length] as const).filter(([, n]) => n);
-  const radarSummary = game.prospects.length ? `${game.prospects.length} names: ${tiers.map(([t, n]) => `${n} ${t === "Matchup" ? "on the spot" : t.toLowerCase()}`).join(", ")}` : "Nobody clears the radar yet";
+  const offense = game.offenseRadar ?? game.prospects;
+  const defense = game.defenseRadar ?? [];
+  const tiers = (["Matchup", "Rookie", "Breakout", "Watch"] as const).map((t) => [t, offense.filter((p) => p.tier === t).length] as const).filter(([, n]) => n);
+  const dTiers = (["Matchup", "Rookie", "Breakout", "Watch"] as const).map((t) => [t, defense.filter((p) => p.tier === t).length] as const).filter(([, n]) => n);
+  const defenseSummary = `${defense.length} names: ${dTiers.map(([t, n]) => `${n} ${t === "Matchup" ? "on the spot" : t === "Breakout" ? "breakout" : t === "Rookie" ? "rookie" : "to watch"}`).join(", ")}`;
+  const radarSummary = offense.length ? `${offense.length} names: ${tiers.map(([t, n]) => `${n} ${t === "Matchup" ? "on the spot" : t.toLowerCase()}`).join(", ")}` : "Nobody clears the radar yet";
   const m0 = game.matchups.find((m) => m.edge !== "even") ?? game.matchups[0];
   const edgeWord = (m: Game["matchups"][number]) => (m.strength === "dominant" ? "mismatch" : m.strength === "clear" ? "clear edge" : m.strength === "real" ? "edge" : "even");
   const matchupSummary = m0 ? `${m0.a} vs ${m0.b}: ${edgeWord(m0)}${game.matchups.length > 1 ? ` · ${game.matchups.length - 1} more` : ""}` : game.projection ? "Not charted; the projection is inside" : "Not charted yet";
@@ -82,9 +89,8 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const ms = game.market.spread;
   const marketSummary = ms ? `${spreadText(ms.team, ms.line)}${ms.open !== ms.line ? ` (opened ${spreadText(ms.team, ms.open)})` : ""} · total ${game.market.total?.line ?? "none"}` : "No widely available line";
   const styleSummary = `${game.away.short}: ${game.offense[game.away.abbr]?.label ?? "not charted"} · ${game.home.short}: ${game.offense[game.home.abbr]?.label ?? "not charted"}`;
-  const inj = game.injuryReport ?? [];
-  const injCount = (st: string) => inj.filter((i) => i.status === st).length;
-  const injurySummary = inj.length ? `${[["out", injCount("Out")], ["doubtful", injCount("Doubtful")], ["questionable", injCount("Questionable")]].filter(([, n]) => n).map(([w, n]) => `${n} ${w}`).join(", ")} (week ${inj[0].week})` : "";
+  // Injuries: ESPN's live list merged with the latest official report (src/lib/injuries.ts), opened when a starter sits.
+  const injuries = await injuriesFor(game).catch(() => undefined);
   const boxSummary = game.score && Number.isFinite(game.score.home) ? `${game.away.abbr} ${game.score.away}, ${game.home.abbr} ${game.score.home} · ${game.score.clock}` : game.status === "live" ? "In progress" : "Final";
   // Work left open by each back, receiver, or tight end likely to sit (src/lib/vacated.ts), by team nickname.
   const vacated = av
@@ -115,6 +121,8 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
     : "";
   const jump: { id: string; label: string }[] = [
     ...(started ? [{ id: "showed", label: game.status === "live" ? "Live" : "Box score" }] : []),
+    { id: "injuries", label: "Injuries" },
+    ...(defense.length ? [{ id: "defense", label: "Defense" }] : []),
     { id: "decided", label: "Matchups" },
     { id: "playing", label: "Who plays" },
     ...(trendsTeams.length ? [{ id: "trends", label: "Trends" }] : []),
@@ -238,17 +246,50 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
         </Fold>
       )}
 
-      <Fold id="radar" title="Full radar" summary={radarSummary}>
-        {game.prospects.some((p) => p.radar) && (
+      {injuries && (
+        <Fold id="injuries" title="Injuries" summary={injurySummaryLine(injuries)} open={starterOut(injuries)}>
+          <InjuryReport data={injuries} away={game.away} home={game.home} />
+        </Fold>
+      )}
+
+      <Fold id="radar" title="Radar: offense and kickers" summary={radarSummary}>
+        {offense.some((p) => p.radar) && (
           <p className="max-w-3xl text-sm text-chalk-3">
-            Ranked on production against the league at the position, snap share, draft slot, and last season. Players listed out are left off and named under Storylines.
+            Quarterbacks, backs, receivers, and tight ends, the players whose lines move the bets. Each has a radar score from 0 to 100: production against the league at his position (half), snap share (30%), and context (20%: beating his draft slot, a breakout, or a starter). It ranks who is worth watching, not a projection. Players listed out are left off and named under Injuries. Defenders have their own section below.
             {game.statsAsOf ? ` Stats as of ${asOf(game.statsAsOf)}.` : ""}
           </p>
         )}
-        <RadarTiers list={game.prospects} game={game} />
-        {game.odds && game.prospects.length > 0 && <PropsForRadar gameId={game.id} odds={game.odds} prospects={game.prospects} upcoming={game.status === "upcoming"} />}
-        {game.prospects.length === 0 && <p className="mt-2 text-sm text-chalk-3">No player on either roster clears the production or snap-share thresholds. See More names.</p>}
+        <RadarTiers list={offense} game={game} />
+        {game.kickers && game.kickers.length > 0 && (
+          <div className="mt-5">
+            <div className="flex flex-wrap items-baseline gap-x-3">
+              <span className="display text-2xl font-bold text-chalk">Kickers</span>
+              <span className="text-xs text-chalk-3">field goals and extra points; wind and roof are under Conditions</span>
+            </div>
+            <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">
+              {game.kickers.map((k) => (
+                <li key={k.id} className="card px-3 py-2 text-sm">
+                  <Link href={`/player/${k.id}`} className="font-semibold text-chalk hover:text-sky">{k.name}</Link>
+                  <span className="mono ml-2 text-xs text-chalk-3">K · {k.team}</span>
+                  <span className="mt-0.5 block text-chalk-2">{k.line}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {game.odds && offense.length > 0 && <PropsForRadar gameId={game.id} odds={game.odds} prospects={offense} upcoming={game.status === "upcoming"} />}
+        {offense.length === 0 && <p className="mt-2 text-sm text-chalk-3">No skill player on either roster clears the production or snap-share thresholds. See More names.</p>}
       </Fold>
+
+      {/* Defense: its own section, announced, so defenders are never mixed into the betting side above. */}
+      {defense.length > 0 && (
+        <Fold id="defense" title="Defense" summary={defenseSummary}>
+          <p className="max-w-3xl text-sm text-chalk-3">
+            The defender each defensive edge puts on the spot, breakout defenders, defensive rookies, and starters worth knowing, scored the same way as the radar above. For pass rushers and tacklers with prop lines, see DraftKings and props.
+          </p>
+          <RadarTiers list={defense} game={game} titles={DEFENSE_TIER_TITLE} />
+        </Fold>
+      )}
 
       <Fold id="decided" title="Matchups" summary={matchupSummary}>
         {game.matchups.length > 0 ? (
@@ -352,32 +393,6 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
           ))}
         </ul>
       </Fold>
-
-      {inj.length > 0 && (
-        <Fold id="injuries" title="Injury report" summary={injurySummary}>
-          <p className="text-sm text-chalk-3">From the nflverse injuries file (the league&apos;s official practice and game status reports). Out, Doubtful, and Questionable only.</p>
-          <div className="mt-3 grid gap-2.5 md:grid-cols-2">
-            {[game.away, game.home].map((t) => (
-              <div key={t.id} className="card p-4">
-                <div className="flex items-center gap-2">
-                  <span className="inline-block h-4 w-1 rounded-sm" style={{ background: t.color }} />
-                  <span className="display text-2xl font-bold">{t.short}</span>
-                </div>
-                <ul className="mt-2 grid gap-1 text-sm">
-                  {inj.filter((i) => i.team === t.abbr).map((i) => (
-                    <li key={i.id + i.name} className="flex flex-wrap items-baseline gap-x-2">
-                      <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${i.status === "Out" ? "bg-brick text-white" : i.status === "Doubtful" ? "bg-warn text-chalk" : "bg-ink-2 text-chalk-2"}`}>{i.status}</span>
-                      <span className="font-medium text-chalk">{i.name}</span>
-                      <span className="mono text-xs text-chalk-3">{i.pos}{i.injury ? ` · ${i.injury}` : ""}{i.practice ? ` · ${i.practice}` : ""}</span>
-                    </li>
-                  ))}
-                  {inj.filter((i) => i.team === t.abbr).length === 0 && <li className="text-chalk-3">Nobody listed.</li>}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </Fold>
-      )}
 
       <Fold id="style" title="Team style" summary={styleSummary}>
         <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
@@ -634,7 +649,7 @@ function keyNotes(game: Game): string[] {
   return out.slice(0, 4);
 }
 
-function RadarTiers({ list, game }: { list: Prospect[]; game: Game }) {
+function RadarTiers({ list, game, titles = TIER_TITLE }: { list: Prospect[]; game: Game; titles?: Record<Prospect["tier"], [string, string]> }) {
   const byTier = new Map<Prospect["tier"], Prospect[]>();
   for (const p of list) byTier.set(p.tier, [...(byTier.get(p.tier) ?? []), p]);
   return (
@@ -642,8 +657,8 @@ function RadarTiers({ list, game }: { list: Prospect[]; game: Game }) {
       {TIERS.filter((t) => byTier.has(t)).map((y) => (
         <div key={y} className="mt-5">
           <div className="flex flex-wrap items-baseline gap-x-3">
-            <span className="display text-2xl font-bold text-chalk">{TIER_TITLE[y][0]}</span>
-            <span className="text-xs text-chalk-3">{TIER_TITLE[y][1]}</span>
+            <span className="display text-2xl font-bold text-chalk">{titles[y][0]}</span>
+            <span className="text-xs text-chalk-3">{titles[y][1]}</span>
           </div>
           <div className="mt-2 grid gap-2.5 md:grid-cols-2">
             {byTier.get(y)!.map((p) => (

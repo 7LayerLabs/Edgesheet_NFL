@@ -1,0 +1,86 @@
+{
+ "gameId": "401872980",
+ "season": 2026,
+ "generatedAt": "2026-10-06T14:28:11.583Z",
+ "provider": "anthropic",
+ "model": "claude-opus-5",
+ "pregame": true,
+ "evidenceAsOf": "2026-10-06T14:27:42.185Z",
+ "attempts": 2,
+ "attemptLog": [
+  [
+   "names or proper nouns not in the evidence packet: Dallas, Tampa, Bay"
+  ],
+  []
+ ],
+ "words": 358,
+ "usage": {
+  "inputTokens": 25112,
+  "outputTokens": 2372,
+  "cacheReadTokens": 0,
+  "costUsd": 0.18486
+ },
+ "report": {
+  "headline": "Cowboys keep the lid on a sputtering Buccaneers attack",
+  "openingParagraph": "Buccaneers at Cowboys, 8:15 PM ET at AT&T Stadium on Prime Video, roof open, 80 degrees, rain chance 0%. The Buccaneers are 0-4, the Cowboys are 2-2, and both sides are on four days of rest. Two pass-first offenses, 67% pass rate each, point to more possessions and more variance. The model projects Cowboys by 6.9, 70% to win, Buccaneers 20 to Cowboys 27, confidence high.",
+  "sections": [
+   {
+    "title": "The throw game against the home secondary",
+    "paragraphs": [
+     "This is the matchup that shapes the game plan. The Cowboys rank No. 32 of 32 in pass success allowed at 61%, which should be a gift. It is not. The Buccaneers rank No. 28 in pass success at 39% and No. 27 in pass explosiveness at 1.18, while the Cowboys sit No. 14 of 32 at limiting explosive passes at 1.29.",
+     "That is a clear edge for the defense. The Buccaneers should expect to drive the long way. Caleb Downs plays 97% of defensive snaps as the coverage leader, with 27 tackles and 1 pass defensed. Watch the longest Buccaneers completion. If it is under 25 yards at the half, the Cowboys have won the matchup."
+    ],
+    "factIds": [
+     "M1",
+     "M1e",
+     "M1w",
+     "P1",
+     "R2",
+     "R2s",
+     "R2e1",
+     "R2e5"
+    ]
+   },
+   {
+    "title": "Running into a stout front",
+    "paragraphs": [
+     "The second real edge also belongs to a defense. The Buccaneers are No. 5 of 32 against the run at 34% and No. 5 by EPA a carry at -0.22. The Cowboys rank No. 13 in rush success at 43% and No. 12 in EPA a carry at -0.03. Expect more second-and-long than usual. Josiah Trotter, on 86% of defensive snaps with 33 tackles, is the run stopper to track. Under 3 yards per carry in the first quarter and the game plan has to change."
+    ],
+    "factIds": [
+     "M2",
+     "M2e",
+     "M2w",
+     "R1",
+     "R1s",
+     "R1e1",
+     "R1e5"
+    ]
+   },
+   {
+    "title": "The long downs cut the other way",
+    "paragraphs": [
+     "The Buccaneers rank No. 25 of 32 on passing downs at 31%, which is bad. The Cowboys rank No. 32 at 55%, which is worse. A third-and-8 is not a stop here. Two Buccaneers conversions on third-and-long in the first half break the Cowboys plan."
+    ],
+    "factIds": [
+     "M3",
+     "M3e",
+     "M3w"
+    ]
+   },
+   {
+    "title": "Where the numbers land",
+    "paragraphs": [
+     "The market has the Cowboys -8.5, opened -9.5, total 47.5. Model and market agree on the side at about 8.5, and 3 of 4 systems lean Buccaneers against the number, the EdgeSheet model among them. Model total is 45, a lean under by 2.5."
+    ],
+    "factIds": [
+     "K1",
+     "J3",
+     "J4",
+     "C1"
+    ]
+   }
+  ],
+  "oneLineForCard": "The Cowboys are No. 32 in pass success allowed, and the Buccaneers still cannot take advantage."
+ },
+ "factCount": 205
+}

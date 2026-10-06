@@ -200,6 +200,12 @@ export interface Game {
   weather?: WeatherInput;
   market: Market;
   prospects: Prospect[];
+  /** Game page radar, betting side: QB, RB, WR, TE (the offensive player on the spot for every unit edge). */
+  offenseRadar?: Prospect[];
+  /** Game page Defense section: the defender each defensive edge puts on the spot, breakout defenders, defensive rookies. */
+  defenseRadar?: Prospect[];
+  /** Each team's kicker this season and last. */
+  kickers?: { id: string; name: string; team: string; line: string }[];
   matchups: Matchup[];
   keepAnEyeOn: { name: string; team: string; note: string }[];
   storylines: string[];

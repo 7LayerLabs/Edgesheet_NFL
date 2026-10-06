@@ -456,8 +456,8 @@ export function radarBoard(f: BoardFilter = {}): RadarPlayer[] {
 }
 
 /** Players a game report should surface for one team: top rookies, breakouts, then watch names, capped. `sits` drops players who will not play. */
-export function radarForGame(team: string, cap = 6, sits: (id: string) => boolean = () => false): RadarPlayer[] {
-  const list = radarForTeam(team).filter((p) => !sits(p.id));
+export function radarForGame(team: string, cap = 6, sits: (id: string) => boolean = () => false, groups?: Set<PosGroup>): RadarPlayer[] {
+  const list = radarForTeam(team).filter((p) => !sits(p.id) && (!groups || groups.has(p.group)));
   const rookies = list.filter((p) => p.tier === "Rookie" && p.production > 0).slice(0, 2);
   const breakouts = list.filter((p) => p.tier === "Breakout").slice(0, 2);
   const watch = list.filter((p) => p.tier === "Watch").slice(0, 3);
