@@ -503,8 +503,14 @@ const KEEP_STATUS = new Set(["ACT", "RES", "INA", "DEV", "PUP", "SUS", "NON", "E
 // (Ray-Ray McCloud still on the Bears from week 1), unless his latest stat row is for that team from that week on.
 const rosterWeek = Math.max(0, ...[...roster.values()].map((r) => r._wk));
 const players = [];
+// Retired (RET) or cut (CUT) in season after playing for the team (a stat line or a snap with it this season): he built
+// its numbers, so the availability model charges his absence. Written to departed.json, apart from players.json, so no
+// roster, radar, or DraftKings list ever shows him as a current player.
+const departed = [];
+const playedForThisSeason = (gsis, r) => statsNow.teamOf.get(gsis)?.team === code(r.team) || [...(snapGamesOf(snapGamesNow, r)?.values() ?? [])].some((sr) => code(sr.team) === code(r.team));
 for (const [gsis, r] of roster) {
-  if (!KEEP_STATUS.has(r.status) || !r.team) continue;
+  const gone = (r.status === "RET" || r.status === "CUT") && Boolean(r.team) && playedForThisSeason(gsis, r);
+  if ((!KEEP_STATUS.has(r.status) && !gone) || !r.team) continue;
   const team = code(r.team);
   const lastStat = statsNow.teamOf.get(gsis);
   if (r._wk < rosterWeek && !(lastStat?.team === team && lastStat.week >= r._wk)) continue;
@@ -514,14 +520,14 @@ for (const [gsis, r] of roster) {
   const rookie = Number(r.rookie_year) === season;
   const keyPos = ["QB", "RB", "WR", "TE", "OL", "DL", "LB", "DB"].includes(r.position);
   // Keep anyone with a stat line this season or last, a depth chart spot in the top two, or this year's rookies. Practice squad only with stats.
-  if (!s && !ps && !(dc && dc.rank <= 2) && !(rookie && r.status !== "DEV")) continue;
+  if (!gone && !s && !ps && !(dc && dc.rank <= 2) && !(rookie && r.status !== "DEV")) continue;
   if (r.status === "DEV" && !s) continue;
   const snaps = snapsByKey.get(snapKey(r));
   const exp = int(r.years_exp) ?? 0;
   const pick = draftByGsis.get(gsis) ?? (r.draft_number ? { pick: Number(r.draft_number), round: null, year: Number(r.rookie_year), nfl: nick(r.draft_club), nflCode: code(r.draft_club) } : null);
   const pos = statsNow.posOf.get(gsis) ?? statsPrev.posOf.get(gsis) ?? r.depth_chart_position ?? r.position;
   const inj = injuryByGsis.get(gsis);
-  players.push({
+  (gone ? departed : players).push({
     id: pidOf(gsis),
     gsis,
     n: r.full_name,
@@ -558,7 +564,7 @@ for (const [gsis, r] of roster) {
     home: r.college || null,
   });
 }
-log("players kept", players.length, "of", roster.size);
+log("players kept", players.length, "of", roster.size, "; retired or cut after playing this season:", departed.length);
 
 /* --------------------------------------------------------- play by play */
 const ftnByPlay = new Map();
@@ -1054,6 +1060,7 @@ await writeFile(path.join(OUT, "history.json"), JSON.stringify(history));
 await writeFile(path.join(OUT, "schedule.json"), JSON.stringify(schedule));
 await writeFile(path.join(OUT, "teams.json"), JSON.stringify(teamsOut));
 await writeFile(path.join(OUT, "players.json"), JSON.stringify(players));
+await writeFile(path.join(OUT, "departed.json"), JSON.stringify(departed));
 await writeFile(path.join(OUT, "gamelogs.json"), JSON.stringify(gamelogs));
 await writeFile(path.join(OUT, "history-games.json"), JSON.stringify(histGames));
 await writeFile(path.join(OUT, "situational.json"), JSON.stringify(situational));

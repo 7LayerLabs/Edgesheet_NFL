@@ -200,6 +200,8 @@ export const genSchedule = (): GenGame[] => memoSync(`gen:sched:${stamp("schedul
 export const scheduleStamp = () => stamp("schedule.json");
 export const teamsStamp = () => stamp("teams.json");
 export const playersStamp = () => stamp("players.json");
+/** Players retired (RET) or cut (CUT) in season after playing for the team, same shape as players.json (scripts/ingest.mjs). */
+export const genDeparted = (): GenPlayer[] => memoSync(`gen:departed:${stamp("departed.json")}`, 3600, () => readJson<GenPlayer[]>("departed.json", []));
 export const generatedLoaded = () => genMeta() !== undefined && genPlayers().length > 0;
 
 /* ---------------------------------------------------- game logs (scripts/ingest.mjs) */

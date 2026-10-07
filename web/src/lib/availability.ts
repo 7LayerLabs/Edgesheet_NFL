@@ -4,7 +4,10 @@
  * Status, newest source first: ESPN's league injury feed (live through game-day inactives),
  * then the nflverse official report (the Friday designations). Roster moves: nflverse rosters
  * and game lines (a player whose last 2026 line was for another team arrived; one whose last
- * line was for this team and is now elsewhere left), plus ESPN's transaction feed for context.
+ * line was for this team and is now elsewhere left), retirements and cuts (departed.json: nflverse
+ * status RET or CUT after playing for the team this season), and ESPN's transaction feed, which
+ * marks a rostered player out the day he retires, is released or waived, is traded, is suspended,
+ * or goes on a reserve list, before nflverse's roster catches up (departures()).
  *
  * The adjustment is measured against the players whose snaps built the team's numbers, so an
  * absence that already showed up in earlier games is not charged twice:
@@ -26,7 +29,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { genExtras, genGamelogs, genHistory, genMeta, genPlayers, genSchedule, gamelogsStamp, historyStamp, type GenMove, type GenPlayer, type StatLine } from "./generated";
+import { genDeparted, genExtras, genGamelogs, genHistory, genMeta, genPlayers, genSchedule, gamelogsStamp, historyStamp, type GenMove, type GenPlayer, type StatLine } from "./generated";
 import { memo, memoSync } from "./memo";
 import { nflTeams } from "./nfl";
 
@@ -53,6 +56,50 @@ export interface Transaction {
   date: string;
   team: string; // nickname
   text: string;
+}
+
+const ARRIVES = /\b(signed|re-signed|activated|claimed|acquired|elevated|promoted|reinstated|recalled|designated .* to return|returned)\b/i;
+const DEPARTS: [RegExp, string][] = [
+  [/retire/i, "Retired"],
+  [/\b(released|waived|terminated|cut)\b/i, "Released"],
+  [/\btraded\b/i, "Traded"],
+  [/\bsuspended\b|exempt list/i, "Suspended"],
+  [/\bplaced\b.*\binjured reserve\b/i, "Injured reserve"],
+  [/\bplaced\b.*\b(reserve|physically unable|non-football)\b/i, "Reserve list"],
+];
+
+/**
+ * Rostered players a team's ESPN transactions take away before nflverse's roster catches up (Lane Johnson's retirement
+ * sat a day as "active" on the Eagles): retired, released or waived, traded, suspended, or placed on a reserve list.
+ * Each sentence is read on its own ("Signed X. Placed Y on injured reserve."), a player's newest sentence wins (re-signed
+ * after a release keeps him), and an arrival word wins inside a sentence ("activated from injured reserve"). ESPN stamps a
+ * day's moves with one time and lists the newest first, so within a day the feed's own order decides.
+ */
+export function departures(moves: Transaction[], roster: GenPlayer[]): Map<string, { status: string; source: string; absence: number }> {
+  const out = new Map<string, { status: string; source: string; absence: number }>();
+  const named = roster
+    .map((p) => {
+      const parts = p.n.replace(/[’‘]/g, "'").trim().split(/\s+/);
+      const last = parts.length > 2 && /^(jr|sr|ii|iii|iv|v)\.?$/i.test(parts.at(-1)!) ? parts.at(-2)! : parts.at(-1)!;
+      const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return parts.length >= 2 ? { p, re: new RegExp(`\\b${esc(parts[0])}\\s+(?:[A-Z]\\.?\\s+)?${esc(last)}\\b`, "i") } : undefined;
+    })
+    .filter((x): x is { p: GenPlayer; re: RegExp } => Boolean(x));
+  const ordered = moves.map((m, i) => ({ m, i })).sort((a, b) => a.m.date.localeCompare(b.m.date) || b.i - a.i).map((x) => x.m);
+  for (const m of ordered) {
+    for (const sentence of m.text.split(/(?<=\.)\s+/)) {
+      for (const { p, re } of named) {
+        if (!re.test(sentence)) continue;
+        if (ARRIVES.test(sentence)) {
+          out.delete(p.id);
+          continue;
+        }
+        const hit = DEPARTS.find(([r]) => r.test(sentence));
+        if (hit) out.set(p.id, { status: hit[1], source: `ESPN transactions ${m.date.slice(5, 10)}`, absence: 1 });
+      }
+    }
+  }
+  return out;
 }
 
 async function getJson<T>(url: string): Promise<T> {
@@ -384,12 +431,21 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
   const teamGames = games.get(team)?.size ?? 0;
   const lines = byTeam.get(team) ?? [];
   const gamesFor = (id: string) => new Set(lines.filter((l) => l.id === id).map((l) => l.wk)).size;
+  // A lineman or defender with no stat line all season has no game lines; his games with snaps stand in.
+  const playedFor = (p: GenPlayer) => gamesFor(p.id) || Math.min(p.u?.gs ?? 0, teamGames);
   const teamLastWk = Math.max(0, ...lines.map((l) => l.wk));
   const playedLast = (id: string) => lines.some((l) => l.id === id && l.wk === teamLastWk);
   const espnById = new Map(espn.filter((e) => e.team === team).map((e) => [e.id, e]));
   const roster = players.filter((p) => p.t === team);
 
-  const statusFor = (p: GenPlayer) => playerStatus(p, espnById.get(p.id), clock);
+  // A retirement, release, trade, or suspension in ESPN's transactions outranks the injury feeds; a reserve placement
+  // counts only when those feeds do not already have him out (they carry the injury and its label).
+  const departedNow = departures(moves.filter((m) => m.team === team), roster);
+  const statusFor = (p: GenPlayer) => {
+    const st = playerStatus(p, espnById.get(p.id), clock);
+    const tx = departedNow.get(p.id);
+    return tx && (!/reserve/i.test(tx.status) || st.absence < 1) ? tx : st;
+  };
 
   const items: AvailItem[] = [];
 
@@ -450,7 +506,7 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
     if (p.pg === "QB" || p.pg === "K" || p.pg === "P" || p.pg === "LS") continue;
     const st = statusFor(p);
     if (st.absence <= 0) continue;
-    const played = gamesFor(p.id);
+    const played = playedFor(p);
     if (!played || !teamGames) continue;
     const v = playerValue(p);
     if (!v) continue;
@@ -486,6 +542,21 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
     const pts = -round1(v.pts * weight);
     if (pts === 0) continue;
     items.push({ id, name: p.n, pos: p.p ?? p.pg ?? "", side: ["OL", "RB", "WR", "TE"].includes(p.pg ?? "") ? "offense" : "defense", kind: "left", status: `now with the ${p.t}`, source: "roster", absence: 1, weight: round1(weight), pts, note: `${v.basis}; played ${gamesFor(id)} of ${teamGames} here before the move`, measured: v.measured });
+  }
+
+  // Retired or cut in season and on no roster now (departed.json): he built the team's numbers in the games he played,
+  // so his absence is charged like a trade's. Quarterbacks are already in the QB baseline.
+  for (const p of genDeparted()) {
+    if (p.t !== team || p.pg === "QB") continue;
+    const played = playedFor(p);
+    if (!played || !teamGames) continue;
+    const v = playerValue(p);
+    if (!v || v.pts <= 0) continue;
+    const weight = Math.min(1, played / teamGames);
+    const pts = -round1(v.pts * weight);
+    if (pts === 0) continue;
+    const retired = p.r.status === "RET";
+    items.push({ id: p.id, name: p.n, pos: p.p ?? p.pg ?? "", side: ["OL", "RB", "WR", "TE"].includes(p.pg ?? "") ? "offense" : "defense", kind: "left", status: retired ? "retired" : "released", source: "nflverse roster", absence: 1, weight: round1(weight), pts, note: `${v.basis}; played ${played} of ${teamGames} before he ${retired ? "retired" : "was released"}`, measured: v.measured, fresh: playedLast(p.id) });
   }
 
   // Arrived in season and listed as a starter: half his value (new playbook, new teammates).

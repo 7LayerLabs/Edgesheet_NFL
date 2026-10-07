@@ -1,6 +1,22 @@
 # WHERE WE LEFT OFF (kept current at every push)
 
-Latest, 2026-10-06 night, LIVE PC: Leaders page and efficiency, built off Derek's TruMedia screenshot (rush success%).
+Latest, 2026-10-06 late, DESKTOP PC: retirements and cuts now count as players out (found on Eagles at Jaguars:
+Lane Johnson, the Eagles' starting RT on every snap, retired Oct 6 and the model still had him playing).
+- src/lib/availability.ts departures(): ESPN transactions mark a rostered player out the day he retires, is released or
+  waived, is traded, is suspended, or goes on a reserve list (one sentence at a time; the newest move wins; an arrival
+  word wins in a sentence; a reserve placement only when the injury feeds do not already have him out). Checked on the
+  live feed: 56 moves matched, Lane Johnson "Retired [ESPN transactions 10-06]". Eagles at Jaguars: model JAX 4.4 -> 4.7,
+  gap 2.6 -> 2.3.
+- scripts/ingest.mjs writes data/generated/departed.json: nflverse status RET or CUT after playing for the team this
+  season (they were dropped before, so the model forgot them once nflverse caught up); charged like a trade. Kept out of
+  players.json so rosters, radar, and DFS never list them. 5 today (Xavier Smith, Rams; KhaDarel Hodge, 49ers; ...).
+- Linemen and defenders with no stat line all season (29 of 149 full-time OL) had no game lines, so their absences were
+  never charged; their games with snaps now stand in.
+- LIVE PC after pulling: run `npm run ingest` (departed.json is new). Open: a starting lineman is worth an assumed 0.4
+  points in the model; the market moved this line 3.5. A backtest of what a missing starting lineman is worth (team points
+  against the line) would replace the assumption.
+
+Previous, 2026-10-06 night, LIVE PC: Leaders page and efficiency, built off Derek's TruMedia screenshot (rush success%).
 - /leaders (nav after DFS): passing, rushing, receiving, team offense/defense boards from nflverse play-by-play
   (scripts/ingest-leaders.mjs + scripts/lib/leaders-agg.mjs, chained into ingest and prebuild; data/generated/
   leaders.json, genLeaders). EPA, success (EPA above zero, nflfastR models, so it differs from TruMedia; yards,
