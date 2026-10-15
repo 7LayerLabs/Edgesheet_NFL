@@ -1,21 +1,24 @@
 /**
- * Backtest the model total (src/lib/projection.ts expectedPoints) on past seasons.
+ * Backtest the model total (src/lib/projection.ts expectedPoints) on past seasons, out of sample.
  *
- *   node scripts/backtest-total.mjs                  # seasons 2022..2025
+ *   node scripts/backtest-total.mjs        # fit on 2019-21, graded on 2022-25
  *
  * Live formula, per offense against the other defense:
- *   points = AVG_PPG + plays x ((offense EPA a play - league offense mean) + (defense EPA a play allowed - league defense mean)) / 2
+ *   points = AVG_PPG + plays x shrink x ((offense EPA a play - league offense mean) + (defense EPA a play allowed - league defense mean)) / 2
  *   plays  = the average of the two offenses' plays a game; total = home + away.
  * Live inputs are this season's play-by-play (pass and run plays). Here they come from nflverse
  * stats_team_week (passing plus rushing EPA over attempts, sacks, and carries), walk-forward: a game
  * only sees weeks before it in the same season. Weather and availability are left out.
  *
- * Graded against finals and the nflverse closing total (schedule totalLine). Variants on a grid:
- *   shrink s     multiplies the EPA deviation (s = 1 is the live model)
- *   prior k      blends last season's team rates in with weight k / (games + k) (k = 0 is the live model)
- *   base         AVG_PPG; the fitted base is the mean of actual points per team in the graded games
- * Reports MAE, bias (model minus actual), and over/under hit rate by gap to the closing total.
- * Writes data/backtest/total.json.
+ * Audit 2026-10-12 item 2.2: the base and the shrink used to be picked on the same games they were graded on. Now
+ * they are fit on 2019-21 only (lowest miss against the final, base 20 to 25 by 0.1, shrink 0 to 1 by 0.05) and
+ * graded on 2022-25. Games count from week 2, since the live model makes a total after one game. Also reports
+ * weeks 2 and 3 against weeks 4 on (the live total waits until week 4 if the early weeks miss by 0.5+ more), and
+ * the earlier live constants on the same games for comparison. A last-season prior (k) is shown as context only.
+ *
+ * Graded against finals and the nflverse closing total (schedule totalLine). Reports MAE, bias (model minus actual),
+ * and over/under hit rate by gap to the closing total. Writes data/backtest/total.json and data/backtest/total-rows.json
+ * (the model total for each graded game, read by scripts/backtest-replay.mjs).
  */
 import { mkdir, writeFile, access, rename, readFile } from "node:fs/promises";
 import path from "node:path";
@@ -26,9 +29,11 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
 const CACHE = path.join(root, "data", "cache");
 const OUT = path.join(root, "data", "backtest");
-const SEASONS = (process.env.SEASONS ?? "2022,2023,2024,2025").split(",").map(Number);
-const LIVE_AVG = 22.8;
-const MIN_GAMES = 2; // grade from the point the live model has two games of data
+const FIT = [2019, 2020, 2021];
+const TEST = [2022, 2023, 2024, 2025];
+const SEASONS = [...FIT, ...TEST];
+const PREV_LIVE = { base: 22.4, s: 0.5, k: 0 }; // the live constants before this run
+const MIN_GAMES = 1; // the live model makes a total once both teams have one game
 const t0 = Date.now();
 const log = (...a) => console.log(`[${((Date.now() - t0) / 1000).toFixed(1)}s]`, ...a);
 const exists = (f) => access(f).then(() => true, () => false);
@@ -72,11 +77,15 @@ for (const y of [Math.min(...SEASONS) - 1, ...SEASONS]) {
 }
 
 /** Team rates from weeks before `week` (or the whole season when week is Infinity). */
+const ratesCache = new Map();
 function rates(y, team, week) {
+  const ck = `${y}|${team}|${week}`;
+  if (ratesCache.has(ck)) return ratesCache.get(ck);
   const arr = (lines.get(y)?.get(team) ?? []).filter((l) => l.week < week);
-  if (!arr.length) return undefined;
   const sum = (k) => arr.reduce((a, b) => a + b[k], 0);
-  return { games: arr.length, off: sum("epa") / sum("plays"), def: sum("epaAllowed") / sum("playsAllowed"), pace: sum("plays") / arr.length };
+  const out = arr.length ? { games: arr.length, off: sum("epa") / sum("plays"), def: sum("epaAllowed") / sum("playsAllowed"), pace: sum("plays") / arr.length } : undefined;
+  ratesCache.set(ck, out);
+  return out;
 }
 
 /** League means of team rates for the same cut (each team counted once). */
@@ -96,7 +105,7 @@ const blend = (cur, prev, k) => {
   return { games: cur.games, off: w * cur.off + (1 - w) * prev.off, def: w * cur.def + (1 - w) * prev.def, pace: w * cur.pace + (1 - w) * prev.pace };
 };
 
-const games = schedule.filter((g) => SEASONS.includes(g.season) && g.type === "REG" && g.played && g.total != null && g.totalLine != null);
+const allGames = schedule.filter((g) => SEASONS.includes(g.season) && g.type === "REG" && g.played && g.total != null && g.totalLine != null);
 function project(g, { s, k, base }) {
   const H = rates(g.season, g.homeCode, g.week);
   const A = rates(g.season, g.awayCode, g.week);
@@ -113,7 +122,8 @@ function project(g, { s, k, base }) {
   return pts(h, H, a, A) + pts(a, A, h, H);
 }
 
-function grade(variant) {
+const r3 = (x) => Math.round(x * 1000) / 1000;
+function grade(variant, games) {
   let ae = 0, bias = 0, n = 0, aeMkt = 0;
   const buckets = [[0, 2.5], [2.5, 5], [5, 99]].map(([lo, hi]) => ({ lo, hi, n: 0, hit: 0 }));
   let ouN = 0, ouHit = 0;
@@ -134,31 +144,82 @@ function grade(variant) {
     b.n++;
     b.hit += hit ? 1 : 0;
   }
-  const r3 = (x) => Math.round(x * 1000) / 1000;
+  const bucket = (b) => ({ hit: b.n ? r3(b.hit / b.n) : null, n: b.n });
   return {
     ...variant,
     games: n,
-    mae: r3(ae / n),
-    bias: r3(bias / n),
-    marketMae: r3(aeMkt / n),
-    ouHit: r3(ouHit / ouN),
-    gap0to2_5: `${r3(buckets[0].hit / Math.max(1, buckets[0].n))} (${buckets[0].n})`,
-    gap2_5to5: `${r3(buckets[1].hit / Math.max(1, buckets[1].n))} (${buckets[1].n})`,
-    gap5plus: `${r3(buckets[2].hit / Math.max(1, buckets[2].n))} (${buckets[2].n})`,
+    mae: n ? r3(ae / n) : null,
+    bias: n ? r3(bias / n) : null,
+    marketMae: n ? r3(aeMkt / n) : null,
+    ouHit: ouN ? r3(ouHit / ouN) : null,
+    gap0to2_5: bucket(buckets[0]),
+    gap2_5to5: bucket(buckets[1]),
+    gap5plus: bucket(buckets[2]),
   };
 }
 
-const gradedGames = games.filter((g) => project(g, { s: 1, k: 0, base: LIVE_AVG }) !== undefined);
-const fittedBase = Math.round((gradedGames.reduce((a, g) => a + g.total, 0) / gradedGames.length / 2) * 10) / 10;
-log("graded games", gradedGames.length, "actual points per team", fittedBase);
+/** The base and shrink with the lowest miss against the final on these games (k = 0, as live). */
+function fitOn(games) {
+  let best;
+  for (let b = 200; b <= 250; b++) {
+    for (let si = 0; si <= 20; si++) {
+      const v = grade({ base: b / 10, s: si / 20, k: 0 }, games);
+      if (!best || v.mae < best.mae) best = v;
+    }
+  }
+  return best;
+}
+const fitGames = allGames.filter((g) => FIT.includes(g.season));
+const testGames = allGames.filter((g) => TEST.includes(g.season));
+const best = fitOn(fitGames);
+const fit = { base: best.base, s: best.s, k: 0 };
+log("fit on 2019-21", JSON.stringify(fit), "MAE", best.mae, "on", best.games, "games");
 
-const variants = [];
-for (const base of [LIVE_AVG, fittedBase]) for (const s of [1, 0.75, 0.5, 0.25, 0]) for (const k of [0, 3, 6]) variants.push(grade({ base, s, k }));
-variants.sort((a, b) => a.mae - b.mae);
-const live = variants.find((v) => v.base === LIVE_AVG && v.s === 1 && v.k === 0);
+// Expanding window: each test season graded with constants fit on every season before it (from 2019). The live
+// constants for the next season come from the same procedure on every finished season.
+const expanding = TEST.map((y) => {
+  const f = fitOn(allGames.filter((g) => g.season < y));
+  return { season: y, base: f.base, s: f.s, ...grade({ base: f.base, s: f.s, k: 0 }, allGames.filter((g) => g.season === y)) };
+});
+const expandingMae = r3(expanding.reduce((a, x) => a + x.mae * x.games, 0) / expanding.reduce((a, x) => a + x.games, 0));
+const expandingMarket = r3(expanding.reduce((a, x) => a + x.marketMae * x.games, 0) / expanding.reduce((a, x) => a + x.games, 0));
+const nextFit = fitOn(allGames);
+const next = { base: nextFit.base, s: nextFit.s, k: 0 };
+log("expanding window MAE", expandingMae, "market", expandingMarket, "| next season", JSON.stringify(next));
+
+const early = testGames.filter((g) => g.week <= 3);
+const later = testGames.filter((g) => g.week >= 4);
+const out = {
+  builtAt: new Date().toISOString(),
+  fitSeasons: FIT,
+  testSeasons: TEST,
+  minGames: MIN_GAMES,
+  fit,
+  fitInSample: best,
+  test: grade(fit, testGames),
+  testPrevLive: grade(PREV_LIVE, testGames),
+  weeks2to3: grade(fit, early),
+  weeks4on: grade(fit, later),
+  bySeason: TEST.map((y) => ({ season: y, ...grade(fit, testGames.filter((g) => g.season === y)) })),
+  priorContext: [3, 6].map((k) => grade({ ...fit, k }, testGames)),
+  expanding,
+  expandingMae,
+  expandingMarketMae: expandingMarket,
+  next,
+};
+out.waitUntilWeek4 = out.weeks2to3.mae - out.weeks4on.mae >= 0.5;
 await mkdir(OUT, { recursive: true });
-await writeFile(path.join(OUT, "total.json"), JSON.stringify({ builtAt: new Date().toISOString(), seasons: SEASONS, minGames: MIN_GAMES, fittedBase, live, variants }, null, 2));
-console.log("Live model (base 22.8, s 1, k 0):");
-console.table([live]);
-console.log("Best variants by MAE:");
-console.table(variants.slice(0, 8));
+await writeFile(path.join(OUT, "total.json"), JSON.stringify(out, null, 2));
+// The model total for every graded game, for scripts/backtest-replay.mjs: test seasons with the constants fit before
+// them, 2019-21 with the 2019-21 fit (in sample; those seasons only train the replay's market weights).
+const constantsFor = (y) => (TEST.includes(y) ? expanding.find((x) => x.season === y) : fit);
+const totalRows = allGames.flatMap((g) => {
+  const c = constantsFor(g.season);
+  const t = project(g, { base: c.base, s: c.s, k: 0 });
+  return t === undefined ? [] : [{ id: g.id, season: g.season, week: g.week, model: Math.round(t * 2) / 2 }];
+});
+await writeFile(path.join(OUT, "total-rows.json"), JSON.stringify(totalRows));
+console.log("Graded 2022-25 from week 2:");
+console.table([{ model: "fit on 2019-21", ...out.test }, { model: "previous live (22.4, 0.5)", ...out.testPrevLive }].map((x) => ({ ...x, gap0to2_5: JSON.stringify(x.gap0to2_5), gap2_5to5: JSON.stringify(x.gap2_5to5), gap5plus: JSON.stringify(x.gap5plus) })));
+console.table([{ weeks: "2-3", ...out.weeks2to3 }, { weeks: "4+", ...out.weeks4on }].map((x) => ({ weeks: x.weeks, games: x.games, mae: x.mae, marketMae: x.marketMae })));
+log("wait until week 4:", out.waitUntilWeek4);
