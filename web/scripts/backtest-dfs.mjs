@@ -1,118 +1,97 @@
 /**
- * Backtest the DraftKings projection in src/lib/dfs.ts.
+ * Backtest the DraftKings projection in src/lib/dfs.ts on the standard pool.
  *
- *   node scripts/backtest-dfs.mjs                 # seasons 2024, 2025 (needs 2023 for the first prior)
+ *   node scripts/backtest-dfs.mjs                 # seasons 2022 to 2025 (2021 supplies the first prior)
  *
- * Walk-forward per week (week 3 on): each QB, RB, WR, and TE with 2+ games earlier that season, and
- * 8+ DK points a game so far (the pool a DFS player is choosing from), gets
- *   base      his DK points a game so far, blended with last season's per-game average at weight
- *             k / (games + k) (k = 0 is this season only)
- *   proj      base x (1 + s x (factor - 1)), factor = DK points the opponent allowed a game to the
- *             position so far against the league average, capped 0.7 to 1.35
- * graded against what he scored that week (DK Classic rules, no two-point conversions, as in dfs.ts).
- * Reports MAE and the correlation with actual points on a grid of k and s. Writes data/backtest/dfs.json.
+ * Walk-forward per week (week 3 on), every player a projection is made for (scripts/backtest-dfs-core.mjs: 2+ games, on
+ * the game roster, not Out or Doubtful, one quarterback a team), graded against his DK points that week; no stat line
+ * counts as 0. The standard pool is the top 20 QBs and TEs and the top 40 RBs and WRs by the live projection each week.
+ *   live      the projection as dfs.ts makes it: DK points a game blended with last season at 3 / (games + 3), half
+ *             expected fantasy points, a quarter of the opponent factor, plus the next-man-up bump, scaled by the game's
+ *             implied team total, then the calibration line (the last two from scripts/backtest-dfs-fit.mjs, fit on
+ *             2022-23, so 2022-23 is in sample for them; their out-of-sample test is in data/backtest/dfs-fit.json)
+ *   before    the same without the implied-total scaler and the calibration line (live until 2026-10-14)
+ *   average   his DK points a game so far this season (the benchmark)
+ * Reports MAE and mean error (projection minus actual) per position, per season, the same pool graded only on stat
+ * lines (how the old backtest counted), and, for reference, a grid of the prior weight k and the matchup weight s.
+ * Writes data/backtest/dfs.json.
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { readCsv, num } from "./lib/csv.mjs";
+import { LIVE, OUT, POS, POOL_SIZE, byPos, liveProj, loadSeason, pairedDiff, schedule, standardPool, walkSeason } from "./backtest-dfs-core.mjs";
 
-const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, "..");
-const CACHE = path.join(root, "data", "cache");
-const OUT = path.join(root, "data", "backtest");
-const SEASONS = (process.env.SEASONS ?? "2024,2025").split(",").map(Number);
-const POS = new Set(["QB", "RB", "WR", "TE"]);
-const S = [0, 0.25, 0.5];
+const SEASONS = (process.env.SEASONS ?? "2022,2023,2024,2025").split(",").map(Number);
 const K = [0, 1, 2, 3, 4, 6];
+const S = [0, 0.25, 0.5];
 
-const dk = (r) => {
-  const n = (k) => num(r[k]) ?? 0;
-  const py = n("passing_yards"), ry = n("rushing_yards"), rcy = n("receiving_yards");
-  return py * 0.04 + n("passing_tds") * 4 - n("passing_interceptions") + (py >= 300 ? 3 : 0) +
-    ry * 0.1 + n("rushing_tds") * 6 + (ry >= 100 ? 3 : 0) +
-    n("receptions") + rcy * 0.1 + n("receiving_tds") * 6 + (rcy >= 100 ? 3 : 0) -
-    n("fumbles_lost_total") + n("special_teams_tds") * 6;
+const sched = await schedule();
+const all = [];
+for (const season of SEASONS) all.push(...walkSeason(await loadSeason(season, sched)));
+
+const live = (r) => liveProj(r);
+const before = (r) => liveProj(r, { ...LIVE, volume: { QB: 0, RB: 0, WR: 0, TE: 0 }, calibration: undefined });
+const avg = (r) => r.now;
+const pool = standardPool(all, live);
+
+const diffs = Object.fromEntries([...POS.map((p) => [p, pairedDiff(pool.filter((r) => r.pos === p), avg, live)]), ["all", pairedDiff(pool, avg, live)]]);
+const benchmark = { live: byPos(pool, live), before: byPos(pool, before), average: byPos(pool, avg), liveMinusAverage: diffs };
+const bySeason = Object.fromEntries(SEASONS.map((y) => {
+  const rs = pool.filter((r) => r.season === y);
+  return [y, { live: byPos(rs, live), before: byPos(rs, before), average: byPos(rs, avg) }];
+}));
+
+// What the old way of counting (stat lines only) hid.
+const zeros = pool.filter((r) => !r.played);
+const survivorship = {
+  poolWeeks: pool.length,
+  noStatLine: zeros.length,
+  inactive: zeros.filter((r) => r.inactive).length,
+  inactiveQuestionable: zeros.filter((r) => r.inactive && r.q).length,
+  activeNoStatLine: zeros.filter((r) => !r.inactive).length,
+  liveAllWeeks: byPos(pool, live),
+  liveStatLinesOnly: byPos(pool.filter((r) => r.played), live),
 };
 
-async function seasonRows(season) {
-  const rows = [];
-  await readCsv(path.join(CACHE, `stats_player_week_${season}.csv`), (r) => {
-    if (r.season_type !== "REG" || !POS.has(r.position)) return;
-    rows.push({ id: r.player_id, pos: r.position, week: Number(r.week), opp: r.opponent_team, pts: dk(r) });
-  });
-  return rows;
-}
-
-const cells = new Map(); // `${k}|${s}` -> { ae, xs }
-const ys = [];
-for (const season of SEASONS) {
-  const rows = await seasonRows(season);
-  const prevRows = await seasonRows(season - 1);
-  const prev = new Map();
-  for (const r of prevRows) {
-    const e = prev.get(r.id) ?? prev.set(r.id, { pts: 0, n: 0 }).get(r.id);
-    e.pts += r.pts;
-    e.n++;
-  }
-  const weeks = [...new Set(rows.map((r) => r.week))].sort((a, b) => a - b);
-  for (const w of weeks) {
-    if (w < 3) continue;
-    const before = rows.filter((r) => r.week < w);
-    const allowed = new Map();
-    for (const r of before) {
-      const key = `${r.opp}|${r.pos}`;
-      const e = allowed.get(key) ?? allowed.set(key, { pts: 0, games: new Set() }).get(key);
-      e.pts += r.pts;
-      e.games.add(r.week);
-    }
-    const league = {};
-    for (const pos of POS) {
-      const per = [...allowed.entries()].filter(([key]) => key.endsWith(`|${pos}`)).map(([, e]) => e.pts / e.games.size);
-      league[pos] = per.reduce((a, b) => a + b, 0) / Math.max(1, per.length);
-    }
-    const hist = new Map();
-    for (const r of before) {
-      const e = hist.get(r.id) ?? hist.set(r.id, { pts: 0, n: 0 }).get(r.id);
-      e.pts += r.pts;
-      e.n++;
-    }
-    for (const r of rows.filter((x) => x.week === w)) {
-      const h = hist.get(r.id);
-      if (!h || h.n < 2) continue;
-      const now = h.pts / h.n;
-      if (now < 8) continue;
-      const p = prev.get(r.id);
-      const last = p && p.n >= 4 ? p.pts / p.n : undefined;
-      const a = allowed.get(`${r.opp}|${r.pos}`);
-      const factor = a && league[r.pos] ? Math.min(1.35, Math.max(0.7, a.pts / a.games.size / league[r.pos])) : 1;
-      ys.push(r.pts);
-      for (const k of K) {
-        const base = last === undefined || !k ? now : (h.n * now + k * last) / (h.n + k);
-        for (const s of S) {
-          const proj = base * (1 + s * (factor - 1));
-          const c = cells.get(`${k}|${s}`) ?? cells.set(`${k}|${s}`, { ae: 0, xs: [] }).get(`${k}|${s}`);
-          c.ae += Math.abs(proj - r.pts);
-          c.xs.push(proj);
-        }
-      }
-    }
-  }
-}
+// Reference grid on the same pool: prior weight k and matchup weight s (everything else as live).
+const ys = pool.map((r) => r.actual);
 const corr = (xs) => {
   const mx = xs.reduce((a, b) => a + b, 0) / xs.length, my = ys.reduce((a, b) => a + b, 0) / ys.length;
   let sxy = 0, sxx = 0, syy = 0;
   for (let i = 0; i < xs.length; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) ** 2; syy += (ys[i] - my) ** 2; }
   return Math.round((sxy / Math.sqrt(sxx * syy)) * 1000) / 1000;
 };
-const results = [...cells.entries()]
-  .map(([key, c]) => {
-    const [k, s] = key.split("|").map(Number);
-    return { k, s, playerWeeks: ys.length, mae: Math.round((c.ae / ys.length) * 1000) / 1000, corr: corr(c.xs) };
-  })
-  .sort((a, b) => a.mae - b.mae);
+const grid = [];
+for (const k of K) for (const s of S) {
+  const xs = pool.map((r) => liveProj(r, { ...LIVE, priorGames: k, matchupWeight: s }));
+  const mae = xs.reduce((a, x, i) => a + Math.abs(x - ys[i]), 0) / xs.length;
+  grid.push({ k, s, mae: Math.round(mae * 1000) / 1000, corr: corr(xs), live: k === LIVE.priorGames && s === LIVE.matchupWeight });
+}
+grid.sort((a, b) => a.mae - b.mae);
+
 await mkdir(OUT, { recursive: true });
-await writeFile(path.join(OUT, "dfs.json"), JSON.stringify({ builtAt: new Date().toISOString(), seasons: SEASONS, results }, null, 2));
-console.log("Live before this backtest: k 0, s 0.5");
-console.table(results.filter((r) => r.k === 0 && r.s === 0.5));
-console.table(results.slice(0, 10));
+await writeFile(path.join(OUT, "dfs.json"), JSON.stringify({
+  builtAt: new Date().toISOString(),
+  seasons: SEASONS,
+  pool: POOL_SIZE,
+  note: "Standard pool by the live projection, weeks 3 on, regular season. No stat line counts as 0. mae and bias (projection minus actual) in DK points; liveMinusAverage is the paired MAE difference (negative = the projection misses less) with its standard error.",
+  benchmark,
+  bySeason,
+  survivorship,
+  grid,
+}, null, 1));
+
+console.log(`Standard pool ${SEASONS.join(", ")}: ${pool.length} player-weeks, ${zeros.length} with no stat line (${survivorship.inactive} inactive, ${survivorship.activeNoStatLine} active without a stat line)`);
+console.log("Live projection:");
+console.table(benchmark.live);
+console.log("Season-to-date average:");
+console.table(benchmark.average);
+console.log("Live minus average, paired MAE difference:");
+console.table(diffs);
+console.log("Before the implied-total scaler and calibration (same pool):");
+console.table(benchmark.before);
+console.log("By season, MAE live / before / average:");
+console.table(Object.fromEntries(SEASONS.map((y) => [y, Object.fromEntries([...POS, "all"].map((p) => [p, `${bySeason[y].live[p].mae} / ${bySeason[y].before[p].mae} / ${bySeason[y].average[p].mae}`]))])));
+console.log("Live projection graded the old way (stat lines only) on the same pool:");
+console.table(survivorship.liveStatLinesOnly);
+console.log("Reference grid (k prior games, s matchup weight):");
+console.table(grid.slice(0, 8));

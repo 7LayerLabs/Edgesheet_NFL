@@ -2,7 +2,8 @@
  * DraftKings slate simulator. Pure functions, no I/O; seeded, so the same inputs always simulate the same way.
  *
  * Each simulation draws one scoring shock per game (both teams share it), one offense shock and one pass-versus-run
- * tilt per team, and one link shock per pass catcher (WR1-3, TE1) that his quarterback also loads on. A player's
+ * tilt per team, one link shock per pass catcher (WR1-3, TE1) that his quarterback also loads on, and one defense shock
+ * per game that the two defenses take with opposite signs (a takeaway for one is a short field for the other). A player's
  * percentile is his loadings on those shocks plus his own noise; his outcome shape (data/backtest/dfs-sim.json, built by
  * scripts/build-dfs-sim.mjs from 2022 to 2025) turns the percentile into points: projection x a ratio for players,
  * projection + a difference for defenses. A player who sits in a draw (his play probability) scores 0 there, and his
@@ -15,7 +16,8 @@
 
 export type SimPos = "QB" | "RB" | "WR" | "TE" | "DST";
 export type SimRole = "QB1" | "RB1" | "RB2" | "WR1" | "WR2" | "WR3" | "TE1";
-type L3 = { g: number; t: number; s: number };
+/** Loadings on the game (g), team offense (t), and pass-or-run tilt (s) shocks; d is the defenses' opposite-sign shock (DST only). */
+type L3 = { g: number; t: number; s: number; d?: number };
 
 export interface SimHistory {
   tiers: Record<SimPos, number[]>;
@@ -139,7 +141,7 @@ export function simulateSlate(players: SimPlayer[], h: SimHistory, opts: { n?: n
     const link = p.role && p.role in L.link ? L.link[p.role as keyof typeof L.link] : undefined;
     // A QB1 loads on each of his team's pass catchers' link shocks that are in the pool.
     const qbLinks = p.role === "QB1" ? linkRoles.filter((r) => players.some((x) => x.team === p.team && x.role === r)).map((r) => ({ r, q: L.link[r].q })) : [];
-    const shared = base.g ** 2 + base.t ** 2 + base.s ** 2 + (link ? link.p ** 2 : 0) + qbLinks.reduce((a, x) => a + x.q ** 2, 0);
+    const shared = base.g ** 2 + base.t ** 2 + base.s ** 2 + (base.d ?? 0) ** 2 + (link ? link.p ** 2 : 0) + qbLinks.reduce((a, x) => a + x.q ** 2, 0);
     const shape = h.shapes[tierKey(h, p.pos, p.proj)];
     return { p, base, link, qbLinks, own: Math.sqrt(Math.max(0, 1 - shared)), q: shape?.q, additive: p.pos === "DST" };
   });
@@ -151,9 +153,14 @@ export function simulateSlate(players: SimPlayer[], h: SimHistory, opts: { n?: n
   const T = new Map<string, number>();
   const S = new Map<string, number>();
   const P = new Map<string, number>();
+  const D = new Map<string, number>();
+  const dLoad = L.DST.d ?? 0;
 
   for (let i = 0; i < n; i++) {
-    for (const g of games) G.set(g, gauss());
+    for (const g of games) {
+      G.set(g, gauss());
+      if (dLoad) D.set(g, gauss());
+    }
     for (const t of teams) {
       T.set(t, gauss());
       S.set(t, gauss());
@@ -164,6 +171,8 @@ export function simulateSlate(players: SimPlayer[], h: SimHistory, opts: { n?: n
       // A defense loads on the OPPONENT's offense shock and its own team's tilt.
       let z = base.g * G.get(p.gameId)! + base.t * T.get(p.pos === "DST" ? p.opp : p.team)! + base.s * S.get(p.team)!;
       if (link && p.role) z += link.p * P.get(`${p.team}|${p.role}`)!;
+      // The two defenses in a game take the defense shock with opposite signs (which one gets + does not matter).
+      if (p.pos === "DST" && dLoad) z += (p.team < p.opp ? dLoad : -dLoad) * D.get(p.gameId)!;
       for (const x of qbLinks) z += x.q * P.get(`${p.team}|${x.r}`)!;
       z += own * gauss();
       const u = phi(z);

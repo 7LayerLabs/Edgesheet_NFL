@@ -14,9 +14,11 @@
  * left out. Nothing is invented: a player without a salary is not shown as a play.
  *
  * Projection (shown as "proj"): our average, blended with last season's per-game line at
- * weight 3 / (games + 3), times a quarter of the matchup factor (DK points the
- * opponent allows to the position against the league average, capped 0.7 to 1.35),
- * plus the next man up's share of an Out or Doubtful teammate's average (NEXT_MAN_UP_SHARE: RB 25%, TE 20%, WR none).
+ * weight 3 / (games + 3), half of it replaced by expected fantasy points, times a quarter of the matchup factor (DK points
+ * the opponent allows to the position against the league average, capped 0.7 to 1.35),
+ * plus the next man up's share of an Out or Doubtful teammate's average (NEXT_MAN_UP_SHARE: RB 25%, TE 20%, WR none),
+ * scaled by the team's implied total against its usual (VOLUME_WEIGHT), then put through the calibration line for his
+ * position (CALIBRATION: top players shrink).
  *
  * Defenses (DST): src/lib/dst.ts, from the defense's and the opponent's sack and turnover rates and the market's implied
  * opponent total (backtested in scripts/build-dfs-sim.mjs).
@@ -79,6 +81,43 @@ export const NEXT_MAN_UP_SHARE: Record<DkPos, number> = { QB: 0, RB: 0.25, TE: 0
  * with none, 6.46 at half (best), 6.50 with expected points alone; correlation 0.397 to 0.404.
  */
 const XFP_WEIGHT = 0.5;
+
+/**
+ * Game volume: the projection is scaled by 1 + w x (the team's implied total this game / its average implied total in its
+ * games so far this season - 1), w by position. Implied total = total / 2 plus or minus spread / 2. scripts/backtest-dfs-fit.mjs,
+ * fit on 2022-23 and graded on 2024-25 (standard pool: top 20 QB and TE, top 40 RB and WR; no stat line counts as 0):
+ * miss 6.64 to 6.58 DK points, every position lower. Against the league's average implied total instead did worse in the fit.
+ */
+export const VOLUME_WEIGHT: Record<DkPos, number> = { QB: 0.6, RB: 0.55, WR: 0.45, TE: 0.95 };
+
+/**
+ * Calibration per position: what players scored against what we projected, least squares on the 2022-23 standard pool
+ * (scripts/backtest-dfs-fit.mjs). Slopes under 1 mean the top projections ran high. Graded on 2024-25: miss 6.57 to 6.47 DK
+ * points. The line was fit on the pool, and below it the line would raise projections that already ran high, so it applies
+ * from the pool's floor up (the last pool player's projection, on average) and below the floor the projection is scaled by
+ * the line's ratio at the floor (miss under the pool 3.44 to 3.42 instead of 3.80).
+ */
+export const CALIBRATION: Record<DkPos, { a: number; b: number; floor: number }> = {
+  QB: { a: 3.649, b: 0.78, floor: 14.1 },
+  RB: { a: 0.504, b: 0.891, floor: 8 },
+  WR: { a: 1.516, b: 0.837, floor: 10.3 },
+  TE: { a: 1.733, b: 0.777, floor: 7 },
+};
+const calibrate = (pos: DkPos, proj: number) => {
+  const c = CALIBRATION[pos];
+  return proj >= c.floor ? c.a + c.b * proj : proj * ((c.a + c.b * c.floor) / c.floor);
+};
+
+/** The team's average implied total in its regular-season games before this one this season (closing lines), for VOLUME_WEIGHT. */
+function usualImplied(team: string, gameId: string): number | undefined {
+  const sched = genSchedule();
+  const me = sched.find((g) => g.id === gameId);
+  if (!me) return undefined;
+  const xs = sched
+    .filter((g) => g.season === me.season && g.type === "REG" && g.kickoff < me.kickoff && (g.home === team || g.away === team) && g.spread != null && g.totalLine != null)
+    .map((g) => (g.home === team ? (g.totalLine! + g.spread!) / 2 : (g.totalLine! - g.spread!) / 2));
+  return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : undefined;
+}
 
 /** League sacks per PFR pressure this season (last season while this one is thin), for the pass-rush lens. */
 const sackPerPressure = () =>
@@ -508,9 +547,16 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
   const plays: DfsPlay[] = [];
   const defense: DefProp[] = [];
   const vacancies: GameDfs["vacancies"] = [];
+  // The spread is filed under the favorite's abbreviation: the home ABBREVIATION decides the sign (passing the nickname
+  // swapped the two totals whenever the home team was favored).
+  const implied = impliedTotals(game.home.abbr, game.market?.spread, game.market?.total?.line);
 
   for (const { team, opp } of sides) {
     const roster = players.filter((p) => p.t === team.short);
+    // Game volume (VOLUME_WEIGHT): this game's implied total against the team's usual one.
+    const teamImplied = implied ? (team.short === game.home.short ? implied.home : implied.away) : undefined;
+    const usual = usualImplied(team.short, game.id);
+    const volume = teamImplied !== undefined && usual ? teamImplied / usual : 1;
     const dkRows = dk.rows.filter((r) => r.team === team.short);
     const dkByName = new Map(dkRows.map((r) => [nameKey(r.name), r]));
     const rosterByName = new Map(roster.map((p) => [nameKey(p.n), p]));
@@ -552,7 +598,8 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
       if (pos === "QB" && p?.dc && p.dc.rank > 1 && !bumps.has(p.id)) continue;
       const sd = p ? season.get(p.id) : undefined;
       // Last season per game from season totals (no 100- and 300-yard bonuses), blended in at 3 / (games + 3):
-      // scripts/backtest-dfs.mjs on 2024 and 2025 (4,121 player-weeks) cut the miss from 6.72 to 6.59 DK points.
+      // first fit on 2024 and 2025 (miss 6.72 to 6.59); on the 2022 to 2025 standard pool with every expected player
+      // (scripts/backtest-dfs.mjs, 7,680 player-weeks) the miss is 6.49 against 6.50 with no prior.
       const prior = p?.ps?.gp && p.ps.gp >= 4 ? dkPoints(p.ps) / p.ps.gp : undefined;
       let base: number | undefined;
       if (sd && prior !== undefined) base = (sd.avg * sd.games + prior * PRIOR_GAMES) / (sd.games + PRIOR_GAMES);
@@ -564,7 +611,8 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
       const allowed = table.get(opp.short)?.[pos];
       const factor = allowed && league[pos] ? Math.min(1.35, Math.max(0.7, allowed.perGame / league[pos])) : 1;
       const bump = p ? bumps.get(p.id) : undefined;
-      const proj = round1(base * (1 + MATCHUP_WEIGHT * (factor - 1)) + (bump?.pts ?? 0));
+      const raw = (base * (1 + MATCHUP_WEIGHT * (factor - 1)) + (bump?.pts ?? 0)) * (1 + VOLUME_WEIGHT[pos] * (volume - 1));
+      const proj = round1(calibrate(pos, raw));
       const gp = p?.s?.gp ?? sd?.games ?? 0;
       const snap = pct(p?.u?.o);
       const tshare = pct(p?.s?.tshare);
@@ -590,6 +638,7 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
         if (allowed.rank <= 10) bits.push(`${opp.short} allow ${allowed.perGame} DK pts a game to ${POS_WORD[pos]}, ${ordinal(allowed.rank)} most`);
         else if (allowed.rank >= 23) bits.push(`${opp.short} allow ${allowed.perGame} DK pts a game to ${POS_WORD[pos]}, ${ordinal(33 - allowed.rank)} fewest`);
       }
+      if (teamImplied !== undefined && usual && Math.abs(volume - 1) >= 0.08) bits.push(`${team.short} implied for ${round1(teamImplied)} points, ${teamImplied > usual ? "up" : "down"} from ${round1(usual)} a game so far`);
       if (bump) bits.push(pos === "QB" ? `starts for ${bump.from} (${bump.status})` : `${bump.from} is ${bump.status}: +${bump.pts} for the next man up, a tournament angle (backups usually gain little, sometimes a lot)`);
       if (st) bits.push(st);
 
@@ -629,9 +678,6 @@ function buildGame(game: GameLike, dk: DkSlate, espn: Map<string, EspnInjury>): 
 
     // The team defense: sacks, takeaways, TDs, and points allowed against the opponent's implied total.
     const dstRow = dkRows.find((r) => r.pos === "DST");
-    // The spread is filed under the favorite's abbreviation: the home ABBREVIATION decides the sign (passing the nickname
-    // swapped the two totals whenever the home team was favored).
-    const implied = impliedTotals(game.home.abbr, game.market?.spread, game.market?.total?.line);
     const d = dstRow ? dstProjection(team.short, opp.short, implied ? (opp.short === game.home.short ? implied.home : implied.away) : undefined) : undefined;
     if (dstRow && d) {
       plays.push({

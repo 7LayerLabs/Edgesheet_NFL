@@ -8,7 +8,9 @@
  * stat line in a posted game scored 0, for picks and mates alike). Edge = his points minus the price-mates' average (a
  * plus/minus against what his salary bought). Beat = more points than the price-mates' median: DK points are skewed by
  * a few big games, so a random pick tops the average less than half the time and "beat the average" would read low.
- * There is no free history of DraftKings salaries, so this forward record is the only test of the value lists.
+ * There is no free history of DraftKings salaries, so this forward record is the only test of the value lists. The saved
+ * pool also keeps each player's projection and season average (from 2026-10-14), so the projection can later be graded
+ * against salary-implied points on the same slates.
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -28,6 +30,8 @@ interface PoolRow {
   salary: number;
   gameId: string;
   pPlay: number;
+  proj?: number; // our projection (after Jev's role read), saved from 2026-10-14
+  avg?: number; // DK points a game this season
 }
 interface PicksFile {
   date: string;
@@ -43,7 +47,7 @@ export function lockPicks(sim: SlateSim, lists: { safest: ValuePick[]; upside: V
   const now = Date.now();
   const picks = [...lists.safest.map((p) => ({ ...p, list: "safest" as const })), ...lists.upside.map((p) => ({ ...p, list: "upside" as const }))].filter((p) => Date.parse(p.kickoff) > now);
   if (!picks.length) return;
-  const pool: PoolRow[] = sim.players.filter((p) => p.play.pos !== "DST").map((p) => ({ key: p.key, id: p.play.id, pos: p.play.pos, salary: p.play.salary, gameId: p.play.gameId, pPlay: p.pPlay }));
+  const pool: PoolRow[] = sim.players.filter((p) => p.play.pos !== "DST").map((p) => ({ key: p.key, id: p.play.id, pos: p.play.pos, salary: p.play.salary, gameId: p.play.gameId, pPlay: p.pPlay, proj: p.proj, avg: p.play.avg }));
   try {
     mkdirSync(DIR, { recursive: true });
     writeFileSync(file, JSON.stringify({ date: sim.date, lockedAt: new Date(now).toISOString(), picks, pool } satisfies PicksFile));

@@ -3,79 +3,37 @@
  *
  *   node scripts/build-dfs-sim.mjs            # seasons 2022 to 2025 (2021 supplies the first prior), cached nflverse files
  *
- * 1. Walk-forward player projections exactly as src/lib/dfs.ts makes them: week 3 on, QB RB WR TE with 2+ games, this
- *    season's DK points a game blended with last season at 3 / (games + 3), times a quarter of the opponent factor.
+ * 1. Walk-forward player projections exactly as src/lib/dfs.ts makes them (liveProj in scripts/backtest-dfs-core.mjs):
+ *    week 3 on, every QB RB WR TE the projection is made for (2+ games, on the game roster, not Out or Doubtful, the
+ *    starting quarterback). No stat line counts as 0, so the shapes carry the weeks a healthy player got nothing; a
+ *    questionable player who sat is left out, because the simulator's play chance already sits him.
  * 2. Walk-forward DST projections with the live formula (projectDst in src/lib/dst-core.mjs, the same function the app
  *    calls): sacks and takeaways from the defense's and the opponent's rates so far, TDs shrunk to the league rate,
  *    points allowed from the market's implied opponent total. Graded against the defense's season average.
  * 3. Outcome shapes: actual / projected for players, actual - projected for DST, as 101 quantiles per position and
  *    projection tier. These are the boom and bust ranges, measured.
- * 4. Correlations: rank-normal scores of those residuals, paired by role inside each game, fit to a three-factor model
- *    (a game scoring shock shared by both teams, a team offense shock, a pass-versus-run tilt) so the live simulator
- *    draws a whole slate consistently.
+ * 4. Correlations: rank-normal scores of those residuals (tied residuals share a score), paired by role inside each
+ *    game, fit to a factor model (a game scoring shock shared by both teams, a team offense shock, a pass-versus-run
+ *    tilt, and a shock the two defenses in a game take with opposite signs) so the live simulator draws a whole slate
+ *    consistently.
  * 5. Calibration gate, leave one season out: shapes built from the other seasons cover the held-out one (share of
  *    actuals under the 10th and 50th percentiles and over the 90th). Gate: the average over held-out seasons within 3
  *    points of nominal and every single season within 6, by position. Single seasons drift (2022 scored low, 2024
- *    high) because the league's scoring level moves every player's range together.
+ *    high) because the league's scoring level moves every player's range together. An actual that ties a percentile
+ *    (the zero weeks: at the low tiers 0 is a whole block of percentiles, about the 2nd to the 25th) counts as the
+ *    share of that block below the percentile, which is what the simulator draws; counting every tie half is only right
+ *    when the block is centered on the percentile, and the output keeps that older count for comparison.
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { readCsv, num } from "./lib/csv.mjs";
 import { blendRate, dstPoints, projectDst, seasonRates, teamWeeks } from "../src/lib/dst-core.mjs";
+import { liveProj, loadSeason, schedule, walkSeason as walkPlayers } from "./backtest-dfs-core.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
-const CACHE = path.join(root, "data", "cache");
 const OUT = path.join(root, "data", "backtest", "dfs-sim.json");
 const SEASONS = (process.env.SEASONS ?? "2022,2023,2024,2025").split(",").map(Number);
-const POS = ["QB", "RB", "WR", "TE"];
-const PRIOR_GAMES = 3;
-const MATCHUP_WEIGHT = 0.25;
-
-/* ------------------------------------------------------------ scoring (same rules as dfs.ts and backtest-dfs.mjs) */
-
-const dk = (r) => {
-  const n = (k) => num(r[k]) ?? 0;
-  const py = n("passing_yards"), ry = n("rushing_yards"), rcy = n("receiving_yards");
-  return py * 0.04 + n("passing_tds") * 4 - n("passing_interceptions") + (py >= 300 ? 3 : 0) +
-    ry * 0.1 + n("rushing_tds") * 6 + (ry >= 100 ? 3 : 0) +
-    n("receptions") + rcy * 0.1 + n("receiving_tds") * 6 + (rcy >= 100 ? 3 : 0) -
-    n("fumbles_lost_total") + n("special_teams_tds") * 6;
-};
-
-/* ------------------------------------------------------------ loading */
-
-async function playerRows(season) {
-  const rows = [];
-  await readCsv(path.join(CACHE, `stats_player_week_${season}.csv`), (r) => {
-    if (r.season_type !== "REG") return;
-    const n = (k) => num(r[k]) ?? 0;
-    rows.push({
-      id: r.player_id, pos: r.position, week: Number(r.week), team: r.team, opp: r.opponent_team, gid: r.game_id,
-      pts: POS.includes(r.position) ? dk(r) : 0,
-      sk: n("def_sacks"), int: n("def_interceptions"), fr: n("fumble_recovery_opp"), dtd: n("def_tds"), sttd: n("special_teams_tds"), saf: n("def_safeties"),
-      give: n("passing_interceptions") + n("fumbles_lost_total"), sks: n("sacks_suffered"),
-    });
-  });
-  return rows;
-}
-
-async function games() {
-  const out = new Map(); // `${season}|${week}|${team}` -> { gid, opp, score, oppScore, implied, oppImplied }
-  await readCsv(path.join(CACHE, "games.csv"), (r) => {
-    if (r.game_type !== "REG" || r.home_score === "") return;
-    const season = Number(r.season), week = Number(r.week);
-    const spread = num(r.spread_line), total = num(r.total_line);
-    const hs = Number(r.home_score), as = Number(r.away_score);
-    // nflverse spread_line: positive = home favored by that many.
-    const homeImp = spread != null && total != null ? (total + spread) / 2 : undefined;
-    const awayImp = spread != null && total != null ? (total - spread) / 2 : undefined;
-    out.set(`${season}|${week}|${r.home_team}`, { gid: r.game_id, opp: r.away_team, score: hs, oppScore: as, implied: homeImp, oppImplied: awayImp });
-    out.set(`${season}|${week}|${r.away_team}`, { gid: r.game_id, opp: r.home_team, score: as, oppScore: hs, implied: awayImp, oppImplied: homeImp });
-  });
-  return out;
-}
 
 /* ------------------------------------------------------------ statistics */
 
@@ -112,57 +70,23 @@ const tierOf = (pos, proj) => {
 /* ------------------------------------------------------------ walk-forward */
 
 /** One season: projected and actual DK points for every eligible player-week and team-week (DST). */
-function walkSeason(season, rows, prevRows, sched) {
+function walkSeason(data) {
+  const { season, rows, prevRows, sched } = data;
   const out = [];
-  // Last season per game: players (DK points) and teams (DST inputs).
-  const prevPlayer = new Map();
-  for (const r of prevRows) {
-    if (!POS.includes(r.pos)) continue;
-    const e = prevPlayer.get(r.id) ?? prevPlayer.set(r.id, { pts: 0, n: 0 }).get(r.id);
-    e.pts += r.pts;
-    e.n++;
+  // Players: the live projection (scripts/backtest-dfs-core.mjs).
+  for (const c of walkPlayers(data)) {
+    if (c.q && c.inactive) continue;
+    const proj = liveProj(c);
+    if (proj < 3) continue;
+    out.push({ season, week: c.week, gid: c.gid, team: c.team, opp: c.opp, pos: c.pos, id: c.id, proj, actual: c.actual });
   }
+  // DST inputs: last season per team.
   const oppScore = (y) => (w) => sched.get(`${y}|${w.week}|${w.team}`)?.oppScore;
   const prevTeams = seasonRates(teamWeeks(prevRows).values(), oppScore(season - 1));
   const teams = [...teamWeeks(rows).values()];
   const weeks = [...new Set(rows.map((r) => r.week))].sort((a, b) => a - b);
   for (const w of weeks) {
     if (w < 3) continue;
-    const before = rows.filter((r) => r.week < w);
-    // Opponent factor: DK points allowed a game to the position so far, against the league.
-    const allowed = new Map();
-    for (const r of before) {
-      if (!POS.includes(r.pos)) continue;
-      const key = `${r.opp}|${r.pos}`;
-      const e = allowed.get(key) ?? allowed.set(key, { pts: 0, games: new Set() }).get(key);
-      e.pts += r.pts;
-      e.games.add(r.week);
-    }
-    const league = {};
-    for (const pos of POS) {
-      const per = [...allowed.entries()].filter(([k]) => k.endsWith(`|${pos}`)).map(([, e]) => e.pts / e.games.size);
-      league[pos] = per.reduce((a, b) => a + b, 0) / Math.max(1, per.length);
-    }
-    const hist = new Map();
-    for (const r of before) {
-      if (!POS.includes(r.pos)) continue;
-      const e = hist.get(r.id) ?? hist.set(r.id, { pts: 0, n: 0 }).get(r.id);
-      e.pts += r.pts;
-      e.n++;
-    }
-    for (const r of rows) {
-      if (r.week !== w || !POS.includes(r.pos)) continue;
-      const h = hist.get(r.id);
-      if (!h || h.n < 2) continue;
-      const now = h.pts / h.n;
-      const p = prevPlayer.get(r.id);
-      const base = p && p.n >= 4 ? (h.n * now + PRIOR_GAMES * (p.pts / p.n)) / (h.n + PRIOR_GAMES) : now;
-      const a = allowed.get(`${r.opp}|${r.pos}`);
-      const factor = a && league[r.pos] ? Math.min(1.35, Math.max(0.7, a.pts / a.games.size / league[r.pos])) : 1;
-      const proj = base * (1 + MATCHUP_WEIGHT * (factor - 1));
-      if (proj < 3) continue;
-      out.push({ season, week: w, gid: r.gid, team: r.team, opp: r.opp, pos: r.pos, id: r.id, proj, actual: r.pts });
-    }
     // DST: the live projection (dst-core.mjs) from rates so far, last season, and the market's implied opponent total.
     const soFar = seasonRates(teams.filter((t) => t.week < w), oppScore(season));
     for (const t of teams) {
@@ -179,11 +103,9 @@ function walkSeason(season, rows, prevRows, sched) {
 
 /* ------------------------------------------------------------ run */
 
-const sched = await games();
+const sched = await schedule();
 const all = [];
-const cache = new Map();
-const load = async (y) => cache.get(y) ?? cache.set(y, await playerRows(y)).get(y);
-for (const season of SEASONS) all.push(...walkSeason(season, await load(season), await load(season - 1), sched));
+for (const season of SEASONS) all.push(...walkSeason(await loadSeason(season, sched)));
 
 // DST model against the season-average baseline.
 const dstRows = all.filter((r) => r.pos === "DST" && r.baseline !== undefined);
@@ -202,35 +124,45 @@ const shapes = (rows) => {
 };
 
 // Calibration gate, leave one season out.
-function holdOut(test) {
-const trainShapes = shapes(all.filter((r) => r.season !== test));
-const coverage = {};
-for (const r of all.filter((x) => x.season === test)) {
-  const s = trainShapes[tierOf(r.pos, r.proj)];
-  if (!s) continue;
-  const c = coverage[r.pos] ?? (coverage[r.pos] = { n: 0, under10: 0, under50: 0, over90: 0 });
-  const x = resid(r);
-  c.n++;
-  // A tie with the quantile counts half: many low-end receivers score exactly 0, which is also their 10th percentile.
-  const below = (q) => (x < q ? 1 : x === q ? 0.5 : 0);
-  const above = (q) => (x > q ? 1 : x === q ? 0.5 : 0);
-  c.under10 += below(s.q[10]);
-  c.under50 += below(s.q[50]);
-  c.over90 += above(s.q[90]);
+function holdOut(test, halfTies = false) {
+  const train = all.filter((r) => r.season !== test);
+  const trainShapes = shapes(train);
+  const sorted = new Map(); // tier -> the training residuals, sorted
+  for (const r of train) (sorted.get(tierOf(r.pos, r.proj)) ?? sorted.set(tierOf(r.pos, r.proj), []).get(tierOf(r.pos, r.proj))).push(resid(r));
+  for (const xs of sorted.values()) xs.sort((a, b) => a - b);
+  const coverage = {};
+  for (const r of all.filter((x) => x.season === test)) {
+    const s = trainShapes[tierOf(r.pos, r.proj)];
+    if (!s) continue;
+    const c = coverage[r.pos] ?? (coverage[r.pos] = { n: 0, under10: 0, under50: 0, over90: 0 });
+    const x = resid(r);
+    const xs = sorted.get(tierOf(r.pos, r.proj));
+    c.n++;
+    // Share of the training shape strictly under x and at or under x; a tie counts the part of its block under p.
+    let lo = 0;
+    while (lo < xs.length && xs[lo] < x) lo++;
+    let hi = lo;
+    while (hi < xs.length && xs[hi] === x) hi++;
+    const below = (q, p) => (x < q ? 1 : x > q ? 0 : halfTies || hi === lo ? 0.5 : Math.min(1, Math.max(0, (p - lo / xs.length) / ((hi - lo) / xs.length))));
+    c.under10 += below(s.q[10], 0.1);
+    c.under50 += below(s.q[50], 0.5);
+    c.over90 += 1 - below(s.q[90], 0.9);
+  }
+  const pct = (c, k) => Math.round((c[k] / c.n) * 1000) / 10;
+  return Object.fromEntries(Object.entries(coverage).map(([pos, c]) => [pos, { n: c.n, under10: pct(c, "under10"), under50: pct(c, "under50"), over90: pct(c, "over90") }]));
 }
-const pct = (c, k) => Math.round((c[k] / c.n) * 1000) / 10;
-return Object.fromEntries(Object.entries(coverage).map(([pos, c]) => [pos, { n: c.n, under10: pct(c, "under10"), under50: pct(c, "under50"), over90: pct(c, "over90") }]));
-}
-const bySeason = Object.fromEntries(SEASONS.map((y) => [y, holdOut(y)]));
 const off = (row) => Math.max(Math.abs(row.under10 - 10), Math.abs(row.under50 - 50), Math.abs(row.over90 - 10));
-const calibration = Object.fromEntries(["QB", "RB", "WR", "TE", "DST"].map((pos) => {
+const gate = (bySeason) => Object.fromEntries(["QB", "RB", "WR", "TE", "DST"].map((pos) => {
   const rows = SEASONS.map((y) => bySeason[y][pos]).filter(Boolean);
   const avg = (k) => Math.round((rows.reduce((a, r) => a + r[k], 0) / rows.length) * 10) / 10;
   const mean = { under10: avg("under10"), under50: avg("under50"), over90: avg("over90") };
   const worst = Math.round(Math.max(...rows.map(off)) * 10) / 10;
   return [pos, { ...mean, worstSeasonOff: worst, pass: off(mean) <= 3 && worst <= 6 }];
 }));
+const bySeason = Object.fromEntries(SEASONS.map((y) => [y, holdOut(y)]));
+const calibration = gate(bySeason);
 const calibrationPass = Object.values(calibration).every((c) => c.pass);
+const halfTies = gate(Object.fromEntries(SEASONS.map((y) => [y, holdOut(y, true)])));
 
 // Rank-normal scores within each tier, then role pairs inside each game.
 const finalShapes = shapes(all);
@@ -238,7 +170,14 @@ const byTier = new Map();
 for (const r of all) (byTier.get(tierOf(r.pos, r.proj)) ?? byTier.set(tierOf(r.pos, r.proj), []).get(tierOf(r.pos, r.proj))).push(r);
 for (const rs of byTier.values()) {
   rs.sort((a, b) => resid(a) - resid(b));
-  rs.forEach((r, i) => (r.z = invNorm((i + 0.5) / rs.length)));
+  // Tied residuals (the zeros at the low tiers) share the score of their middle rank.
+  for (let i = 0; i < rs.length; ) {
+    let j = i;
+    while (j + 1 < rs.length && resid(rs[j + 1]) === resid(rs[i])) j++;
+    const z = invNorm(((i + j) / 2 + 0.5) / rs.length);
+    for (let k = i; k <= j; k++) rs[k].z = z;
+    i = j + 1;
+  }
 }
 const roleOf = new Map(); // row -> role
 const byTeamWeek = new Map();
@@ -274,15 +213,17 @@ const observed = Object.fromEntries([...pairs.entries()].filter(([, e]) => e.n >
 // Factor fit. Offense loads on the game shock (g, shared by both teams), its team's offense shock (t), and its team's
 // pass-versus-run tilt (s). Each pass catcher (WR1-3, TE1) also has his own link shock (p) that his quarterback loads on
 // (q): a QB's day is roughly the sum of his receivers' days, while receivers compete for the same targets. A DST loads on
-// the game shock, the OPPONENT's offense shock (stored as t), and its own team's tilt.
+// the game shock, the OPPONENT's offense shock (stored as t), its own team's tilt, and a defense shock (d) the two
+// defenses in a game take with opposite signs: a takeaway or return score for one is a short field or points against for
+// the other (the two defenses run about -0.26; the other shocks alone gave them about 0).
 const posOf = (role) => (role === "DST" ? "DST" : role.replace(/\d$/, ""));
 const LINKS = ["WR1", "WR2", "WR3", "TE1"];
 let L = {
-  QB: { g: 0.2, t: 0.3, s: 0.3 }, RB: { g: 0.15, t: 0.3, s: -0.2 }, WR: { g: 0.15, t: 0.15, s: 0.15 }, TE: { g: 0.1, t: 0.1, s: 0.15 }, DST: { g: -0.1, t: -0.5, s: -0.1 },
+  QB: { g: 0.2, t: 0.3, s: 0.3 }, RB: { g: 0.15, t: 0.3, s: -0.2 }, WR: { g: 0.15, t: 0.15, s: 0.15 }, TE: { g: 0.1, t: 0.1, s: 0.15 }, DST: { g: -0.1, t: -0.5, s: -0.1, d: 0.3 },
   link: { WR1: { p: 0.5, q: 0.4 }, WR2: { p: 0.4, q: 0.3 }, WR3: { p: 0.3, q: 0.2 }, TE1: { p: 0.4, q: 0.2 } },
 };
 const implied = (key, M) => {
-  if (key === "dst-dst") return M.DST.g * M.DST.g;
+  if (key === "dst-dst") return M.DST.g * M.DST.g - M.DST.d * M.DST.d;
   const [kind, roles] = key.split(":");
   if (kind === "dst-own") { const o = M[posOf(roles)]; return M.DST.g * o.g + M.DST.s * o.s; }
   if (kind === "dst-opp") { const o = M[posOf(roles)]; return M.DST.g * o.g + M.DST.t * o.t; }
@@ -293,12 +234,12 @@ const implied = (key, M) => {
   return x.g * y.g + x.t * y.t + x.s * y.s + link;
 };
 const loss = (M) => Object.entries(observed).reduce((a, [k, o]) => a + o.n * (implied(k, M) - o.r) ** 2, 0);
-const sq = (v) => v.g * v.g + v.t * v.t + v.s * v.s;
+const sq = (v) => v.g * v.g + v.t * v.t + v.s * v.s + (v.d ?? 0) ** 2;
 const valid = (M) =>
   ["RB", "DST"].every((p) => sq(M[p]) <= 0.95) &&
   sq(M.QB) + LINKS.reduce((a, r) => a + M.link[r].q ** 2, 0) <= 0.95 &&
   LINKS.every((r) => sq(M[posOf(r)]) + M.link[r].p ** 2 <= 0.95);
-const knobs = [...["QB", "RB", "WR", "TE", "DST"].flatMap((pos) => ["g", "t", "s"].map((k) => [pos, k])), ...LINKS.flatMap((r) => [["link", r, "p"], ["link", r, "q"]])];
+const knobs = [...["QB", "RB", "WR", "TE", "DST"].flatMap((pos) => ["g", "t", "s"].map((k) => [pos, k])), ["DST", "d"], ...LINKS.flatMap((r) => [["link", r, "p"], ["link", r, "q"]])];
 const get = (M, kn) => (kn[0] === "link" ? M.link[kn[1]][kn[2]] : M[kn[0]][kn[1]]);
 const set = (M, kn, v) => (kn[0] === "link" ? (M.link[kn[1]][kn[2]] = v) : (M[kn[0]][kn[1]] = v));
 for (let step = 0.1; step > 0.0005; step /= 2) {
@@ -321,7 +262,7 @@ const result = {
   shapes: finalShapes,
   loadings: L,
   fit,
-  calibration: { method: "leave one season out", byPos: calibration, bySeason, pass: calibrationPass },
+  calibration: { method: "leave one season out", byPos: calibration, bySeason, pass: calibrationPass, halfTies },
   dst: { report: dstReport },
 };
 await mkdir(path.dirname(OUT), { recursive: true });
@@ -331,6 +272,8 @@ console.log(`player-weeks ${all.filter((r) => r.pos !== "DST").length}, DST team
 console.log("DST model vs baseline:", dstReport);
 console.log("Calibration, leave one season out (average over held-out seasons; worst single season's distance from nominal):");
 console.table(calibration);
+console.log("The same, counting every tie half (the older count):");
+console.table(halfTies);
 console.log("Factor loadings:", JSON.stringify(L));
 console.table(Object.entries(fit).sort((a, b) => b[1].n - a[1].n).slice(0, 24).map(([k, v]) => ({ pair: k, ...v })));
 console.log("Shape medians (p50) and 10th/90th by tier:");
