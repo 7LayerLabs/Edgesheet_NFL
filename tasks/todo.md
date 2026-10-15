@@ -51,6 +51,8 @@ first 2+ gap (totals: first 2.5+). Built and pushed 2026-10-14.
 - [x] 1.8 Copy: /index "every model change is tested" lists what isn't; reword "no gap size beat 52.4%"; drop
       "Confidence high" from report.ts and consensus.ts.
 
+Phases 2 to 5 APPROVED 2026-10-14 (Derek: "do 2-5"). Decision rules below were written and pushed before any run.
+
 Phase 2, test what is live before trusting it (backtests only; live numbers move only on a result):
 - [ ] 2.1 Replay the full live side recipe walk-forward 2022-25 (Elo + QB + unit edges + availability from nflverse
       injuries and depth charts). Measure each term against the close; terms that don't help come out.
@@ -77,8 +79,59 @@ Phase 5, players and DFS:
 - [ ] 5.2 Implied team totals as a volume scaler in the DK projection (free, nflverse games.csv); backtest.
 - [ ] 5.3 Calibration slope per position (top players are over-projected); QBs ran 2.2 low in week 5.
 - [ ] 5.4 Prop-implied DK points: start collecting props live (about 16k Odds API credits a season); backtest 2023-25
-      only if Derek OKs about 50k credits.
+      only if Derek OKs about 50k credits. BLOCKED: needs a paid Odds API plan (see rules).
 - [ ] 5.5 Simulator: defenses in the same game negatively correlated (-0.26 observed); spreads from projection residuals.
+
+Decision rules for Phases 2 to 5 (written 2026-10-14, before running anything). "Out of sample" = every season is
+predicted with numbers fit only on earlier seasons (expanding window from 2019), graded on 2022 to 2025. Closing line =
+nflverse spread_line / total_line. A result that misses its bar changes nothing live unless the rule says a piece comes out.
+
+2.1 Live side terms (unit edges, non-QB availability, QB). Rebuild each term walk-forward from nflverse play-by-play,
+    weekly rosters, injury reports and snap counts. Each term is added to Elo alone, once at its live constant and once
+    with its weight fit out of sample. It stays in the margin (at the better of the two weights) only if it lowers the
+    out-of-sample margin miss (MAE against the final) by 0.05+ points. A term that fails comes out. The full live recipe
+    is graded too.
+    Whether any term beats the close is decided in 3.1, not here.
+2.2 Totals. Fit the base and the EPA shrink on 2019-21 only, grade 2022-25 from week 2 (the live model starts after one
+    game). The live constants become the 2019-21 fit. If weeks 2 and 3 miss the final by 0.5+ more than weeks 4 on, the
+    model total waits until week 4.
+2.3 QB. Replacement and average levels from seasons before the graded one; starter = the QB nflverse names for the game,
+    no fallback to most plays (no name, no QB term for that game); k fit out of sample. Live k becomes the fit for the
+    latest season, and the QB term comes out if it fails the 2.1 bar.
+2.4 Spread of margins. Live SD becomes the out-of-sample root mean squared miss of the final margin around the model
+    margin, rounded to 0.1. Win chance is reported in 10-point buckets against what happened.
+3.1 Market plus deviation. For sides: final margin minus line = b x (model minus line), b fit out of sample by least
+    squares. The model shows line + b x (model minus line). A side gap is flagged only when b's 90% interval (fit on the
+    seasons before) is above 0 AND the shrunk gap reaches the existing 2 / 4 point tiers. Same for totals (2.5 / 5).
+    If b's interval includes 0, no gaps are flagged and the page says the model has not beaten the line.
+3.2 Cover chance. From the distribution of final margin minus closing line, 2015 to 2025 regular season and playoffs,
+    shifted by the 3.1 deviation; shown as each side's cover chance, pushes counted at whole-number lines.
+3.3 Consensus. Elo leaves the consensus (the EdgeSheet model is already mostly Elo); a tie is "on the number", not home.
+    Backtest the systems that have history (Elo, EPA model, EdgeSheet model) against the close; the consensus is shown
+    as context, never as a pick.
+3.4 Team rating. Ridge-regressed, opponent-adjusted EPA per play (offense and defense), prior from last season. It
+    replaces the rank-based unit-edge term only if it lowers the out-of-sample margin miss by 0.05+ more than the
+    unit-edge term does.
+4.1 Wind (PRE-REGISTERED). 2024 and 2025, outdoor and open-roof games, regular season and playoffs. Forecast =
+    Open-Meteo previous-runs 10 m wind speed issued the day before (previous_day1), at the stadium, averaged over the
+    kickoff hour and the 3 hours after. Windy = 10+ mph. Outcome = final total against the nflverse closing total, pushes
+    out. PASS = windy games go under 55%+ of the time, one-sided binomial p <= 0.05 against 50%, and 60+ games. Rain
+    the same way: 1+ mm forecast over those 4 hours, same bar. Pass: the live total keeps that tilt, sized by the
+    passing games' average miss against the close. Fail: that tilt comes out of the live total (it was never tested).
+4.2 Starting linemen out (PRE-REGISTERED). 2022 to 2025 regular season. Starting OL = the 5 linemen with the most
+    offensive snaps in the team's previous 3 games that season (week 1 skipped). Out = a starter with 0 offensive snaps
+    in the game (the close already knows inactives). A: team result against the close for team-games with 2+ starters
+    out; PASS = average 1.0+ point worse than the close, 95% interval below 0, and 100+ team-games. Pass makes it a
+    flagged signal; fail means no edge is claimed. B: cost per missing starter, fit on final margin minus the Elo margin;
+    it replaces the assumed 0.4 when its 95% interval excludes 0; otherwise 0.4 stays, labeled an assumption.
+4.3 The ledger shows CLV on N of 50 posted calls and calls the win-loss record not meaningful until 50.
+5.1 DFS benchmarks per position on the standard pool (top 20 QB and TE, top 40 RB and WR by projection) against the
+    season-to-date average; expected starters with no stat line count as 0. Salary-implied only exists for live slates.
+5.2 and 5.3 Implied team total scaler and calibration slope per position: fit on 2022-23, graded on 2024-25; each goes
+    live only if it lowers the 2024-25 miss on the standard pool.
+5.4 Blocked: about 16k Odds API credits a season needs a paid plan (the free key has 500 a month, shared). Not built.
+5.5 Simulator: same-game defense correlation and spread from projection misses, fit on 2022-25 like the rest of the
+    simulator; kept only if the calibration gate still passes.
 
 Not planned (evidence says no or no data): late-news edges against the betting market, ownership leverage, weekly prop
 unders, situational angles (division dogs, byes, Thursday road teams).
