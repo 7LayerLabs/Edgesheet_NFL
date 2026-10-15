@@ -10,8 +10,11 @@ import { LEAN_BACKTEST_NOTE, LEAN_THRESHOLDS, tierLabel } from "@/lib/leans";
 /**
  * Ledger: every graded posted call (the first lock with a gap or big gap to the market, leans.ts, frozen with
  * its line), the posted number, the closing number, the result at the posted number, closing-line value on the
- * same call, and a flat-bet simulation. Clearly labeled as a simulation; it is not advice.
+ * same call, and a flat-bet simulation. Clearly labeled as a simulation; it is not advice. Since 2026-10-14 the
+ * calls come from the model's own numbers (the projection shown is the market's): a forward test, judged on
+ * closing-line value once 50 calls have it (audit item 4.3).
  */
+const CLV_MIN = 50;
 export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
   const { rows, stats } = buildLedger(entries);
   const keyMissing = !hasOddsKey();
@@ -27,7 +30,8 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
         <span className="h-px flex-1 bg-line" />
       </div>
       <p className="mt-1 max-w-3xl text-sm text-chalk-3">
-        Each game&apos;s posted call: the first time the model sat at least {LEAN_THRESHOLDS.side.moderate} points off the spread or {LEAN_THRESHOLDS.total.moderate} off the total, frozen with that number and graded against it, even if the model or the line moved later.
+        A forward test of the model&apos;s own numbers. Each game&apos;s posted call is the first time the model sat at least {LEAN_THRESHOLDS.side.moderate} points off the spread or {LEAN_THRESHOLDS.total.moderate} off the total, frozen with that number and graded against it, even if the model or the line moved later.
+        These are not leans: the model has not beaten the closing line in backtests, so the slate shows the market&apos;s number and the calls are kept here to see whether the market moves toward them.
         The simulation stakes one flat unit on each big gap ({LEAN_THRESHOLDS.side.strong}+ points on the side, {LEAN_THRESHOLDS.total.strong}+ on the total, as posted) at standard -110 and does nothing else. Closing-line value is how many points the closing consensus moved toward the posted call;
         positive means the market came to the model by kickoff, and it is the fastest honest read on whether the model knows something. Both numbers are tuning signals for the model, not a betting record. {LEAN_BACKTEST_NOTE}
       </p>
@@ -38,6 +42,12 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
         <Tile label="CLV average" value={stats.clvAvg != null ? gated(stats.clvCount, LEDGER_MIN, `${stats.clvAvg > 0 ? "+" : ""}${stats.clvAvg.toFixed(2)}`) : "–"} sub={stats.clvCount ? `${stats.clvPositive} of ${stats.clvCount} legs beat the close${stats.clvCount >= LEDGER_MIN ? ` · side ${clvText(stats.sideClvAvg ?? undefined)}, total ${clvText(stats.totalClvAvg ?? undefined)}` : ""}` : keyMissing ? "needs ODDS_API_KEY for closing lines" : "no closing snapshots before kickoff yet"} tone={stats.clvAvg != null && stats.clvCount >= LEDGER_MIN ? (stats.clvAvg > 0 ? "good" : stats.clvAvg < 0 ? "bad" : undefined) : undefined} />
         <Tile label="Leans graded" value={String(stats.rows)} sub={`${stats.bets} big gaps, ${stats.betsAll - stats.bets} gaps`} />
       </div>
+      <p className="mt-2 text-sm text-chalk-2">
+        <span className="font-semibold text-chalk">Closing-line value on {Math.min(stats.clvCount, CLV_MIN)} of {CLV_MIN} posted calls{stats.clvCount > CLV_MIN ? ` (${stats.clvCount} so far)` : ""}.</span>{" "}
+        {stats.clvCount < CLV_MIN
+          ? `Until ${CLV_MIN} calls have it, the win-loss record means nothing: telling a real edge from luck takes about 2,000 bets on wins and losses, and about ${CLV_MIN} on line movement.`
+          : "Read the CLV average first; the win-loss record still needs about 2,000 bets to mean anything."}
+      </p>
       {(stats.bets < LEDGER_MIN || stats.clvCount < LEDGER_MIN) && stats.rows > 0 && (
         <p className="mono mt-2 text-xs text-chalk-3">Units, ROI, and CLV averages show once {LEDGER_MIN} legs are staked or closed. The table below is the full record either way.</p>
       )}

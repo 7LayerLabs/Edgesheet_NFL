@@ -25,7 +25,7 @@ export function decidedSummary(g: Game): string {
   const p = g.projection;
   if (p) {
     const w = p.winner === g.home.abbr ? g.home.short : g.away.short;
-    parts.push(`model ${w} by ${p.margin.toFixed(1)} at ${Math.round(p.winProb * 100)}%`);
+    parts.push(`projected ${w} by ${p.margin.toFixed(1)} at ${Math.round(p.winProb * 100)}%`);
   }
   return parts.join("; ");
 }

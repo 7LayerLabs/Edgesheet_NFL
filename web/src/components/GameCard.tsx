@@ -129,7 +129,7 @@ function ModelCall({ game }: { game: Game }) {
   const sideLine = p.modelSide && s ? (p.modelSide === s.team ? s.line : -s.line) : undefined;
   return (
     <span className="text-chalk-2">
-      <span className="font-semibold text-chalk">{game.status === "upcoming" ? "Model" : "Call"} {p.winner} by {p.margin.toFixed(1)}</span>
+      <span className="font-semibold text-chalk">{game.status === "upcoming" ? "Projected" : "Call"} {p.winner} by {p.margin.toFixed(1)}</span>
       {sTier && sideLine !== undefined && <span> · {tierLabel(sTier)} {p.modelSide} {sideLine > 0 ? "+" : ""}{sideLine}</span>}
       {tTier && <span> · {tierLabel(tTier)} {p.totalLean} {p.modelTotal}</span>}
     </span>

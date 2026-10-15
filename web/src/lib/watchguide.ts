@@ -195,7 +195,7 @@ function projectionCandidates(game: Game): Candidate[] {
   if (!p) return [];
   const facts: GuideFact[] = [];
   const winner = p.winner === game.home.abbr ? game.home : game.away;
-  facts.push({ id: "J1", text: `Model projection (a model, not a pick): ${winner.short} by ${p.margin.toFixed(1)}, ${Math.round(p.winProb * 100)}% to win, projected ${game.away.short} ${p.away}, ${game.home.short} ${p.home}, total ${p.total}.` });
+  facts.push({ id: "J1", text: `Projection (the market's number, since the model has not beaten the closing line; not a pick): ${winner.short} by ${p.margin.toFixed(1)}, ${Math.round(p.winProb * 100)}% to win, projected ${game.away.short} ${p.away}, ${game.home.short} ${p.home}, total ${p.total}.` });
   facts.push({ id: "J2", text: `Projected shape: ${p.shape}` });
   let priority = 0;
   let title = "";

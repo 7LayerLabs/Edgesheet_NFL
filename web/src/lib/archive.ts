@@ -50,7 +50,7 @@ export interface Pregame {
   spread?: { team: string; line: number }; // abbr of favorite, negative line
   total?: number;
   abbr: { home: string; away: string };
-  projection?: { winner: string; winProb: number; margin: number; home: number; away: number; modelSide?: string; confidence: string; modelTotal?: number; totalLean?: "over" | "under" | "none" };
+  projection?: { winner: string; winProb: number; margin: number; home: number; away: number; modelSide?: string; confidence: string; modelTotal?: number; totalLean?: "over" | "under" | "none"; raw?: { margin: number; total?: number } };
   /** Consensus of outside systems (FPI, Elo, EPA model, market) plus ours: median home margin and the side most lean to against the number. */
   consensus?: { median: number; favorite: string; side?: string; sideCount?: number; of: number };
   /** When the call last moved before kickoff (injury news, a new starter, a line move). Grading uses the latest pregame call. */
@@ -143,7 +143,7 @@ function axisOf(m: Matchup): string {
   return "other";
 }
 
-const projLock = (p: NonNullable<Game["projection"]>): NonNullable<Pregame["projection"]> => ({ winner: p.winner, winProb: p.winProb, margin: p.margin, home: p.home, away: p.away, modelSide: p.modelSide, confidence: p.confidence, modelTotal: p.modelTotal, totalLean: p.totalLean });
+const projLock = (p: NonNullable<Game["projection"]>): NonNullable<Pregame["projection"]> => ({ winner: p.winner, winProb: p.winProb, margin: p.margin, home: p.home, away: p.away, modelSide: p.modelSide, confidence: p.confidence, modelTotal: p.modelTotal, totalLean: p.totalLean, raw: p.raw });
 
 type CallShape = Pick<Pregame, "spread" | "total" | "projection">;
 
@@ -162,12 +162,24 @@ export function callGaps(c: CallShape, abbr: Pregame["abbr"]): { sideGap?: numbe
   return { sideGap, totalGap };
 }
 
-/** The calls one lock would post: the side at a 2+ point gap, the total at 2.5+ (leans.ts tiers). */
+/**
+ * The calls one lock would post: the side at a 2+ point gap, the total at 2.5+ (leans.ts tiers). Since 2026-10-14 the
+ * projection is the market's number (the model has not beaten the close), so the posted calls come from the model's own
+ * numbers in `raw`: a forward test of whether its early disagreements beat the closing line, not leans shown on the slate.
+ */
 function postFrom(c: CallShape, abbr: Pregame["abbr"], at: string): Posted {
   const p = c.projection;
   if (!p) return {};
-  const { sideGap, totalGap } = callGaps(c, abbr);
   const out: Posted = {};
+  if (p.raw) {
+    const marketHome = c.spread ? (c.spread.team === abbr.home ? -c.spread.line : c.spread.line) : undefined;
+    const sideGap = marketHome !== undefined ? Math.round(Math.abs(p.raw.margin - marketHome) * 10) / 10 : undefined;
+    if (sideGap !== undefined && sideTier(sideGap) && c.spread) out.side = { at, team: p.raw.margin > marketHome! ? abbr.home : abbr.away, gap: sideGap, line: { team: c.spread.team, line: c.spread.line } };
+    const totalGap = p.raw.total !== undefined && c.total !== undefined ? Math.round((p.raw.total - c.total) * 10) / 10 : undefined;
+    if (totalGap !== undefined && totalTier(Math.abs(totalGap)) && c.total !== undefined) out.total = { at, lean: totalGap > 0 ? "over" : "under", gap: Math.abs(totalGap), line: c.total };
+    return out;
+  }
+  const { sideGap, totalGap } = callGaps(c, abbr);
   if (sideGap !== undefined && sideTier(sideGap) && c.spread && p.modelSide) out.side = { at, team: p.modelSide, gap: sideGap, line: { team: c.spread.team, line: c.spread.line } };
   if (totalGap !== undefined && totalTier(totalGap) && c.total !== undefined && p.totalLean && p.totalLean !== "none") out.total = { at, lean: p.totalLean, gap: totalGap, line: c.total };
   return out;
@@ -216,6 +228,7 @@ export function lockPregame(game: Game, season: number): ArchiveEntry | undefine
       const moved =
         !cur ||
         cur.winner !== next.winner || cur.margin !== next.margin || cur.modelSide !== next.modelSide || cur.modelTotal !== next.modelTotal || cur.totalLean !== next.totalLean ||
+        cur.raw?.margin !== next.raw?.margin || cur.raw?.total !== next.raw?.total ||
         existing.pregame.spread?.team !== spread?.team || existing.pregame.spread?.line !== spread?.line || existing.pregame.total !== total;
       // Posted calls: what the lock already holds (or its first lock's gap), then this call fills any leg not yet posted.
       const posted = { ...postedOf(existing.pregame) };
@@ -267,9 +280,7 @@ export function lockPregame(game: Game, season: number): ArchiveEntry | undefine
         .map((p) => ({ id: p.id, name: p.name, team: p.radar!.team, pos: p.pos, group: p.radar!.group, tier: p.tier, score: p.radar!.score })),
       spread: game.market.spread ? { team: game.market.spread.team, line: game.market.spread.line } : undefined,
       total: game.market.total?.line,
-      projection: game.projection
-        ? { winner: game.projection.winner, winProb: game.projection.winProb, margin: game.projection.margin, home: game.projection.home, away: game.projection.away, modelSide: game.projection.modelSide, confidence: game.projection.confidence, modelTotal: game.projection.modelTotal, totalLean: game.projection.totalLean }
-        : undefined,
+      projection: game.projection ? projLock(game.projection) : undefined,
       consensus: consensusLock(game),
     },
   };

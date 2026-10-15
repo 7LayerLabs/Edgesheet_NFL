@@ -60,11 +60,11 @@ const FILES: [string, string][] = [
 
 type Model = { name: string; what: string; inputs: string; where: string };
 const MODELS: Model[] = [
-  { name: "Game projection (side and total)", what: "Who wins and by how much, and how many points.", inputs: "Elo ratings (home field included), 40% of the unit matchup edges, injury points from Who is playing (QB swap on 5 seasons of EPA), and for the total each offense's EPA per play against the other defense, both teams' pace, and a weather tilt.", where: "Game page, clean sheet, Record" },
-  { name: "The gap", what: "How far the model sits from the posted spread or total. Called a gap, never a pick.", inputs: "Projection against the current line. 2+ points on the side or 2.5+ on the total is a gap; 4+ and 5+ a big gap.", where: "Game page, clean sheet" },
-  { name: "Who is playing (availability)", what: "Points each team loses or gains from who is out.", inputs: "ESPN live list, the official report, practice lines, snap shares, and each player's value; a starting QB change is priced from his EPA.", where: "Game page Injuries, model" },
-  { name: "DraftKings projection", what: "Each player's expected DK points and our price.", inputs: "DK points a game blended with last season (3-game prior), expected fantasy points at half weight, a quarter of the defense-against-position matchup, and the next-man-up bump (RB 25%, TE 20%, WR none).", where: "DFS page, game page DraftKings" },
-  { name: "DFS simulator", what: "10,000 simulated slates for ranges, bust rates, and lineups.", inputs: "Historical outcome shapes and correlations (QB with his receivers, opposing players), game environment shocks, DST model.", where: "DFS page" },
+  { name: "Game projection (side and total)", what: "Who wins and by how much, and how many points. The market's number until the model beats the closing line.", inputs: "The posted spread and total, plus the share of the model's own disagreement that has held up against the close (none so far). The model's own margin: Elo ratings (home field included) plus the QB change (5 seasons of EPA, half weight). Its own total: each offense's EPA per play against the other defense and both teams' pace, from each team's 3rd game. Win chance on a 12.8-point spread; cover chance from how games landed at each line since 2015.", where: "Game page, clean sheet, Record" },
+  { name: "The gap", what: "How far the model's own number sits from the posted spread or total. Called a gap, never a pick, and flagged only once the model beats the closing line.", inputs: "The model's own numbers against the current line. 2+ points on the side or 2.5+ on the total is a gap; 4+ and 5+ a big gap. Frozen on the Record page as a forward test.", where: "Record" },
+  { name: "Who is playing (availability)", what: "Points each team loses or gains from who is out. Only the QB change moves the model's margin.", inputs: "ESPN live list, the official report, practice lines, snap shares, and each player's value; a starting QB change is priced from his EPA; a starting lineman is worth 1.4 points (measured).", where: "Game page Injuries, model" },
+  { name: "DraftKings projection", what: "Each player's expected DK points and our price.", inputs: "DK points a game blended with last season (3-game prior), expected fantasy points at half weight, a quarter of the defense-against-position matchup, and the next-man-up bump (RB 25%, TE 20%, WR none); scaled by the game's implied team total against the team's usual, then a calibration line per position (top players shrink).", where: "DFS page, game page DraftKings" },
+  { name: "DFS simulator", what: "10,000 simulated slates for ranges, bust rates, and lineups.", inputs: "Historical outcome shapes (healthy zero weeks included) and correlations (QB with his receivers, opposing players), game environment shocks, the two defenses in a game moving opposite ways, DST model.", where: "DFS page" },
   { name: "Watch Score (games)", what: "How worth watching a game is, 0 to 100. Not a bet signal.", inputs: "Competitive (30), unit mismatches (25), stakes (20), rookie and breakout density (15), national TV (10).", where: "Full slate, game page" },
   { name: "Radar score (players)", what: "How worth watching a player is. Not a grade.", inputs: "Production percentile at his position (50%), snap share percentile (30%), context (20%: breakout, against the slot, starter).", where: "Radar, game page" },
   { name: "Against the slot", what: "Is a rookie or second-year player beating his draft range?", inputs: "His DK (offense) or IDP (defense) points per team game against every player drafted in the same range at the position he plays since 2018, same career season, same point of the season.", where: "Rookies, player page" },
@@ -77,9 +77,20 @@ const MODELS: Model[] = [
 
 type Test = { name: string; result: string; verdict: "Used" | "Context only" | "Not used" };
 const TESTS: Test[] = [
-  { name: "Model side against the spread (2022 to 2025, 1,139 games)", result: "Elo plus the QB adjustment covered about 48% against the closing line. Gaps of 4+ points hit 55% on 116 games while 3 to 4 points hit 40%: noise, not an edge. Picks the winner 64% of the time; taking the closing favorite every game did 67.5%.", verdict: "Context only" },
-  { name: "Model total (959 games)", result: "Hit 48% on the over/under (the live settings: 22.4 a team, half the EPA gap). No gap size beat 52.4%: 5+ points hit 49% on 148 games.", verdict: "Context only" },
+  { name: "Model side against the closing line (2022 to 2025, 1,139 games, every weight fit on earlier seasons)", result: "Elo plus the QB covered 48%. Final margin minus the line against the model's gap gave a weight of -0.05 (90% range -0.21 to 0.11): the model's disagreement with the close is worth nothing yet. Picks the winner 64% of the time; taking the closing favorite every game did 67.5%.", verdict: "Context only" },
+  { name: "Model total (2022 to 2025, 1,023 games, fit on earlier seasons)", result: "Missed the final by 10.67 against 10.16 for the closing total; about 49% on the over/under; weight on its gap -0.03 (-0.17 to 0.10). Weeks 2 and 3 missed by 0.57 more, so the total starts at each team's 3rd game.", verdict: "Context only" },
+  { name: "QB change in the margin (named starter, levels from earlier seasons)", result: "Lowered the margin miss from 9.95 to 9.89 at half weight. Does not beat the close.", verdict: "Used" },
+  { name: "Unit matchup edges in the margin (full replay, 2022 to 2025)", result: "Made the margin miss worse (9.95 to 9.98 at the live 40%). A ridge-regressed EPA rating did worse still.", verdict: "Not used" },
+  { name: "Other injuries in the margin (full replay, 2022 to 2025)", result: "Lowered the miss by 0.02 points against a 0.05 bar.", verdict: "Context only" },
+  { name: "Two or more starting linemen out (pre-registered, 198 team-games)", result: "1.2 points worse than the close, but the 95% range (-2.8 to +0.5) includes zero: no edge. Each missing starter cost 1.4 points against Elo (0.6 to 2.2), which replaced the assumed 0.4.", verdict: "Context only" },
+  { name: "Forecast wind and rain on totals (pre-registered, 2024 to 2025)", result: "Windy games (10+ mph) went under 53.6% of 97; rainy games 41% of 29. Short of the bar (55% and p 0.05), so weather no longer tilts the total.", verdict: "Not used" },
+  { name: "Margin spread and cover chance", result: "Final margins land 12.8 points around the model, 12.4 around the line. The cover table (2015 to 2025) gave closing favorites 49.7% and they covered 49.6%.", verdict: "Used" },
+  { name: "Consensus of systems (2022 to 2025)", result: "The EPA model and the EdgeSheet model's median covered 48.2%; with Elo counted too, 48.6%. Shown as context.", verdict: "Context only" },
   { name: "Expected fantasy points in the DK projection (8,209 player-weeks)", result: "Miss fell from 6.52 to 6.46 points at half weight.", verdict: "Used" },
+  { name: "DK projection against the season average (standard pool, 2022 to 2025, a missing stat line counts 0)", result: "Miss 6.64 against 6.83, lower at every position (QB 6.39, RB 6.63, WR 7.22, TE 5.75). Counting only players with a stat line had understated the miss (6.52).", verdict: "Used" },
+  { name: "Implied team total in the DK projection (fit 2022-23, graded 2024-25)", result: "Miss fell from 6.64 to 6.58, every position lower.", verdict: "Used" },
+  { name: "Calibration line per position (fit 2022-23, graded 2024-25)", result: "Miss fell from 6.57 to 6.47, every position lower. Applied from the pool's floor up; projections now run about 0.3 low on average.", verdict: "Used" },
+  { name: "Same-game defenses in the simulator", result: "Fitted correlation -0.21 against -0.26 observed (was 0.00). Calibration gate passes, counting the zero weeks the way the simulator draws them.", verdict: "Used" },
   { name: "Pass rush from pressures (12,394 rusher-weeks)", result: "Better than sacks alone (Brier 0.179 vs 0.196).", verdict: "Used" },
   { name: "Next man up", result: "Backups gained 28% of an out back's average, 23% of a tight end's, about none of a receiver's.", verdict: "Used" },
   { name: "Defense against position", result: "A quarter weight helped; more hurt.", verdict: "Used" },
@@ -94,14 +105,11 @@ const TESTS: Test[] = [
   { name: "\"Loves playing them\" (past games against a team)", result: "No relationship (0.00 over 9,572 games).", verdict: "Not used" },
 ];
 
-/** Pieces of the live game projection with no backtest behind them yet (2026-10-12 audit). Remove a line when its test runs. */
+/** Pieces of the model's own numbers with no backtest behind them yet. Remove a line when its test runs. */
 const UNTESTED = [
-  "the unit-edge term in the side (40% of the matchup gaps)",
-  "injury points for players other than the QB, and their caps",
   "blending a questionable QB with his backup",
-  "weather tilts on the total",
-  "the win chance's calibration once edges and injuries are added",
-  "the consensus median",
+  "injury points on the model's own total",
+  "FPI in the consensus (no free history)",
 ];
 
 const PAGES: [string, string, string][] = [
@@ -193,7 +201,7 @@ export default function IndexPage() {
           ))}
         </ul>
         <p className="mt-3 text-sm text-chalk-2">
-          <span className="font-semibold text-chalk">Live but not tested yet:</span> {UNTESTED.join("; ")}. These move the game projection without a backtest behind them; the 2026-10-12 audit (tasks/audit-2026-10-12.md) has the plan to test each one.
+          <span className="font-semibold text-chalk">Live but not tested yet:</span> {UNTESTED.join("; ")}. These move the model&apos;s own numbers without a backtest behind them; the projection shown is the market&apos;s until the model beats the close.
         </p>
         <p className="mono mt-2 text-[11px] text-chalk-3">Full numbers: data/backtest/*.json; rerun with npm run backtest:qb, :total, :xfp, :pressure, :nextman, :efficiency, :primetime, :seed, :coverage, :fourth, :stories, :splits.</p>
       </Section>

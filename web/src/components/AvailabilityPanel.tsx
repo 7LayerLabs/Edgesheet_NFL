@@ -23,8 +23,8 @@ export function AvailabilityPanel({ game, a, vacated }: { game: Game; a: GameAva
     <div className="mt-3">
       <p className="max-w-3xl text-sm text-chalk-2">
         {net === 0
-          ? "Nothing on either injury list moves the margin."
-          : `Net ${Math.abs(net)} points to the ${net > 0 ? game.home.short : game.away.short} once the lineups are priced in. ${game.status === "upcoming" ? "The model's call already includes it." : "The locked call priced the lineups as they stood before kickoff."}`}
+          ? "Nothing on either injury list changes the lineups' value."
+          : `Net ${Math.abs(net)} points to the ${net > 0 ? game.home.short : game.away.short} once the lineups are priced in. Only the quarterback part moves the model's own margin: in testing (2022-25) the rest did not improve it enough to keep, so it is shown here as context.`}
       </p>
       <div className="mt-3 grid gap-2.5 md:grid-cols-2">
         {sides.map(([t, av]) => (
@@ -107,7 +107,7 @@ export function AvailabilityPanel({ game, a, vacated }: { game: Game; a: GameAva
         ))}
       </div>
       <p className="mt-3 max-w-3xl text-xs leading-relaxed text-chalk-3">
-        Sources: {a.sources.join(", ")}. QB: expected starter&apos;s EPA a play over up to five seasons (recent seasons count more; a thin record is pulled toward a backup, a proven one toward an average starter) against the QBs whose snaps built the team&apos;s numbers (this season and last), times QB plays a game, times 0.75 (backtest fit on 2022 to 2025). Skill players: EPA a touch or target above the 25th percentile at the position, half credit. Linemen and defenders: fixed starter values times snap share (assumed, not measured). Weighted by games played and the chance he sits (Questionable 25%, 50% with no practice on the final day). Roster changes by week come from nflverse weekly rosters.
+        Sources: {a.sources.join(", ")}. QB: expected starter&apos;s EPA a play over up to five seasons (recent seasons count more; a thin record is pulled toward a backup, a proven one toward an average starter) against the QBs whose snaps built the team&apos;s numbers (this season and last), times QB plays a game, times 0.5 (fit on 2019 to 2025). Skill players: EPA a touch or target above the 25th percentile at the position, half credit. Linemen: 1.4 points a starter times snap share (measured on 2022 to 2025). Defenders: fixed starter values times snap share (assumed, not measured). Weighted by games played and the chance he sits (Questionable 25%, 50% with no practice on the final day). Roster changes by week come from nflverse weekly rosters.
         {a.notes.length ? ` ${a.notes.join(" ")}` : ""}
       </p>
     </div>

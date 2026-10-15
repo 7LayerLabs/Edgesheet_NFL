@@ -178,7 +178,7 @@ function Leans({ s }: { s: Sheet }) {
     <section>
       <SectionTitle n="03" note="gaps to the posted number, not picks">Leans</SectionTitle>
       {!s.leans.length ? (
-        <Empty>No side or total gap clears the lean threshold (2 points side, 2.5 points total).</Empty>
+        <Empty>No leans: the model has not beaten the closing line in testing (2022-25), so none are flagged. Its own gaps are kept on the Record page as a forward test.</Empty>
       ) : (
         <ol className="sheet-list">
           {s.leans.map((l) => (

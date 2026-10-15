@@ -1,6 +1,43 @@
 # WHERE WE LEFT OFF (kept current at every push)
 
-Latest, 2026-10-14, DESKTOP PC: prediction audit Phase 1 built and pushed (make the record honest; no model change).
+Latest, 2026-10-15, DESKTOP PC: prediction audit Phases 2 to 5 built (Derek: "do 2-5"). The decision rules were
+pushed before anything ran (8bd3de7); results are under each item below.
+- Headline: the model has not beaten the closing line. Replayed walk-forward on 2022-25, the weight the close puts on
+  the model's gap is about zero for sides (-0.05, 90% -0.21 to 0.11) and totals (-0.03). So the projection shown is now
+  the market's number (projection.ts MARKET_WEIGHT), no lean is flagged anywhere (slate, game page, sheet, Telegram),
+  and the model's own numbers ride along as projection.raw. Re-fit MARKET_WEIGHT after each season.
+- The model's own margin is Elo + 0.5 x QB. Unit edges and non-QB injuries are shown, not counted (they failed 2.1).
+  OL starter value 1.4 (measured, 4.2B). SD 12.8. Model total 22.6 / 0.35, from each team's 3rd game, no weather tilt
+  (4.1 failed). Cover chance on the game page from data/backtest/margins.json (src/lib/cover.ts).
+- Consensus: the Elo row is gone, an even split sits on the number, and the EdgeSheet row is the model's own number.
+- Record: the posted calls (the forward test) now come from the model's own numbers (archive.ts postFrom reads
+  pregame.projection.raw); the ledger counts CLV toward 50 calls before the win-loss record means anything (4.3).
+- Scripts: backtest-replay.mjs (2.1, 2.4, 3.1 to 3.4, 4.2), replay-build.mjs (its inputs, cached in data/cache/replay),
+  backtest-wind.mjs (4.1); backtest-qb.mjs and backtest-total.mjs rewritten out of sample. Rerun order:
+  backtest-total, backtest-qb, replay-build, backtest-replay; then copy the new constants into projection.ts.
+- Phase 5 (DFS, built by a helper agent, reviewed here): the backtests now count every expected player (a missing stat
+  line scores 0). On the 2022-25 standard pool the projection beat the season average at every position (6.64 vs 6.83).
+  The implied-team-total scaler (5.2) and a calibration line per position (5.3) passed out of sample and are live in
+  dfs.ts: 2024-25 miss 6.64 to 6.48; projections now run about 0.3 low (TE about 0.7). Simulator (5.5): outcome shapes
+  rebuilt from the live projection with healthy zero weeks, and an opposite-sign defense shock (same-game DST pair -0.21
+  against -0.26 observed, was 0.00). dfs-picks.ts saves proj and avg on locked pool rows, so a salary-implied baseline
+  can be graded later. 5.4 blocked (paid Odds API plan).
+- 5.5 gate change, flagged for Derek: the calibration gate counted a tie with a percentile as half. With zero weeks in,
+  0 is a whole block of percentiles and the half count misreads it (WR and TE showed 13.6% and 14.5% under the 10th).
+  It now counts the share of the tied block below the percentile (what the simulator draws); every position is within
+  0.5 of nominal and the worst season is 5.5. The half-tie numbers stay in dfs-sim.json calibration.halfTies.
+- Where I read the written rules differently (noted in code): 2.2's live constants use the expanding-window fit on
+  2019-25, not the 2019-21 fit (scoring fell after 2021, and the 2019-21 fit runs 1.5 points high on 2022-25). 3.1
+  counts b as 0 while its range includes 0 (with b slightly negative, "line + b x gap" would lean against the model's
+  own number). 3.4's prior is half of last season's rating (no free market win totals). 4.1's helper moved 7 2025
+  international games to their real venues; none of it can flip either verdict.
+- Checked: typecheck clean, lint clean (2 old warnings); scratch-data tests of the projection, cover table, locks and
+  posted calls passed; the Phase 1 lock and grading tests still pass; the slate, game, Record, Index, DFS and sheet pages
+  render on desktop and phone with no lean shown. Page loads wrote archive locks; restored, nothing from data/archive
+  or data/ai committed.
+- LIVE PC after pulling: `npm run build`, then `pm2 restart nfl nfl-odds nfl-telegram`. No ingest needed.
+
+Previous, 2026-10-14, DESKTOP PC: prediction audit Phase 1 built and pushed (make the record honest; no model change).
 - Posted call: each game's side is frozen the first time the model sits 2+ points off the spread (total: 2.5+), with
   that line and the time, in pregame.posted (archive.ts postFrom/postedOf). The ledger grades it at its own line and
   measures CLV on the same call, which fixes CLV landing on the other team when the side flipped (Ravens at Falcons).
@@ -28,7 +65,7 @@ Latest, 2026-10-14, DESKTOP PC: prediction audit Phase 1 built and pushed (make 
   render writes pregame.posted into this week's open locks.
 - Next: Phases 2 to 5 below wait on Derek's OK. Item 4.3 (CLV on 50+ frozen calls) starts counting with this push.
 
-## Prediction audit follow-up (2026-10-12, Desktop PC). Phase 1 done 2026-10-14; Phases 2 to 5 wait on Derek's OK
+## Prediction audit follow-up (2026-10-12, Desktop PC). Phase 1 done 2026-10-14; Phases 2 to 5 done 2026-10-15 (5.4 blocked)
 
 Full findings: tasks/audit-2026-10-12.md. Short version: sides are level with the closing line (live 17-11-1, backtest
 48% on 1,139), totals are worse than the close (live 7-11, the line moved away from 9 of 11 total leans), the live model
@@ -51,36 +88,52 @@ first 2+ gap (totals: first 2.5+). Built and pushed 2026-10-14.
 - [x] 1.8 Copy: /index "every model change is tested" lists what isn't; reword "no gap size beat 52.4%"; drop
       "Confidence high" from report.ts and consensus.ts.
 
-Phases 2 to 5 APPROVED 2026-10-14 (Derek: "do 2-5"). Decision rules below were written and pushed before any run.
+Phases 2 to 5 APPROVED 2026-10-14 (Derek: "do 2-5"); built 2026-10-15. Decision rules below were written and pushed before any run.
 
 Phase 2, test what is live before trusting it (backtests only; live numbers move only on a result):
-- [ ] 2.1 Replay the full live side recipe walk-forward 2022-25 (Elo + QB + unit edges + availability from nflverse
+- [x] 2.1 Replay the full live side recipe walk-forward 2022-25 (Elo + QB + unit edges + availability from nflverse
       injuries and depth charts). Measure each term against the close; terms that don't help come out.
-- [ ] 2.2 Totals: fit base and shrink on 2019-21, report 2022-25 (removes the leak); test from week 2 like live.
-- [ ] 2.3 QB backtest: rolling replacement levels and the pregame starter, not "most plays in the game".
-- [ ] 2.4 Calibrate live win prob; fit the margin SD (about 12.7, not 13.5).
+      RESULT: QB kept (-0.063 MAE); unit edges out (+0.027, worse); non-QB availability out (-0.021, under the 0.05 bar).
+- [x] 2.2 Totals: fit base and shrink on 2019-21, report 2022-25 (removes the leak); test from week 2 like live.
+      RESULT: expanding window 10.67 vs close 10.16, ~49% O/U; live 22.6 / 0.35 (fit 2019-25); total from game 3.
+- [x] 2.3 QB backtest: rolling replacement levels and the pregame starter, not "most plays in the game".
+      RESULT: k 0.5 out of sample (was 0.75); 0 games without a named starter.
+- [x] 2.4 Calibrate live win prob; fit the margin SD (about 12.7, not 13.5).
+      RESULT: SD 12.8 (12.4 around the line); calibration buckets within 2 to 4 points.
 
 Phase 3, rebuild the core around the market:
-- [ ] 3.1 Market plus deviation: margin = line + b x (model - line), b fit walk-forward; flag a gap only when b's range
+- [x] 3.1 Market plus deviation: margin = line + b x (model - line), b fit walk-forward; flag a gap only when b's range
       excludes 0. Same for totals.
-- [ ] 3.2 Cover probability from the empirical margin distribution around the line (key numbers 3, 7, 10); show cover %.
-- [ ] 3.3 Consensus without Elo counted twice; backtest it against the close.
-- [ ] 3.4 Opponent-adjusted, regressed EPA-per-play team rating (ridge, preseason prior from market win totals) in place
+      RESULT: sides b -0.05 (90% -0.21 to 0.11), totals -0.03 (-0.17 to 0.10). No gaps flagged; projection = market.
+- [x] 3.2 Cover probability from the empirical margin distribution around the line (key numbers 3, 7, 10); show cover %.
+      RESULT: data/backtest/margins.json + src/lib/cover.ts; check 49.7% predicted vs 49.6% actual favorite covers.
+- [x] 3.3 Consensus without Elo counted twice; backtest it against the close.
+      RESULT: Elo out, even split = on the number; EPA model + EdgeSheet median 48.2% ATS (old 48.6%). Context only.
+- [x] 3.4 Opponent-adjusted, regressed EPA-per-play team rating (ridge, preseason prior from market win totals) in place
       of rank-based unit edges; keep only if it lowers the miss against the close.
+      RESULT: worse than Elo alone (+0.054 MAE); not used. Prior was half of last season (no market win totals).
 
 Phase 4, pre-registered edge tests (thresholds written down before running):
-- [ ] 4.1 Wind and totals with forecasts that existed at bet time (Open-Meteo previous runs, 2024+).
-- [ ] 4.2 Two or more starting linemen out, against the close (replaces the assumed 0.4 a lineman).
-- [ ] 4.3 After 1.1 ships: CLV on 50+ frozen calls before believing any win-loss record.
+- [x] 4.1 Wind and totals with forecasts that existed at bet time (Open-Meteo previous runs, 2024+).
+      RESULT: FAIL both. Wind 52-45 under (53.6%, p 0.27); rain 12-17 on 29 games. Weather tilts removed from the total.
+- [x] 4.2 Two or more starting linemen out, against the close (replaces the assumed 0.4 a lineman).
+      RESULT: A FAIL (-1.16 pts, 95% -2.78 to +0.46, 198 team-games). B: 1.39 pts a missing starter (0.59 to 2.19);
+      OL value 0.4 -> 1.4 (measured).
+- [x] 4.3 After 1.1 ships: CLV on 50+ frozen calls before believing any win-loss record.
+      RESULT: ledger shows "CLV on N of 50 posted calls"; posted calls now come from the model's own numbers.
 
 Phase 5, players and DFS:
-- [ ] 5.1 Benchmarks per position on the standard pool (top 20 QB/TE, top 40 RB/WR) against salary-implied and
+- [x] 5.1 Benchmarks per position on the standard pool (top 20 QB/TE, top 40 RB/WR) against salary-implied and
       season-average points; fix backtest survivorship (expected starters with no stat line count as 0).
-- [ ] 5.2 Implied team totals as a volume scaler in the DK projection (free, nflverse games.csv); backtest.
-- [ ] 5.3 Calibration slope per position (top players are over-projected); QBs ran 2.2 low in week 5.
+      RESULT: projection 6.64 vs season average 6.83 (QB 6.39, RB 6.63, WR 7.22, TE 5.75). Salary-implied: groundwork only.
+- [x] 5.2 Implied team totals as a volume scaler in the DK projection (free, nflverse games.csv); backtest.
+      RESULT: PASS, live. 2024-25 miss 6.640 to 6.577 (weights QB 0.6, RB 0.55, WR 0.45, TE 0.95, fit 2022-23).
+- [x] 5.3 Calibration slope per position (top players are over-projected); QBs ran 2.2 low in week 5.
+      RESULT: PASS, live from the pool floor up. 2024-25 miss 6.570 to 6.466; below-pool miss 3.44 to 3.42.
 - [ ] 5.4 Prop-implied DK points: start collecting props live (about 16k Odds API credits a season); backtest 2023-25
       only if Derek OKs about 50k credits. BLOCKED: needs a paid Odds API plan (see rules).
-- [ ] 5.5 Simulator: defenses in the same game negatively correlated (-0.26 observed); spreads from projection residuals.
+- [x] 5.5 Simulator: defenses in the same game negatively correlated (-0.26 observed); spreads from projection residuals.
+      RESULT: kept. DST pair -0.21 (was 0.00); shapes from the live projection; gate tie rule changed (see the note at top).
 
 Decision rules for Phases 2 to 5 (written 2026-10-14, before running anything). "Out of sample" = every season is
 predicted with numbers fit only on earlier seasons (expanding window from 2019), graded on 2022 to 2025. Closing line =

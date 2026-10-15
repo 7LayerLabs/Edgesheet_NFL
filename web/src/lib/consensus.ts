@@ -1,26 +1,26 @@
 /**
- * Consensus of projection systems, shown next to the EdgeSheet model.
+ * Consensus of projection systems, shown next to the EdgeSheet model. Context, never a pick.
  *   FPI        ESPN's Football Power Index (points better than an average team), fetched from ESPN
- *   Elo        our own Elo from results (scripts/lib/elo.mjs: K 20, home 48, one-third regression each season)
  *   EPA model  each offense's EPA per play against the other defense over the game's pace (same math as the model total)
- *   model      the EdgeSheet projection (Elo plus unit edges), passed in and listed as one more system
+ *   model      the EdgeSheet model's own number (Elo plus the quarterbacks), before the market
+ * Elo left on 2026-10-14 (audit item 3.3): the EdgeSheet model is mostly Elo, so listing both counted it twice. An even
+ * split is "on the number", not the home side. Backtest of the systems with history against the closing line, 2022-25
+ * (scripts/backtest-replay.mjs; FPI has no free history): EPA model and EdgeSheet model median covered 48.2% (1,046
+ * games), the old median with Elo 48.6%. Neither beats the line.
  * The posted market line is the reference row in the table, not a system.
  * Server-only: FPI is one cached fetch per six hours; everything else reads the digests.
  */
 import { fpiRatings } from "./nfl";
 import type { GenTeam } from "./generated";
 import type { Market, Team } from "./types";
-import type { Projection } from "./projection";
+import { SIGMA, type Projection } from "./projection";
 import { inputsLabel } from "./leans";
 
 const HOME_PTS = 2; // home field in points for rating-difference systems (NFL)
-const HOME_ELO = 48; // same as scripts/lib/elo.mjs and projection.ts
-const ELO_PER_POINT = 25;
-const SIGMA = 13.5; // standard deviation of NFL margins
 const ON_NUMBER = 0.5; // a projection inside half a point of the line sits on the number
 const AVG_PPG = 22.8;
 
-export type SystemKey = "fpi" | "elo" | "epa" | "model";
+export type SystemKey = "fpi" | "epa" | "model";
 
 export interface SystemLine {
   key: SystemKey;
@@ -123,16 +123,6 @@ export async function buildConsensus(i: ConsensusInput): Promise<Consensus> {
     else systems.push(line("fpi", "FPI", "ESPN Football Power Index", false, h.fpi - a.fpi + hf, undefined, `${i.home.abbr} ${r1(h.fpi)} (No. ${h.rank}), ${i.away.abbr} ${r1(a.fpi)} (No. ${a.rank})${hf ? `, +${hf} home` : ", neutral"}`));
   }
 
-  // Elo: our ratings before this game.
-  {
-    const h = i.homeElo;
-    const a = i.awayElo;
-    if (h != null && a != null) {
-      const m = (h + (i.neutral ? 0 : HOME_ELO) - a) / ELO_PER_POINT;
-      systems.push(line("elo", "Elo", "EdgeSheet Elo from results", false, m, undefined, `${i.home.abbr} ${h}, ${i.away.abbr} ${a}${i.neutral ? ", neutral" : `, +${HOME_ELO} home`}`));
-    } else systems.push(line("elo", "Elo", "EdgeSheet Elo from results", false, undefined, undefined, undefined, "No Elo rating for one side (run npm run ingest)."));
-  }
-
   // EPA model: efficiency and pace, no Elo.
   {
     if (i.homeAdv && i.awayAdv && i.means && i.homeAdv.games && i.awayAdv.games) {
@@ -145,9 +135,10 @@ export async function buildConsensus(i: ConsensusInput): Promise<Consensus> {
 
   // Our model, home positive.
   if (i.projection) {
-    const m = i.projection.winner === i.home.abbr ? i.projection.margin : -i.projection.margin;
-    systems.push(line("model", "EdgeSheet model", "Elo and unit edges, this site", true, m, i.projection.winProb, inputsLabel(i.projection.confidence)));
-  } else systems.push(line("model", "EdgeSheet model", "Elo and unit edges, this site", true, undefined, undefined, undefined, "No projection for this game."));
+    // The model's own number: the projection shown is the market's while the model has not beaten the close.
+    const m = i.projection.raw?.margin ?? (i.projection.winner === i.home.abbr ? i.projection.margin : -i.projection.margin);
+    systems.push(line("model", "EdgeSheet model", "Elo and the quarterbacks, this site", true, m, undefined, inputsLabel(i.projection.confidence)));
+  } else systems.push(line("model", "EdgeSheet model", "Elo and the quarterbacks, this site", true, undefined, undefined, undefined, "No projection for this game."));
 
   const avail = systems.filter((s) => s.available);
   const med = median(avail.map((s) => s.margin!));
@@ -161,8 +152,9 @@ export async function buildConsensus(i: ConsensusInput): Promise<Consensus> {
     const homeLean = avail.filter((s) => s.margin! - marketMargin >= ON_NUMBER);
     const awayLean = avail.filter((s) => s.margin! - marketMargin <= -ON_NUMBER);
     onNumber = avail.length - homeLean.length - awayLean.length;
-    if (homeLean.length || awayLean.length) {
-      const majority = homeLean.length >= awayLean.length ? homeLean : awayLean;
+    // An even split is on the number: no side.
+    if (homeLean.length !== awayLean.length) {
+      const majority = homeLean.length > awayLean.length ? homeLean : awayLean;
       side = majority === homeLean ? i.home.abbr : i.away.abbr;
       sideCount = majority.length;
       const ours = avail.find((s) => s.ours);
@@ -181,6 +173,8 @@ export async function buildConsensus(i: ConsensusInput): Promise<Consensus> {
       : `${sideCount} of ${avail.length} systems lean ${teamOf(side)} against the number${even}.${tail}`;
   } else if (marketMargin !== undefined && onNumber === avail.length) {
     summary = `Every available system sits on the posted number.`;
+  } else if (marketMargin !== undefined) {
+    summary = `The systems split evenly against the number, so the consensus sits on it.`;
   } else {
     const fav = med !== undefined ? favOf(med) : undefined;
     const n = fav ? avail.filter((s) => s.favorite === fav).length : 0;

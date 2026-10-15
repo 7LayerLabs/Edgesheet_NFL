@@ -91,7 +91,7 @@ export default async function GamePage({ params }: PageProps<"/game/[id]">) {
   const av = game.availability;
   const avNet = av ? Math.round((av.home.total - av.away.total) * 10) / 10 : 0;
   const worst = av ? [...av.away.items, ...av.home.items].filter((i) => i.kind !== "qb" && i.pts < 0).sort((a, b) => a.pts - b.pts)[0] : undefined;
-  const playingSummary = !av ? "" : avNet === 0 && !worst ? "Lineups as expected" : `${avNet === 0 ? "No net change" : `${(avNet > 0 ? game.home : game.away).short} +${Math.abs(avNet)} on the margin`}${worst ? ` · ${worst.name} ${worst.status.split(" (")[0].toLowerCase()}` : ""}`;
+  const playingSummary = !av ? "" : avNet === 0 && !worst ? "Lineups as expected" : `${avNet === 0 ? "No net change" : `${(avNet > 0 ? game.home : game.away).short} +${Math.abs(avNet)} in lineup value`}${worst ? ` · ${worst.name} ${worst.status.split(" (")[0].toLowerCase()}` : ""}`;
   const ms = game.market.spread;
   const marketSummary = ms ? `${spreadText(ms.team, ms.line)}${ms.open !== ms.line ? ` (opened ${spreadText(ms.team, ms.open)})` : ""} · total ${game.market.total?.line ?? "none"}` : "No widely available line";
   const styleSummary = `${game.away.short}: ${game.offense[game.away.abbr]?.label ?? "not charted"} · ${game.home.short}: ${game.offense[game.home.abbr]?.label ?? "not charted"}`;
@@ -562,14 +562,18 @@ function AnswerStrip({ game }: { game: Game }) {
   const even = p ? p.margin < 1 : false;
   const scoreLine = p ? `${game.away.abbr} ${p.away}, ${game.home.abbr} ${p.home}` : "";
   const totalPart = p?.modelTotal !== undefined && t ? (tTier ? `total: model ${p.modelTotal}, leans ${p.totalLean} (${Math.abs(p.totalGap ?? 0).toFixed(1)} pts)` : `total: model ${p.modelTotal}, no lean`) : "";
+  // The model's own numbers next to the market's, while the model has not beaten the closing line.
+  const own = p?.raw ? `model's own: ${teamOf(p.raw.margin >= 0 ? game.home.abbr : game.away.abbr).abbr} by ${Math.abs(p.raw.margin).toFixed(1)}${p.modelTotal !== undefined ? `, total ${p.modelTotal}` : ""}` : "model and market agree";
+  const pct = (x: number) => `${Math.round(x * 100)}%`;
+  const coverLine = p?.cover ? `cover ${game.away.abbr} ${pct(p.cover.away)} · ${game.home.abbr} ${pct(p.cover.home)}${p.cover.push >= 0.01 ? ` · push ${pct(p.cover.push)}` : ""}` : "";
   return (
     <section aria-label="The call" className="mt-5 rounded border border-line bg-panel">
       {/* Phone: the call across the top, the line and the edge side by side under it. Wider: three columns. */}
       <div className="grid grid-cols-2 sm:grid-cols-[1.3fr_1fr_1.2fr]">
         <div className="relative col-span-2 border-b border-line p-4 sm:col-span-1 sm:border-b-0 sm:border-r" style={{ boxShadow: winner && !even ? `inset 4px 0 0 ${winner.color}` : undefined }}>
           <p className="text-xs font-semibold text-chalk-3">
-            {game.status === "upcoming" ? "The model" : "Pregame call"}
-            <InfoTip label="The model" what={TERMS.model} />
+            {game.status === "upcoming" ? "The projection" : "Pregame call"}
+            <InfoTip label="The projection" what={TERMS.model} />
           </p>
           {p && winner ? (
             <>
@@ -614,8 +618,9 @@ function AnswerStrip({ game }: { game: Game }) {
                 </>
               ) : (
                 <>
-                  <p className="display mt-0.5 text-xl font-bold text-chalk-2 sm:text-2xl">{s && p ? "No gap" : "Nothing to compare"}</p>
-                  <p className="mono mt-0.5 text-xs text-chalk-2">{s && p ? "model and market agree" : ""}</p>
+                  <p className="display mt-0.5 text-xl font-bold text-chalk-2 sm:text-2xl">{s && p ? "No lean" : "Nothing to compare"}</p>
+                  <p className="mono mt-0.5 text-xs text-chalk-2">{s && p ? own : ""}</p>
+                  {s && coverLine && <p className="mono mt-0.5 text-xs text-chalk-3">{coverLine}</p>}
                 </>
               )}
             </>
@@ -752,7 +757,7 @@ function ProjectionBox({ game }: { game: Game }) {
     <div className="card mt-5 border-l-4 border-l-navy p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold text-chalk-3">{game.status === "upcoming" ? "Projected outcome, a model, not a pick" : "The pregame call, a model, not a pick"}</p>
+          <p className="text-xs font-semibold text-chalk-3">{game.status === "upcoming" ? "Projected outcome, the market's number until the model beats it, not a pick" : "The pregame call, not a pick"}</p>
           <p className="display mt-1 flex flex-wrap items-center gap-x-3 text-3xl font-bold text-chalk sm:text-5xl">
             <TeamMark team={game.away} state={p.winner === game.away.abbr ? "win" : "lose"} size="lg" />
             <span>{game.away.short} {p.away}</span>
@@ -786,6 +791,18 @@ function ProjectionBox({ game }: { game: Game }) {
               </p>
               <p className="mt-1 text-base text-chalk">{p.vsMarket}</p>
             </>
+          ) : game.market.spread ? (
+            <>
+              <p className="display mt-1 text-2xl font-bold text-chalk">
+                On the number <span className="mono text-sm font-normal text-chalk-3">{spreadText(game.market.spread.team, game.market.spread.line)}</span>
+              </p>
+              <p className="mt-1 text-base text-chalk">{p.vsMarket}</p>
+              {p.cover && (
+                <p className="mt-1 text-sm text-chalk-2">
+                  <span className="font-semibold text-chalk">Cover chance:</span> {game.away.short} {Math.round(p.cover.away * 100)}%, {game.home.short} {Math.round(p.cover.home * 100)}%{p.cover.push >= 0.01 ? `, push ${Math.round(p.cover.push * 100)}%` : ""}, from how games landed at this line since 2015.
+                </p>
+              )}
+            </>
           ) : (
             <p className="mt-1 text-base text-chalk-3">No posted spread to compare.</p>
           )}
@@ -806,7 +823,7 @@ function ProjectionBox({ game }: { game: Game }) {
           ) : p.modelTotal !== undefined ? (
             <p className="mt-1 text-base text-chalk">Model total {p.modelTotal}. No posted total to compare.</p>
           ) : (
-            <p className="mt-1 text-base text-chalk-3">Total needs tendency data for both teams.</p>
+            <p className="mt-1 text-base text-chalk-3">No model total yet: it waits until both teams have played 3 games.</p>
           )}
         </div>
       </div>
@@ -821,7 +838,7 @@ function ProjectionBox({ game }: { game: Game }) {
       </details>
       <ConsensusTable game={game} />
       <p className="mt-2 text-xs text-chalk-3">
-        Margin is our pregame Elo (K 20, 48 points of home field, 25 Elo per point) plus 40% of the unit-edge adjustment and who is playing. Total is each offense&apos;s EPA per play against the other defense over both teams&apos; pace, plus a weather tilt when the forecast is flagged. Win probability assumes a 13.5-point standard deviation. {LEAN_BACKTEST_NOTE}
+        The projection is the market&apos;s number. The model&apos;s own margin (pregame Elo: K 20, 48 points of home field, 25 Elo per point, plus the quarterback change) and its own total (each offense&apos;s EPA per play against the other defense over both teams&apos; pace) are shown beside it; neither beat the closing line in testing (2022-25), so the projection keeps none of their gap. Matchup edges, other injuries, and weather are shown, not counted. Win probability assumes a 12.8-point standard deviation. {LEAN_BACKTEST_NOTE}
         {locked && !graded && ` Locked ${asOf(game.archive!.pregame.updatedAt ?? game.archive!.pregame.capturedAt)}; graded after the final.`}
         {graded && ` Graded: winner ${graded.winnerRight ? "right" : "wrong"}, margin off by ${graded.marginError.toFixed(0)}${sideCovered !== undefined ? `, model side ${sideCovered ? "covered" : "did not cover"}` : ""}${graded.totalLeanRight !== undefined ? `, total lean ${graded.totalLeanRight ? "right" : "wrong"}` : ""}.`}
       </p>

@@ -15,12 +15,17 @@
 ^ *   QB          (expected starter EPA per play - the play-weighted EPA per play of the QBs who built the
  *               this season's snaps) x the team's QB plays per game. EPA per play blends this season
  *               with half of last season and is shrunk toward replacement level with a 200-play prior.
- *               Replacement level is the 25th percentile of QBs with 150+ plays. Times 0.75 (backtest fit), capped at 12.
+ *               Replacement level is the 25th percentile of QBs with 150+ plays. Times 0.5 (backtest fit), capped at 12.
  *   RB WR TE    (his EPA per touch or target - the 25th percentile at the position) x his plays per
  *               game x 0.5 (credit shared with the quarterback and the line), capped at 3.
- *   OL DL LB DB fixed value for a full-time starter: OL 0.4, DL 0.4, LB 0.25, CB 0.4, S 0.25 points,
+ *   OL DL LB DB fixed value for a full-time starter: OL 1.4, DL 0.4, LB 0.25, CB 0.4, S 0.25 points,
  *               times snap share; pass rushers with 1.5+ QB hits a game count 1.5x. These are
- *               assumptions, not measurements, and the page labels them that way.
+ *               OL is measured (a missing starting lineman cost his team 1.4 points against Elo, 2022-25,
+ *               scripts/backtest-replay.mjs); the rest are assumptions, and the page labels them that way.
+ *
+ *   Only the QB moves the margin. The replay of the full live model (2022-25, scripts/backtest-replay.mjs) found the
+ *   non-QB total did not lower the margin miss enough to keep (0.02 points against a 0.05 bar), so projection.ts shows
+ *   it as context and leaves it out of the margin.
  *
  * Every non-QB charge is weighted by the share of the team's games he played (out since week 1
  * means the team's numbers already lack him) and by the chance he sits: Out, IR, suspended,
@@ -300,12 +305,12 @@ const levels = () =>
 
 const QB_PRIOR = 200;
 /**
- * Share of the raw QB difference that goes into the margin. scripts/backtest-qb.mjs on 2022 to 2025
- * (1,139 games, walk-forward): Elo MAE 9.95, Elo + 0.75 x QB 9.88 (best on the grid), full strength 9.90;
- * on the 386 games with a 2+ point QB term, 10.32 to 10.07. It does not improve cover rate against the
- * closing line, which already prices the QB.
+ * Share of the raw QB difference that goes into the margin, fit out of sample (scripts/backtest-qb.mjs, 2026-10-14:
+ * named starters only, levels and the share from earlier seasons). Each season's fit picked 0.5 except 2023 (0.25);
+ * the fit on 2019-25 is 0.5. On 2022-25 (1,139 games) Elo misses the final by 9.95 and Elo plus the QB term by 9.89.
+ * It does not improve cover rate against the closing line, which already prices the QB.
  */
-const QB_SCALE = 0.75;
+const QB_SCALE = 0.5;
 
 /**
  * Shrunk EPA per play for a quarterback over his weighted track record (up to five seasons, recent ones
@@ -322,7 +327,8 @@ function shrinkQb(r: { n: number; e: number }): { value: number; plays: number }
   return { value: (r.e + prior * QB_PRIOR) / (r.n + QB_PRIOR), plays: Math.round(r.n) };
 }
 
-const FIXED: Record<string, number> = { OL: 0.4, DL: 0.4, LB: 0.25, CB: 0.4, S: 0.25 };
+/** OL measured on 2022-25 (1.4 points a missing starter, 95% range 0.6 to 2.2); the others are assumptions. */
+const FIXED: Record<string, number> = { OL: 1.4, DL: 0.4, LB: 0.25, CB: 0.4, S: 0.25 };
 function fixedGroup(p: GenPlayer): string | undefined {
   if (p.pg === "OL") return "OL";
   if (p.pg === "DL") return "DL";
@@ -352,7 +358,8 @@ function playerValue(p: GenPlayer): { pts: number; basis: string; measured: bool
   const hits = (p.s?.hur ?? 0) / Math.max(1, p.s?.gp ?? 1);
   const rusher = (g === "DL" || g === "LB") && hits >= 1.5;
   const pts = round1(FIXED[g] * snap * (rusher ? 1.5 : 1));
-  return { pts, basis: `starter value ${FIXED[g]} for ${g}${rusher ? ", 1.5x as a pass rusher" : ""} at ${Math.round(snap * 100)}% of snaps (assumed, not measured)`, measured: false };
+  const measured = g === "OL";
+  return { pts, basis: `starter value ${FIXED[g]} for ${g}${rusher ? ", 1.5x as a pass rusher" : ""} at ${Math.round(snap * 100)}% of snaps (${measured ? "measured on 2022-25" : "assumed, not measured"})`, measured };
 }
 
 /* ------------------------------------------------------------- teams */
@@ -494,7 +501,7 @@ function teamAvailability(team: string, espn: EspnInjury[], moves: Transaction[]
         ...sat.map((c) => `${c.p.n} ${c.st.status.toLowerCase()} (${c.st.source})`),
         arrived ? `new from the ${lastTeam.get(first.p.id)!.team}` : "",
         `${round3(expectedEpa)} EPA a play over his track record against ${round3(baseline)} for the QBs who built the team's numbers (${baselineQbs})`,
-        `at ${round1(playsPerGame)} QB plays a game, scaled ${QB_SCALE} (fit on 2022 to 2025)`,
+        `at ${round1(playsPerGame)} QB plays a game, scaled ${QB_SCALE} (fit on 2019 to 2025)`,
       ].filter(Boolean);
       qb = { expected: first.p.n, expectedEpa: round3(expectedEpa), baseline: round3(baseline), baselineQbs, playsPerGame: round1(playsPerGame), pts, totalPts, note: why.join("; "), uncertain: q > 0 };
       if (Math.abs(pts) >= 0.5) items.push({ id: first.p.id, name: first.p.n, pos: "QB", side: "offense", kind: "qb", status: q > 0 ? first.st.status : "Starts", source: first.st.source || "depth chart", absence: 0, weight: 1, pts, note: why.join("; "), measured: true });

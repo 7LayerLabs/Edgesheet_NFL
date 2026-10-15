@@ -18,7 +18,8 @@
  * which is a later job. The unit-edge blend is not replayed for the same reason.
  *
  * Also fits the two Elo constants on a grid (home field 20..80, Elo per point 20..30) by MAE, and writes
- * the recommendation to data/weights.json. The live projection reads that file only with USE_FITTED_WEIGHTS=1.
+ * the recommendation to data/weights.json. The live projection no longer reads it: the unit-edge blend came out of the
+ * margin on 2026-10-14 (scripts/backtest-replay.mjs).
  *
  * Writes data/backtest/results.json and data/weights.json.
  */

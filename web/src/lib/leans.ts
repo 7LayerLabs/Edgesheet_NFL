@@ -22,7 +22,7 @@ export const tierLabel = (t: LeanTier | undefined): string => (t === "strong" ? 
  * Said next to every lean so a gap reads as a disagreement with the market, not a pick. Update after re-running.
  */
 export const LEAN_BACKTEST_NOTE =
-  "Backtest 2022 to 2025: the model side (Elo plus the QB adjustment, 1,139 games) covered about 48% against the closing line, and the model total (959 games) hit 48% on the over/under. Side gaps of 4+ points landed a little over the 52.4% break-even (55% on 116 games) while 3 to 4 points hit 40%, too few games to tell from luck; no total gap beat it (5+ points 49% on 148). The live side also adds the unit edges and non-QB injury points, which that test did not include. Read these as disagreements with the market, not picks.";
+  "Replayed walk-forward on 2022 to 2025 (scripts/backtest-replay.mjs): the model's own side (Elo plus the quarterbacks, 1,139 games) covered 48% against the closing line, and its own total (1,023 games) hit about 49% on the over/under. How much of the model's gap held up against the close came out at about zero (sides -0.05, 90% range -0.21 to 0.11), so no lean is flagged and the projection is the market's number. The model's own gaps are frozen on the Record page as a forward test.";
 
 /** What the projection's confidence field measures: whether the inputs exist, not how likely the call is. */
-export const inputsLabel = (c: "high" | "medium" | "low" | string): string => (c === "high" ? "inputs complete" : c === "medium" ? "Elo only, no tendency data" : "thin inputs");
+export const inputsLabel = (c: "high" | "medium" | "low" | string): string => (c === "high" ? "inputs complete" : c === "medium" ? "Elo only, or a questionable QB" : "thin inputs");

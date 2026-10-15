@@ -114,7 +114,7 @@ export function leansSection(games: Game[], base = baseUrl(), opts: LeanOptions 
   const lines: string[] = [];
   if (!leans.length) {
     const eligible = games.filter((g) => isD1(g) && g.projection && g.market.spread && g.status !== "final").length;
-    lines.push(eligible ? `No side or total gap clears the lean threshold today. ${NOT_A_PICK}` : "No game today has both a projection and a posted line. Nothing to lean on.");
+    lines.push(eligible ? `No leans: the model has not beaten the closing line in testing (2022-25), so none are flagged. The model's own gaps are kept on the Record page as a forward test. ${NOT_A_PICK}` : "No game today has both a projection and a posted line. Nothing to lean on.");
     return lines.join("\n");
   }
   const group = (title: string, xs: Lean[]) => {

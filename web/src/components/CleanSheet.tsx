@@ -130,9 +130,9 @@ function Numbers({ game }: { game: Game }) {
       </span>
       {p && (
         <span className="text-chalk-2">
-          <span className="text-chalk-3">{game.status === "upcoming" ? "Model " : "Called "}</span>
+          <span className="text-chalk-3">{game.status === "upcoming" ? "Projected " : "Called "}</span>
           {p.winner} by {p.margin.toFixed(1)}
-          {p.modelTotal ? ` · ${p.modelTotal}` : ""}
+          {p.raw && Math.abs(p.raw.margin - (p.winner === game.home.abbr ? p.margin : -p.margin)) >= 0.5 ? ` · model's own ${p.raw.margin >= 0 ? game.home.abbr : game.away.abbr} by ${Math.abs(p.raw.margin).toFixed(1)}` : ""}
         </span>
       )}
       {gaps.length > 0 && game.status === "upcoming" && (
