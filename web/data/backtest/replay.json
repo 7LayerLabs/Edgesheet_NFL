@@ -1,0 +1,384 @@
+{
+  "builtAt": "2026-10-15T00:42:27.320Z",
+  "graded": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "games": 1139,
+  "terms": {
+    "qb": {
+      "live": 0.75,
+      "oosWeights": {
+        "2022": 0.5,
+        "2023": 0.25,
+        "2024": 0.5,
+        "2025": 0.5,
+        "2026": 0.5
+      },
+      "maeLive": 9.888,
+      "maeOos": 9.891,
+      "gainLive": 0.066,
+      "gainOos": 0.063,
+      "keep": true,
+      "weightNext": 0.5,
+      "weightBy": "out of sample",
+      "atsLive": {
+        "n": 1110,
+        "rate": 0.476
+      }
+    },
+    "edge": {
+      "live": 1,
+      "oosWeights": {
+        "2022": 1,
+        "2023": 0.75,
+        "2024": 0.5,
+        "2025": 0.5,
+        "2026": 0.5
+      },
+      "maeLive": 9.981,
+      "maeOos": 9.967,
+      "gainLive": -0.027,
+      "gainOos": -0.013,
+      "keep": false,
+      "weightNext": 0.5,
+      "weightBy": "out of sample",
+      "atsLive": {
+        "n": 1110,
+        "rate": 0.476
+      }
+    },
+    "avail": {
+      "live": 1,
+      "oosWeights": {
+        "2022": 1,
+        "2023": 0.75,
+        "2024": 0.75,
+        "2025": 0.75,
+        "2026": 0.75
+      },
+      "maeLive": 9.934,
+      "maeOos": 9.933,
+      "gainLive": 0.02,
+      "gainOos": 0.021,
+      "keep": false,
+      "weightNext": 0.75,
+      "weightBy": "out of sample",
+      "atsLive": {
+        "n": 1106,
+        "rate": 0.478
+      }
+    },
+    "ridge": {
+      "oosWeights": {
+        "2022": 0.2,
+        "2023": 0.1,
+        "2024": 0.1,
+        "2025": 0.1,
+        "2026": 0.1
+      },
+      "gainOos": -0.054,
+      "maeOos": 10.008,
+      "beatsEdges": false,
+      "weightNext": 0.1
+    }
+  },
+  "full": {
+    "eloMae": 9.954,
+    "marketMae": 9.536,
+    "liveRecipeMae": 9.901,
+    "liveRecipeAts": {
+      "n": 1110,
+      "rate": 0.477
+    },
+    "eloAts": {
+      "n": 1110,
+      "rate": 0.497
+    },
+    "kept": [
+      "qb"
+    ],
+    "keptRecipeMae": 9.891,
+    "keptRecipeAts": {
+      "n": 1110,
+      "rate": 0.482
+    }
+  },
+  "sideModel": {
+    "terms": [
+      "qb"
+    ],
+    "weightsNext": {
+      "qb": 0.5
+    },
+    "mae": 9.891,
+    "ats": {
+      "n": 1110,
+      "rate": 0.482
+    }
+  },
+  "sd": {
+    "modelRmse": 12.78,
+    "lineRmse": 12.42,
+    "next": 12.8,
+    "live": {
+      "sigma": 13.5,
+      "brier": 0.22,
+      "buckets": [
+        {
+          "range": "50-60%",
+          "games": 515,
+          "predicted": 0.548,
+          "won": 0.567
+        },
+        {
+          "range": "60-70%",
+          "games": 365,
+          "predicted": 0.647,
+          "won": 0.686
+        },
+        {
+          "range": "70-80%",
+          "games": 203,
+          "predicted": 0.741,
+          "won": 0.734
+        },
+        {
+          "range": "80-90%",
+          "games": 55,
+          "predicted": 0.84,
+          "won": 0.873
+        },
+        {
+          "range": "90-100%",
+          "games": 1,
+          "predicted": 0.906,
+          "won": 1
+        }
+      ]
+    },
+    "fitted": {
+      "sigma": 12.8,
+      "brier": 0.219,
+      "buckets": [
+        {
+          "range": "50-60%",
+          "games": 497,
+          "predicted": 0.548,
+          "won": 0.563
+        },
+        {
+          "range": "60-70%",
+          "games": 355,
+          "predicted": 0.648,
+          "won": 0.686
+        },
+        {
+          "range": "70-80%",
+          "games": 218,
+          "predicted": 0.743,
+          "won": 0.72
+        },
+        {
+          "range": "80-90%",
+          "games": 65,
+          "predicted": 0.841,
+          "won": 0.862
+        },
+        {
+          "range": "90-100%",
+          "games": 4,
+          "predicted": 0.909,
+          "won": 1
+        }
+      ]
+    }
+  },
+  "sideDeviation": {
+    "bySeason": {
+      "2022": {
+        "b": -0.014,
+        "lo90": -0.238,
+        "hi90": 0.209,
+        "n": 821
+      },
+      "2023": {
+        "b": 0.002,
+        "lo90": -0.184,
+        "hi90": 0.189,
+        "n": 1105
+      },
+      "2024": {
+        "b": -0.052,
+        "lo90": -0.234,
+        "hi90": 0.131,
+        "n": 1390
+      },
+      "2025": {
+        "b": -0.014,
+        "lo90": -0.182,
+        "hi90": 0.154,
+        "n": 1675
+      },
+      "2026": {
+        "b": -0.049,
+        "lo90": -0.207,
+        "hi90": 0.11,
+        "n": 1960
+      }
+    },
+    "next": {
+      "b": -0.049,
+      "lo90": -0.207,
+      "hi90": 0.11,
+      "n": 1960
+    },
+    "test": {
+      "games": 1139,
+      "maeShrunk": 9.537,
+      "maeLine": 9.536,
+      "flagged": 0,
+      "graded": 0,
+      "hit": null
+    }
+  },
+  "totalDeviation": {
+    "bySeason": {
+      "2022": {
+        "b": -0.103,
+        "lo90": -0.323,
+        "hi90": 0.117,
+        "n": 736
+      },
+      "2023": {
+        "b": -0.079,
+        "lo90": -0.261,
+        "hi90": 0.104,
+        "n": 991
+      },
+      "2024": {
+        "b": -0.027,
+        "lo90": -0.185,
+        "hi90": 0.131,
+        "n": 1247
+      },
+      "2025": {
+        "b": -0.019,
+        "lo90": -0.166,
+        "hi90": 0.128,
+        "n": 1503
+      },
+      "2026": {
+        "b": -0.033,
+        "lo90": -0.17,
+        "hi90": 0.104,
+        "n": 1759
+      }
+    },
+    "next": {
+      "b": -0.033,
+      "lo90": -0.17,
+      "hi90": 0.104,
+      "n": 1759
+    },
+    "test": {
+      "games": 1023,
+      "maeShrunk": 10.154,
+      "maeLine": 10.162,
+      "flagged": 0,
+      "graded": 0,
+      "hit": null
+    }
+  },
+  "consensus": {
+    "games": 1075,
+    "elo": {
+      "mae": 10.011,
+      "ats": {
+        "n": 1046,
+        "rate": 0.499
+      }
+    },
+    "epaModel": {
+      "mae": 10.418,
+      "ats": {
+        "n": 1046,
+        "rate": 0.483
+      }
+    },
+    "edgeSheetModel": {
+      "mae": 9.955,
+      "ats": {
+        "n": 1046,
+        "rate": 0.481
+      }
+    },
+    "oldMedian": {
+      "systems": "Elo, EPA model, EdgeSheet model (FPI has no history)",
+      "mae": 9.975,
+      "ats": {
+        "n": 1046,
+        "rate": 0.486
+      }
+    },
+    "newMedian": {
+      "systems": "EPA model, EdgeSheet model (FPI has no history)",
+      "mae": 10.03,
+      "ats": {
+        "n": 1046,
+        "rate": 0.482
+      }
+    },
+    "market": {
+      "mae": 9.579
+    }
+  },
+  "linemen": {
+    "testA": {
+      "n": 198,
+      "mean": -1.16,
+      "lo95": -2.78,
+      "hi95": 0.46,
+      "pass": false,
+      "byCount": [
+        {
+          "out": 0,
+          "n": 1181,
+          "mean": 0.51,
+          "lo95": -0.22,
+          "hi95": 1.24
+        },
+        {
+          "out": 1,
+          "n": 667,
+          "mean": -0.56,
+          "lo95": -1.46,
+          "hi95": 0.34
+        },
+        {
+          "out": 2,
+          "n": 166,
+          "mean": -1.21,
+          "lo95": -3.03,
+          "hi95": 0.61
+        },
+        {
+          "out": "3+",
+          "n": 32,
+          "mean": -0.94,
+          "lo95": -4.36,
+          "hi95": 2.48
+        }
+      ]
+    },
+    "testB": {
+      "games": 1023,
+      "perStarter": 1.39,
+      "lo95": 0.59,
+      "hi95": 2.19,
+      "replaces04": true
+    }
+  }
+}
