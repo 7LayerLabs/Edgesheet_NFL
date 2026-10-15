@@ -11,6 +11,7 @@ import { fpiRatings } from "./nfl";
 import type { GenTeam } from "./generated";
 import type { Market, Team } from "./types";
 import type { Projection } from "./projection";
+import { inputsLabel } from "./leans";
 
 const HOME_PTS = 2; // home field in points for rating-difference systems (NFL)
 const HOME_ELO = 48; // same as scripts/lib/elo.mjs and projection.ts
@@ -145,7 +146,7 @@ export async function buildConsensus(i: ConsensusInput): Promise<Consensus> {
   // Our model, home positive.
   if (i.projection) {
     const m = i.projection.winner === i.home.abbr ? i.projection.margin : -i.projection.margin;
-    systems.push(line("model", "EdgeSheet model", "Elo and unit edges, this site", true, m, i.projection.winProb, `confidence ${i.projection.confidence}`));
+    systems.push(line("model", "EdgeSheet model", "Elo and unit edges, this site", true, m, i.projection.winProb, inputsLabel(i.projection.confidence)));
   } else systems.push(line("model", "EdgeSheet model", "Elo and unit edges, this site", true, undefined, undefined, undefined, "No projection for this game."));
 
   const avail = systems.filter((s) => s.available);

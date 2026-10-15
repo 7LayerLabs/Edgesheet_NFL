@@ -1,6 +1,89 @@
 # WHERE WE LEFT OFF (kept current at every push)
 
-Latest, 2026-10-06 late, DESKTOP PC: retirements and cuts now count as players out (found on Eagles at Jaguars:
+Latest, 2026-10-14, DESKTOP PC: prediction audit Phase 1 built and pushed (make the record honest; no model change).
+- Posted call: each game's side is frozen the first time the model sits 2+ points off the spread (total: 2.5+), with
+  that line and the time, in pregame.posted (archive.ts postFrom/postedOf). The ledger grades it at its own line and
+  measures CLV on the same call, which fixes CLV landing on the other team when the side flipped (Ravens at Falcons).
+  Locks from before this push fall back to the first lock's gap; a gap that first showed up in a later refresh can't be
+  dated, so it isn't counted. The follow-the-line lock stays as the closing record.
+- lockPregame checks the clock: nothing is written once kickoff has passed.
+- The score line adds up to the model total (projection.ts), so it agrees with the total lean.
+- The record counts a model side only at a 2+ gap (archive.ts sideGrade), with every side shown as context; consensus
+  sides the same. Totals already lean only at 2.5+.
+- Record page: an "Against the closing line" table (margin miss, total miss, Brier, straight-up winners against taking
+  the closing favorite), and base rates: matchup calls and radar names against a random team-game or every-down player
+  held to the same bar (record-base.ts, from gamelogs.json). Run game and ground game edges on one offense count once.
+- DFS value picks: "beat" = above the price-mates' median; the average edge stays as the plus/minus.
+- Copy: /index lists the live pieces with no backtest; the gap sentence now says side gaps of 4+ hit 55% on 116 games
+  (3 to 4 hit 40%) and no total gap beat 52.4% (5+ hit 49% on 148, the live settings); "Confidence high" is gone from
+  report.ts and consensus.ts.
+- Checked: typecheck clean; lint clean on the touched files except an old unescaped quote at dfs/page.tsx:116 (already
+  on GitHub, not touched). Scratch-data tests of posting, the kickoff guard, grading CLV, the ledger, the digests, and
+  DFS grading all passed. /history, /game, /index, and /dfs render, desktop and phone.
+- What the record says on this PC's archive (week 4, 15 graded): sides at a 2+ gap 4 of 7 (every side 7 of 13). The
+  close beat the model on margin miss (7.4 vs 7.9) and total miss (9.5 vs 10.1); Brier about even (0.211 vs 0.212).
+  Matchup calls 16 of 37 against 12.2 for a random team-game; radar names 68 of 164 against 85.1 for a random
+  every-down player, so the radar names showed up less often than chance.
+- LIVE PC after pulling: `npm run build`, then `pm2 restart nfl nfl-odds nfl-telegram`. No ingest needed. The next
+  render writes pregame.posted into this week's open locks.
+- Next: Phases 2 to 5 below wait on Derek's OK. Item 4.3 (CLV on 50+ frozen calls) starts counting with this push.
+
+## Prediction audit follow-up (2026-10-12, Desktop PC). Phase 1 done 2026-10-14; Phases 2 to 5 wait on Derek's OK
+
+Full findings: tasks/audit-2026-10-12.md. Short version: sides are level with the closing line (live 17-11-1, backtest
+48% on 1,139), totals are worse than the close (live 7-11, the line moved away from 9 of 11 total leans), the live model
+includes pieces that were never backtested, and the record grades one call while measuring line movement on another.
+Rule for every step: one change, walk-forward backtest before it moves a live number, and Derek's 52.4% bar before
+anything is called an edge.
+
+Phase 1, make the record honest (small fixes, no model change). APPROVED 2026-10-12; Derek: freeze the posted call at the
+first 2+ gap (totals: first 2.5+). Built and pushed 2026-10-14.
+- [x] 1.1 One frozen "posted call" per game (Derek's pick: the first lock with a 2+ gap), graded at its own line with
+      CLV against the close. Keep the follow-the-line lock as the closing record. Fixes the CLV-on-the-wrong-side bug
+      (archive.ts:325, ledger.ts).
+- [x] 1.2 Score line built from the model total, not the posted total (projection.ts:215).
+- [x] 1.3 Clock check inside lockPregame so nothing locks after kickoff.
+- [x] 1.4 Record grades sides only at a 2+ gap (all-games record shown as info); same for totals at 2.5+.
+- [x] 1.5 Record page benchmarks: margin/total miss and Brier against the closing line; winners against "always pick
+      the closing favorite".
+- [x] 1.6 Unit-edge and prospect grades against a base rate (same cutoffs on every team-game); grade the rushing line once.
+- [x] 1.7 DFS value picks graded as plus/minus vs salary-implied points (and beat-the-median), not beat-the-mean.
+- [x] 1.8 Copy: /index "every model change is tested" lists what isn't; reword "no gap size beat 52.4%"; drop
+      "Confidence high" from report.ts and consensus.ts.
+
+Phase 2, test what is live before trusting it (backtests only; live numbers move only on a result):
+- [ ] 2.1 Replay the full live side recipe walk-forward 2022-25 (Elo + QB + unit edges + availability from nflverse
+      injuries and depth charts). Measure each term against the close; terms that don't help come out.
+- [ ] 2.2 Totals: fit base and shrink on 2019-21, report 2022-25 (removes the leak); test from week 2 like live.
+- [ ] 2.3 QB backtest: rolling replacement levels and the pregame starter, not "most plays in the game".
+- [ ] 2.4 Calibrate live win prob; fit the margin SD (about 12.7, not 13.5).
+
+Phase 3, rebuild the core around the market:
+- [ ] 3.1 Market plus deviation: margin = line + b x (model - line), b fit walk-forward; flag a gap only when b's range
+      excludes 0. Same for totals.
+- [ ] 3.2 Cover probability from the empirical margin distribution around the line (key numbers 3, 7, 10); show cover %.
+- [ ] 3.3 Consensus without Elo counted twice; backtest it against the close.
+- [ ] 3.4 Opponent-adjusted, regressed EPA-per-play team rating (ridge, preseason prior from market win totals) in place
+      of rank-based unit edges; keep only if it lowers the miss against the close.
+
+Phase 4, pre-registered edge tests (thresholds written down before running):
+- [ ] 4.1 Wind and totals with forecasts that existed at bet time (Open-Meteo previous runs, 2024+).
+- [ ] 4.2 Two or more starting linemen out, against the close (replaces the assumed 0.4 a lineman).
+- [ ] 4.3 After 1.1 ships: CLV on 50+ frozen calls before believing any win-loss record.
+
+Phase 5, players and DFS:
+- [ ] 5.1 Benchmarks per position on the standard pool (top 20 QB/TE, top 40 RB/WR) against salary-implied and
+      season-average points; fix backtest survivorship (expected starters with no stat line count as 0).
+- [ ] 5.2 Implied team totals as a volume scaler in the DK projection (free, nflverse games.csv); backtest.
+- [ ] 5.3 Calibration slope per position (top players are over-projected); QBs ran 2.2 low in week 5.
+- [ ] 5.4 Prop-implied DK points: start collecting props live (about 16k Odds API credits a season); backtest 2023-25
+      only if Derek OKs about 50k credits.
+- [ ] 5.5 Simulator: defenses in the same game negatively correlated (-0.26 observed); spreads from projection residuals.
+
+Not planned (evidence says no or no data): late-news edges against the betting market, ownership leverage, weekly prop
+unders, situational angles (division dogs, byes, Thursday road teams).
+
+Previous, 2026-10-06 late, DESKTOP PC: retirements and cuts now count as players out (found on Eagles at Jaguars:
 Lane Johnson, the Eagles' starting RT on every snap, retired Oct 6 and the model still had him playing).
 - src/lib/availability.ts departures(): ESPN transactions mark a rostered player out the day he retires, is released or
   waived, is traded, is suspended, or goes on a reserve list (one sentence at a time; the newest move wins; an arrival

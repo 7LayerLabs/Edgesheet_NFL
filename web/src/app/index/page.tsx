@@ -77,8 +77,8 @@ const MODELS: Model[] = [
 
 type Test = { name: string; result: string; verdict: "Used" | "Context only" | "Not used" };
 const TESTS: Test[] = [
-  { name: "Model side against the spread (2022 to 2025, 1,139 games)", result: "Covered about 48% against the closing line; no gap size beat 52.4%. Picks the winner 64% of the time.", verdict: "Context only" },
-  { name: "Model total (959 games)", result: "Hit 48% on the over/under; no gap size beat 52.4%.", verdict: "Context only" },
+  { name: "Model side against the spread (2022 to 2025, 1,139 games)", result: "Elo plus the QB adjustment covered about 48% against the closing line. Gaps of 4+ points hit 55% on 116 games while 3 to 4 points hit 40%: noise, not an edge. Picks the winner 64% of the time; taking the closing favorite every game did 67.5%.", verdict: "Context only" },
+  { name: "Model total (959 games)", result: "Hit 48% on the over/under (the live settings: 22.4 a team, half the EPA gap). No gap size beat 52.4%: 5+ points hit 49% on 148 games.", verdict: "Context only" },
   { name: "Expected fantasy points in the DK projection (8,209 player-weeks)", result: "Miss fell from 6.52 to 6.46 points at half weight.", verdict: "Used" },
   { name: "Pass rush from pressures (12,394 rusher-weeks)", result: "Better than sacks alone (Brier 0.179 vs 0.196).", verdict: "Used" },
   { name: "Next man up", result: "Backups gained 28% of an out back's average, 23% of a tight end's, about none of a receiver's.", verdict: "Used" },
@@ -92,6 +92,16 @@ const TESTS: Test[] = [
   { name: "Storylines: revenge, homecoming, college ties (38,030 games)", result: "Nothing passed; revenge games beat a player's average 45% of the time. Good stories, not edges.", verdict: "Context only" },
   { name: "Player splits (home, division, primetime, short week)", result: "Only a player's home/away split carries over, weakly (about a fifth repeats).", verdict: "Context only" },
   { name: "\"Loves playing them\" (past games against a team)", result: "No relationship (0.00 over 9,572 games).", verdict: "Not used" },
+];
+
+/** Pieces of the live game projection with no backtest behind them yet (2026-10-12 audit). Remove a line when its test runs. */
+const UNTESTED = [
+  "the unit-edge term in the side (40% of the matchup gaps)",
+  "injury points for players other than the QB, and their caps",
+  "blending a questionable QB with his backup",
+  "weather tilts on the total",
+  "the win chance's calibration once edges and injuries are added",
+  "the consensus median",
 ];
 
 const PAGES: [string, string, string][] = [
@@ -172,7 +182,7 @@ export default function IndexPage() {
         </ul>
       </Section>
 
-      <Section id="backtests" title="What the backtests said" lead="Every model change is tested on past seasons first. Used means it earned its place; context only means it is shown but does not move a number; not used means it failed. Nothing is called strong or an edge without beating 52.4% against the spread or total.">
+      <Section id="backtests" title="What the backtests said" lead="Model changes are tested on past seasons first; the pieces still live without a test are listed under the table. Used means it earned its place; context only means it is shown but does not move a number; not used means it failed. Nothing is called strong or an edge without beating 52.4% against the spread or total.">
         <ul className="divide-y divide-line">
           {TESTS.map((t) => (
             <li key={t.name} className="grid gap-1 py-2 sm:grid-cols-[minmax(0,18rem)_minmax(0,1fr)_7rem] sm:items-baseline sm:gap-3">
@@ -182,6 +192,9 @@ export default function IndexPage() {
             </li>
           ))}
         </ul>
+        <p className="mt-3 text-sm text-chalk-2">
+          <span className="font-semibold text-chalk">Live but not tested yet:</span> {UNTESTED.join("; ")}. These move the game projection without a backtest behind them; the 2026-10-12 audit (tasks/audit-2026-10-12.md) has the plan to test each one.
+        </p>
         <p className="mono mt-2 text-[11px] text-chalk-3">Full numbers: data/backtest/*.json; rerun with npm run backtest:qb, :total, :xfp, :pressure, :nextman, :efficiency, :primetime, :seed, :coverage, :fourth, :stories, :splits.</p>
       </Section>
 

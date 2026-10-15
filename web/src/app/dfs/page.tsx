@@ -263,8 +263,8 @@ function RecordLine({ record }: { record: PicksRecord }) {
   return (
     <details className="mt-2 max-w-3xl">
       <summary className="cursor-pointer text-sm text-chalk-2">
-        Record: {all.n} picks graded over {record.slates} {record.slates === 1 ? "slate" : "slates"}, beat players at their price {pct(all.beat)} of the time,{" "}
-        <span className={all.edge >= 0 ? "text-turf" : "text-brick"}>{all.edge > 0 ? "+" : ""}{all.edge} DK</span> on average (safest {pct(safest.beat)}, upside {pct(upside.beat)}).
+        Record: {all.n} picks graded over {record.slates} {record.slates === 1 ? "slate" : "slates"}, outscored the typical (median) player at their price {pct(all.beat)} of the time (a coin flip is 50%),{" "}
+        <span className={all.edge >= 0 ? "text-turf" : "text-brick"}>{all.edge > 0 ? "+" : ""}{all.edge} DK</span> against their price-mates&apos; average (safest {pct(safest.beat)}, upside {pct(upside.beat)}).
       </summary>
       <ul className="mono mt-1 grid gap-0.5 text-xs text-chalk-2">
         {record.graded.slice(0, 40).map((g) => (

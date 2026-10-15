@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { historyStats, listEntries } from "@/lib/archive";
+import { countedEdges, historyStats, listEntries, marketBenchmarks, type MarketBenchmarks } from "@/lib/archive";
+import { recordBase } from "@/lib/record-base";
+import { LEAN_THRESHOLDS } from "@/lib/leans";
 import { asOf } from "@/lib/format";
 import { LedgerSection } from "@/components/Ledger";
 import { SendToTelegram } from "@/components/SendToTelegram";
@@ -15,8 +17,11 @@ const rate = (a: number, b: number) => gated(b, RATE_MIN, pct(a, b));
 
 export default function HistoryPage() {
   const entries = listEntries();
-  const stats = historyStats(entries);
+  const stats = historyStats(entries, recordBase());
+  const bench = marketBenchmarks(entries);
   const graded = entries.filter((e) => e.postgame);
+  const vsChance = (b: { calls: number; hits: number; expected: number } | undefined, who: string) =>
+    b?.calls ? ` · ${b.hits} of ${b.calls} vs ${b.expected.toFixed(1)} for a random ${who}` : "";
   const pending = entries.filter((e) => !e.postgame);
 
   return (
@@ -29,6 +34,7 @@ export default function HistoryPage() {
       <p className="mt-2 max-w-3xl text-base text-chalk-3">
         Every game gets its pregame call locked before kickoff: the matchup edges, the pressure point, the radar names, the Watch Score, the line.
         After the final, the box score grades it. Nothing is edited after the fact. This is the archive the thresholds get tuned against.
+        Sides count only at a {LEAN_THRESHOLDS.side.moderate}+ point gap to the line (totals {LEAN_THRESHOLDS.total.moderate}+); under that the model and the market agree, so there is no call to grade.
       </p>
       <p className="mt-1 text-sm"><Link href="/backtest" className="text-sky">See the historical track record</Link>: the models replayed on four past seasons.</p>
 
@@ -43,12 +49,12 @@ export default function HistoryPage() {
         <section className="mt-6 grid gap-2 sm:grid-cols-4 lg:grid-cols-8">
           <Tile label="Games locked" value={String(stats.games)} sub={`${stats.graded} graded`} />
           <Tile label="Model winner" value={rate(stats.winnerRight, stats.winnerGraded)} sub={`${stats.winnerRight} of ${stats.winnerGraded}${stats.avgMarginError != null ? ` · margin off by ${stats.avgMarginError.toFixed(1)} avg` : ""}`} />
-          <Tile label="Model vs number" value={rate(stats.modelSideCovered, stats.modelSideGraded)} sub={`${stats.modelSideCovered} of ${stats.modelSideGraded} model sides covered`} />
+          <Tile label="Model vs number" value={rate(stats.modelSideCovered, stats.modelSideGraded)} sub={`${stats.modelSideCovered} of ${stats.modelSideGraded} sides at a ${LEAN_THRESHOLDS.side.moderate}+ gap covered · every side ${stats.modelSideAllCovered} of ${stats.modelSideAllGraded}`} />
           <Tile label="Model total lean" value={rate(stats.totalLeanRight, stats.totalLeanGraded)} sub={`${stats.totalLeanRight} of ${stats.totalLeanGraded} over/under leans right`} />
-          <Tile label="Consensus vs number" value={rate(stats.consensusSideCovered, stats.consensusSideGraded)} sub={`${stats.consensusSideCovered} of ${stats.consensusSideGraded} consensus sides covered · winner ${stats.consensusWinnerRight} of ${stats.consensusWinnerGraded}`} />
-          <Tile label="Matchup calls" value={rate(stats.edgePlayedOut, stats.edgeCalls)} sub={`${stats.edgePlayedOut} played out, ${stats.edgeMissed} missed, of ${stats.edgeCalls}`} />
+          <Tile label="Consensus vs number" value={rate(stats.consensusSideCovered, stats.consensusSideGraded)} sub={`${stats.consensusSideCovered} of ${stats.consensusSideGraded} consensus sides at a ${LEAN_THRESHOLDS.side.moderate}+ gap covered · winner ${stats.consensusWinnerRight} of ${stats.consensusWinnerGraded}`} />
+          <Tile label="Matchup calls" value={rate(stats.edgePlayedOut, stats.edgeCalls)} sub={`${stats.edgePlayedOut} played out, ${stats.edgeMissed} missed, of ${stats.edgeCalls}${vsChance(stats.edgeBase, "team-game")}`} />
           <Tile label="Pressure point" value={rate(stats.pressurePlayedOut, stats.pressureGraded)} sub={`${stats.pressurePlayedOut} of ${stats.pressureGraded}`} />
-          <Tile label="Radar names" value={rate(stats.prospectShowedUp, stats.prospectCalls)} sub={`${stats.prospectShowedUp} of ${stats.prospectCalls} showed up`} />
+          <Tile label="Radar names" value={rate(stats.prospectShowedUp, stats.prospectCalls)} sub={`${stats.prospectShowedUp} of ${stats.prospectCalls} showed up${vsChance(stats.prospectBase, "every-down player")}`} />
           <Tile label="Favorites covered" value={rate(stats.favoriteCovered, stats.spreadGraded)} sub={`${stats.favoriteCovered} of ${stats.spreadGraded} (context, not picks)`} />
         </section>
       )}
@@ -56,6 +62,8 @@ export default function HistoryPage() {
       {entries.length > 0 && stats.graded < RATE_MIN && (
         <p className="mono mt-2 text-xs text-chalk-3">Hit rates show as percentages once {RATE_MIN} games are graded. Until then the counts are the record.</p>
       )}
+
+      {bench.games > 0 && <AgainstTheClose b={bench} />}
 
       {stats.graded > 0 && stats.graded < BUCKET_MIN && (
         <p className="mono mt-6 text-xs text-chalk-3">Watch Score vs excitement chart appears at {BUCKET_MIN} graded games ({stats.graded} so far).</p>
@@ -90,7 +98,7 @@ export default function HistoryPage() {
           <ol className="mt-3 grid gap-2">
             {graded.map((e) => {
               const p = e.postgame!;
-              const edges = p.edges.filter((x) => x.edge !== "even" && x.verdict !== "unmeasured");
+              const edges = countedEdges(p.edges);
               const hits = edges.filter((x) => x.verdict === "played out").length;
               const pros = p.prospects.filter((x) => x.verdict !== "unmeasured");
               const showed = pros.filter((x) => x.verdict === "showed up").length;
@@ -139,6 +147,47 @@ export default function HistoryPage() {
         </section>
       )}
     </div>
+  );
+}
+
+/** The model and the closing line side by side on the same graded games. The close is the bar any model has to clear. */
+function AgainstTheClose({ b }: { b: MarketBenchmarks }) {
+  const n = (x: number | null, dp: number) => (x === null ? "–" : x.toFixed(dp));
+  const rows: [string, string, string, string][] = [
+    ["Margin miss (points, lower is better)", n(b.marginModel, 1), n(b.marginMarket, 1), `${b.games} games`],
+    ["Total miss (points, lower is better)", n(b.totalModel, 1), n(b.totalMarket, 1), `${b.totalGames} games`],
+    ["Win chance, Brier score (lower is better)", n(b.brierModel, 3), n(b.brierMarket, 3), `${b.brierGames} games`],
+    ["Straight-up winners", `${b.winnerModel} of ${b.winnerGames}`, `${b.winnerFavorite} of ${b.winnerGames}`, "the close: take the favorite"],
+  ];
+  return (
+    <section className="mt-6">
+      <h2 className="display text-2xl font-bold text-chalk">Against the closing line</h2>
+      <p className="mt-1 max-w-3xl text-sm text-chalk-3">
+        The final pregame call next to the closing consensus (the last odds snapshot before kickoff) on the same games. A model that never beats these numbers has nothing to add to the line.
+      </p>
+      <div className="card mt-2 overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="mono text-[10px] uppercase tracking-wider text-chalk-3">
+              <th className="px-3 py-2 font-semibold" />
+              <th className="px-3 py-2 font-semibold">Model</th>
+              <th className="px-3 py-2 font-semibold">Closing line</th>
+              <th className="px-3 py-2 font-semibold" />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(([label, model, market, note]) => (
+              <tr key={label} className="border-t border-line">
+                <td className="px-3 py-2 text-chalk-2">{label}</td>
+                <td className="mono px-3 py-2 text-chalk">{model}</td>
+                <td className="mono px-3 py-2 text-chalk">{market}</td>
+                <td className="mono px-3 py-2 text-xs text-chalk-3">{note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 

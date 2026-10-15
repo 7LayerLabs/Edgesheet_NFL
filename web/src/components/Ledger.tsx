@@ -8,9 +8,9 @@ import { Gated } from "@/components/Gated";
 import { LEAN_BACKTEST_NOTE, LEAN_THRESHOLDS, tierLabel } from "@/lib/leans";
 
 /**
- * Ledger: every graded game with a gap or big gap to the market (leans.ts), the number at
- * lock, the closing number, the result, closing-line value, and a flat-bet
- * simulation. Clearly labeled as a simulation; it is not advice.
+ * Ledger: every graded posted call (the first lock with a gap or big gap to the market, leans.ts, frozen with
+ * its line), the posted number, the closing number, the result at the posted number, closing-line value on the
+ * same call, and a flat-bet simulation. Clearly labeled as a simulation; it is not advice.
  */
 export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
   const { rows, stats } = buildLedger(entries);
@@ -27,9 +27,9 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
         <span className="h-px flex-1 bg-line" />
       </div>
       <p className="mt-1 max-w-3xl text-sm text-chalk-3">
-        Every graded game where the model sat at least {LEAN_THRESHOLDS.side.moderate} points off the posted spread or {LEAN_THRESHOLDS.total.moderate} off the total. The simulation stakes one flat unit on each big gap
-        ({LEAN_THRESHOLDS.side.strong}+ points on the side, {LEAN_THRESHOLDS.total.strong}+ on the total) at standard -110 and does nothing else. Closing-line value is how many points the closing consensus moved toward the model&apos;s side after the lock; positive means the market
-        agreed with the model by kickoff. Both numbers are tuning signals for the model, not a betting record. {LEAN_BACKTEST_NOTE}
+        Each game&apos;s posted call: the first time the model sat at least {LEAN_THRESHOLDS.side.moderate} points off the spread or {LEAN_THRESHOLDS.total.moderate} off the total, frozen with that number and graded against it, even if the model or the line moved later.
+        The simulation stakes one flat unit on each big gap ({LEAN_THRESHOLDS.side.strong}+ points on the side, {LEAN_THRESHOLDS.total.strong}+ on the total, as posted) at standard -110 and does nothing else. Closing-line value is how many points the closing consensus moved toward the posted call;
+        positive means the market came to the model by kickoff, and it is the fastest honest read on whether the model knows something. Both numbers are tuning signals for the model, not a betting record. {LEAN_BACKTEST_NOTE}
       </p>
 
       <div className="mt-3 grid gap-2 sm:grid-cols-4">
@@ -53,7 +53,7 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
               <tr className="mono text-[10px] uppercase tracking-wider text-chalk-3">
                 <th className="px-3 py-2 font-semibold">Game</th>
                 <th className="px-3 py-2 font-semibold">Lean</th>
-                <th className="px-3 py-2 font-semibold">At lock</th>
+                <th className="px-3 py-2 font-semibold">Posted</th>
                 <th className="px-3 py-2 font-semibold">Closing</th>
                 <th className="px-3 py-2 font-semibold">CLV</th>
                 <th className="px-3 py-2 font-semibold">Result</th>
@@ -73,7 +73,7 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
                         <p className="mono text-xs text-chalk-3">{asOf(r.kickoff)} · final {r.score}</p>
                       </td>
                       <td className="mono px-3 py-2 text-chalk">{s.team} side <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${s.strength === "strong" ? "bg-navy text-white" : "bg-ink-2 text-chalk"}`}>{tierLabel(s.strength)}</span><br /><span className="text-xs text-chalk-3">model off by {s.gap}</span></td>
-                      <td className="mono px-3 py-2 text-chalk">{spreadText(s.lockLine.team, s.lockLine.line)}</td>
+                      <td className="mono px-3 py-2 text-chalk">{spreadText(s.lockLine.team, s.lockLine.line)}<br /><span className="text-xs text-chalk-3">{asOf(s.postedAt)}</span></td>
                       <td className="mono px-3 py-2 text-chalk">{s.closing ? spreadText(s.closing.team, s.closing.line) : <span className="text-chalk-3">no snapshot</span>}</td>
                       <td className={`mono px-3 py-2 ${s.clv === undefined ? "text-chalk-3" : s.clv > 0 ? "text-turf" : s.clv < 0 ? "text-brick" : "text-chalk"}`}>{clvText(s.clv)}</td>
                       <td className={`mono px-3 py-2 font-semibold ${tone(s.result)}`}>{s.result}</td>
@@ -95,7 +95,7 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
                         )}
                       </td>
                       <td className="mono px-3 py-2 text-chalk">{t.lean} <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${t.strength === "strong" ? "bg-navy text-white" : "bg-ink-2 text-chalk"}`}>{tierLabel(t.strength)}</span><br /><span className="text-xs text-chalk-3">model off by {t.gap}</span></td>
-                      <td className="mono px-3 py-2 text-chalk">{t.lockTotal}</td>
+                      <td className="mono px-3 py-2 text-chalk">{t.lockTotal}<br /><span className="text-xs text-chalk-3">{asOf(t.postedAt)}</span></td>
                       <td className="mono px-3 py-2 text-chalk">{t.closingTotal !== undefined ? t.closingTotal : <span className="text-chalk-3">no snapshot</span>}</td>
                       <td className={`mono px-3 py-2 ${t.clv === undefined ? "text-chalk-3" : t.clv > 0 ? "text-turf" : t.clv < 0 ? "text-brick" : "text-chalk"}`}>{clvText(t.clv)}</td>
                       <td className={`mono px-3 py-2 font-semibold ${tone(t.result)}`}>{t.result}</td>
@@ -108,7 +108,7 @@ export function LedgerSection({ entries }: { entries: ArchiveEntry[] }) {
               })}
             </tbody>
           </table>
-          <p className="px-3 py-2 text-xs text-chalk-3">Running column is big gaps only, oldest to newest, one unit each at -110. The number at lock is the market line the model was locked against; the closing number is the Odds API consensus from the last snapshot before kickoff.</p>
+          <p className="px-3 py-2 text-xs text-chalk-3">Running column is big gaps only, oldest to newest, one unit each at -110. The posted number is the market line when the gap first appeared, with when it was posted; the closing number is the Odds API consensus from the last snapshot before kickoff.</p>
         </div>
       ) : (
         <p className="mt-3 text-sm text-chalk-3">No graded game has carried a gap to the market yet.</p>

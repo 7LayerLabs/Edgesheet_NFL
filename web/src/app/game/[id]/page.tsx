@@ -38,6 +38,7 @@ import { SplitsTable } from "@/components/SplitsTable";
 import { defenseVsPosition } from "@/lib/dfs";
 import { teamByShort } from "@/lib/nfl";
 import { inputsLabel, LEAN_BACKTEST_NOTE, sideTier, tierLabel, totalTier } from "@/lib/leans";
+import { countedEdges, sideGrade } from "@/lib/archive";
 import { readReport, seasonOf } from "@/lib/report";
 import { publishedGuide } from "@/lib/watchguide";
 import { WatchGuide } from "@/components/WatchGuide";
@@ -556,6 +557,7 @@ function AnswerStrip({ game }: { game: Game }) {
   const sideLine = side && s ? (side.abbr === s.team ? s.line : -s.line) : undefined;
   const signed = (n: number) => `${n > 0 ? "+" : ""}${n}`;
   const graded = game.archive?.postgame?.projectionResult;
+  const sideCovered = sideGrade(game.archive);
   const notes = keyNotes(game);
   const even = p ? p.margin < 1 : false;
   const scoreLine = p ? `${game.away.abbr} ${p.away}, ${game.home.abbr} ${p.home}` : "";
@@ -590,7 +592,7 @@ function AnswerStrip({ game }: { game: Game }) {
               <p className={`display mt-0.5 text-xl font-bold sm:text-2xl ${graded.winnerRight ? "text-turf" : "text-brick"}`}>{graded.winnerRight ? "Winner right" : "Winner wrong"}</p>
               <p className="mono mt-0.5 text-xs text-chalk-2">
                 margin off by {graded.marginError.toFixed(0)}
-                {graded.modelSideCovered !== undefined ? ` · side ${graded.modelSideCovered ? "covered" : "lost"}` : ""}
+                {sideCovered !== undefined ? ` · side ${sideCovered ? "covered" : "lost"}` : ""}
                 {graded.totalLeanRight !== undefined ? ` · total ${graded.totalLeanRight ? "right" : "wrong"}` : ""}
               </p>
             </>
@@ -740,6 +742,7 @@ function ProjectionBox({ game }: { game: Game }) {
   const p = game.projection!;
   const winnerTeam = p.winner === game.home.abbr ? game.home : game.away;
   const graded = game.archive?.postgame?.projectionResult;
+  const sideCovered = sideGrade(game.archive);
   const locked = game.archive?.pregame.projection;
   const sideTeam = p.modelSide ? (p.modelSide === game.home.abbr ? game.home : game.away) : undefined;
   const sTier = sideTier(p.sideGap ?? 0);
@@ -820,7 +823,7 @@ function ProjectionBox({ game }: { game: Game }) {
       <p className="mt-2 text-xs text-chalk-3">
         Margin is our pregame Elo (K 20, 48 points of home field, 25 Elo per point) plus 40% of the unit-edge adjustment and who is playing. Total is each offense&apos;s EPA per play against the other defense over both teams&apos; pace, plus a weather tilt when the forecast is flagged. Win probability assumes a 13.5-point standard deviation. {LEAN_BACKTEST_NOTE}
         {locked && !graded && ` Locked ${asOf(game.archive!.pregame.updatedAt ?? game.archive!.pregame.capturedAt)}; graded after the final.`}
-        {graded && ` Graded: winner ${graded.winnerRight ? "right" : "wrong"}, margin off by ${graded.marginError.toFixed(0)}${graded.modelSideCovered !== undefined ? `, model side ${graded.modelSideCovered ? "covered" : "did not cover"}` : ""}${graded.totalLeanRight !== undefined ? `, total lean ${graded.totalLeanRight ? "right" : "wrong"}` : ""}.`}
+        {graded && ` Graded: winner ${graded.winnerRight ? "right" : "wrong"}, margin off by ${graded.marginError.toFixed(0)}${sideCovered !== undefined ? `, model side ${sideCovered ? "covered" : "did not cover"}` : ""}${graded.totalLeanRight !== undefined ? `, total lean ${graded.totalLeanRight ? "right" : "wrong"}` : ""}.`}
       </p>
     </div>
   );
@@ -831,7 +834,8 @@ function Accountability({ entry }: { entry: NonNullable<Game["archive"]> }) {
   const pre = entry.pregame;
   const tone = (v: string) =>
     v === "played out" || v === "showed up" ? "bg-turf text-white" : v === "did not play out" || v === "quiet" ? "bg-brick text-white" : v === "mixed" ? "bg-warn text-chalk" : "bg-ink-2 text-chalk-3";
-  const graded = post.edges.filter((e) => e.edge !== "even" && e.verdict !== "unmeasured");
+  const graded = countedEdges(post.edges);
+  const sideCovered = sideGrade(entry);
   const hits = graded.filter((e) => e.verdict === "played out").length;
   const pros = post.prospects.filter((p) => p.verdict !== "unmeasured");
   const showed = pros.filter((p) => p.verdict === "showed up").length;
@@ -850,7 +854,7 @@ function Accountability({ entry }: { entry: NonNullable<Game["archive"]> }) {
           <Stat
             label="Projection"
             value={post.projectionResult.winnerRight ? "winner right" : "winner wrong"}
-            sub={`margin off by ${post.projectionResult.marginError.toFixed(0)}${post.projectionResult.modelSideCovered !== undefined ? ` · model side ${post.projectionResult.modelSideCovered ? "covered" : "lost"}` : ""}`}
+            sub={`margin off by ${post.projectionResult.marginError.toFixed(0)}${sideCovered !== undefined ? ` · model side ${sideCovered ? "covered" : "lost"}` : ""}`}
           />
         )}
       </div>

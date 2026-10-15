@@ -11,6 +11,7 @@ import path from "node:path";
 import type { Game, Prospect } from "./types";
 import { evaluateWeather } from "./weather";
 import { kickoffTime, spreadText } from "./format";
+import { inputsLabel } from "./leans";
 import { generateJSON, isUnavailable, llmInfo, type Provider, type Unavailable, type Usage } from "./llm";
 
 /* ---------------------------------------------------------------- packet */
@@ -83,7 +84,7 @@ export function buildPacket(game: Game): Packet {
   const p = game.projection;
   if (p) {
     const winner = p.winner === game.home.abbr ? game.home : game.away;
-    f.push({ id: "J1", text: `Model projection (a model, not a pick): ${winner.short} by ${p.margin.toFixed(1)}, ${Math.round(p.winProb * 100)}% to win, projected score ${game.away.short} ${p.away}, ${game.home.short} ${p.home}, total ${p.total}. Confidence ${p.confidence}.` });
+    f.push({ id: "J1", text: `Model projection (a model, not a pick): ${winner.short} by ${p.margin.toFixed(1)}, ${Math.round(p.winProb * 100)}% to win, projected score ${game.away.short} ${p.away}, ${game.home.short} ${p.home}, total ${p.total}. Inputs: ${inputsLabel(p.confidence)} (not a measure of how likely the call is).` });
     f.push({ id: "J2", text: `Projected shape: ${p.shape}` });
     if (p.vsMarket) f.push({ id: "J3", text: `Model against the number: ${p.vsMarket}` });
     if (p.modelTotal !== undefined) f.push({ id: "J4", text: `Model total ${p.modelTotal}${p.totalLean && p.totalLean !== "none" ? `, lean ${p.totalLean}` : ", no lean"}${p.totalNote ? `. ${p.totalNote}` : ""}` });

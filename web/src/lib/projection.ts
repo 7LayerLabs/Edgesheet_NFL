@@ -13,7 +13,7 @@ export interface Projection {
   winner: string; // abbr
   winProb: number; // 0..1 for the winner
   margin: number; // points, positive for winner
-  total: number;
+  total: number; // the score line's total: the model total, else the posted total
   home: number;
   away: number;
   shape: string; // one sentence on how the game plays
@@ -212,7 +212,8 @@ export function projectGame(i: Input): Projection | undefined {
   }
   if (modelTotal !== undefined && weatherAdj) modelTotal = Math.round((modelTotal + weatherAdj) * 2) / 2;
 
-  const total = i.market.total?.line ?? modelTotal ?? 44;
+  // The score line adds up to the model's own total, so it agrees with the total lean; the posted total only fills in when the model has none.
+  const total = modelTotal ?? i.market.total?.line ?? 44;
   if (!i.market.total && modelTotal === undefined) basis.push("No market total and no tendency data; 44 assumed for the score line.");
 
   const { totalLean, totalGap, totalNote } = modelTotal !== undefined && i.market.total ? totalVsMarket(modelTotal, i.market.total.line) : ({} as Partial<ReturnType<typeof totalVsMarket>>);
@@ -286,7 +287,7 @@ export function lockedProjection(pre: Pregame): Projection | undefined {
     winner: p.winner,
     winProb: p.winProb,
     margin: p.margin,
-    total: pre.total ?? p.home + p.away,
+    total: p.modelTotal ?? pre.total ?? p.home + p.away,
     home: p.home,
     away: p.away,
     shape: `The pregame call, locked before kickoff. This is the call the record grades.`,

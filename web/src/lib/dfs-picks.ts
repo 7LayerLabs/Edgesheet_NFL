@@ -5,7 +5,9 @@
  * not yet started) and the slate's whole priced pool are written to data/dk/picks-<date>.json and never rewritten.
  * Grade: once a pick's game has posted stat lines (gamelogs.json), his DraftKings points are compared with every player
  * at his position within $500 of his salary on that slate (his price-mates, 75%+ to play like the picks; a player with no
- * stat line in a posted game scored 0, for picks and mates alike). Beat = more points than the price-mates' average.
+ * stat line in a posted game scored 0, for picks and mates alike). Edge = his points minus the price-mates' average (a
+ * plus/minus against what his salary bought). Beat = more points than the price-mates' median: DK points are skewed by
+ * a few big games, so a random pick tops the average less than half the time and "beat the average" would read low.
  * There is no free history of DraftKings salaries, so this forward record is the only test of the value lists.
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -59,6 +61,7 @@ export interface GradedPick {
   gap: number;
   dk: number;
   mates: number; // the price-mates' average
+  matesMedian: number;
   edge: number; // dk - mates
 }
 
@@ -102,11 +105,14 @@ export function picksRecord(): PicksRecord {
           .filter((x): x is number => x !== undefined);
         if (!mates.length) continue;
         const avg = mates.reduce((t, x) => t + x, 0) / mates.length;
-        graded.push({ date: file.date, list: p.list, name: p.name, pos: p.pos, salary: p.salary, gap: p.gap, dk: Math.round(dk * 10) / 10, mates: Math.round(avg * 10) / 10, edge: Math.round((dk - avg) * 10) / 10 });
+        const sorted = [...mates].sort((a, b) => a - b);
+        const mid = sorted.length >> 1;
+        const median = sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+        graded.push({ date: file.date, list: p.list, name: p.name, pos: p.pos, salary: p.salary, gap: p.gap, dk: Math.round(dk * 10) / 10, mates: Math.round(avg * 10) / 10, matesMedian: Math.round(median * 10) / 10, edge: Math.round((dk - avg) * 10) / 10 });
         slates.add(file.date);
       }
     }
-    const sum = (xs: GradedPick[]) => ({ n: xs.length, beat: xs.length ? xs.filter((x) => x.edge > 0).length / xs.length : 0, edge: xs.length ? Math.round((xs.reduce((t, x) => t + x.edge, 0) / xs.length) * 10) / 10 : 0 });
+    const sum = (xs: GradedPick[]) => ({ n: xs.length, beat: xs.length ? xs.filter((x) => x.dk > x.matesMedian).length / xs.length : 0, edge: xs.length ? Math.round((xs.reduce((t, x) => t + x.edge, 0) / xs.length) * 10) / 10 : 0 });
     return {
       graded: graded.sort((a, b) => b.date.localeCompare(a.date) || b.edge - a.edge),
       slates: slates.size,

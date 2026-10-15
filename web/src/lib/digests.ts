@@ -8,7 +8,7 @@
  * The model's leans are always labeled "model, not a pick".
  */
 import type { ArchiveEntry } from "./archive";
-import { historyStats } from "./archive";
+import { countedEdges, historyStats, sideGrade } from "./archive";
 import { etDateOf, kickoffTime } from "./format";
 import type { Follows } from "./follows";
 import type { RadarPlayer } from "./radar";
@@ -229,10 +229,11 @@ export function kickoffReminder(hits: ReminderHit[], base = baseUrl()): string |
 export function gradeLine(e: ArchiveEntry, base = baseUrl()): string {
   const p = e.postgame!;
   const pre = e.pregame;
-  const edges = p.edges.filter((x) => x.edge !== "even" && x.verdict !== "unmeasured");
+  const edges = countedEdges(p.edges);
   const hits = edges.filter((x) => x.verdict === "played out").length;
   const pros = p.prospects.filter((x) => x.verdict !== "unmeasured");
   const showed = pros.filter((x) => x.verdict === "showed up").length;
+  const sideCovered = sideGrade(e);
   const parts: string[] = [];
   parts.push(`Watch Score ${pre.scoutScore}${p.excitement != null ? ` vs excitement ${p.excitement.toFixed(1)}` : ", excitement not available"}`);
   parts.push(edges.length ? `matchup calls ${hits} of ${edges.length}` : "matchup calls unmeasured");
@@ -240,8 +241,8 @@ export function gradeLine(e: ArchiveEntry, base = baseUrl()): string {
   const pr = p.projectionResult;
   if (pr) {
     parts.push(`projection winner ${pr.winnerRight ? "right" : "wrong"} (${h(pre.projection!.winner)}, off by ${pr.marginError})`);
-    if (pr.modelSideCovered !== undefined) parts.push(`model side ${h(pre.projection!.modelSide ?? "")} ${pr.modelSideCovered ? "covered" : "did not cover"}`);
-    else if (pre.projection?.modelSide) parts.push("model side push or no line");
+    if (sideCovered !== undefined) parts.push(`model side ${h(pre.projection!.modelSide ?? "")} ${sideCovered ? "covered" : "did not cover"}`);
+    else if (pr.modelSideCovered === undefined && pre.projection?.modelSide && pre.spread) parts.push("model side push");
     if (pr.totalLeanRight !== undefined) parts.push(`total lean ${h(pre.projection!.totalLean ?? "")} ${pr.totalLeanRight ? "right" : "wrong"}`);
     else if (pre.projection?.totalLean && pre.projection.totalLean !== "none") parts.push("total lean push");
   } else parts.push("no projection locked");
@@ -312,7 +313,7 @@ export function recordDigest(entries: ArchiveEntry[], base = baseUrl()): string 
   const lines = [
     `<b>The record</b> · ${s.games} locked, ${s.graded} graded`,
     `Model winner: ${pct(s.winnerRight, s.winnerGraded)} (${s.winnerRight} of ${s.winnerGraded})${s.avgMarginError != null ? `, margin off by ${s.avgMarginError.toFixed(1)} avg` : ""}`,
-    `Model vs number: ${pct(s.modelSideCovered, s.modelSideGraded)} (${s.modelSideCovered} of ${s.modelSideGraded} model sides covered)`,
+    `Model vs number: ${pct(s.modelSideCovered, s.modelSideGraded)} (${s.modelSideCovered} of ${s.modelSideGraded} sides at a ${LEAN_THRESHOLDS.side.moderate}+ gap covered; every side ${s.modelSideAllCovered} of ${s.modelSideAllGraded})`,
     `Model total lean: ${pct(s.totalLeanRight, s.totalLeanGraded)} (${s.totalLeanRight} of ${s.totalLeanGraded})`,
     `Matchup calls: ${pct(s.edgePlayedOut, s.edgeCalls)} (${s.edgePlayedOut} played out, ${s.edgeMissed} missed, of ${s.edgeCalls})`,
     `Pressure point: ${pct(s.pressurePlayedOut, s.pressureGraded)} (${s.pressurePlayedOut} of ${s.pressureGraded})`,
